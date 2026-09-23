@@ -57,9 +57,10 @@ The owner has supplied and discussed corrected source data. No database import w
 - Task: SP-000, documentation bootstrap.
 - Issue: [#1](https://github.com/Sherko231/sherko_pharma/issues/1).
 - Branch: `docs/sp-000-project-contract`, based on the verified baseline above.
-- Pull request: to be recorded after it is created.
+- Pull request: [#2](https://github.com/Sherko231/sherko_pharma/pull/2). Use its live state as the source of truth for merge completion.
 - Delivered scope: root agent contract, seven documents under `docs/`, and README overview/index.
-- Verification scope: document consistency, relative links, Markdown-only diff, unchanged non-document blobs, and absence of data/secrets.
+- Documentation verification: reviewed confirmed requirements and the full nine-file Markdown diff; all 12 repository-relative Markdown links resolve; 16 roadmap task IDs are unique with ordered dependencies; all 40 original files other than the intentionally updated README retain identical blob SHAs and modes. No source CSV/product records or credential material is included.
+- Reviewed predecessor: `5abffe993979f8668c846b76dd34acf93e69cd2b`. The final revision also requires refreshed verification before merge; record its real merge SHA in the handoff rather than inventing a self-referential SHA here.
 - Application tests/builds: not run; not required for this documentation-only task under `QUALITY.md`.
 - Merge lifecycle: verify the real PR state and merge SHA before reporting completion; no future merge SHA is invented in this file.
 - Next proposed task after merge: SP-001, reproducible hosted CI and merge gates. Wait for the owner to say "كمل".
