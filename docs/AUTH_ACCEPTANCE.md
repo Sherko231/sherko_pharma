@@ -1,6 +1,6 @@
 # SP-006 hosted authentication acceptance
 
-The repository implementation is complete, but SP-006 requires a real owner sign-in on Android and Windows before merge/closure.
+The repository implementation is complete. Windows real-environment acceptance passed. The owner explicitly deferred physical Android acceptance for this task; Android remains an explicit follow-up rather than a merge blocker.
 
 ## Hosted environment
 
@@ -42,7 +42,7 @@ Verify:
 
 Never paste the owner password into GitHub, terminal history, logs, screenshots, or ChatGPT.
 
-## Android acceptance
+## Android acceptance — deferred by owner
 
 Connect/select an Android device, find its device ID with `flutter devices`, then run:
 
@@ -52,19 +52,19 @@ flutter run -d <ANDROID_DEVICE_ID> `
   --dart-define=SUPABASE_PUBLISHABLE_KEY="$env:SHERKO_SUPABASE_PUBLISHABLE_KEY"
 ```
 
-Repeat the same eight checks from the Windows acceptance section.
+Repeat the same eight checks from the Windows acceptance section when Android physical acceptance is resumed. Until then, do not claim Android real sign-in/session persistence as verified.
 
 ## Evidence to record
 
-After both platform checks, record only:
+Recorded for SP-006:
 
-- Windows login: pass/fail
-- Windows restart session restore: pass/fail
-- Windows sign-out persistence: pass/fail
-- Android login: pass/fail
-- Android restart session restore: pass/fail
-- Android sign-out persistence: pass/fail
+- Windows login: PASS
+- Windows restart session restore: PASS
+- Windows sign-out persistence: PASS
+- Android login: DEFERRED
+- Android restart session restore: DEFERRED
+- Android sign-out persistence: DEFERRED
 
 Do not record credentials, tokens, session blobs, or screenshots containing secrets.
 
-The implementation agent can then confirm the hosted Auth/session rows/logs changed consistently with the manual test and finish the PR review/merge.
+Owner acceptance change: physical Android verification is explicitly deferred and is not a requirement for merging SP-006. Automated Android build/tests remain required and already pass.

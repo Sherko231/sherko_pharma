@@ -4,7 +4,7 @@ Updated: 2026-09-24
 Active task: [SP-006 / Issue #15](https://github.com/Sherko231/sherko_pharma/issues/15).
 Branch: `feat/sp-006-owner-auth`.
 PR: [#16](https://github.com/Sherko231/sherko_pharma/pull/16).
-Status: Client owner-authentication/session implementation passes all repository gates. A dedicated Free hosted Sherko Pharma Supabase environment now exists, SP-003/SP-004 are deployed, and the single confirmed password user is linked as the private owner. Real owner sign-in/session restoration on Android and Windows remains the only acceptance blocker.
+Status: Client owner-authentication/session implementation passes all repository gates. A dedicated Free hosted Sherko Pharma Supabase environment exists, SP-003/SP-004 are deployed, and the single confirmed password user is linked as the private owner. Real Windows acceptance passed on 2026-09-24. The owner explicitly deferred physical Android acceptance; Android remains covered by automated tests/builds but is not claimed as physically verified.
 
 ## Verified baseline
 
@@ -36,10 +36,4 @@ Android and Windows hosted builds are required on the final revision to establis
 
 ## External acceptance blocker
 
-A dedicated Free hosted Sherko Pharma Supabase project and owner account now exist and the owner mapping is provisioned. The connected tooling cannot safely supply the owner's password or drive a real Android/Windows GUI login. Therefore:
-
-- real owner email/password sign-in on Android is unverified;
-- real owner email/password sign-in on Windows is unverified;
-- persisted real Supabase session restoration/refresh across process restarts is unverified end-to-end.
-
-Do not merge/close SP-006 as complete until that environment exists and the required real-platform acceptance is recorded, unless the owner explicitly changes the Issue acceptance contract.
+Hosted Windows acceptance passed: owner sign-in succeeded, a real session restored after process restart, explicit sign-out returned to the login gate, and a subsequent restart did not restore protected UI. The owner explicitly changed the acceptance contract on 2026-09-24 to defer physical Android acceptance. Android login/session behavior is therefore not claimed as physically verified; only automated widget/unit coverage and the hosted Android build are recorded for this task.
