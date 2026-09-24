@@ -33,6 +33,20 @@ If the write outcome is uncertain, reconcile it before retrying or claiming it f
 
 These navigation choices do not establish that an operating-system termination can be intercepted. Persist unfinished edits during editing as described below instead of relying on a close prompt.
 
+## Resolve a concurrent catalog edit
+
+When a revision-checked product update reports that the server row changed since editing began:
+
+- Keep the local form input visible; do not silently replace it.
+- Fetch/show the latest server row when available.
+- `Stay`: keep the local input and make no server write.
+- `Use server version`: explicitly discard the current unsaved local edits and load the latest server row as the new clean baseline.
+- `Overwrite with my changes`: explicitly resubmit the current form values using the latest observed server revision. If another edit wins before that write, show conflict resolution again.
+- If the latest row cannot be loaded, keep the local input and require a retry of the server read before overwrite is available.
+- A conflict is not a successful save and must not navigate away automatically.
+
+These choices are an explicit resolution step; the default remains optimistic concurrency with no silent last-writer-wins behavior.
+
 ## Restore an unfinished edit
 
 - Save the active product-edit form locally as a draft while the owner changes it, so it can be resumed after closing or terminating and reopening the application.

@@ -4,7 +4,7 @@ Flutter project for an online pharmacy product catalog and customer-order calcul
 
 ## Current state
 
-SP-000 through SP-006 establish the product contract, protected hosted CI, schema/source mapping, owner-only bounded catalog API, controlled import workflow, and secure owner authentication/session boundary. A dedicated Free hosted Sherko Pharma Supabase project is provisioned and Windows owner authentication acceptance passed; physical Android auth acceptance is explicitly deferred. SP-007 implements server-backed catalog search and product detail; the real source catalog has not yet been imported to the hosted project. See [development status](docs/DEVELOPMENT_STATUS.md) for live evidence.
+SP-000 through SP-007 establish the product contract, protected hosted CI, schema/source mapping, owner-only bounded catalog API, controlled import workflow, secure owner authentication/session handling, and server-backed catalog search/detail. SP-008 adds validated product create/edit flows with confirmed writes, explicit conflict handling, and idempotent create retries. The dedicated hosted project remains on the Free plan; the real source catalog has not yet been imported. See [development status](docs/DEVELOPMENT_STATUS.md) for live evidence.
 
 ## Setup and verification
 
@@ -27,7 +27,7 @@ CI uses GitHub-hosted runners; after change classification, Quality, Schema, And
 - Android camera scanning and Windows external-reader input. The Windows reader has not been selected.
 - English interface initially, with readable Arabic product data.
 
-Authentication and catalog search/detail are now implemented; later create/edit, order, refresh, and scanner tasks remain requirements to implement. Inventory, sales history, offline catalog replication, licensing, and a separate administration app are deferred.
+Authentication, catalog search/detail, and product create/edit are now implemented; later edit-draft persistence, order, refresh, and scanner tasks remain requirements to implement. Inventory, sales history, offline catalog replication, licensing, and a separate administration app are deferred.
 
 ## Documentation
 
