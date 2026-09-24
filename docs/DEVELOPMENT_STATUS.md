@@ -57,7 +57,7 @@ After SP-003, stop for owner continuation. SP-004 owner authorization/bounded AP
 
 ## CI latency optimization — Issue #9
 
-Before SP-004, CI optimization is being benchmarked against post-SP-003 run 36033756966 (~6m46s wall clock).
+Before SP-004, CI optimization was benchmarked against post-SP-003 run 36033756966 (~6m46s wall clock).
 
 The candidate keeps every existing full gate but:
 - uses the current Python 3.12 patch rather than forcing 3.12.9;
@@ -65,4 +65,4 @@ The candidate keeps every existing full gate but:
 - keeps Flutter caching after a measured Windows no-cache trial proved slower for the setup step;
 - keeps Required verification fail-closed over all existing gate results.
 
-Trial run 36036749739 completed all gates in about 5m07s versus the ~6m46s baseline. Its Windows no-cache experiment made Flutter setup about 21s slower than the cached baseline step, so that specific experiment was reverted before the final benchmark. Only measured improvements that preserve verification strength are eligible to merge.
+Trial run 36036749739 completed all gates in about 5m07s versus the ~6m46s baseline. Its Windows no-cache experiment made Flutter setup about 21s slower than the cached baseline step, so that experiment was reverted. Final benchmark run 36037463782 completed every unchanged gate in about 3m07s: ~3m39s faster than baseline (~54% lower wall-clock time). The retained changes are Python 3.12 patch flexibility and parallel execution after Change scope, with Flutter/Gradle caching preserved where measured faster.
