@@ -62,7 +62,7 @@ Before SP-004, CI optimization is being benchmarked against post-SP-003 run 3603
 The candidate keeps every existing full gate but:
 - uses the current Python 3.12 patch rather than forcing 3.12.9;
 - runs Quality, Schema, Android, and Windows in parallel after Change scope;
-- disables the oversized Flutter SDK/pub cache restore on Windows while retaining Linux Flutter/Gradle caching;
+- keeps Flutter caching after a measured Windows no-cache trial proved slower for the setup step;
 - keeps Required verification fail-closed over all existing gate results.
 
-Only measured improvements that preserve verification strength are eligible to merge.
+Trial run 36036749739 completed all gates in about 5m07s versus the ~6m46s baseline. Its Windows no-cache experiment made Flutter setup about 21s slower than the cached baseline step, so that specific experiment was reverted before the final benchmark. Only measured improvements that preserve verification strength are eligible to merge.
