@@ -72,9 +72,28 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('catalog-search-results')), findsOneWidget);
-    expect(find.text('Aspirin'), findsOneWidget);
-    expect(find.text('أسبرين'), findsOneWidget);
-    expect(find.text('15000 SYP'), findsOneWidget);
+    final resultCard = find.byKey(Key('catalog-result-${product.id}'));
+    expect(
+      find.descendant(
+        of: resultCard,
+        matching: find.text('Aspirin'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: resultCard,
+        matching: find.text('أسبرين'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: resultCard,
+        matching: find.text('15000 SYP'),
+      ),
+      findsOneWidget,
+    );
     expect(tester.takeException(), isNull);
 
     await tester.tap(find.byKey(Key('catalog-result-${product.id}')));
