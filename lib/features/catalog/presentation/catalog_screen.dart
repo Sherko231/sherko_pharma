@@ -143,7 +143,7 @@ class _CatalogSearchBody extends StatelessWidget {
       CatalogSearchStatus.results => ListView.separated(
           key: const Key('catalog-search-results'),
           itemCount: search.products.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 8),
+          separatorBuilder: (context, index) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
             final product = search.products[index];
             return _ProductResultCard(

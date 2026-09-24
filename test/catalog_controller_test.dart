@@ -91,7 +91,7 @@ void main() {
       initialIdentity: const AuthIdentity(userId: 'owner'),
     );
     final catalog = FakeCatalogRepository()
-      ..onSearch = (_, __) async {
+      ..onSearch = (query, limit) async {
         throw const CatalogRepositoryException();
       };
     final container = containerFor(auth, catalog);

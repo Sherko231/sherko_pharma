@@ -111,7 +111,7 @@ void main() {
 
   testWidgets('repository failure shows error with retry', (tester) async {
     final catalog = FakeCatalogRepository()
-      ..onSearch = (_, __) async {
+      ..onSearch = (query, limit) async {
         throw const CatalogRepositoryException();
       };
 
