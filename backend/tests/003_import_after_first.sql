@@ -18,7 +18,7 @@ begin
     where source_dataset = 'synthetic-sp005@sha256:dc5f9cac91a5c80a891f62e3d3606831ad60dd0f465dd363eb331cf4c55a3ec6' and source_id = 1
       and barcode = '00123' and barcode2 = 'ALT-001'
       and source_payload->>'barcode' = '00123'
-      and jsonb_object_length(source_payload) = 25
+      and (select count(*) from jsonb_object_keys(source_payload)) = 25
   ) then
     raise exception 'primary/secondary barcode or source payload was not preserved';
   end if;
