@@ -1,48 +1,47 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-24
-Active task: [SP-001 / Issue #3](https://github.com/Sherko231/sherko_pharma/issues/3).
-Status: Workflow/CI implementation verified on PR #4. `main` protection is now active and verified by ruleset readback. PR #4 has been synchronized with current `main`; refresh CI on the latest revision before merging.
+Active task: [SP-002 / Issue #5](https://github.com/Sherko231/sherko_pharma/issues/5).
+Branch: `feat/sp-002-app-structure`.
+Status: Implementation in progress; final PR/CI/review/merge evidence is not yet claimed.
 
-## Verified starting state
+## Verified current baseline
 
-- Default branch: `main`, inspected at `5d1d9b94c1faa31bcc7667f44c4ee60bb6dc399b`.
-- SP-000: merged through [PR #2](https://github.com/Sherko231/sherko_pharma/pull/2); Issue #1 closed.
-- Clean local checkout created and inspected; no existing open Issues/PRs before Issue #3.
-- Application: minimal `Hello World!` scaffold, Flutter SDK runtime dependency only, version 0.1.0, Dart constraint ^3.10.7.
-- No existing tests/workflows at task start. Branch API reports `protected: false`; ruleset collection empty.
-- Windows reader remains unselected. No Supabase deployment, real catalog import or credentials were accessed.
+- Default branch: `main` at `05f2da264ba881648dbdf5eb560948a16ca150b7` when SP-002 started.
+- SP-000 merged through PR #2.
+- SP-001 merged through PR #4; Issue #3 closed as completed.
+- SP-001 pre-merge run 36008400613 and post-merge run 36009167245 both passed Change scope, Quality, Android build, Windows build and Required verification.
+- `main` protection remains provided by active repository ruleset `Protect main` (ID 23941205): pull requests, up-to-date required check `Required verification`, resolved review conversations, deletion/non-fast-forward protection and no bypass actors.
+- No open Issues or PRs existed immediately before Issue #5 was created.
+- No Supabase deployment, source catalog import, production credentials or scanner hardware is part of this task.
 
-## SP-001 implementation
+## SP-002 scope and implementation
 
-Branch: `chore/sp-001-workflow-ci`. Pull request: [#4](https://github.com/Sherko231/sherko_pharma/pull/4).
+- Add Riverpod at the application root and use a Riverpod controller for shell navigation.
+- Add a responsive shell: compact `NavigationBar` on narrow layouts and `NavigationRail` on wider layouts.
+- Add an explicit reusable `AsyncValue` loading/error/data presentation boundary for future feature controllers.
+- Keep Catalog and Order as honest workspace placeholders only; no server calls, persistence, calculations or scanner behavior are implemented.
+- Do not create empty repository/service layers before a concrete I/O feature needs them; `ARCHITECTURE.md` explicitly forbids speculative layers.
+- Use `flutter_riverpod 3.3.2`. Current Flutter 3.38.7 supplies Dart 3.10.7; Riverpod 3.4.x requires Dart 3.12, so upgrading the SDK only to use the newest Riverpod line is outside this task.
+- The dependency lockfile was resolved by a temporary GitHub-hosted Flutter workflow on the task branch, committed for review, and the temporary workflow was removed before the task PR.
+- Per the owner's explicit instruction, `python tool/verify.py quick` no longer invokes or enforces `dart format`. Exact SDK/lockfile verification, static analysis, full Flutter tests, Android build, Windows build and fail-closed Required verification remain mandatory.
 
-- Exact Flutter pin; shared verification entry point and tested fail-closed CI aggregation.
-- Hosted format/analyze/test and Android/Windows builds, documentation-only classification, caches and superseded-PR cancellation.
-- Launch smoke checks at phone and desktop sizes; application behavior remains the scaffold.
-- Bounded task and PR templates, concise agent contract, requirement-derived test policy, separate review pass, significant-decision template.
-- Owner-approved sensitive-change acceptance exception, complementing the existing physical-scanner acceptance exception.
-- No application feature dependency or source dataset added. No artifact publication or paid service enabled.
+## Verification expectations
 
-## Verification evidence and limitations
+- ProviderScope/bootstrap wiring is covered by widget tests.
+- Phone and desktop layouts must render without framework exceptions and choose the expected navigation component.
+- Navigation selection must be Riverpod-owned rather than widget-local state.
+- Loading, data and error presentation states must be exercised.
+- Verification-tool tests must prove the quick path keeps analysis/tests while not invoking `dart format`.
+- Because application dependencies and CI verification configuration changed, the final PR requires the full hosted gate set and a complete gate/configuration diff review.
+- No physical-device acceptance is required because camera/reader behavior is unchanged.
 
-- Local Python verification-tool tests pass (five cases including bootstrap output and failure/cancellation/skip/missing-result subcases); relative Markdown file link check and diff whitespace check pass at the recorded implementation stage. Refresh evidence on the final revision.
-- Local Flutter bootstrap was attempted but automatic approval review rejected continued execution after detecting an unexpected cloud metadata endpoint request. Do not retry or claim local Flutter tests passed. Hosted CI is the intended verification path.
-- First hosted run [35967940301](https://github.com/Sherko231/sherko_pharma/actions/runs/35967940301) rejected the original scaffold formatting; the aggregate correctly failed and platform builds were skipped. This revision normalizes only `lib/main.dart` formatting and updates newly introduced Actions to current Node 24-compatible versions. Application behavior and lockfile remain unchanged. See the successful run after the Windows fix below; PR #4 carries current revision evidence.
-- Second run [35968398556](https://github.com/Sherko231/sherko_pharma/actions/runs/35968398556), head `551c1f4ea0a2d0d2b1d50e957d857b194aa65f3e`: formatting, analysis, both Flutter smoke cases, Python gate tests and Android build passed. Windows failed before building because first-run Flutter bootstrap text polluted machine JSON. Added a regression that reproduced this failure before the fix, then passed after explicitly completing bootstrap before reading machine JSON. Full hosted verification subsequently passed on `d941c7a1caa6031a545c6b25b2db4920e4c6833f` in [run 35999744974](https://github.com/Sherko231/sherko_pharma/actions/runs/35999744974): Change scope, Quality, Android build, Windows build and Required verification all succeeded. This status-only follow-up must also satisfy applicable PR checks; use the live PR results.
-- Separate full-diff self-review completed on `d941c7a1caa6031a545c6b25b2db4920e4c6833f`, with fixes/evidence recorded in PR #4; this status-only follow-up was also reviewed. An independent Codex review was requested in PR comment 5814180112, but no completed review was observed. No independent approval or active automatic-review integration is claimed.
-- `main` protection is active through repository ruleset `Protect main` (ruleset ID 23941205), verified by API readback on 2026-09-24. It targets the default branch, requires pull requests, requires resolved review conversations, blocks deletions and non-fast-forward/force-push updates, has no bypass actors, requires the branch to be up to date, and requires the GitHub Actions status `Required verification`.
-- Codex automatic review integration remains unverified. A manual `@codex review` request exists on PR #4, but no completed independent review is claimed. Native GitHub auto-merge remains disabled; this is separate from agent merge authorization.
-- No emulator/device tests, scanner acceptance, backend tests or commercial-release verification are claimed.
+## Handoff
 
-## Handoff and remaining work
+SP-002 is not complete until its latest reviewed PR revision passes the applicable hosted gates, GitHub reports merge eligibility under the active ruleset, the separate review pass is recorded, the PR is merged, and post-merge CI succeeds on `main`.
 
-PR #4 is synchronized with current `main`. Re-run/verify the complete applicable CI on the latest PR revision, perform the final separate review pass for that revision, verify merge eligibility under the active ruleset, then merge and verify post-merge CI. Codex automatic review availability remains optional; preserve the disclosed self-review fallback if no independent review becomes available.
-
-After SP-001 is verified and merged, the next proposed task is SP-002 (minimal Riverpod structure). Stop for owner continuation. Catalog, authentication, data import, editing, orders, session storage and scanning remain unimplemented.
-
-Other known future decisions: schema/source mapping, isolated Supabase environment, Windows reader, final application identity and commercial signing. The Android ID remains `com.example.sherko_pharma` and current signing is for development.
+After SP-002, stop for owner continuation. Backend schema, authorization, source import, authentication, catalog behavior, orders, persistence and scanning remain future bounded tasks.
 
 ## Updating this record
 
-Keep factual state here; requirements live in PRODUCT.md, architecture in ARCHITECTURE.md, executable checks/acceptance in QUALITY.md, and task execution in AGENTS.md. Record exact Issue/PR/run references, relevant reviewed revision and remaining blockers. Put the eventual merge SHA in the handoff or next reviewed update, never a direct default-branch commit merely to fill in this file.
+Keep factual state here; requirements live in PRODUCT.md, architecture in ARCHITECTURE.md, executable checks/acceptance in QUALITY.md, and task execution in AGENTS.md. Record exact Issue/PR/run references, relevant reviewed revision and remaining blockers. Put eventual merge evidence in a reviewed task update or PR handoff rather than making a direct default-branch bookkeeping commit.
