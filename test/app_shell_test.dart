@@ -8,6 +8,7 @@ import 'package:sherko_pharma/features/navigation/application/app_navigation_con
 import 'package:sherko_pharma/main.dart';
 
 import 'support/fake_auth_gateway.dart';
+import 'support/fake_catalog_repository.dart';
 
 void main() {
   testWidgets('phone layout uses NavigationBar and Riverpod selection', (
@@ -25,7 +26,10 @@ void main() {
 
     await tester.pumpWidget(
       AppBootstrap(
-        runtime: AppRuntime.configured(gateway),
+        runtime: AppRuntime.configured(
+          gateway,
+          catalogRepository: FakeCatalogRepository(),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -61,7 +65,10 @@ void main() {
 
     await tester.pumpWidget(
       AppBootstrap(
-        runtime: AppRuntime.configured(gateway),
+        runtime: AppRuntime.configured(
+          gateway,
+          catalogRepository: FakeCatalogRepository(),
+        ),
       ),
     );
     await tester.pumpAndSettle();

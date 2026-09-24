@@ -9,6 +9,7 @@ import 'package:sherko_pharma/features/auth/domain/auth_identity.dart';
 import 'package:sherko_pharma/main.dart';
 
 import 'support/fake_auth_gateway.dart';
+import 'support/fake_catalog_repository.dart';
 
 void main() {
   testWidgets('missing runtime configuration blocks protected UI', (tester) async {
@@ -26,7 +27,10 @@ void main() {
 
     await tester.pumpWidget(
       AppBootstrap(
-        runtime: AppRuntime.configured(gateway),
+        runtime: AppRuntime.configured(
+          gateway,
+          catalogRepository: FakeCatalogRepository(),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -45,7 +49,10 @@ void main() {
 
     await tester.pumpWidget(
       AppBootstrap(
-        runtime: AppRuntime.configured(gateway),
+        runtime: AppRuntime.configured(
+          gateway,
+          catalogRepository: FakeCatalogRepository(),
+        ),
       ),
     );
     await tester.enterText(
@@ -75,7 +82,10 @@ void main() {
 
     await tester.pumpWidget(
       AppBootstrap(
-        runtime: AppRuntime.configured(gateway),
+        runtime: AppRuntime.configured(
+          gateway,
+          catalogRepository: FakeCatalogRepository(),
+        ),
       ),
     );
     await tester.enterText(
@@ -115,7 +125,10 @@ void main() {
 
     await tester.pumpWidget(
       AppBootstrap(
-        runtime: AppRuntime.configured(gateway),
+        runtime: AppRuntime.configured(
+          gateway,
+          catalogRepository: FakeCatalogRepository(),
+        ),
       ),
     );
     await tester.enterText(
@@ -156,7 +169,10 @@ void main() {
 
     await tester.pumpWidget(
       AppBootstrap(
-        runtime: AppRuntime.configured(gateway),
+        runtime: AppRuntime.configured(
+          gateway,
+          catalogRepository: FakeCatalogRepository(),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -186,7 +202,10 @@ void main() {
 
     await tester.pumpWidget(
       AppBootstrap(
-        runtime: AppRuntime.configured(gateway),
+        runtime: AppRuntime.configured(
+          gateway,
+          catalogRepository: FakeCatalogRepository(),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -211,7 +230,10 @@ void main() {
 
     await tester.pumpWidget(
       AppBootstrap(
-        runtime: AppRuntime.configured(gateway),
+        runtime: AppRuntime.configured(
+          gateway,
+          catalogRepository: FakeCatalogRepository(),
+        ),
       ),
     );
     await tester.pumpAndSettle();
