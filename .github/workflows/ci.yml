@@ -91,14 +91,24 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Apply migration
+      - name: Prepare Supabase-compatible test roles
         env:
           POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
-        run: cat backend/migrations/0001_product_schema.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
-      - name: Run synthetic schema tests
+        run: cat backend/tests/000_supabase_test_bootstrap.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
+      - name: Apply migrations
         env:
           POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
-        run: cat backend/tests/001_product_schema_test.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
+        run: cat backend/migrations/*.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
+      - name: Run synthetic backend tests
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: cat backend/tests/001_product_schema_test.sql backend/tests/002_owner_catalog_api_test.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
+      - name: Verify signup is disabled
+        shell: bash
+        run: |
+          grep -Fx 'enable_signup = false' supabase/config.toml
+          grep -Fx 'enable_anonymous_sign_ins = false' supabase/config.toml
+          test "$(grep -Fc 'enable_signup = false' supabase/config.toml)" -eq 3
 
   android:
     name: Android build

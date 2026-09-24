@@ -41,7 +41,7 @@ Organize code by feature: authentication, catalog, order, and scanning. Keep app
 
 - Provision the owner's account outside the application. Disable public signup server-side as well as omitting its UI.
 - Restrict access to the specific authorized owner, not merely to any authenticated account. Enforce permissions on the server.
-- Use narrowly granted operations and RLS. Never embed a secret/service-role key, database password, or the owner's credentials in the app or repository.
+- Use narrowly granted operations and RLS. SP-004 exposes owner-only bounded database functions to the authenticated role while revoking normal client direct access to `products`; an environment-provisioned owner UUID is checked server-side. Never embed a secret/service-role key, database password, owner UUID, or the owner's credentials in the app or repository.
 - Use authenticated bounded search, lookup, and mutation operations. Do not offer client-side bulk export or fetch the complete catalog on startup.
 - If preventing easy API enumeration is a security objective, constrain direct table access too: a UI page limit alone is not a server-enforced limit. Resolve the choice of bounded database functions or an API gateway during backend design, with permission and abuse-limit tests before distribution.
 - Do not add the full source CSV as an application asset, a public repository file, or an unrestricted build artifact. Keep the initial import a controlled administration operation.
@@ -106,7 +106,7 @@ Organize code by feature: authentication, catalog, order, and scanning. Keep app
 ## Remaining design decisions
 
 - Refresh the inspected repository baseline, verify an executable toolchain, and select compatible packages for session storage, credentials, and camera scanning.
-- Choose the authorized read/mutation API surface and automatic-refresh mechanism, including server-enforced limits.
+- Automatic-refresh mechanism remains to be chosen. SP-004 defines owner-only bounded catalog RPCs with server-enforced limits and denies normal client direct-table access.
 - Confirm reader hardware. Session, sign-out, reset-order, and unsaved-edit navigation behavior is specified in `UX_FLOWS.md`.
 - Implement the agreed CI and hardware acceptance gates in `QUALITY.md` before enabling task auto-merge.
 

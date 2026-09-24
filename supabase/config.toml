@@ -1,0 +1,14 @@
+# Local/versioned Supabase Auth baseline for Sherko Pharma.
+# Production deployment must apply equivalent hosted Auth settings explicitly.
+
+project_id = "sherko_pharma"
+
+[auth]
+enable_signup = false
+enable_anonymous_sign_ins = false
+
+[auth.email]
+enable_signup = false
+
+[auth.sms]
+enable_signup = false
