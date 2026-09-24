@@ -2,7 +2,7 @@
 
 Updated: 2026-09-24
 Active task: [SP-001 / Issue #3](https://github.com/Sherko231/sherko_pharma/issues/3).
-Status: Workflow/CI implementation verified on PR #4; external protection setup is blocked on owner-authorized account access. The PR remains unmerged. Refresh its live check state before merging.
+Status: Workflow/CI implementation verified on PR #4. `main` protection is now active and verified by ruleset readback. PR #4 has been synchronized with current `main`; refresh CI on the latest revision before merging.
 
 ## Verified starting state
 
@@ -31,13 +31,13 @@ Branch: `chore/sp-001-workflow-ci`. Pull request: [#4](https://github.com/Sherko
 - First hosted run [35967940301](https://github.com/Sherko231/sherko_pharma/actions/runs/35967940301) rejected the original scaffold formatting; the aggregate correctly failed and platform builds were skipped. This revision normalizes only `lib/main.dart` formatting and updates newly introduced Actions to current Node 24-compatible versions. Application behavior and lockfile remain unchanged. See the successful run after the Windows fix below; PR #4 carries current revision evidence.
 - Second run [35968398556](https://github.com/Sherko231/sherko_pharma/actions/runs/35968398556), head `551c1f4ea0a2d0d2b1d50e957d857b194aa65f3e`: formatting, analysis, both Flutter smoke cases, Python gate tests and Android build passed. Windows failed before building because first-run Flutter bootstrap text polluted machine JSON. Added a regression that reproduced this failure before the fix, then passed after explicitly completing bootstrap before reading machine JSON. Full hosted verification subsequently passed on `d941c7a1caa6031a545c6b25b2db4920e4c6833f` in [run 35999744974](https://github.com/Sherko231/sherko_pharma/actions/runs/35999744974): Change scope, Quality, Android build, Windows build and Required verification all succeeded. This status-only follow-up must also satisfy applicable PR checks; use the live PR results.
 - Separate full-diff self-review completed on `d941c7a1caa6031a545c6b25b2db4920e4c6833f`, with fixes/evidence recorded in PR #4; this status-only follow-up was also reviewed. An independent Codex review was requested in PR comment 5814180112, but no completed review was observed. No independent approval or active automatic-review integration is claimed.
-- GitHub connector supports repository file/PR operations but exposes no settings mutation for protection or Codex review. Browser inspection of repository settings shows a signed-out session. External settings remain unconfigured/unverified. Automatic approval review rejected initiating the secure GitHub sign-in flow because explicit account-login authorization was missing. No credentials were entered and no workaround was attempted. The owner must explicitly authorize that login or configure protection directly; implementation and automated checks are already reviewable.
-- Main protection is not yet active. Routine unattended code merges remain blocked until effective protection is verified. Native auto-merge being disabled is separate from agent merge authorization.
+- `main` protection is active through repository ruleset `Protect main` (ruleset ID 23941205), verified by API readback on 2026-09-24. It targets the default branch, requires pull requests, requires resolved review conversations, blocks deletions and non-fast-forward/force-push updates, has no bypass actors, requires the branch to be up to date, and requires the GitHub Actions status `Required verification`.
+- Codex automatic review integration remains unverified. A manual `@codex review` request exists on PR #4, but no completed independent review is claimed. Native GitHub auto-merge remains disabled; this is separate from agent merge authorization.
 - No emulator/device tests, scanner acceptance, backend tests or commercial-release verification are claimed.
 
 ## Handoff and remaining work
 
-Activate/verify `main` protection using the exact settings in QUALITY.md, then recheck current PR results and merge eligibility. Do not weaken the protection prerequisite to mark this task complete. Check Codex cloud review availability and enable it if available without new paid access; otherwise preserve the disclosed separate-review fallback.
+PR #4 is synchronized with current `main`. Re-run/verify the complete applicable CI on the latest PR revision, perform the final separate review pass for that revision, verify merge eligibility under the active ruleset, then merge and verify post-merge CI. Codex automatic review availability remains optional; preserve the disclosed self-review fallback if no independent review becomes available.
 
 After SP-001 is verified and merged, the next proposed task is SP-002 (minimal Riverpod structure). Stop for owner continuation. Catalog, authentication, data import, editing, orders, session storage and scanning remain unimplemented.
 
