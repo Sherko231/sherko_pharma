@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../application/catalog_search_controller.dart';
 import '../domain/catalog_product.dart';
 import 'catalog_detail_screen.dart';
+import 'catalog_product_form_screen.dart';
 import 'catalog_text.dart';
 
 class CatalogScreen extends ConsumerStatefulWidget {
@@ -33,7 +34,10 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
         children: [
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 900),
-            child: SearchBar(
+            child: Row(
+              children: [
+                Expanded(
+                  child: SearchBar(
               key: const Key('catalog-search-field'),
               controller: _searchController,
               hintText: 'Search name or composition',
@@ -59,11 +63,21 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
                     .queryChanged(query);
                 setState(() {});
               },
-              onSubmitted: (query) {
-                ref
-                    .read(catalogSearchControllerProvider.notifier)
-                    .submit(query);
-              },
+                    onSubmitted: (query) {
+                      ref
+                          .read(catalogSearchControllerProvider.notifier)
+                          .submit(query);
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                IconButton.filled(
+                  key: const Key('catalog-new-product'),
+                  tooltip: 'New product',
+                  onPressed: _openCreate,
+                  icon: const Icon(Icons.add),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 16),
@@ -84,6 +98,20 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _openCreate() async {
+    final product = await Navigator.of(context).push<CatalogProduct>(
+      MaterialPageRoute<CatalogProduct>(
+        builder: (_) => const CatalogProductFormScreen.create(),
+      ),
+    );
+
+    if (!mounted || product == null) {
+      return;
+    }
+
+    _openProduct(product);
   }
 
   void _openProduct(CatalogProduct product) {

@@ -81,6 +81,15 @@ class CatalogDetailController extends Notifier<CatalogDetailState> {
     }
   }
 
+  void acceptServerProduct(CatalogProduct product) {
+    _generation += 1;
+    state = CatalogDetailState(
+      status: CatalogDetailStatus.loaded,
+      productId: product.id,
+      product: product,
+    );
+  }
+
   Future<void> retry() async {
     final productId = state.productId;
     if (productId != null) {

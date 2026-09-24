@@ -105,7 +105,7 @@ jobs:
       - name: Run synthetic backend tests
         env:
           POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
-        run: cat backend/tests/001_product_schema_test.sql backend/tests/002_owner_catalog_api_test.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
+        run: cat backend/tests/001_product_schema_test.sql backend/tests/002_owner_catalog_api_test.sql backend/tests/007_idempotent_catalog_create_test.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
       - name: Verify signup is disabled
         shell: bash
         run: |
