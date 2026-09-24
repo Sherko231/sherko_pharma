@@ -95,9 +95,9 @@ def gate(results):
     classification = results["scope"]["outputs"].get("scope")
     if classification not in {"docs", "full"}:
         raise RuntimeError("Missing or invalid verification scope")
-    expected = {"quality": "success", "android": "success", "windows": "success"}
+    expected = {"quality": "success", "schema": "success", "android": "success", "windows": "success"}
     if classification == "docs":
-        expected.update(android="skipped", windows="skipped")
+        expected.update(schema="skipped", android="skipped", windows="skipped")
     for job, result in expected.items():
         if results[job]["result"] != result:
             raise RuntimeError(f"{job}: expected {result}, got {results[job]['result']}")
