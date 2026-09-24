@@ -1,0 +1,31 @@
+name: SP-002 Lock Bootstrap
+
+on:
+  push:
+    branches:
+      - feat/sp-002-app-structure
+
+permissions:
+  contents: read
+
+jobs:
+  resolve-lock:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - id: sdk
+        run: echo "version=$(cat .flutter-version)" >> "$GITHUB_OUTPUT"
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ steps.sdk.outputs.version }}
+          channel: stable
+          cache: true
+      - name: Resolve lockfile for review
+        run: |
+          flutter pub get
+          echo "-----BEGIN PUBSPEC LOCK-----"
+          cat pubspec.lock
+          echo "-----END PUBSPEC LOCK-----"
