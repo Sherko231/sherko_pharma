@@ -1,0 +1,40 @@
+name: Bounded development task
+description: Define one reviewable implementation or workflow change.
+title: "SP-XXX: "
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal and scope
+      description: State the user-visible outcome and the bounded change.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context and constraints
+      description: Link owning requirements, relevant code, dependencies and decisions. Separate confirmed facts from open questions.
+    validations:
+      required: true
+  - type: textarea
+    id: exclusions
+    attributes:
+      label: Non-goals
+      description: List behavior and areas that must not change.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance examples
+      description: Give concrete inputs/actions and expected outputs, including relevant failure and persistence cases. Derive expectations from requirements before implementation.
+      placeholder: "Given ..., when ..., then ..."
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification and risk
+      description: Applicable QUALITY.md gates, regression test for a bug, platform/device needs, data/authorization/gate changes, and explicit owner acceptance if required.
+    validations:
+      required: true

@@ -1,6 +1,6 @@
 # Sherko Pharma — Implementation Roadmap
 
-Status: Product scope confirmed. The owner authorized SP-000, delivered by this documentation change. Later tasks remain a proposed sequence and require the normal one-task-at-a-time authorization.
+Status: SP-000 merged in PR #2. The owner authorized SP-001 and the workflow improvements on 2026-09-24; implementation is tracked in Issue #3. Later feature tasks still require normal one-task-at-a-time authorization.
 
 Repository: https://github.com/Sherko231/sherko_pharma
 Inspected baseline: `main` at `2c5e0aa32a7b7ef246511cafff034adaf977d8b7`.
@@ -15,7 +15,7 @@ Read `DEVELOPMENT_STATUS.md` for evidence and limitations. Refresh live state be
 
 ## Execution contract
 
-- Task IDs below are planning identifiers, not GitHub Issue numbers. SP-000 is tracked in [Issue #1](https://github.com/Sherko231/sherko_pharma/issues/1); later tasks do not yet have Issues.
+- Task IDs below are planning identifiers, not GitHub Issue numbers. SP-000 is tracked in [Issue #1](https://github.com/Sherko231/sherko_pharma/issues/1); SP-001 is tracked in [Issue #3](https://github.com/Sherko231/sherko_pharma/issues/3); later feature tasks do not yet have Issues.
 - Work on one owner-approved, bounded Issue at a time, with explicit acceptance criteria, a dedicated branch, and a PR.
 - Split a task into smaller Issues if its implementation cannot remain focused. Preserve the dependency order; a roadmap is not authorization to start every task.
 - Apply `QUALITY.md` gates to the current revision. Camera/reader behavior changes require the owner's real-device acceptance before merge.
@@ -27,7 +27,7 @@ Read `DEVELOPMENT_STATUS.md` for evidence and limitations. Refresh live state be
 | ID | Task | Depends on | Completion evidence |
 | --- | --- | --- | --- |
 | SP-000 | Land the agreed documentation | Current state review | Root `AGENTS.md`; seven specifications/status/plan files under `docs/`; README index; consistent scope and relative links; reviewed docs-only PR |
-| SP-001 | Establish reproducible hosted CI and merge gates | SP-000 | Compatible exact Flutter/toolchain choices documented; formatting and analysis checks; meaningful application-launch smoke test; Android and Windows builds on GitHub-hosted runners; current PR checks pass; required check names and commands documented; branch protection configured or its specific setup blocker reported |
+| SP-001 | Establish reproducible hosted CI and merge gates | SP-000 | Compatible exact Flutter/toolchain choices documented; formatting and analysis checks; meaningful application-launch smoke test; Android and Windows builds on GitHub-hosted runners; current PR checks pass; required check names and commands documented; task/PR templates and separate review evidence; requirement-derived tests; branch protection/external-review integration configured or their specific setup blockers reported |
 | SP-002 | Establish the minimal application structure | SP-001 | Riverpod wired into feature-level controllers/repositories; responsive navigation shell and explicit loading/error boundaries; no speculative empty layers or unapproved features |
 
 SP-000 is a documentation-only bootstrap task: it uses the lighter documentation gates already agreed in `QUALITY.md`, not nonexistent application workflows. SP-001 must demonstrate its own workflows on its PR. Do not enable routine unattended code merges before the required checks and repository protections are established.
@@ -83,6 +83,6 @@ Inventory, completed-sale history, fractional-package selling, fractional curren
 
 ## Current task and next handoff
 
-SP-000 adds these documents and the README index through a documentation-only PR for [Issue #1](https://github.com/Sherko231/sherko_pharma/issues/1). See [development status](DEVELOPMENT_STATUS.md) for the live task references. Its acceptance is document consistency, valid repository-relative references, preservation of application files, and absence of source data/secrets.
+SP-000 merged via PR #2 at `5d1d9b94c1faa31bcc7667f44c4ee60bb6dc399b`. SP-001 is the active approved task in [Issue #3](https://github.com/Sherko231/sherko_pharma/issues/3), including the six workflow improvements: executable gates, bounded task templates, requirement-derived tests, separate review, focused document ownership and efficient feedback.
 
-After SP-000 merges, the next proposed task is SP-001: reproducible hosted CI and merge gates. Stop for the owner's next instruction; do not implement SP-001 in the documentation PR.
+See [development status](DEVELOPMENT_STATUS.md) for current evidence and settings blockers. After this task, stop. SP-002 (minimal Riverpod structure) requires the owner's next instruction and resolution of any prerequisite enforcement blocker.
