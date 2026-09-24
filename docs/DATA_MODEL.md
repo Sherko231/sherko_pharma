@@ -74,3 +74,12 @@ Example acceptance case: two units at `5 USD` and three at `1000 SYP` produce `1
 - Zero selling amount is allowed only to represent a source-import anomaly. Ordinary/manual product rows require a positive amount.
 
 Use `PRODUCT.md` for user-visible requirements, `ARCHITECTURE.md` for implementation boundaries, and `QUALITY.md` for verification gates.
+
+
+## SP-004 server API boundary
+
+- Normal client roles do not read or write `products` directly. Catalog operations use owner-authorized bounded database functions.
+- Search covers Arabic name, English name and composition, treats caller text literally, and clamps results to a hard maximum of 50.
+- Exact barcode lookup compares text across both barcode columns and returns each product identity once, preserving cross-product ambiguity.
+- Client create/update inputs are limited to approved canonical editable fields; source provenance and revision are server-owned.
+- Updates require the expected revision atomically. A stale revision is a conflict and cannot overwrite the newer row.

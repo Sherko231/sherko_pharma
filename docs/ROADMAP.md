@@ -1,6 +1,6 @@
 # Sherko Pharma — Implementation Roadmap
 
-Status: SP-000 through SP-002 are merged. The owner authorized SP-003 on 2026-09-24; implementation is tracked in Issue #7. Later feature tasks still require normal one-task-at-a-time authorization.
+Status: SP-000 through SP-003 and CI-001 are merged. The owner authorized SP-004 on 2026-09-24; implementation is tracked in Issue #11. Later feature tasks still require normal one-task-at-a-time authorization.
 
 Repository: https://github.com/Sherko231/sherko_pharma
 Inspected baseline: `main` at `2c5e0aa32a7b7ef246511cafff034adaf977d8b7`.
@@ -85,4 +85,4 @@ Inventory, completed-sale history, fractional-package selling, fractional curren
 
 SP-000 merged via PR #2 at `5d1d9b94c1faa31bcc7667f44c4ee60bb6dc399b`. SP-001 merged via PR #4 at `05f2da264ba881648dbdf5eb560948a16ca150b7` with protected-main CI verified before and after merge.
 
-SP-002 merged via PR #6 at `d57b2ced143b70aa4b2addd9089306ef0b0dce43`, and its post-merge CI passed. SP-003 is the active approved task in [Issue #7](https://github.com/Sherko231/sherko_pharma/issues/7): define the corrected-source mapping and versioned product schema without production deployment/import or authorization/API work. See [development status](DEVELOPMENT_STATUS.md) for live evidence. After SP-003 completes, stop for the owner's next continuation instruction.
+SP-003 merged via PR #8 at `3ca5c884fc530d0a4e020c6fc756006fe9c8bd2f`, and CI-001 merged via PR #10 at `54250d2729161331d34a484726d6d80d8c50ffc4`; both post-merge CI runs passed. SP-004 is the active approved task in [Issue #11](https://github.com/Sherko231/sherko_pharma/issues/11): implement owner-only server authorization and bounded catalog operations without production deployment, import, or Flutter auth/UI work. See [development status](DEVELOPMENT_STATUS.md) for live evidence.

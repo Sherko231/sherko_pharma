@@ -128,4 +128,4 @@ For an additional Codex review pass, connect this repository to Codex cloud and 
 
 External integration status must be recorded separately from the mandatory separate review pass. A disclosed self-review is the fallback when external review is unavailable; it is not an independent GitHub approval. Account setup requiring the owner remains an explicit handoff, not a fabricated success.
 
-SP-003 establishes isolated schema/migration tests. Authorization/API permission tests remain mandatory with SP-004 and later backend access changes. Camera/reader acceptance and production release configuration remain deferred to their implementing tasks.
+SP-003 establishes isolated schema/migration tests. SP-004 extends them with Supabase-compatible anonymous/authenticated roles, synthetic owner/non-owner identities, direct-access denial, bounded RPC behavior, and stale-write rejection. Production deployment/auth settings still require explicit environment verification. Camera/reader acceptance and production release configuration remain deferred to their implementing tasks.

@@ -91,14 +91,240 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Apply migration
+      - name: Prepare Supabase-compatible test roles
         env:
           POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
-        run: cat backend/migrations/0001_product_schema.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
-      - name: Run synthetic schema tests
+        run: cat backend/tests/000_supabase_test_bootstrap.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
+      - name: Apply migrations
         env:
           POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
-        run: cat backend/tests/001_product_schema_test.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
+        run: cat backend/migrations/*.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
+      - name: Run synthetic backend tests
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: cat backend/tests/001_product_schema_test.sql backend/tests/002_owner_catalog_api_test.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
+      - name: Verify signup is disabled
+        shell: bash
+        run: |
+          grep -Eq '^enable_signup = false
+
+  android:
+    name: Android build
+    needs: scope
+    if: needs.scope.outputs.scope == 'full'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '17.0.18+8'
+          cache: gradle
+          cache-dependency-path: |
+            android/**/*.gradle.kts
+            android/gradle/wrapper/gradle-wrapper.properties
+      - id: sdk
+        run: echo "version=$(cat .flutter-version)" >> "$GITHUB_OUTPUT"
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ steps.sdk.outputs.version }}
+          channel: stable
+          cache: true
+      - run: python tool/verify.py android
+
+  windows:
+    name: Windows build
+    needs: scope
+    if: needs.scope.outputs.scope == 'full'
+    runs-on: windows-2022
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - id: sdk
+        shell: pwsh
+        run: '"version=$((Get-Content .flutter-version).Trim())" >> $env:GITHUB_OUTPUT'
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ steps.sdk.outputs.version }}
+          channel: stable
+          cache: true
+      - run: python tool/verify.py windows
+
+  required:
+    name: Required verification
+    if: always()
+    needs: [scope, quality, schema, android, windows]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Require every applicable gate
+        env:
+          JOB_RESULTS: ${{ toJSON(needs) }}
+        run: python tool/verify.py gate
+ supabase/config.toml
+          grep -Eq '^enable_anonymous_sign_ins = false
+
+  android:
+    name: Android build
+    needs: scope
+    if: needs.scope.outputs.scope == 'full'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '17.0.18+8'
+          cache: gradle
+          cache-dependency-path: |
+            android/**/*.gradle.kts
+            android/gradle/wrapper/gradle-wrapper.properties
+      - id: sdk
+        run: echo "version=$(cat .flutter-version)" >> "$GITHUB_OUTPUT"
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ steps.sdk.outputs.version }}
+          channel: stable
+          cache: true
+      - run: python tool/verify.py android
+
+  windows:
+    name: Windows build
+    needs: scope
+    if: needs.scope.outputs.scope == 'full'
+    runs-on: windows-2022
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - id: sdk
+        shell: pwsh
+        run: '"version=$((Get-Content .flutter-version).Trim())" >> $env:GITHUB_OUTPUT'
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ steps.sdk.outputs.version }}
+          channel: stable
+          cache: true
+      - run: python tool/verify.py windows
+
+  required:
+    name: Required verification
+    if: always()
+    needs: [scope, quality, schema, android, windows]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Require every applicable gate
+        env:
+          JOB_RESULTS: ${{ toJSON(needs) }}
+        run: python tool/verify.py gate
+ supabase/config.toml
+          test "$(grep -c '^enable_signup = false
+
+  android:
+    name: Android build
+    needs: scope
+    if: needs.scope.outputs.scope == 'full'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '17.0.18+8'
+          cache: gradle
+          cache-dependency-path: |
+            android/**/*.gradle.kts
+            android/gradle/wrapper/gradle-wrapper.properties
+      - id: sdk
+        run: echo "version=$(cat .flutter-version)" >> "$GITHUB_OUTPUT"
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ steps.sdk.outputs.version }}
+          channel: stable
+          cache: true
+      - run: python tool/verify.py android
+
+  windows:
+    name: Windows build
+    needs: scope
+    if: needs.scope.outputs.scope == 'full'
+    runs-on: windows-2022
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - id: sdk
+        shell: pwsh
+        run: '"version=$((Get-Content .flutter-version).Trim())" >> $env:GITHUB_OUTPUT'
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ steps.sdk.outputs.version }}
+          channel: stable
+          cache: true
+      - run: python tool/verify.py windows
+
+  required:
+    name: Required verification
+    if: always()
+    needs: [scope, quality, schema, android, windows]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Require every applicable gate
+        env:
+          JOB_RESULTS: ${{ toJSON(needs) }}
+        run: python tool/verify.py gate
+ supabase/config.toml)" -eq 3
 
   android:
     name: Android build
