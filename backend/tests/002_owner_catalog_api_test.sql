@@ -13,7 +13,7 @@ insert into public.products (
   ('Beta Product', 'بيتا', 'underscore_test', 'Maker B', '20 mg', 'capsule', 'box', '00123', '00123', 20000, 'SYP', null);
 
 -- Anonymous callers have no EXECUTE privilege on any catalog RPC and no direct table access.
-do $
+do $$
 begin
   if has_function_privilege('anon', 'public.catalog_search(text,integer)', 'EXECUTE')
     or has_function_privilege('anon', 'public.catalog_get(uuid)', 'EXECUTE')
@@ -28,12 +28,12 @@ begin
     raise exception 'products RLS is not enabled';
   end if;
 end
-$;
+$$;
 
 set local role anon;
 set local "request.jwt.claim.sub" = '';
 
-do $ begin
+do $$ begin
   begin
     perform * from public.catalog_search('Alpha', 10);
     raise exception 'anonymous RPC unexpectedly succeeded';
@@ -49,7 +49,7 @@ do $ begin
     values ('Anonymous write', 1, 'SYP');
     raise exception 'anonymous direct table write unexpectedly succeeded';
   exception when insufficient_privilege then null; end;
-end $;
+end $$;
 
 reset role;
 
@@ -57,7 +57,7 @@ reset role;
 set local role authenticated;
 set local "request.jwt.claim.sub" = '22222222-2222-2222-2222-222222222222';
 
-do $
+do $$
 declare
   existing_id uuid;
 begin
@@ -103,7 +103,7 @@ begin
     values ('Authenticated write', 1, 'SYP');
     raise exception 'authenticated direct table write unexpectedly succeeded';
   exception when insufficient_privilege then null; end;
-end $;
+end $$;
 
 reset role;
 
