@@ -12,11 +12,28 @@ insert into public.products (
   ('Alpha % Literal', 'ألفا', 'acetyl_test', 'Maker A', '10 mg', 'tablet', 'box', '00123', 'ALT-001', 14500, 'SYP', 'owner test'),
   ('Beta Product', 'بيتا', 'underscore_test', 'Maker B', '20 mg', 'capsule', 'box', '00123', '00123', 20000, 'SYP', null);
 
--- Anonymous callers cannot execute RPCs or directly access the table.
+-- Anonymous callers have no EXECUTE privilege on any catalog RPC and no direct table access.
+do $
+begin
+  if has_function_privilege('anon', 'public.catalog_search(text,integer)', 'EXECUTE')
+    or has_function_privilege('anon', 'public.catalog_get(uuid)', 'EXECUTE')
+    or has_function_privilege('anon', 'public.catalog_lookup_barcode(text)', 'EXECUTE')
+    or has_function_privilege('anon', 'public.catalog_create(text,text,text,text,text,text,text,text,text,bigint,text,text)', 'EXECUTE')
+    or has_function_privilege('anon', 'public.catalog_update(uuid,bigint,text,text,text,text,text,text,text,text,text,bigint,text,text)', 'EXECUTE')
+  then
+    raise exception 'anonymous catalog EXECUTE privilege unexpectedly exists';
+  end if;
+
+  if not (select relrowsecurity from pg_class where oid = 'public.products'::regclass) then
+    raise exception 'products RLS is not enabled';
+  end if;
+end
+$;
+
 set local role anon;
 set local "request.jwt.claim.sub" = '';
 
-do $$ begin
+do $ begin
   begin
     perform * from public.catalog_search('Alpha', 10);
     raise exception 'anonymous RPC unexpectedly succeeded';
@@ -26,7 +43,13 @@ do $$ begin
     perform * from public.products;
     raise exception 'anonymous direct table read unexpectedly succeeded';
   exception when insufficient_privilege then null; end;
-end $$;
+
+  begin
+    insert into public.products (name_en, selling_amount, currency)
+    values ('Anonymous write', 1, 'SYP');
+    raise exception 'anonymous direct table write unexpectedly succeeded';
+  exception when insufficient_privilege then null; end;
+end $;
 
 reset role;
 
@@ -34,10 +57,28 @@ reset role;
 set local role authenticated;
 set local "request.jwt.claim.sub" = '22222222-2222-2222-2222-222222222222';
 
-do $$ begin
+do $
+declare
+  existing_id uuid;
+begin
+  reset role;
+  select id into existing_id from public.products order by id limit 1;
+  set local role authenticated;
+  set local "request.jwt.claim.sub" = '22222222-2222-2222-2222-222222222222';
+
   begin
     perform * from public.catalog_search('Alpha', 10);
     raise exception 'non-owner search unexpectedly succeeded';
+  exception when insufficient_privilege then null; end;
+
+  begin
+    perform * from public.catalog_get(existing_id);
+    raise exception 'non-owner detail unexpectedly succeeded';
+  exception when insufficient_privilege then null; end;
+
+  begin
+    perform * from public.catalog_lookup_barcode('00123');
+    raise exception 'non-owner barcode lookup unexpectedly succeeded';
   exception when insufficient_privilege then null; end;
 
   begin
@@ -46,10 +87,23 @@ do $$ begin
   exception when insufficient_privilege then null; end;
 
   begin
+    perform * from public.catalog_update(
+      existing_id, 1, 'X', null, null, null, null, null, null, null, null, 1, 'SYP', null
+    );
+    raise exception 'non-owner update unexpectedly succeeded';
+  exception when insufficient_privilege then null; end;
+
+  begin
     perform * from public.products;
     raise exception 'authenticated direct table read unexpectedly succeeded';
   exception when insufficient_privilege then null; end;
-end $$;
+
+  begin
+    insert into public.products (name_en, selling_amount, currency)
+    values ('Authenticated write', 1, 'SYP');
+    raise exception 'authenticated direct table write unexpectedly succeeded';
+  exception when insufficient_privilege then null; end;
+end $;
 
 reset role;
 
