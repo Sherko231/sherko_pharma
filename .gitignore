@@ -46,3 +46,6 @@ app.*.map.json
 windows/flutter/generated_plugins.cmake
 windows/flutter/generated_plugin_registrant.cc
 windows/flutter/generated_plugin_registrant.h
+
+# Private generated catalog-import working files
+import_working_dir/

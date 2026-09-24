@@ -1,0 +1,5 @@
+Id,name,tarkibah,shakielSaidalaani,maamaal,tarkiez,shakielOboaa,price,barcode,barcode2,notice,itemId,purchasePrice,name_ar,volume,type,source,expireDate,num,isDirty,Indications,Contraindications,Pregnancy,isRepeated,isForDelete
+1,O'Brien % Product,acetyl_test,tablet,Maker A,10 mg,box,14500,00123,ALT-001,"quoted ""notice"", safe",1,12000,منتج ألفا,,,,,101,0,,,,0,0
+2,Beta Product,underscore_test,capsule,Maker B,20 mg,box,0,-1002,,,2,0,منتج بيتا,,,,,102,0,,,,0,0
+3,Gamma Product,gamma,syrup,Maker C,5 mg,bottle,99,ALT-003,00123,"line one
+line two",3,50,منتج غاما,,,,,103,0,,,,0,0

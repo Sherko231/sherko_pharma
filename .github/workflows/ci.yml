@@ -91,6 +91,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
       - name: Prepare Supabase-compatible test roles
         env:
           POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
@@ -109,6 +112,51 @@ jobs:
           grep -Fx 'enable_signup = false' supabase/config.toml
           grep -Fx 'enable_anonymous_sign_ins = false' supabase/config.toml
           test "$(grep -Fc 'enable_signup = false' supabase/config.toml)" -eq 3
+      - name: Dry-run synthetic controlled import
+        run: >-
+          python tool/catalog_import.py dry-run
+          --source backend/tests/fixtures/catalog_import_valid.csv
+          --contract backend/tests/fixtures/catalog_import_contract.json
+      - name: Generate synthetic controlled import SQL
+        run: >-
+          python tool/catalog_import.py emit-sql
+          --source backend/tests/fixtures/catalog_import_valid.csv
+          --contract backend/tests/fixtures/catalog_import_contract.json
+          --output /tmp/catalog-import.sql
+      - name: Apply first synthetic import
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: cat /tmp/catalog-import.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
+      - name: Mutate imported data and create a missing-row rerun case
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: cat backend/tests/003_import_after_first.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
+      - name: Reapply identical import
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: cat /tmp/catalog-import.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
+      - name: Verify owner edit preservation and missing-row recovery
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: cat backend/tests/004_import_after_repeat.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
+      - name: Seed unexpected row under the same dataset key
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: cat backend/tests/005_import_rogue_setup.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
+      - name: Reject unexpected existing source IDs
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        shell: bash
+        run: |
+          if cat /tmp/catalog-import.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test; then
+            echo "::error::Controlled import unexpectedly accepted an unapproved source_id."
+            exit 1
+          fi
+          echo "Expected controlled-import rejection confirmed."
+      - name: Clean synthetic import state
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: cat backend/tests/006_import_cleanup.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
 
   android:
     name: Android build
