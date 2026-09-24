@@ -72,10 +72,13 @@ class FakeCatalogRepository implements CatalogRepository {
     createInputs.add(input);
     final handler = onCreate;
     if (handler != null) {
-      return handler(productId, input);
+      final result = await handler(productId, input);
+      if (result is CatalogSaveConfirmed) {
+        products[result.product.id] = result.product;
+      }
+      return result;
     }
-    return CatalogSaveConfirmed(
-      testProduct(
+    final product = testProduct(
         id: productId,
         nameEn: input.nameEn.isEmpty ? null : input.nameEn,
         nameAr: input.nameAr.isEmpty ? null : input.nameAr,
@@ -90,8 +93,9 @@ class FakeCatalogRepository implements CatalogRepository {
         sellingAmount: input.sellingAmount,
         currency: input.currency,
         notes: input.notes.isEmpty ? null : input.notes,
-      ),
-    );
+      );
+    products[product.id] = product;
+    return CatalogSaveConfirmed(product);
   }
 
   @override
@@ -103,10 +107,13 @@ class FakeCatalogRepository implements CatalogRepository {
     updateInputs.add(input);
     final handler = onUpdate;
     if (handler != null) {
-      return handler(original, input);
+      final result = await handler(original, input);
+      if (result is CatalogSaveConfirmed) {
+        products[result.product.id] = result.product;
+      }
+      return result;
     }
-    return CatalogSaveConfirmed(
-      testProduct(
+    final product = testProduct(
         id: original.id,
         nameEn: input.nameEn.isEmpty ? null : input.nameEn,
         nameAr: input.nameAr.isEmpty ? null : input.nameAr,
@@ -122,8 +129,9 @@ class FakeCatalogRepository implements CatalogRepository {
         currency: input.currency,
         notes: input.notes.isEmpty ? null : input.notes,
         revision: original.revision + 1,
-      ),
-    );
+      );
+    products[product.id] = product;
+    return CatalogSaveConfirmed(product);
   }
 
   @override

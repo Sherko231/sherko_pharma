@@ -177,4 +177,42 @@ void main() {
     expect(find.textContaining('اسم دواء عربي طويل'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('catalog exposes New product and detail exposes Edit product', (
+    tester,
+  ) async {
+    final product = testProduct();
+    final catalog = FakeCatalogRepository()
+      ..searchResults = [product]
+      ..products[product.id] = product;
+
+    await pumpCatalog(
+      tester,
+      catalog: catalog,
+    );
+
+    expect(find.byKey(const Key('catalog-new-product')), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('catalog-search-field')),
+      'Aspirin',
+    );
+    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(Key('catalog-result-${product.id}')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('catalog-edit-product')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('catalog-edit-product')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('product-form')), findsOneWidget);
+    final field = tester.widget<TextField>(
+      find.byKey(const Key('product-field-name-en')),
+    );
+    expect(field.controller?.text, 'Aspirin');
+  });
+
 }
