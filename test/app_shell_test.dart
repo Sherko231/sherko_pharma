@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sherko_pharma/app/app_runtime.dart';
 import 'package:sherko_pharma/app/app_shell.dart';
+import 'package:sherko_pharma/features/auth/domain/auth_identity.dart';
 import 'package:sherko_pharma/features/navigation/application/app_navigation_controller.dart';
 import 'package:sherko_pharma/main.dart';
+
+import 'support/fake_auth_gateway.dart';
 
 void main() {
   testWidgets('phone layout uses NavigationBar and Riverpod selection', (
@@ -14,7 +18,16 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    await tester.pumpWidget(const AppBootstrap());
+    final gateway = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner-user-id'),
+    );
+    addTearDown(gateway.dispose);
+
+    await tester.pumpWidget(
+      AppBootstrap(
+        runtime: AppRuntime.configured(gateway),
+      ),
+    );
     await tester.pumpAndSettle();
 
     expect(find.byType(NavigationBar), findsOneWidget);
@@ -41,7 +54,16 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    await tester.pumpWidget(const AppBootstrap());
+    final gateway = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner-user-id'),
+    );
+    addTearDown(gateway.dispose);
+
+    await tester.pumpWidget(
+      AppBootstrap(
+        runtime: AppRuntime.configured(gateway),
+      ),
+    );
     await tester.pumpAndSettle();
 
     expect(find.byType(NavigationRail), findsOneWidget);
