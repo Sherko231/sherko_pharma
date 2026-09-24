@@ -67,6 +67,9 @@ def check_docs():
 
 def dependencies():
     expected = (ROOT / ".flutter-version").read_text().strip()
+    # Fresh Windows installs emit bootstrap/pub text on their first invocation.
+    # Complete that checked invocation before requesting a clean JSON response.
+    run("flutter", "--version")
     actual = json.loads(run("flutter", "--version", "--machine", capture=True))
     if actual["frameworkVersion"] != expected:
         raise RuntimeError(f"Use Flutter {expected}; found {actual['frameworkVersion']}")

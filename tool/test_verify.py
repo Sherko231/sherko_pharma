@@ -2,8 +2,12 @@
 
 import copy
 import unittest
+import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
-from verify import docs_only, gate
+from verify import dependencies, docs_only, gate
 
 
 class GateTests(unittest.TestCase):
@@ -50,6 +54,30 @@ class GateTests(unittest.TestCase):
                       ["tool/verify.py"], ["pubspec.lock"], [".flutter-version"]):
             with self.subTest(paths=paths):
                 self.assertFalse(docs_only(paths))
+
+
+class DependencyTests(unittest.TestCase):
+    def test_bootstrap_output_is_not_parsed_as_machine_json(self):
+        # A fresh Windows SDK can print pub/bootstrap messages before its JSON.
+        bootstrapped = False
+
+        def fake_run(*args, capture=False):
+            nonlocal bootstrapped
+            if args == ("flutter", "--version"):
+                bootstrapped = True
+                return "Building flutter tool...\nResolving dependencies...\n"
+            if args == ("flutter", "--version", "--machine"):
+                version = json.dumps({"frameworkVersion": "3.38.7"})
+                return version if bootstrapped else "Resolving dependencies...\n" + version
+            return ""
+
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / ".flutter-version").write_text("3.38.7\n")
+            (root / "pubspec.lock").write_text("synthetic lockfile\n")
+            with patch("verify.ROOT", root), patch("verify.run", side_effect=fake_run):
+                dependencies()
+            self.assertTrue(bootstrapped)
 
 
 if __name__ == "__main__":
