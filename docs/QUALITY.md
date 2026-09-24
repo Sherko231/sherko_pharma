@@ -1,6 +1,6 @@
 # Sherko Pharma — Quality and Merge Gates
 
-Status: Agreed verification policy. CI workflows, runnable project commands, and repository protections have not yet been configured or verified.
+Status: SP-001 supplies executable hosted CI and shared commands. Read DEVELOPMENT_STATUS.md and the live PR for observed results and outstanding settings; configuration in Git does not itself enable branch protection or external code review.
 
 ## Purpose
 
@@ -11,7 +11,7 @@ Passing checks provide evidence for the behavior they exercise. They do not esta
 ## Execution environment
 
 - Run CI on GitHub-hosted runners. Do not depend on the owner's computer or configure a self-hosted runner without a later explicit decision.
-- Build Android and Windows on appropriate hosted environments. Pin the project's toolchain and use reproducible dependency resolution; select concrete versions during repository setup.
+- Use the pinned setup and commands below. Keep the application lockfile committed and review toolchain/dependency changes explicitly.
 - Monitor CI usage. Do not enable paid usage or bypass quality gates to save minutes without the owner's decision.
 - Cancel superseded runs where safe and avoid redundant jobs. A cancelled run does not count as passing validation for the current revision.
 - Keep test data synthetic and environments isolated. Automated tests must not modify the live catalog or use the owner's production credentials.
@@ -28,7 +28,36 @@ Passing checks provide evidence for the behavior they exercise. They do not esta
 
 Apply the union of relevant rows for mixed changes. Explain the selected gates in the PR. Do not classify behavior changes as documentation to obtain exemptions.
 
-Define exact commands, workflow names, runner/toolchain versions, and required status checks during the initial CI task. Keep commands in the repository and its setup documentation synchronized. A missing required workflow is a blocker, not a passing result. No fixed coverage percentage has been agreed; prioritize assertions that detect meaningful regressions.
+Use the exact commands and required check below; keep setup and CI synchronized. A missing required workflow is a blocker, not a passing result. No fixed coverage percentage has been agreed; prioritize assertions that detect meaningful regressions.
+
+## Executable checks and feedback loop
+
+Use Python 3.11+ locally (`python` on Windows, `python3` where required). CI pins Python 3.12.9. Install the exact Flutter SDK in `.flutter-version` and put its `bin` directory on PATH. Android CI uses Temurin 17.0.18+8 and the repository's existing Gradle 8.14 / AGP 8.11.1 / Kotlin 2.2.20 pins. Flutter supplies its matching Dart and Android SDK/NDK defaults. Runner images are `ubuntu-24.04` and `windows-2022`; hosted image contents receive upstream updates and are not bit-for-bit pinned.
+
+| Command | Purpose |
+| --- | --- |
+| `python tool/verify.py docs` | Check repository-relative inline Markdown file links; semantic consistency remains a review responsibility |
+| `python -m unittest discover -s tool -p 'test_*.py' -v` | Ensure scope classification and aggregation reject missing/failing gates |
+| `python tool/verify.py quick` | Verify exact Flutter, enforce unchanged lockfile, check Dart format, analyze and run the full Flutter test suite |
+| `python tool/verify.py quick --test test/app_smoke_test.dart` | Targeted development feedback; never a replacement for the full pre-merge suite |
+| `python tool/verify.py android` | Enforce dependencies and build a debug APK; requires Android SDK/JDK |
+| `python tool/verify.py windows` | Enforce dependencies and build Windows release binaries; requires Windows and Visual Studio C++ desktop tooling |
+
+Every subprocess failure makes the command fail. Resolve dependencies explicitly outside verification when intentionally updating `pubspec.lock`; review the resulting diff. Do not make CI run `pub upgrade` or silently regenerate an incompatible lockfile.
+
+`.github/workflows/ci.yml` runs on PRs to `main`, pushes to `main`, and manual dispatch. Fast quality checks precede the two platform builds. Flutter/Gradle caches reduce repeated downloads. Only superseded PR runs are cancelled; a main push is always fully verified. No paid runner or external review service is enabled by this configuration.
+
+PRs changing only `README.md`, `AGENTS.md`, `.github/pull_request_template.md`, or Markdown under `docs/` use documentation checks and verification-tool tests. All unknown paths, workflows, tool scripts, package files, platform changes and mixed changes use full gates. There is no workflow-wide path filter that leaves a required status permanently pending. Deleted/renamed code is not exempt merely because the destination looks like documentation.
+
+The single required status is **`Required verification`**, produced by the CI workflow. It runs even after dependency failures and checks exact job results. On full runs, `Quality`, `Android build` and `Windows build` must all succeed. Only the documented docs classification permits skipped platform builds. Tests cover the aggregator's failure/cancellation/missing-result paths. Human/AI diff review and device acceptance are additional gates, not proven by this status.
+
+Builds are verification candidates, not commercial releases. Android currently uses debug signing; no artifacts are automatically published or retained by this task. Artifact distribution/retention and release signing are decided with the delivery task.
+
+## Requirement-derived testing
+
+Put concrete inputs/actions and expected results in the Issue before coding. For a reproducible bug, run a test that fails for the defect first, then pass it with the fix; if reproduction is unavailable, state that limitation. For important new calculation, persistence or permission logic, define examples independently of the implementation. Use many focused unit/widget tests and enough integration tests for real boundaries; avoid a blanket coverage percentage or tests for every trivial documentation edit.
+
+Use synthetic data, including leading-zero barcodes, two alternative codes for one item, mixed currencies, conflicting revisions and interruption cases as their features land. Do not add fake passing tests for unimplemented features. The initial launch test is a small example of real executable evidence, not a catalog or hardware acceptance test.
 
 ## Behavior to protect as features are implemented
 
@@ -69,21 +98,33 @@ The owner has not purchased the Windows reader. Hardware compatibility remains u
 
 A screenshot, simulated barcode input, successful build, or emulator test does not substitute for the required physical-device acceptance. Do not request manual hardware testing for unrelated changes.
 
+## Sensitive-change acceptance exception
+
+The owner approved this exception on 2026-09-24. Before merging changes that delete/irreversibly transform production data, broaden catalog access or weaken authorization, or reduce required tests/analysis/merge protections:
+
+1. Finish the in-scope implementation, applicable checks and separate review first.
+2. Present the exact revision, consequences, recovery plan where relevant, and why the change is needed.
+3. Obtain the owner's explicit acceptance of that concrete result. Initial task authorization alone is not acceptance of a subsequently weakened safeguard.
+
+Routine stronger checks, additive tests and non-destructive isolated fixtures do not require this exception. Changing a test expectation to match an explicitly approved product requirement must be explained and reviewed; deleting assertions to hide a defect is forbidden. This is an agent/review policy, not an automated semantic risk detector. It does not authorize executing destructive production operations.
+
 ## Review, automatic merge, and completion
 
-- Review the full diff for correctness, requirements, accidental data loss, sensitive data, scope, and missing verification.
+- Perform the separate review pass defined in AGENTS.md. Record the reviewed SHA, acceptance coverage, findings and resolutions, reviewer/session and any independence limitation in the PR template. Recheck affected areas after subsequent edits.
 - Automatic merge remains authorized when all applicable gates pass for the latest relevant revision, required manual acceptance is recorded, there are no blocking review findings, and repository protections permit the merge.
 - Never weaken checks, remove assertions, or treat skipped/failing jobs as successful to obtain a merge. Investigate flaky failures and record any concrete resolution.
 - Before merging, verify checks and acceptance against the current PR state. Resolve new conflicts and rerun affected checks after material changes.
 - Verify the actual merge and any required post-merge workflows. Report a post-merge failure or pending state accurately; fix failures within the approved task when possible.
 - Report in Arabic what changed, what was verified, actual merge status, and limitations. Stop after the task and wait for "كمل".
 
-## Setup work still required
+## Repository settings and external review
 
-- Inspect the actual Flutter project and select compatible pinned tooling.
-- Implement hosted CI and document runnable commands and required check names.
-- Verify repository protections and merge capabilities without bypassing any access control.
-- Establish isolated backend tests and synthetic fixtures as backend work begins.
-- Decide test-build artifact handling and retention without enabling paid services implicitly.
+After CI has reported its check, configure `main` branch protection (or an equivalent active ruleset): require a PR, require `Required verification` from GitHub Actions, require the branch to be up to date, resolve review conversations, block force pushes/deletions, and apply checks without administrator bypass. Do not require an ordinary approving review until an eligible separate reviewer is available: a PR author cannot approve their own PR. Verify effective settings by readback and record their actual state in DEVELOPMENT_STATUS.md. Native GitHub auto-merge is optional; agent-controlled merge must obey the same gates.
 
-This file records the agreed policy. It does not claim that workflows exist, checks have passed, or any repository changes have been merged.
+Full check success is not enough if the PR weakens the workflow that defines that check. Review the entire gate/test/configuration diff, and apply the sensitive-change exception. Repository rules and review policy complement each other.
+
+For an additional Codex review pass, connect this repository to Codex cloud and enable Code review / Automatic reviews in Codex settings when available under the owner's existing access. Confirm a review on the actual PR; do not equate an enabled toggle, emoji, pending request or silence with a completed review. Ensure new material revisions are reviewed again. AGENTS.md owns the domain-specific review rules. Do not introduce paid usage or request new broad account access silently.
+
+External integration status must be recorded separately from the mandatory separate review pass. A disclosed self-review is the fallback when external review is unavailable; it is not an independent GitHub approval. Account setup requiring the owner remains an explicit handoff, not a fabricated success.
+
+Backend isolation/permission tests must be established with backend tasks. Camera/reader acceptance and production release configuration remain deferred to their implementing tasks.

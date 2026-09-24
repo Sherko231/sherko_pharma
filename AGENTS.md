@@ -1,87 +1,64 @@
 # Agent Working Agreement — Sherko Pharma
 
-## Purpose and authority
+## Authority and language
 
-This file governs coding-agent work in the `sherko_pharma` repository. The current assistant is ChatGPT; access to repository editing, command execution, and GitHub operations depends on the active environment. Never claim access or actions that were not available or performed.
+Follow higher-priority instructions and the owner's explicit directions. Implement only an approved task; roadmap entries are not authorization. Never claim unavailable access, unexecuted checks, or unverified results.
 
-Follow applicable higher-priority instructions and the owner's explicit directions. Implement the agreed product scope in `docs/PRODUCT.md`. A future roadmap idea is not authorization to implement it.
+Write code, tests and technical docs in English; report in Arabic. Preserve Arabic product data. The current product is defined in [PRODUCT.md](docs/PRODUCT.md); do not infer requirements from older chat proposals.
 
-Write code, identifiers, tests, and technical documentation in English. Report progress, findings, questions, and completion to the owner in Arabic. Preserve Arabic product data and support its readable display.
+## Start from live evidence
 
-## Start each task from live evidence
+1. Read this file and applicable directory-specific instructions.
+2. Read [README.md](README.md), then [PRODUCT.md](docs/PRODUCT.md).
+3. Read [DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md), the active approved Issue, and the relevant [ROADMAP.md](docs/ROADMAP.md) entry.
+4. Read affected sections of [ARCHITECTURE.md](docs/ARCHITECTURE.md), [QUALITY.md](docs/QUALITY.md), feature specs and decision records. Avoid loading unrelated detail.
+5. Inspect the checkout branch, status, SHA, refreshed remote default branch, active Issue and related open PRs. Preserve unrelated/uncommitted work.
+6. Compare live evidence with documentation. Resolve or report material conflicts before implementing the affected area. Report missing access or required prerequisites; do not invent them.
 
-1. Read this file and any applicable directory-specific agent instructions.
-2. Read `README.md` for setup and commands, then `docs/PRODUCT.md` for product scope.
-3. Read `docs/DEVELOPMENT_STATUS.md` and the active approved task/Issue. Consult `docs/ROADMAP.md` for sequence and dependencies.
-4. Read relevant sections of `docs/ARCHITECTURE.md`, `docs/QUALITY.md`, feature specifications, and decision records before changing the affected area.
-5. Inspect the working directory, current branch, uncommitted changes, and commit SHA. Refresh and inspect the remote default branch, active Issue, and related open pull requests when access is available.
-6. Compare documentation with the actual code and GitHub state. Resolve or report material conflicts before implementing the affected part. Do not silently choose between conflicting requirements.
-
-Some referenced documents may not exist during initial setup. Report missing prerequisites and do not invent their contents. Missing optional documentation need not stop unrelated work; missing requirements or verification gates needed for the current task must be resolved before declaring completion.
-
-Use the configured remote default branch; do not assume its name. Preserve unrelated work and never overwrite uncommitted changes to make a task easier.
+Start each bounded task from these repository records, even in a fresh conversation. Record decisions and handoff evidence in the repository/Issue/PR, not only in chat.
 
 ## One bounded task per cycle
 
-- Work on one approved, bounded task/Issue at a time.
-- Confirm its goal, scope, acceptance criteria, and relevant constraints before implementation. For complex work, form a short implementation plan.
-- Use a dedicated branch and a pull request. Do not commit or push implementation changes directly to the default branch.
-- Inspect existing code and reuse established patterns before introducing new components.
-- Keep changes within scope. Do not combine unrelated refactoring, dependency upgrades, or future features with the task.
-- Record unrelated problems in separate Issues when authorized repository access is available; otherwise include a separate backlog entry in the report. Do not fix them as hidden scope additions.
-- If an unrelated problem blocks the active task, explain the blocker and proposed resolution before expanding scope.
+- Use the task template: goal, context, constraints, non-goals, concrete acceptance examples and applicable verification gates. For complex work, write a short plan in the Issue/PR.
+- Define expected results from requirements before implementation. Resolve behavioral/data ambiguities with the owner; make routine reversible implementation decisions autonomously.
+- Use a dedicated branch and PR. Never push implementation directly to the configured default branch.
+- Reuse existing patterns. Do not bundle unrelated refactors, dependency upgrades or future features. Record unrelated findings separately; explain blockers before expanding scope.
+- Ask before changing agreed behavior or fundamental architecture, or introducing paid services. Do not re-request existing authorization.
+- Add dependencies only for a concrete need, verify pinned-toolchain/platform compatibility and record material tradeoffs. Use the [decision template](docs/decisions/TEMPLATE.md) for significant choices, not routine edits.
 
-## Autonomous decisions and questions
+## Verification and separate review
 
-Proceed autonomously with routine implementation details, reversible fixes, and verification within the approved task.
+[QUALITY.md](docs/QUALITY.md) owns commands, mandatory gates, test strategy and exceptions. Run targeted checks during development, then the complete applicable gates on the current revision before merge. Never weaken assertions, analysis or gates just to obtain a pass.
 
-Ask the owner before changing agreed product behavior, changing the fundamental architecture, or introducing a paid service. Ask about unresolved ambiguity that materially changes user behavior or data semantics. Do not repeatedly request approval for decisions the owner has already authorized.
+For reproducible bugs, demonstrate the regression test failing for the original defect before applying the fix, then passing afterward. For high-risk new logic, establish requirement-derived cases before implementation. Tests must check observable behavior, relevant failures and persistence, not simply reproduce the code's own assumptions.
 
-Use dependencies only for a clear need, check compatibility with the project's pinned toolchain and target platforms, and document meaningful tradeoffs. Do not add speculative abstractions for unapproved future features.
+After implementation, perform a separate review pass against the Issue, complete diff and test evidence. Record reviewed SHA, reviewer/session, findings and resolutions in the PR. Prefer a separate reviewer context when available; explicitly label self-review if that is the available mechanism. A self-review is not an independent approval. An unavailable external reviewer must be disclosed, not fabricated.
 
-## Product constraints to preserve
+## Code Review Rules
 
-`docs/PRODUCT.md` owns product requirements. In particular, protect server-persisted catalog edits and saved customer sessions. Do not reimport source data over user changes. Treat barcodes as identifiers, not numeric quantities. Never invent missing product data or silently select a product for an ambiguous barcode.
+- Protect catalog/session integrity: no silent overwrite, unconfirmed-save success, restored-draft upload or cross-account session exposure. Check relevant failure and retry paths against the owning specs.
+- Verify exact barcode identity and captured integer price/currency semantics; expected tests must come from requirements. Mocks alone cannot establish real server authorization or durability.
+- Inspect changes to tests, workflows and permissions as carefully as application code. Flag weakened gates or newly exposed production data. Mechanical formatting belongs in CI, not subjective review comments.
 
-The current scope is an online Supabase catalog and order calculator on Android and Windows, with owner-only email/password access and server-enforced permissions. Do not ship a full local catalog or add offline catalog-write queues. Preserve captured prices in open orders and require explicit acceptance of price updates. A separate administration app, offline operation, licensing, and other deferred features require a later approved task.
+## Data and access boundaries
 
-## Verification and review
+Never commit credentials, privileged keys, the source CSV, production dumps or sensitive request payloads, including in logs and artifacts. Use synthetic fixtures and isolated test environments. Do not perform destructive production operations incidentally. Product and architecture docs own online-only catalog access, owner authorization and deferred features.
 
-- Use the runnable commands and mandatory gates defined in `docs/QUALITY.md` and the repository's CI configuration.
-- Run CI on GitHub-hosted runners. Programming changes require formatting, analysis, relevant automated verification, and successful Android and Windows builds as defined in `docs/QUALITY.md`; documentation-only changes use the documented lighter gates.
-- Changes to camera scanning or external barcode-reader behavior require the owner's explicit acceptance after an actual device test before merge. Prepare the tested candidate and checklist first; simulated input and successful builds do not replace hardware acceptance.
-- Verify relevant behavior, failure cases, persistence, and platform-specific changes. Add or adjust meaningful tests when needed; tests must check requirements, not merely repeat implementation details.
-- Do not delete or weaken tests, disable analysis rules, suppress failures, or modify gates solely to obtain a passing result.
-- Review the complete diff before merging for correctness, unintended changes, data loss, scope violations, and missing verification.
-- A successful build alone does not prove functional correctness. A CI check that is pending, cancelled, skipped without an applicable documented exemption, or failing does not satisfy a mandatory gate.
-- Report exactly what ran, what passed, what failed, and what could not be tested. Never report planned commands as executed or old results as validation of new changes.
-- Do not commit credentials or expose secrets in logs or reports. Do not perform destructive production-data operations as an incidental development step.
+## Merge authorization
 
-## Automatic merge authorization
+Automatic merge of the current task remains authorized only when:
 
-The owner authorizes automatic merging of the current task's pull request without another permission request when all of the following are true:
+1. Approved scope/acceptance criteria are satisfied with no unresolved conflicts or blocking findings.
+2. All applicable QUALITY.md gates pass for the latest relevant revision, including required owner acceptance for hardware or sensitive changes.
+3. GitHub reports merge eligibility and effective repository protections/required checks are satisfied.
+4. The separate review pass and accurate evidence are recorded. Material later changes receive renewed affected checks/review.
 
-1. The change satisfies the approved scope and acceptance criteria.
-2. Required tests and all other mandatory quality gates have passed for the latest relevant revision; a subsequent change requires renewed affected verification.
-3. Diff review has no unresolved blocking findings or material requirement conflicts.
-4. GitHub reports the pull request as mergeable and all applicable repository requirements are satisfied.
-5. Any required owner hardware acceptance under `docs/QUALITY.md` is recorded for the affected behavior and remains applicable to the latest revision.
+Never bypass protections, approvals or access controls. Missing, failed, cancelled or unjustifiably skipped gates are blockers. Report unavailable enforcement explicitly; do not claim routine automatic code merges are protected before repository setup is verified.
 
-Do not bypass branch protections, required reviews, checks, or higher-priority access controls. If a required gate or capability is unavailable, report the exact blocker instead of claiming completion or treating the gate as passed.
+After merge, verify the remote result and required post-merge CI. Report pending/failed states honestly and fix in-scope failures where possible. Update docs in reviewed PRs; record the eventual merge SHA in the handoff or next reviewed status update rather than inventing a self-referential SHA.
 
-After merging, confirm the actual remote result, record the PR and merged commit, and check any required post-merge workflow. Do not call a required pending workflow successful. Update affected documentation as part of the task's normal reviewed changes; do not use documentation updates as a reason for direct default-branch pushes.
+## Handoff and maintenance
 
-## Handoff and stop
+Report what changed, actual checks and limitations, Issue/PR/commit and merge state, and the next proposed task. Stop after this task; wait for "كمل" or another explicit instruction.
 
-At the end of the current task, provide a concise Arabic report containing:
-
-- What changed and the resulting user-visible behavior.
-- Verification results and any material limitations or remaining manual checks.
-- Issue, pull request, and commit references when available, plus the actual merge/CI state.
-- Any separate problems discovered and the next suggested approved task.
-
-After completing and merging the current task, stop and wait for the owner to say "كمل" or give another instruction. Do not start the next roadmap task automatically. If blocked, report the blocker and the specific decision or access needed.
-
-## Maintaining these instructions
-
-Keep this file concise and operational. Put detailed architecture, quality commands, feature specifications, and progress in their owning documents. Update rules when an observed recurring failure justifies a concrete rule; avoid duplicating requirements or accumulating generic instructions.
+Keep instructions concise and give each fact one owning document. Link to detailed rules instead of copying them. Add a specific rule or regression test after an observed recurring failure. Do not accumulate speculative bureaucracy or treat more instructions as proof of accuracy.
