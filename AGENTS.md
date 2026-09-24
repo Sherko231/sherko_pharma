@@ -38,7 +38,8 @@ After implementation, perform a separate review pass against the Issue, complete
 
 - Protect catalog/session integrity: no silent overwrite, unconfirmed-save success, restored-draft upload or cross-account session exposure. Check relevant failure and retry paths against the owning specs.
 - Verify exact barcode identity and captured integer price/currency semantics; expected tests must come from requirements. Mocks alone cannot establish real server authorization or durability.
-- Inspect changes to tests, workflows and permissions as carefully as application code. Flag weakened gates or newly exposed production data. Mechanical formatting belongs in CI, not subjective review comments.
+- Inspect changes to tests, workflows and permissions as carefully as application code. Flag weakened gates or newly exposed production data.
+- Keep Flutter UI code conventionally readable, including multiline widget trees when that improves clarity. This repository does not enforce `dart format` in CI; review formatting only when it materially harms readability or consistency.
 
 ## Data and access boundaries
 
