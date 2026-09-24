@@ -4,14 +4,14 @@ Flutter project for an online pharmacy product catalog and customer-order calcul
 
 ## Current state
 
-The application remains the initial `Hello World!` scaffold. SP-000 established the product contract. SP-001 adds hosted CI, verification commands, a phone/desktop launch smoke test and workflow templates; it does not implement catalog or order features. See [development status](docs/DEVELOPMENT_STATUS.md) for actual verification and setup blockers.
+SP-000 established the product contract and SP-001 established protected hosted CI. SP-002 introduces the minimal Riverpod application shell and responsive navigation structure; catalog, order, authentication, Supabase, persistence and scanner features remain unimplemented. See [development status](docs/DEVELOPMENT_STATUS.md) for the live task state.
 
 ## Setup and verification
 
 1. Install the exact stable Flutter version from `.flutter-version` (currently 3.38.7) using the [official archive](https://docs.flutter.dev/install/archive), and add its `bin` directory to PATH. This is a compatible baseline, not a claim to be the newest release.
 2. Install Python 3.11+ (CI uses 3.12.9). For Android, install Android SDK tooling and Temurin JDK 17; CI uses 17.0.18+8. For Windows, use Windows with Visual Studio 2022 and Desktop development with C++.
 3. Run `flutter doctor -v` to inspect your target-platform prerequisites.
-4. From the repository root, run `python tool/verify.py quick` (`python3` where required). This enforces the pinned SDK and committed lockfile, then checks formatting, analysis and all Flutter tests.
+4. From the repository root, run `python tool/verify.py quick` (`python3` where required). This enforces the pinned SDK and committed lockfile, then runs static analysis and all Flutter tests. This project does not enforce `dart format`; keep Flutter UI code conventionally readable in review.
 5. Run `flutter run -d windows` on Windows or select your connected Android device with `flutter devices` / `flutter run -d DEVICE_ID`.
 
 Build checks: `python tool/verify.py android` and `python tool/verify.py windows` on their supported hosts. Documentation checks: `python tool/verify.py docs`. See [QUALITY.md](docs/QUALITY.md) for exact CI jobs, targeted feedback, merge gates and limitations.
