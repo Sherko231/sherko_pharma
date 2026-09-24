@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../application/catalog_detail_controller.dart';
 import '../domain/catalog_product.dart';
 import 'catalog_text.dart';
+import 'catalog_product_form_screen.dart';
 
 class CatalogDetailScreen extends ConsumerStatefulWidget {
   const CatalogDetailScreen({
@@ -62,6 +63,15 @@ class _CatalogDetailScreenState extends ConsumerState<CatalogDetailScreen> {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
+        actions: [
+          if (currentProduct != null)
+            IconButton(
+              key: const Key('catalog-edit-product'),
+              tooltip: 'Edit product',
+              onPressed: () => _openEdit(currentProduct),
+              icon: const Icon(Icons.edit_outlined),
+            ),
+        ],
       ),
       body: switch (currentStatus) {
         CatalogDetailStatus.idle || CatalogDetailStatus.loading => const Center(
@@ -94,6 +104,24 @@ class _CatalogDetailScreenState extends ConsumerState<CatalogDetailScreen> {
           ),
       },
     );
+  }
+
+  Future<void> _openEdit(CatalogProduct product) async {
+    final updated = await Navigator.of(context).push<CatalogProduct>(
+      MaterialPageRoute<CatalogProduct>(
+        builder: (_) => CatalogProductFormScreen.edit(
+          product: product,
+        ),
+      ),
+    );
+
+    if (!mounted || updated == null) {
+      return;
+    }
+
+    ref
+        .read(catalogDetailControllerProvider.notifier)
+        .acceptServerProduct(updated);
   }
 }
 
