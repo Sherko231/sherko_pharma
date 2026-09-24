@@ -32,7 +32,7 @@ Use the exact commands and required check below; keep setup and CI synchronized.
 
 ## Executable checks and feedback loop
 
-Use Python 3.11+ locally (`python` on Windows, `python3` where required). CI pins Python 3.12.9. Install the exact Flutter SDK in `.flutter-version` and put its `bin` directory on PATH. Android CI uses Temurin 17.0.18+8 and the repository's existing Gradle 8.14 / AGP 8.11.1 / Kotlin 2.2.20 pins. Flutter supplies its matching Dart and Android SDK/NDK defaults. Runner images are `ubuntu-24.04` and `windows-2022`; hosted image contents receive upstream updates and are not bit-for-bit pinned.
+Use Python 3.11+ locally (`python` on Windows, `python3` where required). CI uses the current hosted Python 3.12 patch release. Install the exact Flutter SDK in `.flutter-version` and put its `bin` directory on PATH. Android CI uses Temurin 17.0.18+8 and the repository's existing Gradle 8.14 / AGP 8.11.1 / Kotlin 2.2.20 pins. Flutter supplies its matching Dart and Android SDK/NDK defaults. Runner images are `ubuntu-24.04` and `windows-2022`; hosted image contents receive upstream updates and are not bit-for-bit pinned.
 
 | Command | Purpose |
 | --- | --- |
@@ -46,7 +46,7 @@ Use Python 3.11+ locally (`python` on Windows, `python3` where required). CI pin
 
 Every subprocess failure makes the command fail. Resolve dependencies explicitly outside verification when intentionally updating `pubspec.lock`; review the resulting diff. Do not make CI run `pub upgrade` or silently regenerate an incompatible lockfile.
 
-`.github/workflows/ci.yml` runs on PRs to `main`, pushes to `main`, and manual dispatch. Fast quality checks precede the schema and two platform build gates. Flutter/Gradle caches reduce repeated downloads. Only superseded PR runs are cancelled; a main push is always fully verified. No paid runner or external review service is enabled by this configuration.
+`.github/workflows/ci.yml` runs on PRs to `main`, pushes to `main`, and manual dispatch. After Change scope, Quality, Schema, Android, and Windows run in parallel on full changes; Required verification waits for and validates all of them. Flutter and Gradle caches remain enabled where benchmarked faster. A Windows no-cache trial on PR #10 increased the Flutter setup step from about 2m00s to about 2m21s, so the cache was retained; optimization remains benchmark-driven. Only superseded PR runs are cancelled; a main push is always fully verified. No paid runner or external review service is enabled by this configuration.
 
 PRs changing only `README.md`, `AGENTS.md`, `.github/pull_request_template.md`, or Markdown under `docs/` use documentation checks and verification-tool tests. All unknown paths, workflows, tool scripts, package files, platform changes and mixed changes use full gates. There is no workflow-wide path filter that leaves a required status permanently pending. Deleted/renamed code is not exempt merely because the destination looks like documentation.
 
