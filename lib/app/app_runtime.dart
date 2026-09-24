@@ -29,7 +29,7 @@ class AppRuntimeConfig {
     } else if (url == null ||
         url.scheme != 'https' ||
         url.host.isEmpty ||
-        url.hasUserInfo) {
+        url.userInfo.isNotEmpty) {
       issues.add('SUPABASE_URL must be a valid HTTPS project URL.');
     }
 
