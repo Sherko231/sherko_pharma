@@ -69,6 +69,37 @@ jobs:
         if: needs.scope.outputs.scope == 'full'
         run: python tool/verify.py quick
 
+  schema:
+    name: Schema
+    needs: [scope, quality]
+    if: needs.scope.outputs.scope == 'full'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: sherko_pharma_test
+        options: >-
+          --health-cmd "pg_isready -U postgres -d sherko_pharma_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Apply migration
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: cat backend/migrations/0001_product_schema.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
+      - name: Run synthetic schema tests
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: cat backend/tests/001_product_schema_test.sql | docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sherko_pharma_test
+
   android:
     name: Android build
     needs: [scope, quality]
@@ -125,7 +156,7 @@ jobs:
   required:
     name: Required verification
     if: always()
-    needs: [scope, quality, android, windows]
+    needs: [scope, quality, schema, android, windows]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:

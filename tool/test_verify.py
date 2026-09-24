@@ -15,6 +15,7 @@ class GateTests(unittest.TestCase):
         self.results = {
             "scope": {"result": "success", "outputs": {"scope": "full"}},
             "quality": {"result": "success"},
+            "schema": {"result": "success"},
             "android": {"result": "success"},
             "windows": {"result": "success"},
         }
@@ -31,6 +32,7 @@ class GateTests(unittest.TestCase):
 
     def test_docs_exemption_still_requires_quality(self):
         self.results["scope"]["outputs"]["scope"] = "docs"
+        self.results["schema"]["result"] = "skipped"
         self.results["android"]["result"] = "skipped"
         self.results["windows"]["result"] = "skipped"
         gate(self.results)
