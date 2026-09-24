@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app/app.dart';
 import 'app/app_runtime.dart';
 import 'features/auth/application/auth_controller.dart';
+import 'features/catalog/application/catalog_search_controller.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,12 +25,15 @@ class AppBootstrap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final gateway = runtime.authGateway;
+    final authGateway = runtime.authGateway;
+    final catalogRepository = runtime.catalogRepository;
 
     return ProviderScope(
       overrides: [
-        if (gateway != null)
-          authGatewayProvider.overrideWithValue(gateway),
+        if (authGateway != null)
+          authGatewayProvider.overrideWithValue(authGateway),
+        if (catalogRepository != null)
+          catalogRepositoryProvider.overrideWithValue(catalogRepository),
       ],
       child: SherkoPharmaApp(runtime: runtime),
     );

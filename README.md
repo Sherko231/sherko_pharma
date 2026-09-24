@@ -4,7 +4,7 @@ Flutter project for an online pharmacy product catalog and customer-order calcul
 
 ## Current state
 
-SP-000 through SP-005 establish the product contract, protected hosted CI, minimal Riverpod shell, versioned product schema/source mapping, owner-only bounded catalog API, and controlled fingerprinted import workflow. SP-006 adds the client authentication/session boundary; no hosted Sherko Pharma Supabase environment or real owner sign-in is yet verified. See [development status](docs/DEVELOPMENT_STATUS.md) for the live task state.
+SP-000 through SP-006 establish the product contract, protected hosted CI, schema/source mapping, owner-only bounded catalog API, controlled import workflow, and secure owner authentication/session boundary. A dedicated Free hosted Sherko Pharma Supabase project is provisioned and Windows owner authentication acceptance passed; physical Android auth acceptance is explicitly deferred. SP-007 implements server-backed catalog search and product detail; the real source catalog has not yet been imported to the hosted project. See [development status](docs/DEVELOPMENT_STATUS.md) for live evidence.
 
 ## Setup and verification
 
@@ -27,7 +27,7 @@ CI uses GitHub-hosted runners; after change classification, Quality, Schema, And
 - Android camera scanning and Windows external-reader input. The Windows reader has not been selected.
 - English interface initially, with readable Arabic product data.
 
-These are requirements to implement, not current application capabilities. Inventory, sales history, offline catalog replication, licensing, and a separate administration app are deferred.
+Authentication and catalog search/detail are now implemented; later create/edit, order, refresh, and scanner tasks remain requirements to implement. Inventory, sales history, offline catalog replication, licensing, and a separate administration app are deferred.
 
 ## Documentation
 
@@ -57,4 +57,4 @@ Use the GitHub task form and PR template to record acceptance examples, revision
 
 The full medication CSV is deliberately not included. Use the controlled workflow in [IMPORT.md](docs/IMPORT.md); only synthetic import fixtures belong in the public repository.
 
-Never commit credentials, privileged server keys, source data dumps, or production request payloads. Versioned backend schema/API/import contracts exist, but no hosted Sherko Pharma environment is provisioned or claimed as deployed.
+Never commit credentials, privileged server keys, source data dumps, or production request payloads. A dedicated Free hosted Sherko Pharma environment is provisioned for the versioned schema/API/auth boundary, but the real corrected source catalog has not yet been imported.

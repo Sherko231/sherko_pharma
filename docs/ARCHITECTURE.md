@@ -20,7 +20,8 @@ This replaces the earlier offline-first proposal. Do not introduce Drift, a comp
 | Supabase Auth and server authorization | Owner-only email/password access; no app registration; auth events gate protected UI | SP-004 server boundary + SP-006 client boundary implemented; hosted acceptance pending |
 | Riverpod controllers/providers | Screen state, dependency injection, loading/error handling | Confirmed by owner; compatible package version to select during setup |
 | Repository interfaces | Isolate catalog access, account access, and session storage from widgets | Proposed implementation baseline |
-| Auth session storage | Persist the Supabase auth session in platform secure storage, not ordinary preferences | SP-006 uses `flutter_secure_storage` 11.2.0 on Android/Windows |\n| Local app session store | Save current screen, order snapshot, and active unsaved edit draft without copying the catalog | Confirmed behavior; SP-011 storage selection/implementation pending |
+| Auth session storage | Persist the Supabase auth session in platform secure storage, not ordinary preferences | SP-006 uses `flutter_secure_storage` 11.2.0 on Android/Windows |
+| Local app session store | Save current screen, order snapshot, and active unsaved edit draft without copying the catalog | Confirmed behavior; SP-011 storage selection/implementation pending |
 | Android camera adapter | Produce deliberate barcode scan events | Confirmed; package to verify |
 | Windows reader adapter | Produce scan events from the owner's external reader | Confirmed; hardware/input mode to verify |
 
@@ -46,6 +47,7 @@ Organize code by feature: authentication, catalog, order, and scanning. Keep app
 - If preventing easy API enumeration is a security objective, constrain direct table access too: a UI page limit alone is not a server-enforced limit. Resolve the choice of bounded database functions or an API gateway during backend design, with permission and abuse-limit tests before distribution.
 - Do not add the full source CSV as an application asset, a public repository file, or an unrestricted build artifact. Keep the initial import a controlled administration operation.
 - Search and lookup responses include only fields needed by the current feature. SP-006 persists only Supabase's session blob through platform secure storage and lets the Supabase client own refresh/token rotation. App code does not persist the password or manually duplicate refresh-token logic.
+- SP-007 injects a catalog repository backed by the same authenticated Supabase client. It calls only the bounded `catalog_search` / `catalog_get` RPCs, keeps responses in memory, and uses request-generation guards so stale asynchronous results cannot replace newer search/detail state. Search/detail do not query `products` directly or create a local full-catalog cache.
 - Avoid product dumps, credentials, and full request payloads in logs.
 - Online-only access reduces copies of the catalog on devices; it does not guarantee that an authorized reader cannot collect results over time.
 

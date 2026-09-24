@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../features/catalog/presentation/catalog_screen.dart';
 import '../features/navigation/application/app_navigation_controller.dart';
 
 class AppShell extends ConsumerWidget {
@@ -108,38 +109,36 @@ class _DestinationContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (title, description, key) = switch (destination) {
-      AppDestination.catalog => (
-          'Catalog workspace',
-          'Catalog features will be added in a later bounded task.',
-          const Key('catalog-workspace'),
-        ),
-      AppDestination.order => (
-          'Order workspace',
-          'Order features will be added in a later bounded task.',
-          const Key('order-workspace'),
-        ),
+    return switch (destination) {
+      AppDestination.catalog => const CatalogScreen(),
+      AppDestination.order => const _OrderPlaceholder(),
     };
+  }
+}
 
+class _OrderPlaceholder extends StatelessWidget {
+  const _OrderPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 560),
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Card(
-            key: key,
-            child: Padding(
-              padding: const EdgeInsets.all(24),
+            key: const Key('order-workspace'),
+            child: const Padding(
+              padding: EdgeInsets.all(24),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text('Order workspace'),
+                  SizedBox(height: 12),
                   Text(
-                    title,
-                    style: Theme.of(context).textTheme.headlineSmall,
+                    'Order features will be added in a later bounded task.',
                   ),
-                  const SizedBox(height: 12),
-                  Text(description),
                 ],
               ),
             ),

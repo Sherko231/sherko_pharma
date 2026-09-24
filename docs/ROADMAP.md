@@ -1,6 +1,6 @@
 # Sherko Pharma — Implementation Roadmap
 
-Status: SP-000 through SP-005 and CI-001 are merged. The owner authorized SP-006 on 2026-09-24; implementation is tracked in Issue #15. Later feature tasks still require normal one-task-at-a-time authorization.
+Status: SP-000 through SP-006 and CI-001 are merged. The owner authorized SP-007 on 2026-09-24; implementation is tracked in Issue #17. Later feature tasks still require normal one-task-at-a-time authorization.
 
 Repository: https://github.com/Sherko231/sherko_pharma
 Inspected baseline: `main` at `2c5e0aa32a7b7ef246511cafff034adaf977d8b7`.
@@ -85,4 +85,4 @@ Inventory, completed-sale history, fractional-package selling, fractional curren
 
 SP-000 merged via PR #2 at `5d1d9b94c1faa31bcc7667f44c4ee60bb6dc399b`. SP-001 merged via PR #4 at `05f2da264ba881648dbdf5eb560948a16ca150b7` with protected-main CI verified before and after merge.
 
-SP-005 merged via PR #14 at `9838bff5e517ea8d0f211997d4d820b2dced3752`; its post-merge CI passed. SP-006 is the active approved task in [Issue #15](https://github.com/Sherko231/sherko_pharma/issues/15): implement owner email/password sign-in and secure session handling on Android/Windows. Repository implementation may be automated, but real owner sign-in acceptance remains blocked until a dedicated Supabase environment/account is provisioned and tested. See [development status](DEVELOPMENT_STATUS.md) for live evidence.
+SP-006 merged via PR #16 at `ce62ec623242fb41c3eb46b07997ed501ffbccde`; its post-merge CI passed. Real Windows owner authentication/session acceptance passed and physical Android auth acceptance was explicitly deferred. SP-007 is the active approved task in [Issue #17](https://github.com/Sherko231/sherko_pharma/issues/17): implement bounded server search and current product detail without create/edit, order mutation, barcode scanning, full catalog caching, or production source import. See [development status](DEVELOPMENT_STATUS.md) for live evidence.
