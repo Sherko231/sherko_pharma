@@ -3,7 +3,7 @@
 Updated: 2026-09-24
 Active task: [SP-002 / Issue #5](https://github.com/Sherko231/sherko_pharma/issues/5).
 Branch: `feat/sp-002-app-structure`.
-Status: Implementation in progress; final PR/CI/review/merge evidence is not yet claimed.
+Status: Implementation is reviewable on PR #6. Full hosted CI passed on head `d85063c896466a1976a0475aaeb46a87c6cde0d2` in run 36011707744; this status update requires a fresh final-revision CI run before merge.
 
 ## Verified current baseline
 
@@ -35,6 +35,15 @@ Status: Implementation in progress; final PR/CI/review/merge evidence is not yet
 - Verification-tool tests must prove the quick path keeps analysis/tests while not invoking `dart format`.
 - Because application dependencies and CI verification configuration changed, the final PR requires the full hosted gate set and a complete gate/configuration diff review.
 - No physical-device acceptance is required because camera/reader behavior is unchanged.
+
+## Verification evidence
+
+- Pull request: [#6](https://github.com/Sherko231/sherko_pharma/pull/6).
+- Hosted run [36011707744](https://github.com/Sherko231/sherko_pharma/actions/runs/36011707744) passed on `d85063c896466a1976a0475aaeb46a87c6cde0d2`: Change scope, Quality, Android build, Windows build and Required verification all succeeded.
+- Quality passed the documentation checks, verification-tool regressions, exact Flutter/lockfile enforcement, static analysis and the full Flutter widget regression suite.
+- Android debug and Windows release builds both succeeded.
+- The temporary lock-resolution workflow has no net diff in PR #6; it was removed before the PR was opened.
+- Final review and merge evidence remain pending until the latest revision, including this status update, is reverified.
 
 ## Handoff
 
