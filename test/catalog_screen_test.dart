@@ -53,7 +53,8 @@ void main() {
     tester,
   ) async {
     final product = testProduct(
-      notes: null,
+      manufacturer: null,
+      notes: 'Owner note',
     );
     final catalog = FakeCatalogRepository()
       ..searchResults = [product]

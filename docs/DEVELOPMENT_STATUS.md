@@ -44,6 +44,6 @@ Requirement-derived automated coverage includes:
 - desktop responsive rendering;
 - existing SP-006 auth/shell regressions with catalog repository injection.
 
-Early CI findings were test/analysis harness issues only: callback lint naming was corrected, and an Arabic widget assertion was scoped to the result card because the same Arabic query is also present in the search field. No product requirement was weakened.
+Early CI findings were test/analysis harness issues only: callback lint naming was corrected; the Arabic widget assertion was scoped to the result card because the query also appears in the search field; and the missing-value assertion now uses a visible optional detail field because Flutter lazily builds off-screen ListView rows. No product requirement was weakened.
 
 No hardware acceptance applies. The final branch revision must still pass the full Quality, Schema, Android, Windows, and Required verification gates plus separate diff review before merge.
