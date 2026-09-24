@@ -15,7 +15,7 @@ Status: Workflow and CI implementation prepared; hosted checks and external sett
 
 ## SP-001 implementation
 
-Branch: `chore/sp-001-workflow-ci`.
+Branch: `chore/sp-001-workflow-ci`. Pull request: [#4](https://github.com/Sherko231/sherko_pharma/pull/4).
 
 - Exact Flutter pin; shared verification entry point and tested fail-closed CI aggregation.
 - Hosted format/analyze/test and Android/Windows builds, documentation-only classification, caches and superseded-PR cancellation.
@@ -28,7 +28,7 @@ Branch: `chore/sp-001-workflow-ci`.
 
 - Local Python verification-tool tests pass (four cases with failure/cancellation/skip/missing-result subcases); relative Markdown file link check and diff whitespace check pass at the recorded implementation stage. Refresh evidence on the final revision.
 - Local Flutter bootstrap was attempted but automatic approval review rejected continued execution after detecting an unexpected cloud metadata endpoint request. Do not retry or claim local Flutter tests passed. Hosted CI is the intended verification path.
-- Hosted PR checks/builds: pending; record real run/head references in the PR and update this state after observed results.
+- First hosted run [35967940301](https://github.com/Sherko231/sherko_pharma/actions/runs/35967940301) rejected the original scaffold formatting; the aggregate correctly failed and platform builds were skipped. This revision normalizes only `lib/main.dart` formatting and updates newly introduced Actions to current Node 24-compatible versions. Application behavior and lockfile remain unchanged. Latest full checks are pending; consult PR #4 for final revision evidence.
 - Separate full-diff review: pending final implementation. Record whether the reviewer is independent or self-review.
 - GitHub connector supports repository file/PR operations but exposes no settings mutation for protection or Codex review. Browser inspection of repository settings shows a signed-out session. External settings remain unconfigured/unverified; owner account access is needed after the concrete PR is ready.
 - Main protection is not yet active. Routine unattended code merges remain blocked until effective protection is verified. Native auto-merge being disabled is separate from agent merge authorization.

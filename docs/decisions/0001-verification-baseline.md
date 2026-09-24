@@ -15,7 +15,7 @@ The Flutter scaffold declares Dart ^3.10.7, has a committed lockfile and Android
 - Use one Python entry point across Windows/Linux. Separate PowerShell and Bash implementations would duplicate gate logic; a Dart-only command would require Flutter setup even for documentation changes.
 - Keep a narrow docs-only exemption and a single aggregate `Required verification` status. All unknown changes receive full verification. Do not rely on path-skipped entire workflows, which can leave required checks absent.
 - Cache SDK/dependency downloads, cancel superseded PRs and run fast checks before builds. This adds one lightweight aggregation job but reduces repeated expensive work after obvious failures.
-- Pin third-party Actions by full commit SHA, give CI read-only contents permission and remove persisted checkout credentials. Do not run untrusted PR code through `pull_request_target` or pass production secrets.
+- Pin directly referenced Actions by full commit SHA, give CI read-only contents permission and remove persisted checkout credentials. Do not run untrusted PR code through `pull_request_target` or pass production secrets. The Flutter composite action internally uses `actions/cache@v5`; that transitive reference is upstream-managed, not pinned by this workflow.
 
 ## Consequences and limits
 
