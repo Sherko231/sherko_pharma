@@ -42,7 +42,8 @@ Use Python 3.11+ locally (`python` on Windows, `python3` where required). CI use
 | `python tool/verify.py quick --test test/app_smoke_test.dart` | Targeted development feedback; never a replacement for the full pre-merge suite |
 | `python tool/verify.py android` | Enforce dependencies and build a debug APK; requires Android SDK/JDK |
 | `python tool/verify.py windows` | Enforce dependencies and build Windows release binaries; requires Windows and Visual Studio C++ desktop tooling |
-| PostgreSQL schema/API/import suite | Apply every migration to isolated PostgreSQL; run schema/authorization regressions plus controlled-import first-run/rerun/rejection tests |\n| `python tool/catalog_import.py dry-run --source <private-csv>` | Validate the exact private source fingerprint, rows and anomaly accounting without database access |
+| PostgreSQL schema/API/import suite | Apply every migration to isolated PostgreSQL; run schema/authorization regressions plus controlled-import first-run/rerun/rejection tests |
+| `python tool/catalog_import.py dry-run --source <private-csv>` | Validate the exact private source fingerprint, rows and anomaly accounting without database access |
 
 Every subprocess failure makes the command fail. Resolve dependencies explicitly outside verification when intentionally updating `pubspec.lock`; review the resulting diff. Do not make CI run `pub upgrade` or silently regenerate an incompatible lockfile.
 

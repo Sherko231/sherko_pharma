@@ -38,7 +38,8 @@ These are requirements to implement, not current application capabilities. Inven
 | [Architecture](docs/ARCHITECTURE.md) | Technical boundaries and decisions |
 | [Quality gates](docs/QUALITY.md) | Required checks and physical-device acceptance |
 | [Data rules](docs/DATA_MODEL.md) | Fields, validation, barcodes, prices, and currencies |
-| [Source mapping](docs/SOURCE_MAPPING.md) | Corrected CSV fingerprint, complete 25-column mapping, and anomaly policy |\n| [Controlled import](docs/IMPORT.md) | Dry-run, fingerprint enforcement, idempotent import, and deployment safety |
+| [Source mapping](docs/SOURCE_MAPPING.md) | Corrected CSV fingerprint, complete 25-column mapping, and anomaly policy |
+| [Controlled import](docs/IMPORT.md) | Dry-run, fingerprint enforcement, idempotent import, and deployment safety |
 | [Interaction flows](docs/UX_FLOWS.md) | New orders, unsaved edits, drafts, and sign-out |
 | [Roadmap](docs/ROADMAP.md) | Task order, dependencies, and completion evidence |
 | [Development status](docs/DEVELOPMENT_STATUS.md) | Actual implementation state and handoff |
@@ -55,4 +56,4 @@ Use the GitHub task form and PR template to record acceptance examples, revision
 
 The full medication CSV is deliberately not included. Use the controlled workflow in [IMPORT.md](docs/IMPORT.md); only synthetic import fixtures belong in the public repository.
 
-Never commit credentials, privileged server keys, source data dumps, or production request payloads. Backend provisioning and configuration instructions will be added with the implementing tasks; no server integration exists in this scaffold.
+Never commit credentials, privileged server keys, source data dumps, or production request payloads. Versioned backend schema/API/import contracts exist, but no hosted Sherko Pharma environment is provisioned or claimed as deployed.
