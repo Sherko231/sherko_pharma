@@ -106,7 +106,6 @@ Organize code by feature: authentication, catalog, order, and scanning. Keep app
 ## Remaining design decisions
 
 - Refresh the inspected repository baseline, verify an executable toolchain, and select compatible packages for session storage, credentials, and camera scanning.
-- Complete catalog field mapping, source anomaly handling, and remaining validation limits using the confirmed editable fields and Arabic-or-English name requirement in `DATA_MODEL.md`.
 - Choose the authorized read/mutation API surface and automatic-refresh mechanism, including server-enforced limits.
 - Confirm reader hardware. Session, sign-out, reset-order, and unsaved-edit navigation behavior is specified in `UX_FLOWS.md`.
 - Implement the agreed CI and hardware acceptance gates in `QUALITY.md` before enabling task auto-merge.

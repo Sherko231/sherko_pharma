@@ -37,7 +37,8 @@ These are requirements to implement, not current application capabilities. Inven
 | [Product requirements](docs/PRODUCT.md) | Agreed scope and acceptance criteria |
 | [Architecture](docs/ARCHITECTURE.md) | Technical boundaries and decisions |
 | [Quality gates](docs/QUALITY.md) | Required checks and physical-device acceptance |
-| [Data rules](docs/DATA_MODEL.md) | Fields, validation, barcodes, prices, and currencies |\n| [Source mapping](docs/SOURCE_MAPPING.md) | Corrected CSV fingerprint, complete 25-column mapping, and anomaly policy |
+| [Data rules](docs/DATA_MODEL.md) | Fields, validation, barcodes, prices, and currencies |
+| [Source mapping](docs/SOURCE_MAPPING.md) | Corrected CSV fingerprint, complete 25-column mapping, and anomaly policy |
 | [Interaction flows](docs/UX_FLOWS.md) | New orders, unsaved edits, drafts, and sign-out |
 | [Roadmap](docs/ROADMAP.md) | Task order, dependencies, and completion evidence |
 | [Development status](docs/DEVELOPMENT_STATUS.md) | Actual implementation state and handoff |

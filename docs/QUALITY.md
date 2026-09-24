@@ -41,7 +41,8 @@ Use Python 3.11+ locally (`python` on Windows, `python3` where required). CI pin
 | `python tool/verify.py quick` | Verify exact Flutter, enforce unchanged lockfile, analyze and run the full Flutter test suite; it intentionally does not enforce `dart format` |
 | `python tool/verify.py quick --test test/app_smoke_test.dart` | Targeted development feedback; never a replacement for the full pre-merge suite |
 | `python tool/verify.py android` | Enforce dependencies and build a debug APK; requires Android SDK/JDK |
-| `python tool/verify.py windows` | Enforce dependencies and build Windows release binaries; requires Windows and Visual Studio C++ desktop tooling |\n| PostgreSQL migration + `backend/tests/001_product_schema_test.sql` | Apply the versioned schema to an isolated PostgreSQL service and run synthetic identity/constraint/revision regressions |
+| `python tool/verify.py windows` | Enforce dependencies and build Windows release binaries; requires Windows and Visual Studio C++ desktop tooling |
+| PostgreSQL migration + `backend/tests/001_product_schema_test.sql` | Apply the versioned schema to an isolated PostgreSQL service and run synthetic identity/constraint/revision regressions |
 
 Every subprocess failure makes the command fail. Resolve dependencies explicitly outside verification when intentionally updating `pubspec.lock`; review the resulting diff. Do not make CI run `pub upgrade` or silently regenerate an incompatible lockfile.
 
