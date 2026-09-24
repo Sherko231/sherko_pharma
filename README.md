@@ -4,7 +4,7 @@ Flutter project for an online pharmacy product catalog and customer-order calcul
 
 ## Current state
 
-SP-000 established the product contract and SP-001 established protected hosted CI. SP-002 introduces the minimal Riverpod application shell and responsive navigation structure; catalog, order, authentication, Supabase, persistence and scanner features remain unimplemented. See [development status](docs/DEVELOPMENT_STATUS.md) for the live task state.
+SP-000 established the product contract, SP-001 established protected hosted CI, and SP-002 established the minimal Riverpod application shell. SP-003 now defines the versioned product schema and corrected-source mapping; deployment, authorization, import, catalog behavior, orders, authentication, persistence and scanner features remain unimplemented. See [development status](docs/DEVELOPMENT_STATUS.md) for the live task state.
 
 ## Setup and verification
 
@@ -37,7 +37,7 @@ These are requirements to implement, not current application capabilities. Inven
 | [Product requirements](docs/PRODUCT.md) | Agreed scope and acceptance criteria |
 | [Architecture](docs/ARCHITECTURE.md) | Technical boundaries and decisions |
 | [Quality gates](docs/QUALITY.md) | Required checks and physical-device acceptance |
-| [Data rules](docs/DATA_MODEL.md) | Fields, validation, barcodes, prices, and currencies |
+| [Data rules](docs/DATA_MODEL.md) | Fields, validation, barcodes, prices, and currencies |\n| [Source mapping](docs/SOURCE_MAPPING.md) | Corrected CSV fingerprint, complete 25-column mapping, and anomaly policy |
 | [Interaction flows](docs/UX_FLOWS.md) | New orders, unsaved edits, drafts, and sign-out |
 | [Roadmap](docs/ROADMAP.md) | Task order, dependencies, and completion evidence |
 | [Development status](docs/DEVELOPMENT_STATUS.md) | Actual implementation state and handoff |

@@ -1,6 +1,6 @@
 # Sherko Pharma — Data Rules
 
-Status: Partially specified. Confirmed rules below are binding; open mapping questions are not implementation assumptions. No database schema or import has been deployed.
+Status: SP-003 defines the initial versioned product schema and corrected-source mapping. No production schema or import has been deployed.
 
 ## Product identity and creation
 
@@ -64,9 +64,13 @@ Example acceptance case: two units at `5 USD` and three at `1000 SYP` produce `1
 - Follow the confirmed server-save and concurrent-edit rules in `ARCHITECTURE.md`.
 - Keep the full source CSV out of application assets and public repository content.
 
-## Open source-mapping decisions
+## Source mapping and database identity
 
-- Specify the complete source-to-schema mapping, display layout, source anomaly handling, and remaining validation limits. The editable-field list and name-language requirement above are confirmed.
-- Choose stable database identifiers and revision metadata during schema implementation, preserving source identity and provenance.
+- The complete corrected-source mapping and anomaly rules are defined in [SOURCE_MAPPING.md](SOURCE_MAPPING.md).
+- `products.id` is a generated UUID independent of every source identifier and editable catalog field.
+- Corrected-source rows preserve explicit source identifiers, source purchase amount, a versioned dataset key, and the complete original row payload.
+- Canonical barcode fields are nullable text and deliberately non-unique.
+- The schema stores a positive revision and advances it on accepted updates; SP-004 owns the atomic expected-revision mutation API and authorization.
+- Zero selling amount is allowed only to represent a source-import anomaly. Ordinary/manual product rows require a positive amount.
 
 Use `PRODUCT.md` for user-visible requirements, `ARCHITECTURE.md` for implementation boundaries, and `QUALITY.md` for verification gates.

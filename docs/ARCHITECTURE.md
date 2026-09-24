@@ -16,7 +16,7 @@ This replaces the earlier offline-first proposal. Do not introduce Drift, a comp
 | Component | Responsibility | Decision status |
 | --- | --- | --- |
 | Flutter client | English UI with readable Arabic data; Android and Windows | Confirmed |
-| Supabase Postgres | Authoritative products, prices, product revisions | Confirmed backend; schema to design |
+| Supabase Postgres | Authoritative products, prices, product revisions | SP-003 schema defined; deployment deferred |
 | Supabase Auth and server authorization | Owner-only access using email/password; no app registration | Confirmed |
 | Riverpod controllers/providers | Screen state, dependency injection, loading/error handling | Confirmed by owner; compatible package version to select during setup |
 | Repository interfaces | Isolate catalog access, account access, and session storage from widgets | Proposed implementation baseline |
@@ -48,6 +48,14 @@ Organize code by feature: authentication, catalog, order, and scanning. Keep app
 - Search and lookup responses include only fields needed by the current feature. Store authentication tokens with an appropriate platform storage implementation; select and test it on both targets.
 - Avoid product dumps, credentials, and full request payloads in logs.
 - Online-only access reduces copies of the catalog on devices; it does not guarantee that an authorized reader cannot collect results over time.
+
+## Product storage identity and revisions
+
+- `products.id` is a generated UUID independent of source identifiers, names, barcodes and prices.
+- Corrected-source provenance uses a versioned dataset key, explicit source identifiers and a complete raw JSONB row. See [SOURCE_MAPPING.md](SOURCE_MAPPING.md).
+- Barcode columns are nullable text with non-unique indexes. Duplicated identifiers across distinct products remain valid stored state and later lookup ambiguity.
+- Selling amount is whole-unit `bigint` paired with explicit `SYP` or `USD`; zero is representable only for a source-import anomaly.
+- Each accepted database update increments `revision` exactly once. SP-004 must combine this with an atomic expected-revision predicate before exposing mutations.
 
 ## Catalog reads and automatic refresh
 
