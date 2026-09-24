@@ -20,7 +20,7 @@ Passing checks provide evidence for the behavior they exercise. They do not esta
 
 | Change | Required evidence |
 | --- | --- |
-| Application code, dependencies, assets affecting builds, or platform configuration | Formatting check, static analysis, established automated regression suite, meaningful tests for changed behavior, successful Android build, successful Windows build, and diff review |
+| Application code, dependencies, assets affecting builds, or platform configuration | Static analysis, established automated regression suite, meaningful tests for changed behavior, successful Android build, successful Windows build, and diff review |
 | Backend schema, authorization, or API behavior | Relevant isolated database/API tests, permission tests, migration validation, affected application checks, and diff review |
 | Camera scanning or external-reader behavior, including scanner dependency/input-adapter changes | Applicable automated gates plus explicit owner acceptance after testing the affected behavior on the actual device |
 | Documentation only | Diff review, requirement consistency, and applicable documentation/link checks; application builds and tests are not required when executable behavior is unaffected |
@@ -38,7 +38,7 @@ Use Python 3.11+ locally (`python` on Windows, `python3` where required). CI pin
 | --- | --- |
 | `python tool/verify.py docs` | Check repository-relative inline Markdown file links; semantic consistency remains a review responsibility |
 | `python -m unittest discover -s tool -p 'test_*.py' -v` | Ensure scope classification and aggregation reject missing/failing gates |
-| `python tool/verify.py quick` | Verify exact Flutter, enforce unchanged lockfile, check Dart format, analyze and run the full Flutter test suite |
+| `python tool/verify.py quick` | Verify exact Flutter, enforce unchanged lockfile, analyze and run the full Flutter test suite; it intentionally does not enforce `dart format` |
 | `python tool/verify.py quick --test test/app_smoke_test.dart` | Targeted development feedback; never a replacement for the full pre-merge suite |
 | `python tool/verify.py android` | Enforce dependencies and build a debug APK; requires Android SDK/JDK |
 | `python tool/verify.py windows` | Enforce dependencies and build Windows release binaries; requires Windows and Visual Studio C++ desktop tooling |

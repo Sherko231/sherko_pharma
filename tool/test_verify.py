@@ -7,7 +7,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
-from verify import dependencies, docs_only, gate
+from verify import dependencies, docs_only, gate, quick
 
 
 class GateTests(unittest.TestCase):
@@ -54,6 +54,35 @@ class GateTests(unittest.TestCase):
                       ["tool/verify.py"], ["pubspec.lock"], [".flutter-version"]):
             with self.subTest(paths=paths):
                 self.assertFalse(docs_only(paths))
+
+
+class QuickVerificationTests(unittest.TestCase):
+    def test_quick_analyzes_and_tests_without_forcing_dart_format(self):
+        with patch("verify.dependencies") as dependency_check, patch(
+            "verify.run"
+        ) as run_command:
+            quick()
+
+        dependency_check.assert_called_once_with()
+        commands = [call.args for call in run_command.call_args_list]
+
+        self.assertIn(
+            (
+                "flutter",
+                "analyze",
+                "--no-pub",
+                "--fatal-infos",
+                "--fatal-warnings",
+            ),
+            commands,
+        )
+        self.assertIn(
+            ("flutter", "test", "--no-pub", "--reporter", "expanded"),
+            commands,
+        )
+        self.assertFalse(
+            any(command[:2] == ("dart", "format") for command in commands)
+        )
 
 
 class DependencyTests(unittest.TestCase):

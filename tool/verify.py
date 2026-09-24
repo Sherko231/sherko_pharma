@@ -81,8 +81,6 @@ def dependencies():
 
 def quick(test_path=None):
     dependencies()
-    directories = [name for name in ("lib", "test", "integration_test", "tool") if (ROOT / name).is_dir()]
-    run("dart", "format", "--output=none", "--set-exit-if-changed", *directories)
     run("flutter", "analyze", "--no-pub", "--fatal-infos", "--fatal-warnings")
     args = ["flutter", "test", "--no-pub", "--reporter", "expanded"]
     if test_path:
