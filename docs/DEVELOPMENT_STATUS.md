@@ -3,7 +3,7 @@
 Updated: 2026-09-24
 Active task: [SP-004 / Issue #11](https://github.com/Sherko231/sherko_pharma/issues/11).
 Branch: `feat/sp-004-owner-catalog-api`.
-Status: Owner authorization and bounded catalog API implementation in progress; no production Supabase deployment or owner UUID provisioning has been performed.
+Status: Owner authorization, bounded catalog RPCs, Auth configuration, and isolated permission regressions are implemented on the task branch; final PR gates/review remain pending. No production Supabase deployment or owner UUID provisioning has been performed.
 
 ## Verified baseline
 
