@@ -4,7 +4,7 @@ Flutter project for an online pharmacy product catalog and customer-order calcul
 
 ## Current state
 
-SP-000 established the product contract, SP-001 established protected hosted CI, and SP-002 established the minimal Riverpod application shell. SP-003 now defines the versioned product schema and corrected-source mapping; deployment, authorization, import, catalog behavior, orders, authentication, persistence and scanner features remain unimplemented. See [development status](docs/DEVELOPMENT_STATUS.md) for the live task state.
+SP-000 through SP-004 establish the product contract, protected hosted CI, minimal Riverpod shell, versioned product schema/source mapping, and owner-only bounded catalog API. SP-005 adds the controlled fingerprinted initial-import workflow; no hosted Supabase deployment or real source import has been performed. See [development status](docs/DEVELOPMENT_STATUS.md) for the live task state.
 
 ## Setup and verification
 
@@ -38,7 +38,7 @@ These are requirements to implement, not current application capabilities. Inven
 | [Architecture](docs/ARCHITECTURE.md) | Technical boundaries and decisions |
 | [Quality gates](docs/QUALITY.md) | Required checks and physical-device acceptance |
 | [Data rules](docs/DATA_MODEL.md) | Fields, validation, barcodes, prices, and currencies |
-| [Source mapping](docs/SOURCE_MAPPING.md) | Corrected CSV fingerprint, complete 25-column mapping, and anomaly policy |
+| [Source mapping](docs/SOURCE_MAPPING.md) | Corrected CSV fingerprint, complete 25-column mapping, and anomaly policy |\n| [Controlled import](docs/IMPORT.md) | Dry-run, fingerprint enforcement, idempotent import, and deployment safety |
 | [Interaction flows](docs/UX_FLOWS.md) | New orders, unsaved edits, drafts, and sign-out |
 | [Roadmap](docs/ROADMAP.md) | Task order, dependencies, and completion evidence |
 | [Development status](docs/DEVELOPMENT_STATUS.md) | Actual implementation state and handoff |
@@ -53,6 +53,6 @@ Use the GitHub task form and PR template to record acceptance examples, revision
 
 ## Data and configuration
 
-The full medication CSV is deliberately not included. Import it only through the future controlled backend workflow; use synthetic test fixtures in the public repository.
+The full medication CSV is deliberately not included. Use the controlled workflow in [IMPORT.md](docs/IMPORT.md); only synthetic import fixtures belong in the public repository.
 
 Never commit credentials, privileged server keys, source data dumps, or production request payloads. Backend provisioning and configuration instructions will be added with the implementing tasks; no server integration exists in this scaffold.

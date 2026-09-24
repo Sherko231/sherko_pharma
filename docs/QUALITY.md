@@ -42,7 +42,7 @@ Use Python 3.11+ locally (`python` on Windows, `python3` where required). CI use
 | `python tool/verify.py quick --test test/app_smoke_test.dart` | Targeted development feedback; never a replacement for the full pre-merge suite |
 | `python tool/verify.py android` | Enforce dependencies and build a debug APK; requires Android SDK/JDK |
 | `python tool/verify.py windows` | Enforce dependencies and build Windows release binaries; requires Windows and Visual Studio C++ desktop tooling |
-| PostgreSQL migration + `backend/tests/001_product_schema_test.sql` | Apply the versioned schema to an isolated PostgreSQL service and run synthetic identity/constraint/revision regressions |
+| PostgreSQL schema/API/import suite | Apply every migration to isolated PostgreSQL; run schema/authorization regressions plus controlled-import first-run/rerun/rejection tests |\n| `python tool/catalog_import.py dry-run --source <private-csv>` | Validate the exact private source fingerprint, rows and anomaly accounting without database access |
 
 Every subprocess failure makes the command fail. Resolve dependencies explicitly outside verification when intentionally updating `pubspec.lock`; review the resulting diff. Do not make CI run `pub upgrade` or silently regenerate an incompatible lockfile.
 
@@ -128,4 +128,4 @@ For an additional Codex review pass, connect this repository to Codex cloud and 
 
 External integration status must be recorded separately from the mandatory separate review pass. A disclosed self-review is the fallback when external review is unavailable; it is not an independent GitHub approval. Account setup requiring the owner remains an explicit handoff, not a fabricated success.
 
-SP-003 establishes isolated schema/migration tests. SP-004 extends them with Supabase-compatible anonymous/authenticated roles, synthetic owner/non-owner identities, direct-access denial, bounded RPC behavior, and stale-write rejection. Production deployment/auth settings still require explicit environment verification. Camera/reader acceptance and production release configuration remain deferred to their implementing tasks.
+SP-003 establishes isolated schema/migration tests. SP-004 extends authorization/API coverage. SP-005 adds fingerprint/row validation and isolated first-import, later-edit, partial-rerun, and unexpected-source rejection tests. The real source stays private and is never a CI fixture. Production deployment/auth/import settings still require explicit environment verification. Camera/reader acceptance and production release configuration remain deferred to their implementing tasks.
