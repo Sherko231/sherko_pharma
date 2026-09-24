@@ -4,9 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/navigation/application/app_navigation_controller.dart';
 
 class AppShell extends ConsumerWidget {
-  const AppShell({super.key});
+  const AppShell({
+    super.key,
+    this.onSignOut,
+  });
 
   static const double _railBreakpoint = 800;
+
+  final VoidCallback? onSignOut;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -20,6 +25,15 @@ class AppShell extends ConsumerWidget {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Sherko Pharma'),
+            actions: [
+              if (onSignOut != null)
+                IconButton(
+                  key: const Key('sign-out-button'),
+                  tooltip: 'Sign out',
+                  onPressed: onSignOut,
+                  icon: const Icon(Icons.logout),
+                ),
+            ],
           ),
           body: useNavigationRail
               ? Row(

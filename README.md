@@ -4,7 +4,7 @@ Flutter project for an online pharmacy product catalog and customer-order calcul
 
 ## Current state
 
-SP-000 through SP-004 establish the product contract, protected hosted CI, minimal Riverpod shell, versioned product schema/source mapping, and owner-only bounded catalog API. SP-005 adds the controlled fingerprinted initial-import workflow; no hosted Supabase deployment or real source import has been performed. See [development status](docs/DEVELOPMENT_STATUS.md) for the live task state.
+SP-000 through SP-005 establish the product contract, protected hosted CI, minimal Riverpod shell, versioned product schema/source mapping, owner-only bounded catalog API, and controlled fingerprinted import workflow. SP-006 adds the client authentication/session boundary; no hosted Sherko Pharma Supabase environment or real owner sign-in is yet verified. See [development status](docs/DEVELOPMENT_STATUS.md) for the live task state.
 
 ## Setup and verification
 
@@ -12,7 +12,7 @@ SP-000 through SP-004 establish the product contract, protected hosted CI, minim
 2. Install Python 3.11+ (CI uses the current hosted Python 3.12 patch release). For Android, install Android SDK tooling and Temurin JDK 17; CI uses 17.0.18+8. For Windows, use Windows with Visual Studio 2022 and Desktop development with C++.
 3. Run `flutter doctor -v` to inspect your target-platform prerequisites.
 4. From the repository root, run `python tool/verify.py quick` (`python3` where required). This enforces the pinned SDK and committed lockfile, then runs static analysis and all Flutter tests. This project does not enforce `dart format`; keep Flutter UI code conventionally readable in review.
-5. Run `flutter run -d windows` on Windows or select your connected Android device with `flutter devices` / `flutter run -d DEVICE_ID`.
+5. For an unconfigured development launch, run normally and the app will fail closed on a configuration-required screen. For a configured Supabase environment, provide the client-safe project values at build/run time, for example `flutter run -d windows --dart-define=SUPABASE_URL=https://PROJECT.supabase.co --dart-define=SUPABASE_PUBLISHABLE_KEY=CLIENT_SAFE_KEY`. Use the same defines for an Android target. Never pass a service-role/secret key.
 
 Build checks: `python tool/verify.py android` and `python tool/verify.py windows` on their supported hosts. Documentation checks: `python tool/verify.py docs`. See [QUALITY.md](docs/QUALITY.md) for exact CI jobs, targeted feedback, merge gates and limitations.
 
@@ -40,6 +40,7 @@ These are requirements to implement, not current application capabilities. Inven
 | [Data rules](docs/DATA_MODEL.md) | Fields, validation, barcodes, prices, and currencies |
 | [Source mapping](docs/SOURCE_MAPPING.md) | Corrected CSV fingerprint, complete 25-column mapping, and anomaly policy |
 | [Controlled import](docs/IMPORT.md) | Dry-run, fingerprint enforcement, idempotent import, and deployment safety |
+| [Auth acceptance](docs/AUTH_ACCEPTANCE.md) | Secret-safe real Windows/Android sign-in and session-restoration checklist |
 | [Interaction flows](docs/UX_FLOWS.md) | New orders, unsaved edits, drafts, and sign-out |
 | [Roadmap](docs/ROADMAP.md) | Task order, dependencies, and completion evidence |
 | [Development status](docs/DEVELOPMENT_STATUS.md) | Actual implementation state and handoff |

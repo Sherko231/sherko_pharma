@@ -1,44 +1,39 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-24
-Active task: [SP-005 / Issue #13](https://github.com/Sherko231/sherko_pharma/issues/13).
-Branch: `feat/sp-005-controlled-import`.
-Status: Controlled import tooling, source contract, synthetic fixtures, and isolated rerun protections are implemented on the task branch; PR verification/review remain pending. No hosted source import has been performed.
+Active task: [SP-006 / Issue #15](https://github.com/Sherko231/sherko_pharma/issues/15).
+Branch: `feat/sp-006-owner-auth`.
+PR: [#16](https://github.com/Sherko231/sherko_pharma/pull/16).
+Status: Client owner-authentication/session implementation passes all repository gates. A dedicated Free hosted Sherko Pharma Supabase environment exists, SP-003/SP-004 are deployed, and the single confirmed password user is linked as the private owner. Real Windows acceptance passed on 2026-09-24. The owner explicitly deferred physical Android acceptance; Android remains covered by automated tests/builds but is not claimed as physically verified.
 
 ## Verified baseline
 
-- Protected `main` was `7b3c0b0e8870a4ddd8bb4a5f107b3e491ed315b4` when SP-005 started.
-- SP-000 through SP-004 and CI-001 are merged.
-- SP-004 post-merge run 36041436836 passed all required gates.
-- No open Issue or PR existed before SP-005 was authorized.
-- No dedicated hosted Sherko Pharma Supabase project or production database target is provisioned.
+- Protected `main` was `9838bff5e517ea8d0f211997d4d820b2dced3752` when SP-006 started.
+- SP-000 through SP-005 and CI-001 are merged.
+- SP-005 post-merge run 36045162705 passed all required gates.
+- No open Issue or PR existed before SP-006 was authorized.
+- The SP-004 server contract already denies anonymous/non-owner catalog access and disables public signup in versioned configuration.
 
-## Real corrected source dry-run
+## SP-006 implementation
 
-The private `sy-database(2).csv` was retrieved outside Git and revalidated with the SP-005 tool.
+- `supabase_flutter 2.17.2` and `flutter_secure_storage 11.2.0` were resolved under Flutter 3.38.7 / Dart 3.10.7 and committed through `pubspec.lock`.
+- Android minimum SDK is 23 for the selected secure-storage implementation; Android also explicitly requests Internet permission.
+- Supabase URL and client-safe publishable key come from `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY` Dart defines. No real project value is committed.
+- Missing/invalid configuration fails closed before protected UI appears.
+- The Supabase session blob is persisted through custom secure storage rather than default ordinary preferences.
+- Secure-storage read/decryption failure returns no session and attempts cleanup; protected UI is not restored from an unreadable value.
+- Email/password is the only sign-in flow. No registration/sign-up UI or client sign-up operation exists.
+- Protected UI is driven by authenticated, non-expired Supabase session state. Auth signed-out/expired events remove it.
+- Sign-out hides protected UI immediately and uses local Supabase sign-out scope; it does not implement catalog/order/draft mutation behavior.
+- Password text is cleared from the UI controller before awaiting authentication. Errors are generic and do not echo credentials or tokens.
+- Concurrent sign-in submissions are blocked while authentication is in flight.
 
-- SHA-256 exactly matches `2923fffd24e8aaee0cda7549458aec680f6ee67b50925b93ff540c2c755029a4`.
-- 23,750 valid rows; 0 invalid rows.
-- 423 zero selling-price source anomalies.
-- 8,260 blank `barcode` values; 22,495 blank `barcode2` values.
-- Seven duplicated nonempty primary codes; one duplicated nonempty secondary code.
-- 13 cross-field barcode codes identify more than one distinct product.
-- Initial selling currency is explicitly SYP.
-- A reviewed local SQL generation test succeeded; the generated source-containing file was about 25.5 MB and was not committed or uploaded.
+## Automated verification
 
-## SP-005 implementation
+Requirement-derived tests cover configuration blocking, signed-out UI, successful/failed sign-in, password clearing, duplicate-submit prevention, immediate sign-out hiding, auth-state sign-out, restored identity, secure-session persistence/removal, and fail-closed unreadable storage.
 
-- `backend/imports/initial_catalog_contract.json` locks the approved fingerprint, headers, row count, BOM expectation, dataset identity, and SYP currency.
-- `tool/catalog_import.py` provides `dry-run`, private `emit-sql`, and environment-variable-based `apply` modes.
-- Invalid rows are reported by CSV row number and error codes without logging full product payloads.
-- Exact text barcodes, integer prices, all source identifiers, and the complete 25-column JSONB payload are preserved.
-- Import SQL uses insert-only conflict handling, never an update/upsert overwrite.
-- Reruns restore missing approved rows while preserving existing rows and later revisions.
-- Unexpected source IDs already occupying the same dataset key abort the transaction.
-- CI uses only synthetic import data and stores no generated import artifact.
+Android and Windows hosted builds are required on the final revision to establish package/platform compilation. These builds do not substitute for signing in to a real Supabase project.
 
-## Verification
+## External acceptance blocker
 
-The final revision requires Python import regressions plus the existing Quality, Schema, Android, Windows, and Required verification gates. The Schema gate performs a first synthetic import, later edit, missing-row rerun, preservation checks, and unexpected-source rejection against isolated PostgreSQL.
-
-No physical-device acceptance applies. A real source import remains blocked until a dedicated environment is explicitly selected and verified.
+Hosted Windows acceptance passed: owner sign-in succeeded, a real session restored after process restart, explicit sign-out returned to the login gate, and a subsequent restart did not restore protected UI. The owner explicitly changed the acceptance contract on 2026-09-24 to defer physical Android acceptance. Android login/session behavior is therefore not claimed as physically verified; only automated widget/unit coverage and the hosted Android build are recorded for this task.
