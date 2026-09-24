@@ -41,15 +41,15 @@ Use Python 3.11+ locally (`python` on Windows, `python3` where required). CI pin
 | `python tool/verify.py quick` | Verify exact Flutter, enforce unchanged lockfile, analyze and run the full Flutter test suite; it intentionally does not enforce `dart format` |
 | `python tool/verify.py quick --test test/app_smoke_test.dart` | Targeted development feedback; never a replacement for the full pre-merge suite |
 | `python tool/verify.py android` | Enforce dependencies and build a debug APK; requires Android SDK/JDK |
-| `python tool/verify.py windows` | Enforce dependencies and build Windows release binaries; requires Windows and Visual Studio C++ desktop tooling |
+| `python tool/verify.py windows` | Enforce dependencies and build Windows release binaries; requires Windows and Visual Studio C++ desktop tooling |\n| PostgreSQL migration + `backend/tests/001_product_schema_test.sql` | Apply the versioned schema to an isolated PostgreSQL service and run synthetic identity/constraint/revision regressions |
 
 Every subprocess failure makes the command fail. Resolve dependencies explicitly outside verification when intentionally updating `pubspec.lock`; review the resulting diff. Do not make CI run `pub upgrade` or silently regenerate an incompatible lockfile.
 
-`.github/workflows/ci.yml` runs on PRs to `main`, pushes to `main`, and manual dispatch. Fast quality checks precede the two platform builds. Flutter/Gradle caches reduce repeated downloads. Only superseded PR runs are cancelled; a main push is always fully verified. No paid runner or external review service is enabled by this configuration.
+`.github/workflows/ci.yml` runs on PRs to `main`, pushes to `main`, and manual dispatch. Fast quality checks precede the schema and two platform build gates. Flutter/Gradle caches reduce repeated downloads. Only superseded PR runs are cancelled; a main push is always fully verified. No paid runner or external review service is enabled by this configuration.
 
 PRs changing only `README.md`, `AGENTS.md`, `.github/pull_request_template.md`, or Markdown under `docs/` use documentation checks and verification-tool tests. All unknown paths, workflows, tool scripts, package files, platform changes and mixed changes use full gates. There is no workflow-wide path filter that leaves a required status permanently pending. Deleted/renamed code is not exempt merely because the destination looks like documentation.
 
-The single required status is **`Required verification`**, produced by the CI workflow. It runs even after dependency failures and checks exact job results. On full runs, `Quality`, `Android build` and `Windows build` must all succeed. Only the documented docs classification permits skipped platform builds. Tests cover the aggregator's failure/cancellation/missing-result paths. Human/AI diff review and device acceptance are additional gates, not proven by this status.
+The single required status is **`Required verification`**, produced by the CI workflow. It runs even after dependency failures and checks exact job results. On full runs, `Quality`, `Schema`, `Android build` and `Windows build` must all succeed. Only the documented docs classification permits skipped platform builds. Tests cover the aggregator's failure/cancellation/missing-result paths. Human/AI diff review and device acceptance are additional gates, not proven by this status.
 
 Builds are verification candidates, not commercial releases. Android currently uses debug signing; no artifacts are automatically published or retained by this task. Artifact distribution/retention and release signing are decided with the delivery task.
 
@@ -127,4 +127,4 @@ For an additional Codex review pass, connect this repository to Codex cloud and 
 
 External integration status must be recorded separately from the mandatory separate review pass. A disclosed self-review is the fallback when external review is unavailable; it is not an independent GitHub approval. Account setup requiring the owner remains an explicit handoff, not a fabricated success.
 
-Backend isolation/permission tests must be established with backend tasks. Camera/reader acceptance and production release configuration remain deferred to their implementing tasks.
+SP-003 establishes isolated schema/migration tests. Authorization/API permission tests remain mandatory with SP-004 and later backend access changes. Camera/reader acceptance and production release configuration remain deferred to their implementing tasks.
