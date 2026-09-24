@@ -3,6 +3,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../features/auth/data/auth_gateway.dart';
 import '../features/auth/data/secure_supabase_local_storage.dart';
 import '../features/auth/data/supabase_auth_gateway.dart';
+import '../features/catalog/data/catalog_repository.dart';
+import '../features/catalog/data/supabase_catalog_repository.dart';
 
 class AppRuntimeConfig {
   const AppRuntimeConfig({
@@ -48,23 +50,28 @@ enum AppRuntimeStatus {
 }
 
 class AppRuntime {
-  const AppRuntime.configured(this.authGateway)
-      : status = AppRuntimeStatus.configured,
+  const AppRuntime.configured(
+    this.authGateway, {
+    this.catalogRepository,
+  })  : status = AppRuntimeStatus.configured,
         problems = const [];
 
   const AppRuntime.configurationBlocked(this.problems)
       : status = AppRuntimeStatus.configurationBlocked,
-        authGateway = null;
+        authGateway = null,
+        catalogRepository = null;
 
   const AppRuntime.initializationFailed()
       : status = AppRuntimeStatus.initializationFailed,
         authGateway = null,
+        catalogRepository = null,
         problems = const [
           'Supabase or secure session storage could not be initialized.',
         ];
 
   final AppRuntimeStatus status;
   final AuthGateway? authGateway;
+  final CatalogRepository? catalogRepository;
   final List<String> problems;
 
   static Future<AppRuntime> initialize({
@@ -94,8 +101,10 @@ class AppRuntime {
         ),
       );
 
+      final client = Supabase.instance.client;
       return AppRuntime.configured(
-        SupabaseAuthGateway(Supabase.instance.client),
+        SupabaseAuthGateway(client),
+        catalogRepository: SupabaseCatalogRepository.fromClient(client),
       );
     } catch (_) {
       return const AppRuntime.initializationFailed();
