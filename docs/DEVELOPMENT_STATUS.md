@@ -4,7 +4,7 @@ Updated: 2026-09-24
 Active task: [SP-006 / Issue #15](https://github.com/Sherko231/sherko_pharma/issues/15).
 Branch: `feat/sp-006-owner-auth`.
 PR: [#16](https://github.com/Sherko231/sherko_pharma/pull/16).
-Status: Client owner-authentication/session implementation is present on the task branch. Automated final gates/review are still being completed, and real owner sign-in on Android/Windows is not yet verified because no dedicated hosted Sherko Pharma Supabase environment/account is provisioned.
+Status: Client owner-authentication/session implementation passes all repository gates. A dedicated Free hosted Sherko Pharma Supabase environment now exists, SP-003/SP-004 are deployed, and the single confirmed password user is linked as the private owner. Real owner sign-in/session restoration on Android and Windows remains the only acceptance blocker.
 
 ## Verified baseline
 
@@ -36,7 +36,7 @@ Android and Windows hosted builds are required on the final revision to establis
 
 ## External acceptance blocker
 
-There is no verified hosted Sherko Pharma Supabase project, owner Auth account, project URL, or publishable key available to this task yet. Therefore:
+A dedicated Free hosted Sherko Pharma Supabase project and owner account now exist and the owner mapping is provisioned. The connected tooling cannot safely supply the owner's password or drive a real Android/Windows GUI login. Therefore:
 
 - real owner email/password sign-in on Android is unverified;
 - real owner email/password sign-in on Windows is unverified;

@@ -40,6 +40,7 @@ These are requirements to implement, not current application capabilities. Inven
 | [Data rules](docs/DATA_MODEL.md) | Fields, validation, barcodes, prices, and currencies |
 | [Source mapping](docs/SOURCE_MAPPING.md) | Corrected CSV fingerprint, complete 25-column mapping, and anomaly policy |
 | [Controlled import](docs/IMPORT.md) | Dry-run, fingerprint enforcement, idempotent import, and deployment safety |
+| [Auth acceptance](docs/AUTH_ACCEPTANCE.md) | Secret-safe real Windows/Android sign-in and session-restoration checklist |
 | [Interaction flows](docs/UX_FLOWS.md) | New orders, unsaved edits, drafts, and sign-out |
 | [Roadmap](docs/ROADMAP.md) | Task order, dependencies, and completion evidence |
 | [Development status](docs/DEVELOPMENT_STATUS.md) | Actual implementation state and handoff |
