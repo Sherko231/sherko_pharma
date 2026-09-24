@@ -110,12 +110,15 @@ void main() {
     await tester.pump();
 
     expect(find.text('Enter an English or Arabic name.'), findsNWidgets(2));
-    final priceField = tester.widget<TextField>(
-      find.byKey(const Key('product-field-selling-amount')),
+    await tester.drag(
+      find.byKey(const Key('product-form')),
+      const Offset(0, -650),
     );
+    await tester.pumpAndSettle();
+
     expect(
-      priceField.decoration?.errorText,
-      'Enter a positive whole-number selling price.',
+      find.text('Enter a positive whole-number selling price.'),
+      findsOneWidget,
     );
     expect(catalog.createIds, isEmpty);
   });
