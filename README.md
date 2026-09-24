@@ -9,14 +9,14 @@ SP-000 through SP-004 establish the product contract, protected hosted CI, minim
 ## Setup and verification
 
 1. Install the exact stable Flutter version from `.flutter-version` (currently 3.38.7) using the [official archive](https://docs.flutter.dev/install/archive), and add its `bin` directory to PATH. This is a compatible baseline, not a claim to be the newest release.
-2. Install Python 3.11+ (CI uses 3.12.9). For Android, install Android SDK tooling and Temurin JDK 17; CI uses 17.0.18+8. For Windows, use Windows with Visual Studio 2022 and Desktop development with C++.
+2. Install Python 3.11+ (CI uses the current hosted Python 3.12 patch release). For Android, install Android SDK tooling and Temurin JDK 17; CI uses 17.0.18+8. For Windows, use Windows with Visual Studio 2022 and Desktop development with C++.
 3. Run `flutter doctor -v` to inspect your target-platform prerequisites.
 4. From the repository root, run `python tool/verify.py quick` (`python3` where required). This enforces the pinned SDK and committed lockfile, then runs static analysis and all Flutter tests. This project does not enforce `dart format`; keep Flutter UI code conventionally readable in review.
 5. Run `flutter run -d windows` on Windows or select your connected Android device with `flutter devices` / `flutter run -d DEVICE_ID`.
 
 Build checks: `python tool/verify.py android` and `python tool/verify.py windows` on their supported hosts. Documentation checks: `python tool/verify.py docs`. See [QUALITY.md](docs/QUALITY.md) for exact CI jobs, targeted feedback, merge gates and limitations.
 
-CI uses GitHub-hosted runners, runs fast checks before platform builds, and requires no production credentials. A successful build is not a commercially signed release or evidence of real scanner compatibility.
+CI uses GitHub-hosted runners; after change classification, Quality, Schema, Android, and Windows checks run in parallel, and no production credentials are required. A successful build is not a commercially signed release or evidence of real scanner compatibility.
 
 ## Agreed initial scope
 
