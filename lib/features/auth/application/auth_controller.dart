@@ -60,7 +60,7 @@ class AuthController extends Notifier<AuthViewState> {
     final gateway = ref.watch(authGatewayProvider);
     _subscription = gateway.identityChanges.listen(
       _handleIdentityChange,
-      onError: (_, __) {
+      onError: (error, stackTrace) {
         _forceSignedOut = true;
         state = const AuthViewState.signedOut(
           errorMessage: sessionEndedMessage,
