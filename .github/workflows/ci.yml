@@ -65,13 +65,6 @@ jobs:
           flutter-version: ${{ steps.sdk.outputs.version }}
           channel: stable
           cache: true
-      - name: Resolve candidate dependency lock
-        if: needs.scope.outputs.scope == 'full'
-        run: flutter pub get
-      - name: Print candidate lock for task-branch capture
-        if: needs.scope.outputs.scope == 'full'
-        shell: bash
-        run: python -c "import base64; print('SP006_LOCK=' + base64.b64encode(open('pubspec.lock','rb').read()).decode())"
       - name: Analyze and run the full Flutter regression suite
         if: needs.scope.outputs.scope == 'full'
         run: python tool/verify.py quick
