@@ -53,3 +53,16 @@ No physical-device acceptance is required.
 SP-003 is complete only after the latest reviewed PR revision passes all applicable hosted gates, the separate review is recorded, the PR merges through protected `main`, and post-merge CI succeeds.
 
 After SP-003, stop for owner continuation. SP-004 owner authorization/bounded API and SP-005 controlled CSV import remain separate future tasks.
+
+
+## CI latency optimization — Issue #9
+
+Before SP-004, CI optimization is being benchmarked against post-SP-003 run 36033756966 (~6m46s wall clock).
+
+The candidate keeps every existing full gate but:
+- uses the current Python 3.12 patch rather than forcing 3.12.9;
+- runs Quality, Schema, Android, and Windows in parallel after Change scope;
+- disables the oversized Flutter SDK/pub cache restore on Windows while retaining Linux Flutter/Gradle caching;
+- keeps Required verification fail-closed over all existing gate results.
+
+Only measured improvements that preserve verification strength are eligible to merge.
