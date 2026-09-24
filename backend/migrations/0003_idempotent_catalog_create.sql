@@ -71,7 +71,7 @@ begin
     product_currency,
     nullif(product_notes, '')
   )
-  on conflict (id) do nothing
+  on conflict on constraint products_pkey do nothing
   returning products.id into inserted_id;
 
   if inserted_id is not null then
