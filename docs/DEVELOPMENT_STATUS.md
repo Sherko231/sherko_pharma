@@ -2,7 +2,7 @@
 
 Updated: 2026-09-24
 Active task: [SP-001 / Issue #3](https://github.com/Sherko231/sherko_pharma/issues/3).
-Status: Workflow and CI implementation prepared; hosted checks and external settings verification remain pending. Do not interpret file presence as a passing check or active repository protection.
+Status: Workflow/CI implementation verified on PR #4; external protection setup is blocked on owner-authorized account access. The PR remains unmerged. Refresh its live check state before merging.
 
 ## Verified starting state
 
@@ -28,16 +28,16 @@ Branch: `chore/sp-001-workflow-ci`. Pull request: [#4](https://github.com/Sherko
 
 - Local Python verification-tool tests pass (five cases including bootstrap output and failure/cancellation/skip/missing-result subcases); relative Markdown file link check and diff whitespace check pass at the recorded implementation stage. Refresh evidence on the final revision.
 - Local Flutter bootstrap was attempted but automatic approval review rejected continued execution after detecting an unexpected cloud metadata endpoint request. Do not retry or claim local Flutter tests passed. Hosted CI is the intended verification path.
-- First hosted run [35967940301](https://github.com/Sherko231/sherko_pharma/actions/runs/35967940301) rejected the original scaffold formatting; the aggregate correctly failed and platform builds were skipped. This revision normalizes only `lib/main.dart` formatting and updates newly introduced Actions to current Node 24-compatible versions. Application behavior and lockfile remain unchanged. Latest full checks are pending; consult PR #4 for final revision evidence.
-- Second run [35968398556](https://github.com/Sherko231/sherko_pharma/actions/runs/35968398556), head `551c1f4ea0a2d0d2b1d50e957d857b194aa65f3e`: formatting, analysis, both Flutter smoke cases, Python gate tests and Android build passed. Windows failed before building because first-run Flutter bootstrap text polluted machine JSON. Added a regression that reproduced this failure before the fix, then passed after explicitly completing bootstrap before reading machine JSON. Latest hosted verification remains required.
-- Separate full-diff review: self-review pass performed; no independent reviewer is claimed. Recheck subsequent fixes and final evidence before merge.
-- GitHub connector supports repository file/PR operations but exposes no settings mutation for protection or Codex review. Browser inspection of repository settings shows a signed-out session. External settings remain unconfigured/unverified; owner account access is needed after the concrete PR is ready.
+- First hosted run [35967940301](https://github.com/Sherko231/sherko_pharma/actions/runs/35967940301) rejected the original scaffold formatting; the aggregate correctly failed and platform builds were skipped. This revision normalizes only `lib/main.dart` formatting and updates newly introduced Actions to current Node 24-compatible versions. Application behavior and lockfile remain unchanged. See the successful run after the Windows fix below; PR #4 carries current revision evidence.
+- Second run [35968398556](https://github.com/Sherko231/sherko_pharma/actions/runs/35968398556), head `551c1f4ea0a2d0d2b1d50e957d857b194aa65f3e`: formatting, analysis, both Flutter smoke cases, Python gate tests and Android build passed. Windows failed before building because first-run Flutter bootstrap text polluted machine JSON. Added a regression that reproduced this failure before the fix, then passed after explicitly completing bootstrap before reading machine JSON. Full hosted verification subsequently passed on `d941c7a1caa6031a545c6b25b2db4920e4c6833f` in [run 35999744974](https://github.com/Sherko231/sherko_pharma/actions/runs/35999744974): Change scope, Quality, Android build, Windows build and Required verification all succeeded. This status-only follow-up must also satisfy applicable PR checks; use the live PR results.
+- Separate full-diff self-review completed on `d941c7a1caa6031a545c6b25b2db4920e4c6833f`, with fixes/evidence recorded in PR #4; this status-only follow-up was also reviewed. An independent Codex review was requested in PR comment 5814180112, but no completed review was observed. No independent approval or active automatic-review integration is claimed.
+- GitHub connector supports repository file/PR operations but exposes no settings mutation for protection or Codex review. Browser inspection of repository settings shows a signed-out session. External settings remain unconfigured/unverified. Automatic approval review rejected initiating the secure GitHub sign-in flow because explicit account-login authorization was missing. No credentials were entered and no workaround was attempted. The owner must explicitly authorize that login or configure protection directly; implementation and automated checks are already reviewable.
 - Main protection is not yet active. Routine unattended code merges remain blocked until effective protection is verified. Native auto-merge being disabled is separate from agent merge authorization.
 - No emulator/device tests, scanner acceptance, backend tests or commercial-release verification are claimed.
 
 ## Handoff and remaining work
 
-Finish hosted CI on the latest PR revision, review the complete diff, and activate/verify `main` protection using the exact settings in QUALITY.md. Check Codex cloud review availability and enable it if available without new paid access; otherwise preserve the disclosed separate-review fallback.
+Activate/verify `main` protection using the exact settings in QUALITY.md, then recheck current PR results and merge eligibility. Do not weaken the protection prerequisite to mark this task complete. Check Codex cloud review availability and enable it if available without new paid access; otherwise preserve the disclosed separate-review fallback.
 
 After SP-001 is verified and merged, the next proposed task is SP-002 (minimal Riverpod structure). Stop for owner continuation. Catalog, authentication, data import, editing, orders, session storage and scanning remain unimplemented.
 
