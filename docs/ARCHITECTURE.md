@@ -1,7 +1,7 @@
 # Sherko Pharma — Architecture
 
 Updated: 2026-09-23
-Status: Agreed product boundaries with a proposed technical implementation baseline. The initial repository scaffold has been inspected; see `DEVELOPMENT_STATUS.md` for the fixed baseline and limits. Compatible package versions and deployment configuration remain to be selected and implemented.
+Status: Product boundaries are agreed and the repository now contains the implemented schema, owner-only catalog API, controlled import workflow, and SP-006 client authentication/session boundary. Hosted environment provisioning and later product features remain pending; see `DEVELOPMENT_STATUS.md`.
 
 ## Current decision
 
@@ -17,14 +17,14 @@ This replaces the earlier offline-first proposal. Do not introduce Drift, a comp
 | --- | --- | --- |
 | Flutter client | English UI with readable Arabic data; Android and Windows | Confirmed |
 | Supabase Postgres | Authoritative products, prices, product revisions | SP-003 schema defined; deployment deferred |
-| Supabase Auth and server authorization | Owner-only access using email/password; no app registration | Confirmed |
+| Supabase Auth and server authorization | Owner-only email/password access; no app registration; auth events gate protected UI | SP-004 server boundary + SP-006 client boundary implemented; hosted acceptance pending |
 | Riverpod controllers/providers | Screen state, dependency injection, loading/error handling | Confirmed by owner; compatible package version to select during setup |
 | Repository interfaces | Isolate catalog access, account access, and session storage from widgets | Proposed implementation baseline |
-| Local session store | Save current screen, order snapshot, and active unsaved edit draft without copying the catalog | Confirmed behavior; storage package to select |
+| Auth session storage | Persist the Supabase auth session in platform secure storage, not ordinary preferences | SP-006 uses `flutter_secure_storage` 11.2.0 on Android/Windows |\n| Local app session store | Save current screen, order snapshot, and active unsaved edit draft without copying the catalog | Confirmed behavior; SP-011 storage selection/implementation pending |
 | Android camera adapter | Produce deliberate barcode scan events | Confirmed; package to verify |
 | Windows reader adapter | Produce scan events from the owner's external reader | Confirmed; hardware/input mode to verify |
 
-Do not pin arbitrary package versions in this document. Verify compatible stable versions against the actual Flutter toolchain during setup, and commit the application lockfile.
+Package versions are pinned in `pubspec.yaml`/`pubspec.lock` after compatibility verification against Flutter 3.38.7 / Dart 3.10.7. SP-006 uses `supabase_flutter` 2.17.2 and `flutter_secure_storage` 11.2.0; Android minimum SDK is 23 because of the secure-storage requirement.
 
 ## Code boundaries
 
@@ -45,7 +45,7 @@ Organize code by feature: authentication, catalog, order, and scanning. Keep app
 - Use authenticated bounded search, lookup, and mutation operations. Do not offer client-side bulk export or fetch the complete catalog on startup.
 - If preventing easy API enumeration is a security objective, constrain direct table access too: a UI page limit alone is not a server-enforced limit. Resolve the choice of bounded database functions or an API gateway during backend design, with permission and abuse-limit tests before distribution.
 - Do not add the full source CSV as an application asset, a public repository file, or an unrestricted build artifact. Keep the initial import a controlled administration operation.
-- Search and lookup responses include only fields needed by the current feature. Store authentication tokens with an appropriate platform storage implementation; select and test it on both targets.
+- Search and lookup responses include only fields needed by the current feature. SP-006 persists only Supabase's session blob through platform secure storage and lets the Supabase client own refresh/token rotation. App code does not persist the password or manually duplicate refresh-token logic.
 - Avoid product dumps, credentials, and full request payloads in logs.
 - Online-only access reduces copies of the catalog on devices; it does not guarantee that an authorized reader cannot collect results over time.
 

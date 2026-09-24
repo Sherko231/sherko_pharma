@@ -1,6 +1,6 @@
 # Sherko Pharma — Implementation Roadmap
 
-Status: SP-000 through SP-004 and CI-001 are merged. The owner authorized SP-005 on 2026-09-24; implementation is tracked in Issue #13. Later feature tasks still require normal one-task-at-a-time authorization.
+Status: SP-000 through SP-005 and CI-001 are merged. The owner authorized SP-006 on 2026-09-24; implementation is tracked in Issue #15. Later feature tasks still require normal one-task-at-a-time authorization.
 
 Repository: https://github.com/Sherko231/sherko_pharma
 Inspected baseline: `main` at `2c5e0aa32a7b7ef246511cafff034adaf977d8b7`.
@@ -85,4 +85,4 @@ Inventory, completed-sale history, fractional-package selling, fractional curren
 
 SP-000 merged via PR #2 at `5d1d9b94c1faa31bcc7667f44c4ee60bb6dc399b`. SP-001 merged via PR #4 at `05f2da264ba881648dbdf5eb560948a16ca150b7` with protected-main CI verified before and after merge.
 
-SP-004 merged via PR #12 at `7b3c0b0e8870a4ddd8bb4a5f107b3e491ed315b4`; its post-merge CI passed. SP-005 is the active approved task in [Issue #13](https://github.com/Sherko231/sherko_pharma/issues/13): build the fingerprinted dry-run/import workflow, prove idempotent reruns on isolated data, and keep the real source undeployed until a dedicated environment is explicitly targeted. See [development status](DEVELOPMENT_STATUS.md) for live evidence.
+SP-005 merged via PR #14 at `9838bff5e517ea8d0f211997d4d820b2dced3752`; its post-merge CI passed. SP-006 is the active approved task in [Issue #15](https://github.com/Sherko231/sherko_pharma/issues/15): implement owner email/password sign-in and secure session handling on Android/Windows. Repository implementation may be automated, but real owner sign-in acceptance remains blocked until a dedicated Supabase environment/account is provisioned and tested. See [development status](DEVELOPMENT_STATUS.md) for live evidence.
