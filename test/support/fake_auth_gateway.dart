@@ -16,6 +16,7 @@ class FakeAuthGateway implements AuthGateway {
   Completer<void>? signInGate;
   Completer<void>? signOutGate;
   int signInCalls = 0;
+  String signInUserId = 'owner-user-id';
   int signOutCalls = 0;
   String? lastEmail;
   String? lastPassword;
@@ -44,7 +45,7 @@ class FakeAuthGateway implements AuthGateway {
     }
 
     _identity = AuthIdentity(
-      userId: 'owner-user-id',
+      userId: signInUserId,
       email: email,
     );
     _changes.add(_identity);
