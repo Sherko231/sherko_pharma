@@ -6,6 +6,7 @@ import '../features/auth/data/supabase_auth_gateway.dart';
 import '../features/catalog/data/catalog_draft_store.dart';
 import '../features/catalog/data/catalog_repository.dart';
 import '../features/catalog/data/supabase_catalog_repository.dart';
+import '../features/session/data/app_session_store.dart';
 
 class AppRuntimeConfig {
   const AppRuntimeConfig({
@@ -55,6 +56,7 @@ class AppRuntime {
     this.authGateway, {
     this.catalogRepository,
     this.catalogDraftStore,
+    this.appSessionStore,
   })  : status = AppRuntimeStatus.configured,
         problems = const [];
 
@@ -62,13 +64,15 @@ class AppRuntime {
       : status = AppRuntimeStatus.configurationBlocked,
         authGateway = null,
         catalogRepository = null,
-        catalogDraftStore = null;
+        catalogDraftStore = null,
+        appSessionStore = null;
 
   const AppRuntime.initializationFailed()
       : status = AppRuntimeStatus.initializationFailed,
         authGateway = null,
         catalogRepository = null,
         catalogDraftStore = null,
+        appSessionStore = null,
         problems = const [
           'Supabase or secure session storage could not be initialized.',
         ];
@@ -77,6 +81,7 @@ class AppRuntime {
   final AuthGateway? authGateway;
   final CatalogRepository? catalogRepository;
   final CatalogDraftStore? catalogDraftStore;
+  final AppSessionStore? appSessionStore;
   final List<String> problems;
 
   static Future<AppRuntime> initialize({
@@ -101,6 +106,10 @@ class AppRuntime {
       store: store,
       keyPrefix: '$storagePrefix:catalog_draft:v1',
     );
+    final appSessionStore = SecureAppSessionStore(
+      store: store,
+      keyPrefix: '$storagePrefix:app_session:v1',
+    );
 
     try {
       await Supabase.initialize(
@@ -117,6 +126,7 @@ class AppRuntime {
         SupabaseAuthGateway(client),
         catalogRepository: SupabaseCatalogRepository.fromClient(client),
         catalogDraftStore: draftStore,
+        appSessionStore: appSessionStore,
       );
     } catch (_) {
       return const AppRuntime.initializationFailed();
