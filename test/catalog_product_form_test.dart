@@ -388,6 +388,60 @@ void main() {
     expect(find.byKey(const Key('product-conflict-dialog')), findsOneWidget);
   });
 
+  testWidgets('uncertain create draft restores blocked until reconciliation', (
+    tester,
+  ) async {
+    final drafts = FakeCatalogDraftStore();
+    final firstCatalog = FakeCatalogRepository()
+      ..onCreate = (productId, input) async {
+        return const CatalogSaveUncertain();
+      };
+
+    await pumpForm(
+      tester,
+      catalog: firstCatalog,
+      draftStore: drafts,
+    );
+    await enterValidCreate(tester);
+    await tester.tap(find.byKey(const Key('product-save')));
+    await tester.pumpAndSettle();
+
+    final persisted = drafts.draftFor('owner-user-id', 'create');
+    expect(persisted, isNotNull);
+    expect(persisted!.uncertain, isTrue);
+    final stableProductId = persisted.productId;
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+
+    final restoredCatalog = FakeCatalogRepository()
+      ..onReconcileCreate = (productId, input) async {
+        expect(productId, stableProductId);
+        return const CatalogSaveRejected();
+      };
+
+    await pumpForm(
+      tester,
+      catalog: restoredCatalog,
+      draftStore: drafts,
+    );
+
+    expect(find.byKey(const Key('product-save-uncertain')), findsOneWidget);
+    expect(restoredCatalog.createIds, isEmpty);
+
+    final saveButton = tester.widget<TextButton>(
+      find.byKey(const Key('product-save')),
+    );
+    expect(saveButton.onPressed, isNull);
+
+    await tester.tap(find.byKey(const Key('product-check-save-status')));
+    await tester.pumpAndSettle();
+
+    expect(restoredCatalog.createIds, isEmpty);
+    expect(find.byKey(const Key('product-save-uncertain')), findsNothing);
+    expect(find.byKey(const Key('product-save-error')), findsOneWidget);
+  });
+
   testWidgets('drafts are isolated by authenticated account', (
     tester,
   ) async {
