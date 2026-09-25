@@ -4,7 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../application/auth_controller.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
-  const SignInScreen({super.key});
+  const SignInScreen({
+    super.key,
+    this.localSessionError,
+  });
+
+  final String? localSessionError;
 
   @override
   ConsumerState<SignInScreen> createState() => _SignInScreenState();
@@ -53,6 +58,16 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         const Text(
                           'Use the pre-provisioned owner account.',
                         ),
+                        if (widget.localSessionError != null) ...[
+                          const SizedBox(height: 16),
+                          Text(
+                            widget.localSessionError!,
+                            key: const Key('signed-out-session-error'),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: 24),
                         TextFormField(
                           key: const Key('sign-in-email'),
