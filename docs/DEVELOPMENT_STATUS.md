@@ -1,52 +1,45 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-25
-Active task: [SP-009 / Issue #21](https://github.com/Sherko231/sherko_pharma/issues/21).
-Branch: `feat/sp-009-edit-drafts`.
-Status: SP-008 is merged. SP-009 persistent product-edit draft storage and restoration are implemented on PR #22; full CI run 36125103876 passed on revision `ae08562e1a0961d46c268bbf15de605660c3fe83`. Final documentation-only revision and separate review remain before merge.
+Active task: [SP-010 / Issue #23](https://github.com/Sherko231/sherko_pharma/issues/23).
+Branch: `feat/sp-010-manual-order`.
+PR: [#24](https://github.com/Sherko231/sherko_pharma/pull/24).
+Status: SP-009 is merged. SP-010 manual customer-order calculation is implemented on the task branch and is under full CI/review.
+
 
 ## Verified baseline
 
-- Protected `main` is at `e5fc0e9860628190e1cf0e78bcc8b67a62cea8b4`, the SP-008 merge from PR #20.
-- SP-000 through SP-008 and CI-001 are merged.
-- Issue #19 is closed as completed and PR #20 is merged.
+- Protected `main` is at `41bcc69edae80a8e8337d6920231e504d81a9e1a`, the SP-009 merge from PR #22.
+- SP-000 through SP-009 and CI-001 are merged.
+- Issue #21 is closed as completed and PR #22 is merged; post-merge CI run 36126038712 passed.
 - No open Issue or PR existed immediately before SP-009 was authorized.
 - The dedicated Sherko Pharma Supabase project is active on the Free plan.
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
 
-## SP-009 contract
+## SP-010 contract
 
-- Persist dirty product create/edit input locally for the authenticated owner.
-- Restore only for the same account and form identity; signed-out or different-account states must not expose it.
-- Preserve the original edit product revision and the stable create UUID.
-- Restoring a draft must perform zero catalog mutations.
-- Confirmed Save and explicit Discard clear the corresponding draft.
-- Validation failure, rejected/failed save, unresolved conflict, and uncertain save outcome retain recoverable draft input.
-- Persist uncertain-save metadata so restart cannot turn an unknown write result into a blind retry.
-- Malformed local draft data fails closed without a server write.
-- Local storage failures are visible and must not be reported as safe persistence.
-- No full catalog cache, offline mutation queue, order persistence, scanner feature, delete/archive flow, or admin/user-role redesign belongs to SP-009.
+- Add valid-priced products manually from catalog search without catalog mutations.
+- Keep one line per product; repeated adds increment quantity.
+- Capture selling amount/currency on first add and preserve that pair for the open line.
+- Use positive whole-number quantities and exact checked integer arithmetic.
+- Keep SYP and USD totals separate; never convert or combine currencies.
+- Reject zero/invalid selling prices and overflow without mutating the order.
+- New Order confirms before clearing a nonempty in-memory order.
+- No sales history, inventory movement, checkout, barcode input, automatic price refresh, or durable order persistence belongs to SP-010.
 
 ## Implementation state
 
-- Added account- and form-scoped catalog draft storage using the existing secure key-value storage dependency; no new package was introduced.
-- Runtime injection keeps auth session and draft keys separate under the same Supabase-project namespace.
-- Product create/edit forms restore local input asynchronously, preserve create identity/edit base revision, and keep uncertain outcomes reconcilable.
-- Draft writes are serialized so a stale pending local write cannot resurrect data after a later Save/Discard clear.
-- Requirement-derived tests are being added for restoration, account isolation, revision preservation, clearing, corruption, and local-storage failure behavior.
-- Repository handoff documents were refreshed to record the completed 23,750-row hosted import.
+- Added an order domain model and Riverpod controller with checked whole-unit arithmetic.
+- Catalog search results can add products directly to the active order.
+- The Order workspace now shows lines, captured unit prices, quantities, line amounts, separate SYP/USD totals, remove controls, and New Order reset.
+- Existing order lines retain captured price/currency when quantity changes or the same product is added again.
+- Requirement-derived controller/widget tests cover repeat add, mixed currencies, invalid price rejection, removal, reset, overflow, and catalog integration.
+- SP-011 remains responsible for durable order/session restoration and account-scoped retained orders.
 
 ## Verification
 
-Full CI run 36125103876 passed on revision `ae08562e1a0961d46c268bbf15de605660c3fe83`:
+Initial PR CI run 36128819449 found one analysis-only issue (`unnecessary_underscores`) in the new order screen after Schema and Android had passed; the code was corrected without changing behavior. A fresh full current-revision CI run is required before merge.
 
-- Change scope: passed.
-- Quality: passed, including documentation checks, Python verification tests, Flutter analysis, and the full Flutter regression suite.
-- Schema: passed, including migrations, authorization regressions, and controlled-import regressions.
-- Android build: passed.
-- Windows build: passed.
-- Required verification: passed.
-
-The final documentation-only status commit still requires its current-revision CI result and the separate diff review required by `QUALITY.md`. No hardware acceptance applies to SP-009. After merge, remote `main` and post-merge CI must be verified.
+No hardware acceptance applies to SP-010. Separate diff review and post-merge CI remain required.
