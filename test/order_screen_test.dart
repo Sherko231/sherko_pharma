@@ -73,7 +73,20 @@ void main() {
     await tester.pump();
 
     expect(find.byKey(const Key('order-quantity-syp')), findsOneWidget);
-    expect(find.text('2000 SYP'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('order-line-amount-syp')),
+        matching: find.text('2000 SYP'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('order-total-syp')),
+        matching: find.text('2000 SYP'),
+      ),
+      findsOneWidget,
+    );
     expect(find.text('5 USD'), findsWidgets);
 
     await tester.tap(find.byKey(const Key('order-remove-usd')));
