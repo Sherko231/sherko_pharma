@@ -1,7 +1,7 @@
 # Sherko Pharma — Architecture
 
 Updated: 2026-09-23
-Status: Product boundaries are agreed; the hosted schema, owner-only catalog API, authentication boundary, controlled 23,750-row source import, search/detail, and create/edit flows are in place. SP-009 local draft persistence is active; later product features remain pending. See `DEVELOPMENT_STATUS.md`.
+Status: Product boundaries are agreed; the hosted schema, owner-only catalog API, authentication boundary, controlled 23,750-row source import, search/detail, create/edit, persistent drafts, and manual order calculator are in place. SP-011 account-scoped local page/order session persistence is implemented on its task branch; later refresh/scanner features remain pending. See `DEVELOPMENT_STATUS.md`.
 
 ## Current decision
 
@@ -21,7 +21,7 @@ This replaces the earlier offline-first proposal. Do not introduce Drift, a comp
 | Riverpod controllers/providers | Screen state, dependency injection, loading/error handling | Confirmed by owner; compatible package version to select during setup |
 | Repository interfaces | Isolate catalog access, account access, and session storage from widgets | Proposed implementation baseline |
 | Auth session storage | Persist the Supabase auth session in platform secure storage, not ordinary preferences | SP-006 uses `flutter_secure_storage` 11.2.0 on Android/Windows |
-| Local app session store | Save current screen, order snapshot, and active unsaved edit draft without copying the catalog | SP-009 uses the existing secure key-value store for account-scoped product drafts; broader page/order session persistence remains SP-011 |
+| Local app session store | Save current screen, order snapshot, and active unsaved edit draft without copying the catalog | SP-009 keeps product drafts account-scoped; SP-011 adds a separate versioned account-scoped page/order snapshot in the same secure key-value boundary |
 | Android camera adapter | Produce deliberate barcode scan events | Confirmed; package to verify |
 | Windows reader adapter | Produce scan events from the owner's external reader | Confirmed; hardware/input mode to verify |
 

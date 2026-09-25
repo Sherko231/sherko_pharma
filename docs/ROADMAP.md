@@ -1,6 +1,6 @@
 # Sherko Pharma — Implementation Roadmap
 
-Status: SP-000 through SP-009 and CI-001 are merged. The owner authorized SP-010 on 2026-09-25; implementation is tracked in Issue #23. Later feature tasks still require normal one-task-at-a-time authorization.
+Status: SP-000 through SP-010 and CI-001 are merged. The owner authorized SP-011 on 2026-09-25; implementation is tracked in Issue #25 and PR #26. Later feature tasks still require normal one-task-at-a-time authorization.
 
 Repository: https://github.com/Sherko231/sherko_pharma
 Inspected baseline: `main` at `2c5e0aa32a7b7ef246511cafff034adaf977d8b7`.
@@ -85,4 +85,4 @@ Inventory, completed-sale history, fractional-package selling, fractional curren
 
 SP-000 merged via PR #2 at `5d1d9b94c1faa31bcc7667f44c4ee60bb6dc399b`. SP-001 merged via PR #4 at `05f2da264ba881648dbdf5eb560948a16ca150b7` with protected-main CI verified before and after merge.
 
-SP-007 merged via PR #18 at `efd87540435624dcd8af52495f6675a1ff2cdb1f`. SP-008 merged via PR #20 at `e5fc0e9860628190e1cf0e78bcc8b67a62cea8b4`. SP-009 merged via PR #22 at `41bcc69edae80a8e8337d6920231e504d81a9e1a`. SP-010 is the active approved task in [Issue #23](https://github.com/Sherko231/sherko_pharma/issues/23): implement the bounded manual customer-order calculator; durable order/session persistence remains SP-011. See [development status](DEVELOPMENT_STATUS.md) for live evidence.
+SP-007 merged via PR #18 at `efd87540435624dcd8af52495f6675a1ff2cdb1f`. SP-008 merged via PR #20 at `e5fc0e9860628190e1cf0e78bcc8b67a62cea8b4`. SP-009 merged via PR #22 at `41bcc69edae80a8e8337d6920231e504d81a9e1a`. SP-010 merged via PR #24 at `7f9d6282a16fb30e4c61e3baf7300550c3b6f0e5` with post-merge CI verified. SP-011 is the active approved task in [Issue #25](https://github.com/Sherko231/sherko_pharma/issues/25) and [PR #26](https://github.com/Sherko231/sherko_pharma/pull/26): persist and safely restore the account-scoped local page/order session; scoped automatic refresh remains SP-012. See [development status](DEVELOPMENT_STATUS.md) for live evidence.
