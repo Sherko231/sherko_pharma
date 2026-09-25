@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../auth/application/auth_controller.dart';
 import '../application/catalog_search_controller.dart';
+import '../data/catalog_draft_store.dart';
 import '../data/catalog_repository.dart';
 import '../domain/catalog_product.dart';
 import '../domain/catalog_product_id.dart';
@@ -52,7 +56,8 @@ class _CatalogProductFormScreenState
 
   late CatalogProductFormData _baseline;
   CatalogProduct? _baseProduct;
-  late final String _createProductId;
+  late String _createProductId;
+  late final String _draftScopeKey;
   String _currency = 'SYP';
 
   CatalogProductFormValidation _validation =
@@ -64,7 +69,13 @@ class _CatalogProductFormScreenState
   bool _uncertain = false;
   bool _allowPop = false;
   bool _exitDialogOpen = false;
+  bool _draftReady = false;
+  bool _draftRestored = false;
+  String? _ownerId;
   String? _saveError;
+  String? _draftError;
+  Timer? _draftTimer;
+  Future<void> _draftIo = Future<void>.value();
 
   @override
   void initState() {
@@ -74,6 +85,9 @@ class _CatalogProductFormScreenState
         ? const CatalogProductFormData.empty()
         : CatalogProductFormData.fromProduct(widget.product!);
     _createProductId = widget.product?.id ?? generateCatalogProductId();
+    _draftScopeKey = widget.product == null
+        ? 'create'
+        : 'edit:${widget.product!.id}';
 
     _nameEnController = TextEditingController(text: _baseline.nameEn);
     _nameArController = TextEditingController(text: _baseline.nameAr);
@@ -92,10 +106,12 @@ class _CatalogProductFormScreenState
         TextEditingController(text: _baseline.sellingAmountText);
     _notesController = TextEditingController(text: _baseline.notes);
     _currency = _baseline.currency;
+    unawaited(_restoreDraft());
   }
 
   @override
   void dispose() {
+    _draftTimer?.cancel();
     _nameEnController.dispose();
     _nameArController.dispose();
     _compositionController.dispose();
@@ -127,7 +143,7 @@ class _CatalogProductFormScreenState
 
   bool get _dirty => _currentData != _baseline;
 
-  bool get _fieldsEnabled => !_saving && !_uncertain;
+  bool get _fieldsEnabled => _draftReady && !_saving && !_uncertain;
 
   @override
   Widget build(BuildContext context) {
@@ -146,7 +162,7 @@ class _CatalogProductFormScreenState
           actions: [
             TextButton(
               key: const Key('product-save'),
-              onPressed: _saving || _uncertain ? null : _save,
+              onPressed: !_draftReady || _saving || _uncertain ? null : _save,
               child: _saving
                   ? const SizedBox.square(
                       dimension: 18,
@@ -165,6 +181,33 @@ class _CatalogProductFormScreenState
                 key: const Key('product-form'),
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
                 children: [
+                  if (!_draftReady) ...[
+                    const _StatusCard(
+                      key: Key('product-draft-loading'),
+                      icon: Icons.restore,
+                      title: 'Restoring local draft',
+                      message: 'Checking this device for unfinished product input.',
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                  if (_draftRestored) ...[
+                    const _StatusCard(
+                      key: Key('product-draft-restored'),
+                      icon: Icons.restore_page,
+                      title: 'Unsaved draft restored',
+                      message: 'These values are local only. Nothing was sent to the server.',
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                  if (_draftError != null) ...[
+                    _StatusCard(
+                      key: const Key('product-draft-error'),
+                      icon: Icons.save_outlined,
+                      title: 'Draft is not safely stored',
+                      message: _draftError!,
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                   if (_uncertain) ...[
                     _StatusCard(
                       key: const Key('product-save-uncertain'),
@@ -380,6 +423,7 @@ class _CatalogProductFormScreenState
                     _validation = const CatalogProductFormValidation({});
                     _saveError = null;
                   });
+                  _scheduleDraftPersistence();
                 }
               : null,
           items: CatalogProductFormData.supportedCurrencies
@@ -400,6 +444,156 @@ class _CatalogProductFormScreenState
       _validation = const CatalogProductFormValidation({});
       _saveError = null;
     });
+    _scheduleDraftPersistence();
+  }
+
+  Future<void> _restoreDraft() async {
+    final ownerId = ref.read(authControllerProvider).identity?.userId;
+    _ownerId = ownerId;
+
+    if (ownerId == null) {
+      if (mounted) {
+        setState(() {
+          _draftReady = true;
+          _draftError = 'Sign in again before using local draft storage.';
+        });
+      }
+      return;
+    }
+
+    try {
+      final draft = await ref.read(catalogDraftStoreProvider).load(
+            ownerId: ownerId,
+            scopeKey: _draftScopeKey,
+          );
+
+      if (!mounted) {
+        return;
+      }
+
+      if (draft != null) {
+        if (widget.isCreate) {
+          if (draft.baseProduct != null) {
+            throw const CatalogDraftStorageException();
+          }
+          _baseline = const CatalogProductFormData.empty();
+          _baseProduct = null;
+        } else {
+          final draftBase = draft.baseProduct;
+          if (draftBase == null || draftBase.id != widget.product!.id) {
+            throw const CatalogDraftStorageException();
+          }
+          _baseProduct = draftBase;
+          _baseline = CatalogProductFormData.fromProduct(draftBase);
+        }
+
+        _createProductId = draft.productId;
+        _populate(draft.formData);
+        _uncertain = draft.uncertain;
+        _pendingBase = draft.pendingBase;
+        if (_uncertain) {
+          final validation = draft.formData.validate();
+          if (!validation.isValid ||
+              (!widget.isCreate && _pendingBase == null)) {
+            _uncertain = false;
+            _pendingBase = null;
+            _draftError =
+                'The previous save state could not be reconciled safely. Review the restored input before saving.';
+          } else {
+            _pendingInput = draft.formData.toInput();
+          }
+        }
+        _draftRestored = true;
+      }
+
+      setState(() {
+        _draftReady = true;
+      });
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _draftReady = true;
+          _draftError =
+              'The local draft could not be restored safely. No server write was attempted.';
+        });
+      }
+    }
+  }
+
+  void _scheduleDraftPersistence() {
+    if (!_draftReady || _ownerId == null) {
+      return;
+    }
+
+    _draftTimer?.cancel();
+    _draftTimer = Timer(const Duration(milliseconds: 250), () {
+      unawaited(_persistDraftNow());
+    });
+  }
+
+  Future<bool> _persistDraftNow() async {
+    final ownerId = _ownerId;
+    if (!_draftReady || ownerId == null) {
+      return false;
+    }
+
+    _draftTimer?.cancel();
+    if (!_dirty && !_uncertain) {
+      return _clearDraft();
+    }
+
+    final draft = CatalogProductDraft(
+      ownerId: ownerId,
+      scopeKey: _draftScopeKey,
+      productId: _createProductId,
+      formData: _currentData,
+      baseProduct: widget.isCreate ? null : _baseProduct,
+      uncertain: _uncertain,
+      pendingBase: _uncertain ? _pendingBase : null,
+    );
+
+    return _runDraftOperation(
+      () => ref.read(catalogDraftStoreProvider).save(draft),
+    );
+  }
+
+  Future<bool> _clearDraft() async {
+    final ownerId = _ownerId;
+    if (ownerId == null) {
+      return false;
+    }
+
+    _draftTimer?.cancel();
+    return _runDraftOperation(
+      () => ref.read(catalogDraftStoreProvider).clear(
+            ownerId: ownerId,
+            scopeKey: _draftScopeKey,
+          ),
+    );
+  }
+
+  Future<bool> _runDraftOperation(Future<void> Function() action) async {
+    final previous = _draftIo.catchError((_) {});
+    final operation = previous.then((_) => action());
+    _draftIo = operation.catchError((_) {});
+
+    try {
+      await operation;
+      if (mounted && _draftError != null) {
+        setState(() {
+          _draftError = null;
+        });
+      }
+      return true;
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _draftError =
+              'Local draft storage failed. Keep this form open until the draft can be stored or the server save is confirmed.';
+        });
+      }
+      return false;
+    }
   }
 
   Future<void> _save() async {
@@ -426,9 +620,13 @@ class _CatalogProductFormScreenState
     final base = _baseProduct;
 
     if (base != null && input.matchesProduct(base)) {
-      await _leaveWithResult(base);
+      if (await _clearDraft()) {
+        await _leaveWithResult(base);
+      }
       return;
     }
+
+    await _persistDraftNow();
 
     setState(() {
       _saving = true;
@@ -475,7 +673,9 @@ class _CatalogProductFormScreenState
         _pendingInput = null;
         _pendingBase = null;
         _uncertain = false;
-        await _leaveWithResult(product);
+        if (await _clearDraft()) {
+          await _leaveWithResult(product);
+        }
       case CatalogSaveRejected():
         setState(() {
           _saveError =
@@ -484,6 +684,7 @@ class _CatalogProductFormScreenState
           _pendingInput = null;
           _pendingBase = null;
         });
+        await _persistDraftNow();
       case CatalogSaveConflict(:final latest):
         setState(() {
           _latestConflict = latest;
@@ -494,6 +695,7 @@ class _CatalogProductFormScreenState
           _pendingInput = null;
           _pendingBase = null;
         });
+        await _persistDraftNow();
         if (latest != null && base != null) {
           await _showConflictDialog();
         }
@@ -504,6 +706,7 @@ class _CatalogProductFormScreenState
           _pendingBase = base;
           _saveError = null;
         });
+        await _persistDraftNow();
       case CatalogSaveMissing():
         setState(() {
           _saveError = 'This product no longer exists on the server.';
@@ -511,6 +714,7 @@ class _CatalogProductFormScreenState
           _pendingInput = null;
           _pendingBase = null;
         });
+        await _persistDraftNow();
     }
   }
 
@@ -649,7 +853,9 @@ class _CatalogProductFormScreenState
         _latestConflict = null;
         _saveError = null;
         _validation = const CatalogProductFormValidation({});
+        _draftRestored = false;
       });
+      await _clearDraft();
       return;
     }
 
@@ -733,7 +939,9 @@ class _CatalogProductFormScreenState
     }
 
     if (!_dirty) {
-      await _leaveWithoutResult();
+      if (await _clearDraft()) {
+        await _leaveWithoutResult();
+      }
       return;
     }
 
@@ -778,7 +986,9 @@ class _CatalogProductFormScreenState
     }
 
     if (choice == _ExitChoice.discard) {
-      await _leaveWithoutResult();
+      if (await _clearDraft()) {
+        await _leaveWithoutResult();
+      }
       return;
     }
 
