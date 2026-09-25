@@ -4,7 +4,7 @@ Flutter project for an online pharmacy product catalog and customer-order calcul
 
 ## Current state
 
-SP-000 through SP-007 establish the product contract, protected hosted CI, schema/source mapping, owner-only bounded catalog API, controlled import workflow, secure owner authentication/session handling, and server-backed catalog search/detail. SP-008 adds validated product create/edit flows with confirmed writes, explicit conflict handling, and idempotent create retries. The dedicated hosted project remains on the Free plan; the approved corrected source catalog has been imported and verified at 23,750 source rows. See [development status](docs/DEVELOPMENT_STATUS.md) for live evidence.
+SP-000 through SP-007 establish the product contract, protected hosted CI, schema/source mapping, owner-only bounded catalog API, controlled import workflow, secure owner authentication/session handling, and server-backed catalog search/detail. SP-008 adds validated product create/edit flows; SP-009 adds account-scoped persistent edit drafts; SP-010 adds the in-memory manual customer-order calculator. The dedicated hosted project remains on the Free plan; the approved corrected source catalog has been imported and verified at 23,750 source rows. See [development status](docs/DEVELOPMENT_STATUS.md) for live evidence.
 
 ## Setup and verification
 
@@ -27,7 +27,7 @@ CI uses GitHub-hosted runners; after change classification, Quality, Schema, And
 - Android camera scanning and Windows external-reader input. The Windows reader has not been selected.
 - English interface initially, with readable Arabic product data.
 
-Authentication, catalog search/detail, and product create/edit are now implemented; later edit-draft persistence, order, refresh, and scanner tasks remain requirements to implement. Inventory, sales history, offline catalog replication, licensing, and a separate administration app are deferred.
+Authentication, catalog search/detail, product create/edit, persistent product drafts, and the manual in-memory order calculator are implemented; durable order/session persistence, refresh, and scanner tasks remain. Inventory, sales history, offline catalog replication, licensing, and a separate administration app are deferred.
 
 ## Documentation
 
