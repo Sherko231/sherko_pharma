@@ -73,13 +73,10 @@ void main() {
     await tester.pump();
 
     expect(find.byKey(const Key('order-quantity-syp')), findsOneWidget);
-    expect(
-      find.descendant(
-        of: find.byKey(const Key('order-line-amount-syp')),
-        matching: find.text('2000 SYP'),
-      ),
-      findsOneWidget,
+    final lineAmount = tester.widget<Text>(
+      find.byKey(const Key('order-line-amount-syp')),
     );
+    expect(lineAmount.data, '2000 SYP');
     expect(
       find.descendant(
         of: find.byKey(const Key('order-total-syp')),
