@@ -27,7 +27,7 @@ class OrderScreen extends ConsumerWidget {
                     : ListView.separated(
                         key: const Key('order-lines'),
                         itemCount: order.lines.length,
-                        separatorBuilder: (_, __) =>
+                        separatorBuilder: (context, index) =>
                             const SizedBox(height: 8),
                         itemBuilder: (context, index) {
                           return _OrderLineCard(
