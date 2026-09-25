@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../features/auth/data/auth_gateway.dart';
 import '../features/auth/data/secure_supabase_local_storage.dart';
 import '../features/auth/data/supabase_auth_gateway.dart';
+import '../features/catalog/data/catalog_draft_store.dart';
 import '../features/catalog/data/catalog_repository.dart';
 import '../features/catalog/data/supabase_catalog_repository.dart';
 
@@ -53,18 +54,21 @@ class AppRuntime {
   const AppRuntime.configured(
     this.authGateway, {
     this.catalogRepository,
+    this.catalogDraftStore,
   })  : status = AppRuntimeStatus.configured,
         problems = const [];
 
   const AppRuntime.configurationBlocked(this.problems)
       : status = AppRuntimeStatus.configurationBlocked,
         authGateway = null,
-        catalogRepository = null;
+        catalogRepository = null,
+        catalogDraftStore = null;
 
   const AppRuntime.initializationFailed()
       : status = AppRuntimeStatus.initializationFailed,
         authGateway = null,
         catalogRepository = null,
+        catalogDraftStore = null,
         problems = const [
           'Supabase or secure session storage could not be initialized.',
         ];
@@ -72,6 +76,7 @@ class AppRuntime {
   final AppRuntimeStatus status;
   final AuthGateway? authGateway;
   final CatalogRepository? catalogRepository;
+  final CatalogDraftStore? catalogDraftStore;
   final List<String> problems;
 
   static Future<AppRuntime> initialize({
@@ -85,10 +90,16 @@ class AppRuntime {
       return AppRuntime.configurationBlocked(problems);
     }
 
+    final store = secureStore ?? const FlutterSecureKeyValueStore();
+    final storagePrefix =
+        'sherko_pharma:${Uri.parse(resolved.supabaseUrl).host}';
     final sessionStorage = SecureSupabaseLocalStorage(
-      store: secureStore ?? const FlutterSecureKeyValueStore(),
-      sessionKey:
-          'sherko_pharma:${Uri.parse(resolved.supabaseUrl).host}:auth_session',
+      store: store,
+      sessionKey: '$storagePrefix:auth_session',
+    );
+    final draftStore = SecureCatalogDraftStore(
+      store: store,
+      keyPrefix: '$storagePrefix:catalog_draft:v1',
     );
 
     try {
@@ -105,6 +116,7 @@ class AppRuntime {
       return AppRuntime.configured(
         SupabaseAuthGateway(client),
         catalogRepository: SupabaseCatalogRepository.fromClient(client),
+        catalogDraftStore: draftStore,
       );
     } catch (_) {
       return const AppRuntime.initializationFailed();

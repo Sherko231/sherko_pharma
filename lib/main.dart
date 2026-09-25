@@ -5,6 +5,7 @@ import 'app/app.dart';
 import 'app/app_runtime.dart';
 import 'features/auth/application/auth_controller.dart';
 import 'features/catalog/application/catalog_search_controller.dart';
+import 'features/catalog/data/catalog_draft_store.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +28,7 @@ class AppBootstrap extends StatelessWidget {
   Widget build(BuildContext context) {
     final authGateway = runtime.authGateway;
     final catalogRepository = runtime.catalogRepository;
+    final catalogDraftStore = runtime.catalogDraftStore;
 
     return ProviderScope(
       overrides: [
@@ -34,6 +36,8 @@ class AppBootstrap extends StatelessWidget {
           authGatewayProvider.overrideWithValue(authGateway),
         if (catalogRepository != null)
           catalogRepositoryProvider.overrideWithValue(catalogRepository),
+        if (catalogDraftStore != null)
+          catalogDraftStoreProvider.overrideWithValue(catalogDraftStore),
       ],
       child: SherkoPharmaApp(runtime: runtime),
     );

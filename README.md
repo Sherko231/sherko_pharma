@@ -4,7 +4,7 @@ Flutter project for an online pharmacy product catalog and customer-order calcul
 
 ## Current state
 
-SP-000 through SP-007 establish the product contract, protected hosted CI, schema/source mapping, owner-only bounded catalog API, controlled import workflow, secure owner authentication/session handling, and server-backed catalog search/detail. SP-008 adds validated product create/edit flows with confirmed writes, explicit conflict handling, and idempotent create retries. The dedicated hosted project remains on the Free plan; the real source catalog has not yet been imported. See [development status](docs/DEVELOPMENT_STATUS.md) for live evidence.
+SP-000 through SP-007 establish the product contract, protected hosted CI, schema/source mapping, owner-only bounded catalog API, controlled import workflow, secure owner authentication/session handling, and server-backed catalog search/detail. SP-008 adds validated product create/edit flows with confirmed writes, explicit conflict handling, and idempotent create retries. The dedicated hosted project remains on the Free plan; the approved corrected source catalog has been imported and verified at 23,750 source rows. See [development status](docs/DEVELOPMENT_STATUS.md) for live evidence.
 
 ## Setup and verification
 
@@ -57,4 +57,4 @@ Use the GitHub task form and PR template to record acceptance examples, revision
 
 The full medication CSV is deliberately not included. Use the controlled workflow in [IMPORT.md](docs/IMPORT.md); only synthetic import fixtures belong in the public repository.
 
-Never commit credentials, privileged server keys, source data dumps, or production request payloads. A dedicated Free hosted Sherko Pharma environment is provisioned for the versioned schema/API/auth boundary, but the real corrected source catalog has not yet been imported.
+Never commit credentials, privileged server keys, source data dumps, or production request payloads. A dedicated Free hosted Sherko Pharma environment is provisioned for the versioned schema/API/auth boundary. The approved corrected source catalog was imported with 23,750 source rows; future controlled reruns remain insert-only for that dataset identity.
