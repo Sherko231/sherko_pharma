@@ -3,7 +3,7 @@
 Updated: 2026-09-25
 Active task: [SP-009 / Issue #21](https://github.com/Sherko231/sherko_pharma/issues/21).
 Branch: `feat/sp-009-edit-drafts`.
-Status: SP-008 is merged. SP-009 persistent product-edit draft storage and restoration are under implementation and verification.
+Status: SP-008 is merged. SP-009 persistent product-edit draft storage and restoration are implemented on PR #22; full CI run 36125103876 passed on revision `ae08562e1a0961d46c268bbf15de605660c3fe83`. Final documentation-only revision and separate review remain before merge.
 
 ## Verified baseline
 
@@ -38,14 +38,15 @@ Status: SP-008 is merged. SP-009 persistent product-edit draft storage and resto
 - Requirement-derived tests are being added for restoration, account isolation, revision preservation, clearing, corruption, and local-storage failure behavior.
 - Repository handoff documents were refreshed to record the completed 23,750-row hosted import.
 
-## Verification still required
+## Verification
 
-- Full Flutter analysis/test suite on the current SP-009 revision.
-- Android debug build.
-- Windows release build.
-- Required verification aggregator.
-- Separate diff review against Issue #21.
-- Current-revision PR CI must pass before merge.
-- After merge, verify remote `main` and post-merge CI.
+Full CI run 36125103876 passed on revision `ae08562e1a0961d46c268bbf15de605660c3fe83`:
 
-No hardware acceptance applies to SP-009.
+- Change scope: passed.
+- Quality: passed, including documentation checks, Python verification tests, Flutter analysis, and the full Flutter regression suite.
+- Schema: passed, including migrations, authorization regressions, and controlled-import regressions.
+- Android build: passed.
+- Windows build: passed.
+- Required verification: passed.
+
+The final documentation-only status commit still requires its current-revision CI result and the separate diff review required by `QUALITY.md`. No hardware acceptance applies to SP-009. After merge, remote `main` and post-merge CI must be verified.
