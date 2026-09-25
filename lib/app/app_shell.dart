@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/catalog/presentation/catalog_screen.dart';
 import '../features/navigation/application/app_navigation_controller.dart';
 import '../features/order/presentation/order_screen.dart';
+import '../features/session/application/app_session_controller.dart';
 
 class AppShell extends ConsumerWidget {
   const AppShell({
@@ -60,13 +61,13 @@ class AppShell extends ConsumerWidget {
                     ),
                     const VerticalDivider(width: 1),
                     Expanded(
-                      child: _DestinationContent(
+                      child: _SessionAwareDestination(
                         destination: destination,
                       ),
                     ),
                   ],
                 )
-              : _DestinationContent(
+              : _SessionAwareDestination(
                   destination: destination,
                 ),
           bottomNavigationBar: useNavigationRail
@@ -101,6 +102,67 @@ class AppShell extends ConsumerWidget {
   }
 }
 
+class _SessionAwareDestination extends ConsumerWidget {
+  const _SessionAwareDestination({
+    required this.destination,
+  });
+
+  final AppDestination destination;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final session = ref.watch(appSessionControllerProvider);
+
+    return Column(
+      children: [
+        if (session.errorMessage != null)
+          Material(
+            key: const Key('local-session-error'),
+            color: Theme.of(context).colorScheme.errorContainer,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 10,
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    color: Theme.of(context).colorScheme.onErrorContainer,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      session.errorMessage!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onErrorContainer,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  TextButton(
+                    key: const Key('local-session-retry'),
+                    onPressed: () {
+                      ref
+                          .read(appSessionControllerProvider.notifier)
+                          .retryPersistence();
+                    },
+                    child: const Text('Retry local save'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        Expanded(
+          child: _DestinationContent(
+            destination: destination,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _DestinationContent extends StatelessWidget {
   const _DestinationContent({
     required this.destination,
@@ -116,4 +178,3 @@ class _DestinationContent extends StatelessWidget {
     };
   }
 }
-
