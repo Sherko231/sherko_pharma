@@ -18,9 +18,13 @@ class AppNavigationController extends Notifier<AppDestination> {
 
     state = destination;
   }
+
+  void restoreForSession(AppDestination destination) {
+    state = destination;
+  }
 }
 
 final appNavigationControllerProvider =
     NotifierProvider<AppNavigationController, AppDestination>(
-      AppNavigationController.new,
-    );
+  AppNavigationController.new,
+);

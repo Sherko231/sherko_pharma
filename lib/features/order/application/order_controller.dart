@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../auth/application/auth_controller.dart';
 import '../../catalog/domain/catalog_product.dart';
 import '../domain/order_model.dart';
 
@@ -17,9 +16,6 @@ enum OrderActionResult {
 class OrderController extends Notifier<OrderState> {
   @override
   OrderState build() {
-    ref.watch(
-      authControllerProvider.select((auth) => auth.identity?.userId),
-    );
     return const OrderState();
   }
 
@@ -84,6 +80,11 @@ class OrderController extends Notifier<OrderState> {
 
   void clear() {
     state = const OrderState();
+  }
+
+  void replaceForSession(OrderState restored) {
+    _checkedTotals(restored.lines);
+    state = restored;
   }
 
   OrderActionResult _changeQuantity(
