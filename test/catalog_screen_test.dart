@@ -35,88 +35,6 @@ Future<void> pumpCatalog(
     ),
   );
   await tester.pumpAndSettle();
-
-  testWidgets('catalog Add to order captures product without catalog mutation', (
-    tester,
-  ) async {
-    final product = testProduct(
-      id: 'order-product',
-      sellingAmount: 1250,
-      currency: 'SYP',
-    );
-    final catalog = FakeCatalogRepository()
-      ..searchResults = [product];
-
-    await pumpCatalog(
-      tester,
-      catalog: catalog,
-    );
-
-    await tester.enterText(
-      find.byKey(const Key('catalog-search-field')),
-      'Aspirin',
-    );
-    await tester.pump(const Duration(milliseconds: 301));
-    await tester.pumpAndSettle();
-
-    await tester.tap(
-      find.byKey(const Key('catalog-add-to-order-order-product')),
-    );
-    await tester.pump();
-
-    final shellContext = tester.element(find.byType(AppShell));
-    final container = ProviderScope.containerOf(shellContext);
-    final order = container.read(orderControllerProvider);
-
-    expect(order.lines, hasLength(1));
-    expect(order.lines.single.productId, 'order-product');
-    expect(order.lines.single.unitAmount, 1250);
-    expect(order.lines.single.currency, 'SYP');
-    expect(catalog.createIds, isEmpty);
-    expect(catalog.updateOriginals, isEmpty);
-    expect(find.text('Added to order.'), findsOneWidget);
-  });
-
-  testWidgets('catalog rejects zero-price product with clear feedback', (
-    tester,
-  ) async {
-    final product = testProduct(
-      id: 'zero-price',
-      sellingAmount: 0,
-      currency: 'SYP',
-    );
-    final catalog = FakeCatalogRepository()
-      ..searchResults = [product];
-
-    await pumpCatalog(
-      tester,
-      catalog: catalog,
-    );
-
-    await tester.enterText(
-      find.byKey(const Key('catalog-search-field')),
-      'Aspirin',
-    );
-    await tester.pump(const Duration(milliseconds: 301));
-    await tester.pumpAndSettle();
-
-    await tester.tap(
-      find.byKey(const Key('catalog-add-to-order-zero-price')),
-    );
-    await tester.pump();
-
-    final shellContext = tester.element(find.byType(AppShell));
-    final container = ProviderScope.containerOf(shellContext);
-
-    expect(container.read(orderControllerProvider).lines, isEmpty);
-    expect(
-      find.text(
-        'Set a positive SYP or USD selling price before adding this product.',
-      ),
-      findsOneWidget,
-    );
-  });
-
 }
 
 void main() {
@@ -298,6 +216,88 @@ void main() {
       find.byKey(const Key('product-field-name-en')),
     );
     expect(field.controller?.text, 'Aspirin');
+  });
+
+
+  testWidgets('catalog Add to order captures product without catalog mutation', (
+    tester,
+  ) async {
+    final product = testProduct(
+      id: 'order-product',
+      sellingAmount: 1250,
+      currency: 'SYP',
+    );
+    final catalog = FakeCatalogRepository()
+      ..searchResults = [product];
+
+    await pumpCatalog(
+      tester,
+      catalog: catalog,
+    );
+
+    await tester.enterText(
+      find.byKey(const Key('catalog-search-field')),
+      'Aspirin',
+    );
+    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.byKey(const Key('catalog-add-to-order-order-product')),
+    );
+    await tester.pump();
+
+    final shellContext = tester.element(find.byType(AppShell));
+    final container = ProviderScope.containerOf(shellContext);
+    final order = container.read(orderControllerProvider);
+
+    expect(order.lines, hasLength(1));
+    expect(order.lines.single.productId, 'order-product');
+    expect(order.lines.single.unitAmount, 1250);
+    expect(order.lines.single.currency, 'SYP');
+    expect(catalog.createIds, isEmpty);
+    expect(catalog.updateOriginals, isEmpty);
+    expect(find.text('Added to order.'), findsOneWidget);
+  });
+
+  testWidgets('catalog rejects zero-price product with clear feedback', (
+    tester,
+  ) async {
+    final product = testProduct(
+      id: 'zero-price',
+      sellingAmount: 0,
+      currency: 'SYP',
+    );
+    final catalog = FakeCatalogRepository()
+      ..searchResults = [product];
+
+    await pumpCatalog(
+      tester,
+      catalog: catalog,
+    );
+
+    await tester.enterText(
+      find.byKey(const Key('catalog-search-field')),
+      'Aspirin',
+    );
+    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.byKey(const Key('catalog-add-to-order-zero-price')),
+    );
+    await tester.pump();
+
+    final shellContext = tester.element(find.byType(AppShell));
+    final container = ProviderScope.containerOf(shellContext);
+
+    expect(container.read(orderControllerProvider).lines, isEmpty);
+    expect(
+      find.text(
+        'Set a positive SYP or USD selling price before adding this product.',
+      ),
+      findsOneWidget,
+    );
   });
 
 }
