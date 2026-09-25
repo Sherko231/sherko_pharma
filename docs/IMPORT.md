@@ -62,9 +62,9 @@ The SQL:
 
 ## Apply only to an explicit target
 
-No Sherko Pharma hosted Supabase environment is provisioned yet, so SP-005 does not run a real source import.
+The dedicated Sherko Pharma hosted Supabase environment is provisioned, and the approved corrected source was imported on 2026-09-25. Post-import verification found exactly 23,750 dataset rows and 23,750 distinct source IDs.
 
-After a dedicated environment is deliberately selected, its schema/auth configuration is verified, and an administrative PostgreSQL connection is available, set the URL in an environment variable rather than a CLI argument:
+For a future explicitly authorized rerun against a deliberately selected environment, verify schema/auth configuration first and set the administrative PostgreSQL URL in an environment variable rather than a CLI argument:
 
 ```text
 set SHERKO_IMPORT_DATABASE_URL=postgresql://...
