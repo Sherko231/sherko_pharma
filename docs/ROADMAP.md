@@ -1,6 +1,6 @@
 # Sherko Pharma — Implementation Roadmap
 
-Status: SP-000 through SP-007 and CI-001 are merged. The owner authorized SP-008 on 2026-09-25; implementation is tracked in Issue #19. Later feature tasks still require normal one-task-at-a-time authorization.
+Status: SP-000 through SP-008 and CI-001 are merged. The owner authorized SP-009 on 2026-09-25; implementation is tracked in Issue #21. Later feature tasks still require normal one-task-at-a-time authorization.
 
 Repository: https://github.com/Sherko231/sherko_pharma
 Inspected baseline: `main` at `2c5e0aa32a7b7ef246511cafff034adaf977d8b7`.
@@ -85,4 +85,4 @@ Inventory, completed-sale history, fractional-package selling, fractional curren
 
 SP-000 merged via PR #2 at `5d1d9b94c1faa31bcc7667f44c4ee60bb6dc399b`. SP-001 merged via PR #4 at `05f2da264ba881648dbdf5eb560948a16ca150b7` with protected-main CI verified before and after merge.
 
-SP-007 merged via PR #18 at `efd87540435624dcd8af52495f6675a1ff2cdb1f`; post-merge run 36059319010 passed all required gates. SP-008 is the active approved task in [Issue #19](https://github.com/Sherko231/sherko_pharma/issues/19): implement validated product create/edit, confirmed mutation outcomes, unsaved-navigation choices, and explicit revision conflict resolution. See [development status](DEVELOPMENT_STATUS.md) for live evidence.
+SP-007 merged via PR #18 at `efd87540435624dcd8af52495f6675a1ff2cdb1f`. SP-008 merged via PR #20 at `e5fc0e9860628190e1cf0e78bcc8b67a62cea8b4`. SP-009 is the active approved task in [Issue #21](https://github.com/Sherko231/sherko_pharma/issues/21): persist and safely restore unfinished product create/edit drafts without automatic catalog writes. See [development status](DEVELOPMENT_STATUS.md) for live evidence.
