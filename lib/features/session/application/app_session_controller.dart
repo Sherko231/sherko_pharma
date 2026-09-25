@@ -63,10 +63,17 @@ class AppSessionController extends Notifier<AppSessionViewState> {
 
   @override
   AppSessionViewState build() {
-    final ownerId = ref.watch(
-      authControllerProvider.select((auth) => auth.identity?.userId),
-    );
+    final initialOwnerId =
+        ref.read(authControllerProvider).identity?.userId;
+    _activeOwnerId = initialOwnerId;
+    _suppressPersistence = true;
 
+    ref.listen<String?>(
+      authControllerProvider.select((auth) => auth.identity?.userId),
+      (previous, next) {
+        _handleIdentityChange(next);
+      },
+    );
     ref.listen<OrderState>(
       orderControllerProvider,
       (previous, next) {
@@ -80,27 +87,15 @@ class AppSessionController extends Notifier<AppSessionViewState> {
       },
     );
 
-    final previousOwner = _activeOwnerId;
-    if (previousOwner != null &&
-        previousOwner != ownerId &&
-        !_suppressPersistence) {
-      _lastSignedOutOwnerId = previousOwner;
-      _queueSnapshot(_snapshotFor(previousOwner));
+    if (initialOwnerId == null) {
+      return const AppSessionViewState.signedOut();
     }
 
     final generation = ++_identityGeneration;
-    _suppressPersistence = true;
-    _activeOwnerId = ownerId;
-
-    if (ownerId == null) {
-      Future<void>.microtask(() => _applySignedOut(generation));
-      return AppSessionViewState.signedOut(
-        errorMessage: _errorFor(_lastSignedOutOwnerId),
-      );
-    }
-
-    Future<void>.microtask(() => _restore(ownerId, generation));
-    return AppSessionViewState.restoring(ownerId);
+    Future<void>.microtask(
+      () => _restore(initialOwnerId, generation),
+    );
+    return AppSessionViewState.restoring(initialOwnerId);
   }
 
   void prepareForSignOut() {
@@ -112,13 +107,7 @@ class AppSessionController extends Notifier<AppSessionViewState> {
     _lastSignedOutOwnerId = ownerId;
     _queueSnapshot(_snapshotFor(ownerId));
     _suppressPersistence = true;
-
-    ref.read(orderControllerProvider.notifier).replaceForSession(
-          const OrderState(),
-        );
-    ref
-        .read(appNavigationControllerProvider.notifier)
-        .restoreForSession(AppDestination.catalog);
+    _clearProtectedMemory();
   }
 
   void retryPersistence() {
@@ -135,38 +124,57 @@ class AppSessionController extends Notifier<AppSessionViewState> {
     return _writeChain;
   }
 
-  Future<void> _applySignedOut(int generation) async {
-    if (generation != _identityGeneration || _activeOwnerId != null) {
+  void _handleIdentityChange(String? ownerId) {
+    if (ownerId == _activeOwnerId) {
       return;
     }
 
+    final previousOwner = _activeOwnerId;
+    if (previousOwner != null && !_suppressPersistence) {
+      _lastSignedOutOwnerId = previousOwner;
+      _queueSnapshot(_snapshotFor(previousOwner));
+    }
+
+    final generation = ++_identityGeneration;
     _suppressPersistence = true;
+    _activeOwnerId = ownerId;
+    _clearProtectedMemory();
+
+    if (ownerId == null) {
+      state = AppSessionViewState.signedOut(
+        errorMessage: _errorFor(_lastSignedOutOwnerId),
+      );
+      return;
+    }
+
+    state = AppSessionViewState.restoring(ownerId);
+    unawaited(_restore(ownerId, generation));
+  }
+
+  void _clearProtectedMemory() {
     ref.read(orderControllerProvider.notifier).replaceForSession(
           const OrderState(),
         );
     ref
         .read(appNavigationControllerProvider.notifier)
         .restoreForSession(AppDestination.catalog);
-
-    state = AppSessionViewState.signedOut(
-      errorMessage: _errorFor(_lastSignedOutOwnerId),
-    );
   }
 
   Future<void> _restore(
     String ownerId,
     int generation,
   ) async {
+    final store = ref.read(appSessionStoreProvider);
     AppSessionSnapshot? snapshot;
     try {
-      snapshot = await ref.read(appSessionStoreProvider).load(
-            ownerId: ownerId,
-          );
+      snapshot = await store.load(ownerId: ownerId);
     } catch (_) {
       _ownerErrors[ownerId] = restoreErrorMessage;
     }
 
-    if (generation != _identityGeneration || _activeOwnerId != ownerId) {
+    if (!ref.mounted ||
+        generation != _identityGeneration ||
+        _activeOwnerId != ownerId) {
       return;
     }
 
@@ -211,8 +219,9 @@ class AppSessionController extends Notifier<AppSessionViewState> {
   }
 
   void _queueSnapshot(AppSessionSnapshot snapshot) {
+    final store = ref.read(appSessionStoreProvider);
     final operation = _writeChain.then(
-      (_) => ref.read(appSessionStoreProvider).save(snapshot),
+      (_) => store.save(snapshot),
     );
     _writeChain = operation.catchError((_) {});
     unawaited(_observeWrite(operation, snapshot.ownerId));
