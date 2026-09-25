@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/catalog_search_controller.dart';
+import '../../order/application/order_controller.dart';
 import '../domain/catalog_product.dart';
 import 'catalog_detail_screen.dart';
 import 'catalog_product_form_screen.dart';
@@ -92,6 +93,7 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
                       .retry();
                 },
                 onOpenProduct: _openProduct,
+                onAddToOrder: _addToOrder,
               ),
             ),
           ),
@@ -124,6 +126,25 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
       ),
     );
   }
+
+  void _addToOrder(CatalogProduct product) {
+    final result = ref.read(orderControllerProvider.notifier).addProduct(product);
+    final message = switch (result) {
+      OrderActionResult.added => 'Added to order.',
+      OrderActionResult.incremented => 'Quantity increased in the order.',
+      OrderActionResult.invalidPrice =>
+        'Set a positive SYP or USD selling price before adding this product.',
+      OrderActionResult.overflow =>
+        'This order amount is too large to calculate safely.',
+      _ => 'Order was not changed.',
+    };
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+  }
 }
 
 class _CatalogSearchBody extends StatelessWidget {
@@ -131,11 +152,13 @@ class _CatalogSearchBody extends StatelessWidget {
     required this.search,
     required this.onRetry,
     required this.onOpenProduct,
+    required this.onAddToOrder,
   });
 
   final CatalogSearchState search;
   final VoidCallback onRetry;
   final ValueChanged<CatalogProduct> onOpenProduct;
+  final ValueChanged<CatalogProduct> onAddToOrder;
 
   @override
   Widget build(BuildContext context) {
@@ -177,6 +200,7 @@ class _CatalogSearchBody extends StatelessWidget {
             return _ProductResultCard(
               product: product,
               onTap: () => onOpenProduct(product),
+              onAddToOrder: () => onAddToOrder(product),
             );
           },
         ),
@@ -188,10 +212,12 @@ class _ProductResultCard extends StatelessWidget {
   const _ProductResultCard({
     required this.product,
     required this.onTap,
+    required this.onAddToOrder,
   });
 
   final CatalogProduct product;
   final VoidCallback onTap;
+  final VoidCallback onAddToOrder;
 
   @override
   Widget build(BuildContext context) {
@@ -252,7 +278,12 @@ class _ProductResultCard extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   const SizedBox(height: 8),
-                  const Icon(Icons.chevron_right),
+                  IconButton.filledTonal(
+                    key: Key('catalog-add-to-order-${product.id}'),
+                    tooltip: 'Add to order',
+                    onPressed: onAddToOrder,
+                    icon: const Icon(Icons.add_shopping_cart),
+                  ),
                 ],
               ),
             ],
