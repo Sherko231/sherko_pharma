@@ -4,14 +4,43 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sherko_pharma/app/app_runtime.dart';
 import 'package:sherko_pharma/app/app_shell.dart';
 import 'package:sherko_pharma/features/auth/domain/auth_identity.dart';
+import 'package:sherko_pharma/features/navigation/application/app_navigation_controller.dart';
 import 'package:sherko_pharma/features/order/application/order_controller.dart';
+import 'package:sherko_pharma/features/order/domain/order_model.dart';
+import 'package:sherko_pharma/features/session/data/app_session_store.dart';
 import 'package:sherko_pharma/features/session/application/app_session_controller.dart';
 import 'package:sherko_pharma/main.dart';
 
-import 'app_session_controller_test.dart' show savedOrder;
 import 'support/fake_app_session_store.dart';
 import 'support/fake_auth_gateway.dart';
 import 'support/fake_catalog_repository.dart';
+
+
+AppSessionSnapshot savedOrder({
+  required String ownerId,
+  AppDestination destination = AppDestination.order,
+  String productId = 'p1',
+  int quantity = 3,
+  int unitAmount = 1000,
+  String currency = 'SYP',
+}) {
+  return AppSessionSnapshot(
+    ownerId: ownerId,
+    destination: destination,
+    order: OrderState(
+      lines: [
+        OrderLine(
+          productId: productId,
+          displayName: 'Saved product',
+          quantity: quantity,
+          unitAmount: unitAmount,
+          currency: currency,
+          productRevision: 7,
+        ),
+      ],
+    ),
+  );
+}
 
 Future<ProviderContainer> pumpSessionApp(
   WidgetTester tester, {
