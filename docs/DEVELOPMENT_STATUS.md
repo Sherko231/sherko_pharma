@@ -1,51 +1,51 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-25
-Active task: [SP-008 / Issue #19](https://github.com/Sherko231/sherko_pharma/issues/19).
-Branch: `feat/sp-008-product-editor`.
-PR: [#20](https://github.com/Sherko231/sherko_pharma/pull/20).
-Status: Product create/edit implementation, additive idempotent-create migration, and requirement-derived regressions are on the task branch. Final current-revision CI and separate review remain pending.
+Active task: [SP-009 / Issue #21](https://github.com/Sherko231/sherko_pharma/issues/21).
+Branch: `feat/sp-009-edit-drafts`.
+Status: SP-008 is merged. SP-009 persistent product-edit draft storage and restoration are under implementation and verification.
 
 ## Verified baseline
 
-- Protected `main` was `efd87540435624dcd8af52495f6675a1ff2cdb1f` when SP-008 started.
-- SP-000 through SP-007 and CI-001 are merged.
-- SP-007 post-merge run 36059319010 passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
-- No open Issue or PR existed before SP-008 was authorized.
-- The dedicated Sherko Pharma Supabase project remains on the Free plan; SP-003/SP-004 and owner auth are deployed.
-- The hosted catalog still has 0 products because the real corrected source import remains undeployed. SP-008 automated verification does not mutate the hosted catalog.
+- Protected `main` is at `e5fc0e9860628190e1cf0e78bcc8b67a62cea8b4`, the SP-008 merge from PR #20.
+- SP-000 through SP-008 and CI-001 are merged.
+- Issue #19 is closed as completed and PR #20 is merged.
+- No open Issue or PR existed immediately before SP-009 was authorized.
+- The dedicated Sherko Pharma Supabase project is active on the Free plan.
+- Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
+- The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
+- Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
 
-## SP-008 implementation
+## SP-009 contract
 
-- New and edit forms expose exactly the approved canonical fields: English/Arabic names, composition, manufacturer, strength, dosage form, package description, both barcodes, selling amount/currency, and notes.
-- Validation accepts either language name alone, rejects both names blank/whitespace-only, requires a positive whole-number selling amount, and restricts currency to SYP/USD.
-- Barcode values remain text and preserve leading zeros/non-digit characters.
-- New-product forms generate one RFC4122-shaped random UUID and retain it across safe retries.
-- Migration `0003_idempotent_catalog_create.sql` adds `catalog_create_idempotent` without changing the legacy SP-004 create RPC.
-- Exact create replay with the same UUID/input returns the same row; mismatched replay raises SQLSTATE `40001`. Anonymous/non-owner access remains denied and manual create does not populate source provenance.
-- The client mutation repository uses only owner-authorized RPCs. No direct `products` table access was added.
-- Create/update failures reconcile through `catalog_get` before a retry is considered safe. An unreadable outcome becomes an explicit uncertain state and blind retry is blocked.
-- Revision conflicts retain local input. The owner can Stay, Use server version, or explicitly Overwrite with current changes against the latest observed revision.
-- Dirty back/app navigation offers Save, Discard Changes, or Stay. Save leaves the form only after a confirmed server row; failed/conflicted/uncertain writes keep the form.
-- Persistent unfinished drafts are not added; they remain SP-009.
-- Catalog exposes New product and product detail exposes Edit product. Confirmed results update/open product detail.
-- No delete API/UI, order mutation, scanner flow, offline mutation queue, full catalog cache, dependency addition, or paid service was introduced.
+- Persist dirty product create/edit input locally for the authenticated owner.
+- Restore only for the same account and form identity; signed-out or different-account states must not expose it.
+- Preserve the original edit product revision and the stable create UUID.
+- Restoring a draft must perform zero catalog mutations.
+- Confirmed Save and explicit Discard clear the corresponding draft.
+- Validation failure, rejected/failed save, unresolved conflict, and uncertain save outcome retain recoverable draft input.
+- Persist uncertain-save metadata so restart cannot turn an unknown write result into a blind retry.
+- Malformed local draft data fails closed without a server write.
+- Local storage failures are visible and must not be reported as safe persistence.
+- No full catalog cache, offline mutation queue, order persistence, scanner feature, delete/archive flow, or admin/user-role redesign belongs to SP-009.
 
-## Verification
+## Implementation state
 
-Requirement-derived coverage includes:
+- Added account- and form-scoped catalog draft storage using the existing secure key-value storage dependency; no new package was introduced.
+- Runtime injection keeps auth session and draft keys separate under the same Supabase-project namespace.
+- Product create/edit forms restore local input asynchronously, preserve create identity/edit base revision, and keep uncertain outcomes reconcilable.
+- Draft writes are serialized so a stale pending local write cannot resurrect data after a later Save/Discard clear.
+- Requirement-derived tests are being added for restoration, account isolation, revision preservation, clearing, corruption, and local-storage failure behavior.
+- Repository handoff documents were refreshed to record the completed 23,750-row hosted import.
 
-- idempotent create replay, mismatched replay conflict, owner authorization, and source-provenance preservation in isolated PostgreSQL;
-- exact create/update RPC parameter mapping;
-- mutation reconciliation for confirmed, definitely-not-applied, conflict, missing, and uncertain outcomes;
-- English-only and Arabic-only name acceptance, whitespace-name rejection, positive whole-integer price validation, supported currency validation, and exact barcode text;
-- create/edit widget flows;
-- failed-save input retention;
-- uncertain create status checking with the same stable UUID;
-- dirty-navigation Save / Discard Changes / Stay;
-- conflict Use server version and explicit Overwrite paths;
-- existing auth/search/detail regressions.
+## Verification still required
 
-Early CI findings were implementation-test harness issues only: the idempotent SQL conflict target was changed to the named primary-key constraint to avoid PL/pgSQL output-column ambiguity, and the long-form validation widget test scrolls to price feedback because Flutter lazily builds the form ListView. No product requirement or assertion was removed.
+- Full Flutter analysis/test suite on the current SP-009 revision.
+- Android debug build.
+- Windows release build.
+- Required verification aggregator.
+- Separate diff review against Issue #21.
+- Current-revision PR CI must pass before merge.
+- After merge, verify remote `main` and post-merge CI.
 
-No hardware acceptance or sensitive-change exception applies. The final branch revision must still pass full Quality, Schema, Android, Windows, and Required verification gates plus separate diff review before merge. After merge, the additive migration must be applied/read back on the dedicated hosted project before the hosted app can use the new create RPC.
+No hardware acceptance applies to SP-009.
