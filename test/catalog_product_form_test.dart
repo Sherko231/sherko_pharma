@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sherko_pharma/features/auth/application/auth_controller.dart';
+import 'package:sherko_pharma/features/auth/domain/auth_identity.dart';
 import 'package:sherko_pharma/features/catalog/application/catalog_search_controller.dart';
+import 'package:sherko_pharma/features/catalog/data/catalog_draft_store.dart';
 import 'package:sherko_pharma/features/catalog/data/catalog_repository.dart';
 import 'package:sherko_pharma/features/catalog/domain/catalog_product.dart';
 import 'package:sherko_pharma/features/catalog/presentation/catalog_product_form_screen.dart';
 
+import 'support/fake_auth_gateway.dart';
+import 'support/fake_catalog_draft_store.dart';
 import 'support/fake_catalog_repository.dart';
 
 class _FormHost extends StatefulWidget {
@@ -62,16 +67,29 @@ Future<void> pumpForm(
   WidgetTester tester, {
   required FakeCatalogRepository catalog,
   CatalogProduct? editProduct,
+  FakeCatalogDraftStore? draftStore,
+  String ownerId = 'owner-user-id',
 }) async {
   tester.view.physicalSize = const Size(900, 900);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
 
+  final auth = FakeAuthGateway(
+    initialIdentity: AuthIdentity(
+      userId: ownerId,
+      email: '$ownerId@example.test',
+    ),
+  );
+  addTearDown(auth.dispose);
+  final drafts = draftStore ?? FakeCatalogDraftStore();
+
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
+        authGatewayProvider.overrideWithValue(auth),
         catalogRepositoryProvider.overrideWithValue(catalog),
+        catalogDraftStoreProvider.overrideWithValue(drafts),
       ],
       child: MaterialApp(
         home: _FormHost(
@@ -264,6 +282,192 @@ void main() {
 
     expect(catalog.createIds, hasLength(1));
     expect(find.byKey(const Key('form-result-id')), findsOneWidget);
+  });
+
+
+  testWidgets('create draft restores locally with the same stable product id', (
+    tester,
+  ) async {
+    final drafts = FakeCatalogDraftStore();
+    final firstCatalog = FakeCatalogRepository();
+
+    await pumpForm(
+      tester,
+      catalog: firstCatalog,
+      draftStore: drafts,
+    );
+    await enterValidCreate(tester);
+    await tester.pump(const Duration(milliseconds: 300));
+
+    final savedDraft = drafts.draftFor('owner-user-id', 'create');
+    expect(savedDraft, isNotNull);
+    final originalCreateId = savedDraft!.productId;
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+
+    final restoredCatalog = FakeCatalogRepository();
+    await pumpForm(
+      tester,
+      catalog: restoredCatalog,
+      draftStore: drafts,
+    );
+
+    expect(find.byKey(const Key('product-draft-restored')), findsOneWidget);
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const Key('product-field-name-en')))
+          .controller
+          ?.text,
+      'Created Product',
+    );
+    expect(restoredCatalog.createIds, isEmpty);
+
+    await tester.tap(find.byKey(const Key('product-save')));
+    await tester.pumpAndSettle();
+
+    expect(restoredCatalog.createIds.single, originalCreateId);
+    expect(drafts.draftFor('owner-user-id', 'create'), isNull);
+  });
+
+  testWidgets('edit draft keeps original revision and never auto-updates on restore', (
+    tester,
+  ) async {
+    final drafts = FakeCatalogDraftStore();
+    final revision7 = testProduct(
+      id: 'draft-edit-id',
+      nameEn: 'Revision 7',
+      revision: 7,
+    );
+
+    await pumpForm(
+      tester,
+      catalog: FakeCatalogRepository(),
+      editProduct: revision7,
+      draftStore: drafts,
+    );
+    await tester.enterText(
+      find.byKey(const Key('product-field-name-en')),
+      'Local draft',
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+
+    final revision8 = testProduct(
+      id: 'draft-edit-id',
+      nameEn: 'Server revision 8',
+      revision: 8,
+    );
+    final restoredCatalog = FakeCatalogRepository()
+      ..onUpdate = (base, input) async {
+        return CatalogSaveConflict(revision8);
+      };
+
+    await pumpForm(
+      tester,
+      catalog: restoredCatalog,
+      editProduct: revision8,
+      draftStore: drafts,
+    );
+
+    expect(restoredCatalog.updateOriginals, isEmpty);
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const Key('product-field-name-en')))
+          .controller
+          ?.text,
+      'Local draft',
+    );
+
+    await tester.tap(find.byKey(const Key('product-save')));
+    await tester.pumpAndSettle();
+
+    expect(restoredCatalog.updateOriginals.single.revision, 7);
+    expect(find.byKey(const Key('product-conflict-dialog')), findsOneWidget);
+  });
+
+  testWidgets('drafts are isolated by authenticated account', (
+    tester,
+  ) async {
+    final drafts = FakeCatalogDraftStore();
+
+    await pumpForm(
+      tester,
+      catalog: FakeCatalogRepository(),
+      draftStore: drafts,
+      ownerId: 'owner-a',
+    );
+    await enterValidCreate(tester);
+    await tester.pump(const Duration(milliseconds: 300));
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+
+    await pumpForm(
+      tester,
+      catalog: FakeCatalogRepository(),
+      draftStore: drafts,
+      ownerId: 'owner-b',
+    );
+
+    expect(find.byKey(const Key('product-draft-restored')), findsNothing);
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const Key('product-field-name-en')))
+          .controller
+          ?.text,
+      isEmpty,
+    );
+  });
+
+  testWidgets('local draft write failure is visible without server mutation', (
+    tester,
+  ) async {
+    final drafts = FakeCatalogDraftStore()..failSave = true;
+    final catalog = FakeCatalogRepository();
+
+    await pumpForm(
+      tester,
+      catalog: catalog,
+      draftStore: drafts,
+    );
+    await tester.enterText(
+      find.byKey(const Key('product-field-name-en')),
+      'Unsafely stored',
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump();
+
+    expect(find.byKey(const Key('product-draft-error')), findsOneWidget);
+    expect(catalog.createIds, isEmpty);
+    expect(catalog.updateOriginals, isEmpty);
+  });
+
+  testWidgets('explicit discard clears the persisted draft', (
+    tester,
+  ) async {
+    final drafts = FakeCatalogDraftStore();
+    await pumpForm(
+      tester,
+      catalog: FakeCatalogRepository(),
+      draftStore: drafts,
+    );
+
+    await tester.enterText(
+      find.byKey(const Key('product-field-name-en')),
+      'Discard me',
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(drafts.draftFor('owner-user-id', 'create'), isNotNull);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('unsaved-discard')));
+    await tester.pumpAndSettle();
+
+    expect(drafts.draftFor('owner-user-id', 'create'), isNull);
   });
 
   testWidgets('edit sends confirmed update and returns revised server row', (
