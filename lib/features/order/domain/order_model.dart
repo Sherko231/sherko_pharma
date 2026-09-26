@@ -37,15 +37,19 @@ class OrderLine {
   int get lineAmount => checkedMultiply(unitAmount, quantity);
 
   OrderLine copyWith({
+    String? displayName,
     int? quantity,
+    int? unitAmount,
+    String? currency,
+    int? productRevision,
   }) {
     return OrderLine(
       productId: productId,
-      displayName: displayName,
+      displayName: displayName ?? this.displayName,
       quantity: quantity ?? this.quantity,
-      unitAmount: unitAmount,
-      currency: currency,
-      productRevision: productRevision,
+      unitAmount: unitAmount ?? this.unitAmount,
+      currency: currency ?? this.currency,
+      productRevision: productRevision ?? this.productRevision,
     );
   }
 }

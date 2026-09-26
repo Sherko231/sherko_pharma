@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sherko_pharma/app/app_runtime.dart';
 import 'package:sherko_pharma/app/app_shell.dart';
 import 'package:sherko_pharma/features/auth/domain/auth_identity.dart';
+import 'package:sherko_pharma/features/catalog/application/scoped_catalog_refresh_controller.dart';
 import 'package:sherko_pharma/features/order/application/order_controller.dart';
 import 'package:sherko_pharma/main.dart';
 
@@ -11,8 +12,9 @@ import 'support/fake_auth_gateway.dart';
 import 'support/fake_catalog_repository.dart';
 
 Future<ProviderContainer> pumpOrderApp(
-  WidgetTester tester,
-) async {
+  WidgetTester tester, {
+  FakeCatalogRepository? catalog,
+}) async {
   tester.view.physicalSize = const Size(390, 800);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.resetPhysicalSize);
@@ -27,7 +29,7 @@ Future<ProviderContainer> pumpOrderApp(
     AppBootstrap(
       runtime: AppRuntime.configured(
         auth,
-        catalogRepository: FakeCatalogRepository(),
+        catalogRepository: catalog ?? FakeCatalogRepository(),
       ),
     ),
   );
@@ -134,4 +136,96 @@ void main() {
     expect(find.byKey(const Key('new-order-dialog')), findsNothing);
     expect(find.byKey(const Key('order-empty')), findsOneWidget);
   });
+
+  testWidgets('price change notice preserves total until explicit update', (
+    tester,
+  ) async {
+    final catalog = FakeCatalogRepository()
+      ..products['p1'] = testProduct(
+        id: 'p1',
+        sellingAmount: 1500,
+        currency: 'SYP',
+        revision: 5,
+      );
+    final container = await pumpOrderApp(
+      tester,
+      catalog: catalog,
+    );
+    container.read(orderControllerProvider.notifier).addProduct(
+          testProduct(
+            id: 'p1',
+            sellingAmount: 1000,
+            currency: 'SYP',
+            revision: 4,
+          ),
+        );
+
+    await container
+        .read(scopedCatalogRefreshControllerProvider.notifier)
+        .refreshNow();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Order'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('order-price-change-p1')), findsOneWidget);
+    expect(find.textContaining('1000 SYP to 1500 SYP'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('order-total-syp')),
+        matching: find.text('1000 SYP'),
+      ),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const Key('order-price-update-p1')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('order-price-change-p1')), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('order-total-syp')),
+        matching: find.text('1500 SYP'),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('invalid latest price shows notice without update action', (
+    tester,
+  ) async {
+    final catalog = FakeCatalogRepository()
+      ..products['p1'] = testProduct(
+        id: 'p1',
+        sellingAmount: 0,
+        currency: 'SYP',
+        revision: 5,
+      );
+    final container = await pumpOrderApp(
+      tester,
+      catalog: catalog,
+    );
+    container.read(orderControllerProvider.notifier).addProduct(
+          testProduct(
+            id: 'p1',
+            sellingAmount: 1000,
+            currency: 'SYP',
+            revision: 4,
+          ),
+        );
+
+    await container
+        .read(scopedCatalogRefreshControllerProvider.notifier)
+        .refreshNow();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Order'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('order-price-change-p1')), findsOneWidget);
+    expect(find.textContaining('latest catalog price is invalid'), findsOneWidget);
+    expect(find.byKey(const Key('order-price-update-p1')), findsNothing);
+    expect(container.read(orderControllerProvider).lines.single.unitAmount, 1000);
+  });
+
 }

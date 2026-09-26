@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../application/catalog_detail_controller.dart';
 import '../application/catalog_search_controller.dart';
+import '../application/scoped_catalog_refresh_controller.dart';
 import '../../order/application/order_controller.dart';
 import '../domain/catalog_product.dart';
 import 'catalog_detail_screen.dart';
@@ -82,6 +86,26 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
             ),
           ),
           const SizedBox(height: 16),
+          if (search.refreshFailed) ...[
+            Material(
+              key: const Key('catalog-search-refresh-error'),
+              color: Theme.of(context).colorScheme.tertiaryContainer,
+              borderRadius: BorderRadius.circular(12),
+              child: const Padding(
+                padding: EdgeInsets.all(12),
+                child: Text(
+                  'Refresh failed. Showing the last known search results.',
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
+          if (search.isRefreshing) ...[
+            const LinearProgressIndicator(
+              key: Key('catalog-search-refreshing'),
+            ),
+            const SizedBox(height: 10),
+          ],
           Expanded(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 1000),
@@ -113,11 +137,14 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
       return;
     }
 
+    unawaited(
+      ref.read(catalogSearchControllerProvider.notifier).refresh(),
+    );
     _openProduct(product);
   }
 
-  void _openProduct(CatalogProduct product) {
-    Navigator.of(context).push(
+  Future<void> _openProduct(CatalogProduct product) async {
+    await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => CatalogDetailScreen(
           productId: product.id,
@@ -125,10 +152,43 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
         ),
       ),
     );
+
+    if (!mounted) {
+      return;
+    }
+    ref
+        .read(catalogDetailControllerProvider.notifier)
+        .clear(product.id);
   }
 
-  void _addToOrder(CatalogProduct product) {
-    final result = ref.read(orderControllerProvider.notifier).addProduct(product);
+  Future<void> _addToOrder(CatalogProduct product) async {
+    CatalogProduct latest;
+    try {
+      latest = await ref.read(catalogRepositoryProvider).getById(product.id);
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Could not refresh this product before adding it. Check the connection and try again.',
+            ),
+          ),
+        );
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    final result = ref.read(orderControllerProvider.notifier).addProduct(latest);
+    ref
+        .read(scopedCatalogRefreshControllerProvider.notifier)
+        .reconcileCurrentProduct(latest);
     final message = switch (result) {
       OrderActionResult.added => 'Added to order.',
       OrderActionResult.incremented => 'Quantity increased in the order.',

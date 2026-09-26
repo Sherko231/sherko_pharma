@@ -18,6 +18,8 @@ class CatalogDetailState {
     required this.status,
     this.productId,
     this.product,
+    this.isRefreshing = false,
+    this.refreshFailed = false,
   });
 
   const CatalogDetailState.idle()
@@ -28,6 +30,8 @@ class CatalogDetailState {
   final CatalogDetailStatus status;
   final String? productId;
   final CatalogProduct? product;
+  final bool isRefreshing;
+  final bool refreshFailed;
 }
 
 class CatalogDetailController extends Notifier<CatalogDetailState> {
@@ -81,6 +85,61 @@ class CatalogDetailController extends Notifier<CatalogDetailState> {
     }
   }
 
+  Future<bool> refresh() async {
+    final current = state;
+    final productId = current.productId;
+    if (productId == null ||
+        current.status == CatalogDetailStatus.loading) {
+      return true;
+    }
+
+    final generation = ++_generation;
+    state = CatalogDetailState(
+      status: current.status,
+      productId: productId,
+      product: current.product,
+      isRefreshing: true,
+    );
+
+    try {
+      final product = await ref.read(catalogRepositoryProvider).getById(
+            productId,
+          );
+      if (generation != _generation) {
+        return true;
+      }
+
+      state = CatalogDetailState(
+        status: CatalogDetailStatus.loaded,
+        productId: productId,
+        product: product,
+      );
+      return true;
+    } on CatalogNotFoundException {
+      if (generation != _generation) {
+        return true;
+      }
+
+      state = CatalogDetailState(
+        status: CatalogDetailStatus.notFound,
+        productId: productId,
+      );
+      return true;
+    } catch (_) {
+      if (generation != _generation) {
+        return true;
+      }
+
+      state = CatalogDetailState(
+        status: current.status,
+        productId: productId,
+        product: current.product,
+        refreshFailed: true,
+      );
+      return false;
+    }
+  }
+
   void acceptServerProduct(CatalogProduct product) {
     _generation += 1;
     state = CatalogDetailState(
@@ -88,6 +147,14 @@ class CatalogDetailController extends Notifier<CatalogDetailState> {
       productId: product.id,
       product: product,
     );
+  }
+
+  void clear(String productId) {
+    if (state.productId != productId) {
+      return;
+    }
+    _generation += 1;
+    state = const CatalogDetailState.idle();
   }
 
   Future<void> retry() async {

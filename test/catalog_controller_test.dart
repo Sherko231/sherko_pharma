@@ -220,4 +220,204 @@ void main() {
       CatalogDetailStatus.error,
     );
   });
+
+  test('search refresh replaces results without clearing visible state first', () async {
+    final auth = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner'),
+    );
+    final catalog = FakeCatalogRepository()
+      ..searchResults = [
+        testProduct(id: 'p1', nameEn: 'Old', revision: 1),
+      ];
+    final container = containerFor(auth, catalog);
+    addTearDown(container.dispose);
+    addTearDown(auth.dispose);
+
+    await container
+        .read(catalogSearchControllerProvider.notifier)
+        .submit('aspirin');
+
+    catalog.searchResults = [
+      testProduct(id: 'p1', nameEn: 'New', revision: 2),
+    ];
+
+    final refreshed =
+        await container.read(catalogSearchControllerProvider.notifier).refresh();
+
+    expect(refreshed, isTrue);
+    final state = container.read(catalogSearchControllerProvider);
+    expect(state.status, CatalogSearchStatus.results);
+    expect(state.products.single.displayName, 'New');
+    expect(state.products.single.revision, 2);
+    expect(state.refreshFailed, isFalse);
+  });
+
+  test('failed search refresh keeps last known results visible', () async {
+    final auth = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner'),
+    );
+    final catalog = FakeCatalogRepository()
+      ..searchResults = [
+        testProduct(id: 'p1', nameEn: 'Known', revision: 1),
+      ];
+    final container = containerFor(auth, catalog);
+    addTearDown(container.dispose);
+    addTearDown(auth.dispose);
+
+    await container
+        .read(catalogSearchControllerProvider.notifier)
+        .submit('aspirin');
+
+    catalog.onSearch = (_, _) async {
+      throw const CatalogRepositoryException();
+    };
+
+    final refreshed =
+        await container.read(catalogSearchControllerProvider.notifier).refresh();
+
+    expect(refreshed, isFalse);
+    final state = container.read(catalogSearchControllerProvider);
+    expect(state.status, CatalogSearchStatus.results);
+    expect(state.products.single.displayName, 'Known');
+    expect(state.refreshFailed, isTrue);
+    expect(state.isRefreshing, isFalse);
+  });
+
+  test('failed detail refresh keeps last known product visible', () async {
+    final auth = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner'),
+    );
+    final catalog = FakeCatalogRepository()
+      ..products['p1'] = testProduct(
+        id: 'p1',
+        nameEn: 'Known detail',
+        revision: 1,
+      );
+    final container = containerFor(auth, catalog);
+    addTearDown(container.dispose);
+    addTearDown(auth.dispose);
+
+    await container
+        .read(catalogDetailControllerProvider.notifier)
+        .load('p1');
+
+    catalog.onGet = (_) async {
+      throw const CatalogRepositoryException();
+    };
+
+    final refreshed =
+        await container.read(catalogDetailControllerProvider.notifier).refresh();
+
+    expect(refreshed, isFalse);
+    final state = container.read(catalogDetailControllerProvider);
+    expect(state.status, CatalogDetailStatus.loaded);
+    expect(state.product?.displayName, 'Known detail');
+    expect(state.refreshFailed, isTrue);
+    expect(state.isRefreshing, isFalse);
+  });
+
+
+  test('refresh does not supersede an in-flight initial search', () async {
+    final auth = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner'),
+    );
+    final gate = Completer<List<dynamic>>();
+    final catalog = FakeCatalogRepository()
+      ..onSearch = (_, _) => gate.future.then((rows) => rows.cast());
+    final container = containerFor(auth, catalog);
+    addTearDown(container.dispose);
+    addTearDown(auth.dispose);
+
+    final pending = container
+        .read(catalogSearchControllerProvider.notifier)
+        .submit('aspirin');
+    await Future<void>.delayed(Duration.zero);
+
+    expect(
+      container.read(catalogSearchControllerProvider).status,
+      CatalogSearchStatus.loading,
+    );
+    expect(
+      await container.read(catalogSearchControllerProvider.notifier).refresh(),
+      isTrue,
+    );
+    expect(catalog.searchCalls, hasLength(1));
+
+    gate.complete([testProduct(id: 'p1', nameEn: 'Loaded')]);
+    await pending;
+
+    final state = container.read(catalogSearchControllerProvider);
+    expect(state.status, CatalogSearchStatus.results);
+    expect(state.products.single.displayName, 'Loaded');
+  });
+
+  test('refresh does not supersede an in-flight initial detail load', () async {
+    final auth = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner'),
+    );
+    final gate = Completer<dynamic>();
+    final catalog = FakeCatalogRepository()
+      ..onGet = (_) => gate.future.then((value) => value);
+    final container = containerFor(auth, catalog);
+    addTearDown(container.dispose);
+    addTearDown(auth.dispose);
+
+    final pending = container
+        .read(catalogDetailControllerProvider.notifier)
+        .load('p1');
+    await Future<void>.delayed(Duration.zero);
+
+    expect(
+      container.read(catalogDetailControllerProvider).status,
+      CatalogDetailStatus.loading,
+    );
+    expect(
+      await container.read(catalogDetailControllerProvider.notifier).refresh(),
+      isTrue,
+    );
+    expect(catalog.detailCalls, ['p1']);
+
+    gate.complete(testProduct(id: 'p1', nameEn: 'Loaded detail'));
+    await pending;
+
+    final state = container.read(catalogDetailControllerProvider);
+    expect(state.status, CatalogDetailStatus.loaded);
+    expect(state.product?.displayName, 'Loaded detail');
+  });
+
+
+  test('clearing a closed detail invalidates its in-flight response', () async {
+    final auth = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner'),
+    );
+    final gate = Completer<dynamic>();
+    final catalog = FakeCatalogRepository()
+      ..onGet = (_) => gate.future.then((value) => value);
+    final container = containerFor(auth, catalog);
+    addTearDown(container.dispose);
+    addTearDown(auth.dispose);
+
+    final pending = container
+        .read(catalogDetailControllerProvider.notifier)
+        .load('p1');
+    await Future<void>.delayed(Duration.zero);
+
+    container
+        .read(catalogDetailControllerProvider.notifier)
+        .clear('p1');
+
+    expect(
+      container.read(catalogDetailControllerProvider).status,
+      CatalogDetailStatus.idle,
+    );
+
+    gate.complete(testProduct(id: 'p1', nameEn: 'Late detail'));
+    await pending;
+
+    final state = container.read(catalogDetailControllerProvider);
+    expect(state.status, CatalogDetailStatus.idle);
+    expect(state.productId, isNull);
+    expect(state.product, isNull);
+  });
+
 }

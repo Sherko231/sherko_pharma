@@ -162,7 +162,8 @@ void main() {
       composition: 'A long composition value for responsive layout verification',
     );
     final catalog = FakeCatalogRepository()
-      ..searchResults = [product];
+      ..searchResults = [product]
+      ..products[product.id] = product;
 
     await pumpCatalog(
       tester,
@@ -228,7 +229,8 @@ void main() {
       currency: 'SYP',
     );
     final catalog = FakeCatalogRepository()
-      ..searchResults = [product];
+      ..searchResults = [product]
+      ..products[product.id] = product;
 
     await pumpCatalog(
       tester,
@@ -245,7 +247,7 @@ void main() {
     await tester.tap(
       find.byKey(const Key('catalog-add-to-order-order-product')),
     );
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     final shellContext = tester.element(find.byType(AppShell));
     final container = ProviderScope.containerOf(shellContext);
@@ -269,7 +271,8 @@ void main() {
       currency: 'SYP',
     );
     final catalog = FakeCatalogRepository()
-      ..searchResults = [product];
+      ..searchResults = [product]
+      ..products[product.id] = product;
 
     await pumpCatalog(
       tester,
@@ -286,7 +289,7 @@ void main() {
     await tester.tap(
       find.byKey(const Key('catalog-add-to-order-zero-price')),
     );
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     final shellContext = tester.element(find.byType(AppShell));
     final container = ProviderScope.containerOf(shellContext);
@@ -296,6 +299,96 @@ void main() {
       find.text(
         'Set a positive SYP or USD selling price before adding this product.',
       ),
+      findsOneWidget,
+    );
+  });
+
+
+  testWidgets('Add to order revalidates and captures latest server price', (
+    tester,
+  ) async {
+    final searchProduct = testProduct(
+      id: 'latest-price',
+      sellingAmount: 1000,
+      currency: 'SYP',
+      revision: 4,
+    );
+    final latestProduct = testProduct(
+      id: 'latest-price',
+      sellingAmount: 1500,
+      currency: 'SYP',
+      revision: 5,
+    );
+    final catalog = FakeCatalogRepository()
+      ..searchResults = [searchProduct]
+      ..products[searchProduct.id] = latestProduct;
+
+    await pumpCatalog(
+      tester,
+      catalog: catalog,
+    );
+
+    await tester.enterText(
+      find.byKey(const Key('catalog-search-field')),
+      'Aspirin',
+    );
+    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pumpAndSettle();
+
+    expect(find.text('1000 SYP'), findsOneWidget);
+
+    await tester.tap(
+      find.byKey(const Key('catalog-add-to-order-latest-price')),
+    );
+    await tester.pumpAndSettle();
+
+    final shellContext = tester.element(find.byType(AppShell));
+    final container = ProviderScope.containerOf(shellContext);
+    final line = container.read(orderControllerProvider).lines.single;
+
+    expect(catalog.detailCalls, contains('latest-price'));
+    expect(line.unitAmount, 1500);
+    expect(line.currency, 'SYP');
+    expect(line.productRevision, 5);
+  });
+
+  testWidgets('failed revalidation does not add a stale search result', (
+    tester,
+  ) async {
+    final product = testProduct(
+      id: 'stale-product',
+      sellingAmount: 1000,
+      currency: 'SYP',
+    );
+    final catalog = FakeCatalogRepository()
+      ..searchResults = [product]
+      ..onGet = (_) async {
+        throw const CatalogRepositoryException();
+      };
+
+    await pumpCatalog(
+      tester,
+      catalog: catalog,
+    );
+
+    await tester.enterText(
+      find.byKey(const Key('catalog-search-field')),
+      'Aspirin',
+    );
+    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.byKey(const Key('catalog-add-to-order-stale-product')),
+    );
+    await tester.pumpAndSettle();
+
+    final shellContext = tester.element(find.byType(AppShell));
+    final container = ProviderScope.containerOf(shellContext);
+
+    expect(container.read(orderControllerProvider).lines, isEmpty);
+    expect(
+      find.textContaining('Could not refresh this product before adding it'),
       findsOneWidget,
     );
   });

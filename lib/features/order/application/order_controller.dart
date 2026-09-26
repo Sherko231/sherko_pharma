@@ -28,8 +28,7 @@ class OrderController extends Notifier<OrderState> {
       return _changeQuantity(existingIndex, 1, OrderActionResult.incremented);
     }
 
-    if (product.sellingAmount <= 0 ||
-        (product.currency != 'SYP' && product.currency != 'USD')) {
+    if (!_hasValidPrice(product)) {
       return OrderActionResult.invalidPrice;
     }
 
@@ -87,6 +86,80 @@ class OrderController extends Notifier<OrderState> {
     state = restored;
   }
 
+  OrderActionResult refreshCatalogMetadata(CatalogProduct product) {
+    final index = state.lines.indexWhere(
+      (line) => line.productId == product.id,
+    );
+    if (index < 0) {
+      return OrderActionResult.unchanged;
+    }
+
+    final current = state.lines[index];
+    if (product.revision < current.productRevision ||
+        product.sellingAmount != current.unitAmount ||
+        product.currency != current.currency) {
+      return OrderActionResult.unchanged;
+    }
+
+    if (product.displayName == current.displayName &&
+        product.revision == current.productRevision) {
+      return OrderActionResult.unchanged;
+    }
+
+    final updated = current.copyWith(
+      displayName: product.displayName,
+      productRevision: product.revision,
+    );
+    final next = [...state.lines];
+    next[index] = updated;
+    _checkedTotals(next);
+    state = OrderState(lines: next);
+    return OrderActionResult.updated;
+  }
+
+  OrderActionResult acceptCatalogUpdate(CatalogProduct product) {
+    final index = state.lines.indexWhere(
+      (line) => line.productId == product.id,
+    );
+    if (index < 0) {
+      return OrderActionResult.unchanged;
+    }
+
+    final current = state.lines[index];
+    if (product.revision < current.productRevision) {
+      return OrderActionResult.unchanged;
+    }
+    if (!_hasValidPrice(product)) {
+      return OrderActionResult.invalidPrice;
+    }
+
+    final updated = current.copyWith(
+      displayName: product.displayName,
+      unitAmount: product.sellingAmount,
+      currency: product.currency,
+      productRevision: product.revision,
+    );
+    final next = [...state.lines];
+    next[index] = updated;
+
+    try {
+      updated.lineAmount;
+      _checkedTotals(next);
+    } on OrderAmountOverflow {
+      return OrderActionResult.overflow;
+    }
+
+    if (updated.displayName == current.displayName &&
+        updated.unitAmount == current.unitAmount &&
+        updated.currency == current.currency &&
+        updated.productRevision == current.productRevision) {
+      return OrderActionResult.unchanged;
+    }
+
+    state = OrderState(lines: next);
+    return OrderActionResult.updated;
+  }
+
   OrderActionResult _changeQuantity(
     int index,
     int delta,
@@ -111,6 +184,11 @@ class OrderController extends Notifier<OrderState> {
 
     state = OrderState(lines: next);
     return success;
+  }
+
+  bool _hasValidPrice(CatalogProduct product) {
+    return product.sellingAmount > 0 &&
+        (product.currency == 'SYP' || product.currency == 'USD');
   }
 
   void _checkedTotals(List<OrderLine> lines) {

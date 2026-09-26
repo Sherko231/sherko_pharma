@@ -183,4 +183,157 @@ void main() {
     expect(order.totalSyp, 0);
     expect(order.totalUsd, 0);
   });
+
+  test('catalog metadata refresh preserves captured price and quantity', () {
+    final container = orderContainer();
+    final controller = container.read(orderControllerProvider.notifier);
+
+    controller.addProduct(
+      testProduct(
+        id: 'p1',
+        nameEn: 'Old name',
+        sellingAmount: 1000,
+        currency: 'SYP',
+        revision: 4,
+      ),
+    );
+    controller.increment('p1');
+
+    expect(
+      controller.refreshCatalogMetadata(
+        testProduct(
+          id: 'p1',
+          nameEn: 'New name',
+          sellingAmount: 1000,
+          currency: 'SYP',
+          revision: 5,
+        ),
+      ),
+      OrderActionResult.updated,
+    );
+
+    final line = container.read(orderControllerProvider).lines.single;
+    expect(line.displayName, 'New name');
+    expect(line.quantity, 2);
+    expect(line.unitAmount, 1000);
+    expect(line.currency, 'SYP');
+    expect(line.productRevision, 5);
+    expect(container.read(orderControllerProvider).totalSyp, 2000);
+  });
+
+  test('explicit catalog price acceptance updates captured pair atomically', () {
+    final container = orderContainer();
+    final controller = container.read(orderControllerProvider.notifier);
+
+    controller.addProduct(
+      testProduct(
+        id: 'p1',
+        sellingAmount: 1000,
+        currency: 'SYP',
+        revision: 4,
+      ),
+    );
+    controller.increment('p1');
+    controller.increment('p1');
+
+    expect(
+      controller.acceptCatalogUpdate(
+        testProduct(
+          id: 'p1',
+          sellingAmount: 1500,
+          currency: 'SYP',
+          revision: 5,
+        ),
+      ),
+      OrderActionResult.updated,
+    );
+
+    final order = container.read(orderControllerProvider);
+    final line = order.lines.single;
+    expect(line.quantity, 3);
+    expect(line.unitAmount, 1500);
+    expect(line.currency, 'SYP');
+    expect(line.productRevision, 5);
+    expect(order.totalSyp, 4500);
+    expect(order.totalUsd, 0);
+  });
+
+  test('accepted currency change moves subtotal without conversion', () {
+    final container = orderContainer();
+    final controller = container.read(orderControllerProvider.notifier);
+
+    controller.addProduct(
+      testProduct(
+        id: 'p1',
+        sellingAmount: 1000,
+        currency: 'SYP',
+        revision: 4,
+      ),
+    );
+    controller.increment('p1');
+
+    expect(
+      controller.acceptCatalogUpdate(
+        testProduct(
+          id: 'p1',
+          sellingAmount: 5,
+          currency: 'USD',
+          revision: 5,
+        ),
+      ),
+      OrderActionResult.updated,
+    );
+
+    final order = container.read(orderControllerProvider);
+    expect(order.lines.single.unitAmount, 5);
+    expect(order.lines.single.currency, 'USD');
+    expect(order.totalSyp, 0);
+    expect(order.totalUsd, 10);
+  });
+
+  test('invalid or overflowing latest price leaves captured order unchanged', () {
+    final container = orderContainer();
+    final controller = container.read(orderControllerProvider.notifier);
+
+    controller.addProduct(
+      testProduct(
+        id: 'p1',
+        sellingAmount: 1000,
+        currency: 'SYP',
+        revision: 4,
+      ),
+    );
+    controller.increment('p1');
+
+    expect(
+      controller.acceptCatalogUpdate(
+        testProduct(
+          id: 'p1',
+          sellingAmount: 0,
+          currency: 'SYP',
+          revision: 5,
+        ),
+      ),
+      OrderActionResult.invalidPrice,
+    );
+
+    expect(
+      controller.acceptCatalogUpdate(
+        testProduct(
+          id: 'p1',
+          sellingAmount: maxOrderAmount,
+          currency: 'SYP',
+          revision: 5,
+        ),
+      ),
+      OrderActionResult.overflow,
+    );
+
+    final line = container.read(orderControllerProvider).lines.single;
+    expect(line.quantity, 2);
+    expect(line.unitAmount, 1000);
+    expect(line.currency, 'SYP');
+    expect(line.productRevision, 4);
+  });
+
 }
