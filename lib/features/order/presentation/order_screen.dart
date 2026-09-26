@@ -133,6 +133,22 @@ class _OrderHeader extends ConsumerWidget {
     );
   }
 
+  Future<void> _scanBarcode(BuildContext context) async {
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const AndroidBarcodeScannerScreen(),
+      ),
+    );
+    if (!context.mounted || result == null) {
+      return;
+    }
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(content: Text('Barcode added to the current order.')),
+      );
+  }
+
   Future<void> _newOrder(BuildContext context, WidgetRef ref) async {
     final controller = ref.read(orderControllerProvider.notifier);
     if (order.isEmpty) {
