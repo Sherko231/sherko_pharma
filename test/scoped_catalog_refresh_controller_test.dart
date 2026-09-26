@@ -7,6 +7,7 @@ import 'package:sherko_pharma/features/auth/domain/auth_identity.dart';
 import 'package:sherko_pharma/features/catalog/application/catalog_search_controller.dart';
 import 'package:sherko_pharma/features/catalog/application/scoped_catalog_refresh_controller.dart';
 import 'package:sherko_pharma/features/catalog/data/catalog_repository.dart';
+import 'package:sherko_pharma/features/catalog/domain/catalog_product.dart';
 import 'package:sherko_pharma/features/order/application/order_controller.dart';
 
 import 'support/fake_auth_gateway.dart';
@@ -234,7 +235,7 @@ void main() {
       initialIdentity: const AuthIdentity(userId: 'owner-a'),
     );
     final catalog = FakeCatalogRepository();
-    final gate = Completer<dynamic>();
+    final gate = Completer<CatalogProduct>();
     var calls = 0;
     catalog.onGet = (productId) {
       calls += 1;
