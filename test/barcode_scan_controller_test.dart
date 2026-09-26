@@ -28,6 +28,43 @@ void main() {
     expect(container.read(orderControllerProvider).lines.single.unitAmount, 2500);
   });
 
+  test('secondary barcode resolves and deliberate later repeat increments once', () async {
+    final product = testProduct(
+      id: 'p1',
+      barcode: '0011111',
+      barcode2: '0099999',
+    );
+    final catalog = FakeCatalogRepository()..products['p1'] = product;
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final scan = BarcodeScanController(
+      catalog: catalog,
+      order: container.read(orderControllerProvider.notifier),
+    );
+
+    expect((await scan.accept('0099999'))?.status, BarcodeScanStatus.added);
+    expect((await scan.accept('0099999'))?.status, BarcodeScanStatus.incremented);
+    expect(container.read(orderControllerProvider).lines.single.quantity, 2);
+  });
+
+  test('same product matching both barcode fields resolves once', () async {
+    final catalog = FakeCatalogRepository()
+      ..products['p1'] = testProduct(
+        id: 'p1',
+        barcode: '0012345',
+        barcode2: '0012345',
+      );
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final scan = BarcodeScanController(
+      catalog: catalog,
+      order: container.read(orderControllerProvider.notifier),
+    );
+
+    expect((await scan.accept('0012345'))?.status, BarcodeScanStatus.added);
+    expect(container.read(orderControllerProvider).lines, hasLength(1));
+  });
+
   test('unknown and ambiguous matches do not mutate order', () async {
     final catalog = FakeCatalogRepository()
       ..onLookupBarcode = (code) async => code == 'ambiguous'
