@@ -316,4 +316,73 @@ void main() {
     expect(state.isRefreshing, isFalse);
   });
 
+
+  test('refresh does not supersede an in-flight initial search', () async {
+    final auth = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner'),
+    );
+    final gate = Completer<List<dynamic>>();
+    final catalog = FakeCatalogRepository()
+      ..onSearch = (_, __) => gate.future.then((rows) => rows.cast());
+    final container = containerFor(auth, catalog);
+    addTearDown(container.dispose);
+    addTearDown(auth.dispose);
+
+    final pending = container
+        .read(catalogSearchControllerProvider.notifier)
+        .submit('aspirin');
+    await Future<void>.delayed(Duration.zero);
+
+    expect(
+      container.read(catalogSearchControllerProvider).status,
+      CatalogSearchStatus.loading,
+    );
+    expect(
+      await container.read(catalogSearchControllerProvider.notifier).refresh(),
+      isTrue,
+    );
+    expect(catalog.searchCalls, hasLength(1));
+
+    gate.complete([testProduct(id: 'p1', nameEn: 'Loaded')]);
+    await pending;
+
+    final state = container.read(catalogSearchControllerProvider);
+    expect(state.status, CatalogSearchStatus.results);
+    expect(state.products.single.displayName, 'Loaded');
+  });
+
+  test('refresh does not supersede an in-flight initial detail load', () async {
+    final auth = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner'),
+    );
+    final gate = Completer<dynamic>();
+    final catalog = FakeCatalogRepository()
+      ..onGet = (_) => gate.future.then((value) => value);
+    final container = containerFor(auth, catalog);
+    addTearDown(container.dispose);
+    addTearDown(auth.dispose);
+
+    final pending = container
+        .read(catalogDetailControllerProvider.notifier)
+        .load('p1');
+    await Future<void>.delayed(Duration.zero);
+
+    expect(
+      container.read(catalogDetailControllerProvider).status,
+      CatalogDetailStatus.loading,
+    );
+    expect(
+      await container.read(catalogDetailControllerProvider.notifier).refresh(),
+      isTrue,
+    );
+    expect(catalog.detailCalls, ['p1']);
+
+    gate.complete(testProduct(id: 'p1', nameEn: 'Loaded detail'));
+    await pending;
+
+    final state = container.read(catalogDetailControllerProvider);
+    expect(state.status, CatalogDetailStatus.loaded);
+    expect(state.product?.displayName, 'Loaded detail');
+  });
+
 }
