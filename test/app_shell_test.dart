@@ -78,4 +78,55 @@ void main() {
     expect(find.byKey(const Key('catalog-workspace')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('resume refreshes the active catalog query', (tester) async {
+    tester.view.physicalSize = const Size(390, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final gateway = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner-user-id'),
+    );
+    addTearDown(gateway.dispose);
+    final catalog = FakeCatalogRepository()
+      ..searchResults = [
+        testProduct(id: 'p1', nameEn: 'Old result', revision: 1),
+      ];
+
+    await tester.pumpWidget(
+      AppBootstrap(
+        runtime: AppRuntime.configured(
+          gateway,
+          catalogRepository: catalog,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key('catalog-search-field')),
+      'aspirin',
+    );
+    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pumpAndSettle();
+    expect(find.text('Old result'), findsOneWidget);
+
+    catalog.searchResults = [
+      testProduct(id: 'p1', nameEn: 'Fresh result', revision: 2),
+    ];
+
+    await tester.binding.handleAppLifecycleStateChanged(
+      AppLifecycleState.paused,
+    );
+    await tester.pump();
+    await tester.binding.handleAppLifecycleStateChanged(
+      AppLifecycleState.resumed,
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Fresh result'), findsOneWidget);
+    expect(find.text('Old result'), findsNothing);
+  });
+
 }
