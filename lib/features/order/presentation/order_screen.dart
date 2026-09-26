@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../catalog/application/scoped_catalog_refresh_controller.dart';
 import '../application/order_controller.dart';
 import '../domain/order_model.dart';
+import '../../scanning/presentation/android_barcode_scanner_screen.dart';
 
 class OrderScreen extends ConsumerWidget {
   const OrderScreen({super.key});
