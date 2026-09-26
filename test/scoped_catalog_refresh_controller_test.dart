@@ -288,4 +288,96 @@ void main() {
       isEmpty,
     );
   });
+
+  test('revalidated existing add exposes current price change immediately', () async {
+    final auth = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner-a'),
+    );
+    final catalog = FakeCatalogRepository();
+    final container = refreshContainer(auth, catalog);
+    final order = container.read(orderControllerProvider.notifier);
+    final refresh =
+        container.read(scopedCatalogRefreshControllerProvider.notifier);
+
+    order.addProduct(
+      testProduct(
+        id: 'p1',
+        sellingAmount: 1000,
+        currency: 'SYP',
+        revision: 4,
+      ),
+    );
+
+    final latest = testProduct(
+      id: 'p1',
+      sellingAmount: 1500,
+      currency: 'SYP',
+      revision: 5,
+    );
+    expect(order.addProduct(latest), OrderActionResult.incremented);
+    refresh.reconcileCurrentProduct(latest);
+
+    final line = container.read(orderControllerProvider).lines.single;
+    expect(line.quantity, 2);
+    expect(line.unitAmount, 1000);
+    expect(line.productRevision, 4);
+    expect(
+      container
+          .read(scopedCatalogRefreshControllerProvider)
+          .priceChanges['p1']
+          ?.sellingAmount,
+      1500,
+    );
+  });
+
+  test('re-adding a product clears an obsolete older price notice', () async {
+    final auth = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner-a'),
+    );
+    final catalog = FakeCatalogRepository();
+    final container = refreshContainer(auth, catalog);
+    final order = container.read(orderControllerProvider.notifier);
+    final refresh =
+        container.read(scopedCatalogRefreshControllerProvider.notifier);
+
+    order.addProduct(
+      testProduct(
+        id: 'p1',
+        sellingAmount: 1000,
+        currency: 'SYP',
+        revision: 4,
+      ),
+    );
+    refresh.reconcileCurrentProduct(
+      testProduct(
+        id: 'p1',
+        sellingAmount: 1500,
+        currency: 'SYP',
+        revision: 5,
+      ),
+    );
+    expect(
+      container.read(scopedCatalogRefreshControllerProvider).priceChanges,
+      contains('p1'),
+    );
+
+    order.remove('p1');
+    final newest = testProduct(
+      id: 'p1',
+      sellingAmount: 1600,
+      currency: 'SYP',
+      revision: 6,
+    );
+    order.addProduct(newest);
+    refresh.reconcileCurrentProduct(newest);
+
+    expect(
+      container.read(scopedCatalogRefreshControllerProvider).priceChanges,
+      isEmpty,
+    );
+    final line = container.read(orderControllerProvider).lines.single;
+    expect(line.unitAmount, 1600);
+    expect(line.productRevision, 6);
+  });
+
 }
