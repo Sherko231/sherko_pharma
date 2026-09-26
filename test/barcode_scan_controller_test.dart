@@ -10,9 +10,11 @@ import 'support/fake_catalog_repository.dart';
 
 void main() {
   test('exact barcode uses latest product and preserves leading zeroes', () async {
-    final catalog = FakeCatalogRepository()
-      ..onLookupBarcode = (_) async => [testProduct(id: 'p1', sellingAmount: 1000)]
-      ..onGet = (_) async => testProduct(id: 'p1', sellingAmount: 2500, revision: 2);
+    final catalog = FakeCatalogRepository();
+    catalog.onLookupBarcode =
+        (_) async => [testProduct(id: 'p1', sellingAmount: 1000)];
+    catalog.onGet =
+        (_) async => testProduct(id: 'p1', sellingAmount: 2500, revision: 2);
     final container = ProviderContainer();
     addTearDown(container.dispose);
     final scan = BarcodeScanController(
@@ -44,9 +46,9 @@ void main() {
   });
 
   test('invalid latest price is blocked', () async {
-    final catalog = FakeCatalogRepository()
-      ..onLookupBarcode = (_) async => [testProduct(id: 'p1')]
-      ..onGet = (_) async => testProduct(id: 'p1', sellingAmount: 0);
+    final catalog = FakeCatalogRepository();
+    catalog.onLookupBarcode = (_) async => [testProduct(id: 'p1')];
+    catalog.onGet = (_) async => testProduct(id: 'p1', sellingAmount: 0);
     final container = ProviderContainer();
     addTearDown(container.dispose);
     final scan = BarcodeScanController(
