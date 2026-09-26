@@ -142,7 +142,11 @@ class ScopedCatalogRefreshController
 
   OrderActionResult acceptPriceChange(String productId) {
     final latest = state.priceChanges[productId];
-    if (latest == null) {
+    final currentLine = _findCurrentLine(productId);
+    if (latest == null ||
+        currentLine == null ||
+        latest.revision <= currentLine.productRevision) {
+      _removePriceChange(productId);
       return OrderActionResult.unchanged;
     }
 
@@ -151,12 +155,26 @@ class ScopedCatalogRefreshController
         .acceptCatalogUpdate(latest);
 
     if (result == OrderActionResult.updated) {
-      final next = Map<String, CatalogProduct>.from(state.priceChanges)
-        ..remove(productId);
-      state = state.copyWith(priceChanges: next);
+      _removePriceChange(productId);
     }
 
     return result;
+  }
+
+  void reconcileCurrentProduct(CatalogProduct latest) {
+    final currentLine = _findCurrentLine(latest.id);
+    if (currentLine == null) {
+      _removePriceChange(latest.id);
+      return;
+    }
+
+    final nextChanges = Map<String, CatalogProduct>.from(state.priceChanges);
+    _reconcileLatestProduct(
+      currentLine: currentLine,
+      latest: latest,
+      priceChanges: nextChanges,
+    );
+    state = state.copyWith(priceChanges: nextChanges);
   }
 
   void retry() {
@@ -229,22 +247,55 @@ class ScopedCatalogRefreshController
         continue;
       }
 
-      final priceChanged = latest.sellingAmount != currentLine.unitAmount ||
-          latest.currency != currentLine.currency;
-
-      if (priceChanged) {
-        nextChanges[currentLine.productId] = latest;
+      if (latest.revision == currentLine.productRevision &&
+          (latest.sellingAmount != currentLine.unitAmount ||
+              latest.currency != currentLine.currency)) {
+        success = false;
         continue;
       }
 
-      nextChanges.remove(currentLine.productId);
-      orderController.refreshCatalogMetadata(latest);
+      _reconcileLatestProduct(
+        currentLine: currentLine,
+        latest: latest,
+        priceChanges: nextChanges,
+        orderController: orderController,
+      );
     }
 
     if (_isCurrent(ownerId, generation)) {
       state = state.copyWith(priceChanges: nextChanges);
     }
     return success;
+  }
+
+  void _reconcileLatestProduct({
+    required OrderLine currentLine,
+    required CatalogProduct latest,
+    required Map<String, CatalogProduct> priceChanges,
+    OrderController? orderController,
+  }) {
+    final priceChanged = latest.sellingAmount != currentLine.unitAmount ||
+        latest.currency != currentLine.currency;
+
+    if (latest.revision > currentLine.productRevision && priceChanged) {
+      priceChanges[currentLine.productId] = latest;
+      return;
+    }
+
+    priceChanges.remove(currentLine.productId);
+    if (latest.revision > currentLine.productRevision && !priceChanged) {
+      (orderController ?? ref.read(orderControllerProvider.notifier))
+          .refreshCatalogMetadata(latest);
+    }
+  }
+
+  void _removePriceChange(String productId) {
+    if (!state.priceChanges.containsKey(productId)) {
+      return;
+    }
+    final next = Map<String, CatalogProduct>.from(state.priceChanges)
+      ..remove(productId);
+    state = state.copyWith(priceChanges: next);
   }
 
   OrderLine? _findCurrentLine(String productId) {
