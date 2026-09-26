@@ -26,19 +26,7 @@ class _AndroidBarcodeScannerScreenState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _camera = MobileScannerController(
-      formats: const [
-        BarcodeFormat.ean13,
-        BarcodeFormat.ean8,
-        BarcodeFormat.upcA,
-        BarcodeFormat.upcE,
-        BarcodeFormat.code128,
-        BarcodeFormat.code39,
-        BarcodeFormat.code93,
-        BarcodeFormat.codabar,
-        BarcodeFormat.itf14,
-      ],
-    );
+    _camera = MobileScannerController();
     _scan = BarcodeScanController(
       catalog: ref.read(catalogRepositoryProvider),
       order: ref.read(orderControllerProvider.notifier),
