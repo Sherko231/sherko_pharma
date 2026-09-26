@@ -44,8 +44,19 @@ class _CatalogDetailScreenState extends ConsumerState<CatalogDetailScreen> {
     if (oldWidget.productId != widget.productId) {
       ref
           .read(catalogDetailControllerProvider.notifier)
+          .clear(oldWidget.productId);
+      ref
+          .read(catalogDetailControllerProvider.notifier)
           .load(widget.productId);
     }
+  }
+
+  @override
+  void dispose() {
+    ref
+        .read(catalogDetailControllerProvider.notifier)
+        .clear(widget.productId);
+    super.dispose();
   }
 
   @override
