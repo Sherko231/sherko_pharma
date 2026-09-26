@@ -117,7 +117,7 @@ void main() {
     ];
 
     tester.binding.handleAppLifecycleStateChanged(
-      AppLifecycleState.paused,
+      AppLifecycleState.inactive,
     );
     await tester.pump();
     tester.binding.handleAppLifecycleStateChanged(
