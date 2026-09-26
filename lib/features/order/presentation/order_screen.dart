@@ -198,11 +198,17 @@ class _OrderLineCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.read(orderControllerProvider.notifier);
-    final latest = ref.watch(
+    final pending = ref.watch(
       scopedCatalogRefreshControllerProvider.select(
         (refresh) => refresh.priceChanges[line.productId],
       ),
     );
+    final latest = pending != null &&
+            pending.revision > line.productRevision &&
+            (pending.sellingAmount != line.unitAmount ||
+                pending.currency != line.currency)
+        ? pending
+        : null;
 
     return Card(
       key: Key('order-line-${line.productId}'),
