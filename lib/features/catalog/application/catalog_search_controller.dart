@@ -106,7 +106,8 @@ class CatalogSearchController extends Notifier<CatalogSearchState> {
 
   Future<bool> refresh() async {
     final current = state;
-    if (current.query.trim().isEmpty) {
+    if (current.query.trim().isEmpty ||
+        current.status == CatalogSearchStatus.loading) {
       return true;
     }
 
