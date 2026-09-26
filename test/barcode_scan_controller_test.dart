@@ -62,7 +62,9 @@ void main() {
 
   test('concurrent duplicate frame is ignored', () async {
     final pending = Completer<List<CatalogProduct>>();
-    final catalog = FakeCatalogRepository()..onLookupBarcode = (_) => pending.future;
+    final catalog = FakeCatalogRepository()
+      ..onLookupBarcode = (_) => pending.future
+      ..onGet = (id) async => testProduct(id: id);
     final container = ProviderContainer();
     addTearDown(container.dispose);
     final scan = BarcodeScanController(
