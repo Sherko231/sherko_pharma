@@ -7,7 +7,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
-from verify import dependencies, docs_only, gate, quick
+from verify import dependencies, docs_only, gate, platform_build, quick
 
 
 class GateTests(unittest.TestCase):
@@ -85,6 +85,40 @@ class QuickVerificationTests(unittest.TestCase):
         self.assertFalse(
             any(command[:2] == ("dart", "format") for command in commands)
         )
+
+
+
+class PlatformBuildTests(unittest.TestCase):
+    def test_android_gate_builds_release_apk(self):
+        with patch("verify.dependencies") as dependency_check, patch(
+            "verify.run"
+        ) as run_command:
+            platform_build("android")
+
+        dependency_check.assert_called_once_with()
+        run_command.assert_called_once_with(
+            "flutter", "build", "apk", "--release", "--no-pub"
+        )
+
+    def test_windows_gate_builds_release_bundle(self):
+        with patch("verify.sys.platform", "win32"), patch(
+            "verify.dependencies"
+        ) as dependency_check, patch("verify.run") as run_command:
+            platform_build("windows")
+
+        dependency_check.assert_called_once_with()
+        self.assertEqual(
+            [call.args for call in run_command.call_args_list],
+            [
+                ("flutter", "config", "--enable-windows-desktop"),
+                ("flutter", "build", "windows", "--release", "--no-pub"),
+            ],
+        )
+
+    def test_windows_gate_rejects_non_windows_host(self):
+        with patch("verify.sys.platform", "linux"):
+            with self.assertRaises(RuntimeError):
+                platform_build("windows")
 
 
 class DependencyTests(unittest.TestCase):
