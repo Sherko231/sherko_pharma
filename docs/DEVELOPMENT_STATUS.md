@@ -4,7 +4,7 @@ Updated: 2026-09-26
 Active task: [SP-013 / Issue #29](https://github.com/Sherko231/sherko_pharma/issues/29).
 Branch: `feat/sp-013-android-camera-scanning`.
 PR: [#30](https://github.com/Sherko231/sherko_pharma/pull/30).
-Status: SP-012 is merged with passing post-merge CI. SP-013 Android camera scanning is implemented on the task branch and remains blocked from merge until current-revision CI, diff review, and explicit owner acceptance on a real Android device.
+Status: SP-012 is merged with passing post-merge CI. SP-013 Android camera scanning is implemented and reviewed on the task branch; current-revision CI passed and the owner explicitly accepted the real Android camera behavior on 2026-09-26. Final merge and post-merge CI verification remain.
 
 ## Verified baseline
 
@@ -40,4 +40,4 @@ Status: SP-012 is merged with passing post-merge CI. SP-013 Android camera scann
 
 Requirement-derived tests cover exact barcode RPC mapping, leading-zero preservation, authoritative product revalidation, unknown/ambiguous rejection, invalid-price rejection, and concurrent duplicate-frame suppression.
 
-PR #30 uses the full application gate matrix. Current-revision CI and separate diff review must pass. Because camera behavior changed, explicit owner acceptance on a real Android device remains a mandatory merge gate even after automated checks pass.
+PR #30 uses the full application gate matrix. CI run `36244877949` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification on reviewed SHA `5f6c07a05f2153c8ab052c4545204864a30e1213`. Separate diff review found no blocking findings. The owner explicitly reported the real Android camera test as PASS on 2026-09-26. Final merge eligibility, merge verification, and post-merge CI remain.
