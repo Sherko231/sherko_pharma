@@ -152,8 +152,31 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
     );
   }
 
-  void _addToOrder(CatalogProduct product) {
-    final result = ref.read(orderControllerProvider.notifier).addProduct(product);
+  Future<void> _addToOrder(CatalogProduct product) async {
+    CatalogProduct latest;
+    try {
+      latest = await ref.read(catalogRepositoryProvider).getById(product.id);
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Could not refresh this product before adding it. Check the connection and try again.',
+            ),
+          ),
+        );
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    final result = ref.read(orderControllerProvider.notifier).addProduct(latest);
     final message = switch (result) {
       OrderActionResult.added => 'Added to order.',
       OrderActionResult.incremented => 'Quantity increased in the order.',
