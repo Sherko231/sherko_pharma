@@ -149,6 +149,14 @@ class CatalogDetailController extends Notifier<CatalogDetailState> {
     );
   }
 
+  void clear(String productId) {
+    if (state.productId != productId) {
+      return;
+    }
+    _generation += 1;
+    state = const CatalogDetailState.idle();
+  }
+
   Future<void> retry() async {
     final productId = state.productId;
     if (productId != null) {
