@@ -229,7 +229,8 @@ void main() {
       currency: 'SYP',
     );
     final catalog = FakeCatalogRepository()
-      ..searchResults = [product];
+      ..searchResults = [product]
+      ..products[product.id] = product;
 
     await pumpCatalog(
       tester,
@@ -270,7 +271,8 @@ void main() {
       currency: 'SYP',
     );
     final catalog = FakeCatalogRepository()
-      ..searchResults = [product];
+      ..searchResults = [product]
+      ..products[product.id] = product;
 
     await pumpCatalog(
       tester,
