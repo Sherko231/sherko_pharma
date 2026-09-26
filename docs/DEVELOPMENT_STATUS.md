@@ -1,13 +1,12 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-26
-Active task: [Docs follow-up / Issue #31](https://github.com/Sherko231/sherko_pharma/issues/31).
-Branch: `docs/sp-013-post-merge-handoff`.
-Status: SP-013 is merged and verified. This documentation-only follow-up reconciles the handoff with the live repository state. SP-014 remains blocked until the Windows reader hardware/input mode is selected.
+Active task: none.
+Status: SP-013 is complete, merged, and verified. SP-014 is next in dependency order but remains blocked until the Windows reader hardware/input mode is selected.
 
 ## Verified baseline
 
-- Protected `main` is at `2f00898ff7cdeb5060c215c6997c62fe5791bd26`, the SP-013 merge from PR #30.
+- The latest functional feature baseline is SP-013 merge `2f00898ff7cdeb5060c215c6997c62fe5791bd26` from PR #30; later documentation-only handoff commits do not change application behavior.
 - SP-000 through SP-013 and CI-001 are merged.
 - Issue #29 is closed as completed and PR #30 is merged; post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
 - No open Issue or PR existed immediately before SP-012 was authorized.
@@ -41,4 +40,4 @@ Requirement-derived tests cover exact barcode RPC mapping, leading-zero preserva
 
 PR #30 merged as `2f00898ff7cdeb5060c215c6997c62fe5791bd26`. The owner explicitly reported the real Android camera test as PASS on 2026-09-26. Post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
 
-SP-013 is complete. The next roadmap task, SP-014 Windows external-reader integration, remains blocked until a reader model and its connection/input mode are selected and available for owner hardware acceptance.
+SP-013 is complete. Issue #31 / PR #32 reconciled the post-merge handoff, and its post-merge CI run `36251023929` passed. There is no active implementation task. The next roadmap task, SP-014 Windows external-reader integration, remains blocked until a reader model and its connection/input mode are selected and available for owner hardware acceptance.
