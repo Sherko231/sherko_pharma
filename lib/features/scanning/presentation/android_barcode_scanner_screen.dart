@@ -82,14 +82,19 @@ class _AndroidBarcodeScannerScreenState
         return;
       case BarcodeScanStatus.unknown:
         _message = 'Barcode not found.';
+        break;
       case BarcodeScanStatus.ambiguous:
         _message = 'Barcode matches more than one product.';
+        break;
       case BarcodeScanStatus.invalidPrice:
         _message = 'Product price is not valid for an order.';
+        break;
       case BarcodeScanStatus.overflow:
         _message = 'Order amount is too large to calculate safely.';
+        break;
       case BarcodeScanStatus.failed:
         _message = 'Could not verify this barcode. Check the connection and try again.';
+        break;
     }
     setState(() {});
   }
