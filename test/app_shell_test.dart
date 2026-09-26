@@ -116,11 +116,11 @@ void main() {
       testProduct(id: 'p1', nameEn: 'Fresh result', revision: 2),
     ];
 
-    await tester.binding.handleAppLifecycleStateChanged(
+    tester.binding.handleAppLifecycleStateChanged(
       AppLifecycleState.paused,
     );
     await tester.pump();
-    await tester.binding.handleAppLifecycleStateChanged(
+    tester.binding.handleAppLifecycleStateChanged(
       AppLifecycleState.resumed,
     );
     await tester.pumpAndSettle();
