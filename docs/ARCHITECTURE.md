@@ -1,7 +1,7 @@
 # Sherko Pharma — Architecture
 
 Updated: 2026-09-26
-Status: Product boundaries are agreed; the hosted schema, owner-only catalog API, authentication boundary, controlled 23,750-row source import, search/detail, create/edit, persistent drafts, manual order calculator, and account-scoped page/order persistence are in place. SP-012 scoped refresh and explicit order price-change handling are implemented on the task branch; scanner features remain pending. See `DEVELOPMENT_STATUS.md`.
+Status: Product boundaries are agreed; the hosted schema, owner-only catalog API, authentication boundary, controlled 23,750-row source import, search/detail, create/edit, persistent drafts, manual order calculator, account-scoped page/order persistence, scoped refresh/price-change handling, and Android camera scanning are in place. Windows external-reader integration is deferred for later owner re-authorization. See `DEVELOPMENT_STATUS.md`.
 
 ## Current decision
 
@@ -23,7 +23,7 @@ This replaces the earlier offline-first proposal. Do not introduce Drift, a comp
 | Auth session storage | Persist the Supabase auth session in platform secure storage, not ordinary preferences | SP-006 uses `flutter_secure_storage` 11.2.0 on Android/Windows |
 | Local app session store | Save current screen, order snapshot, and active unsaved edit draft without copying the catalog | SP-009 keeps product drafts account-scoped; SP-011 adds a separate versioned account-scoped page/order snapshot in the same secure key-value boundary |
 | Android camera adapter | Produce deliberate barcode scan events | Confirmed; package to verify |
-| Windows reader adapter | Produce scan events from the owner's external reader | Confirmed; hardware/input mode to verify |
+| Windows reader adapter | Produce scan events from the owner's external reader | Deferred future task; re-authorize after hardware/input mode selection |
 
 Package versions are pinned in `pubspec.yaml`/`pubspec.lock` after compatibility verification against Flutter 3.38.7 / Dart 3.10.7. SP-006 uses `supabase_flutter` 2.17.2 and `flutter_secure_storage` 11.2.0; Android minimum SDK is 23 because of the secure-storage requirement.
 
@@ -105,12 +105,12 @@ Organize code by feature: authentication, catalog, order, and scanning. Keep app
 ## Platform input
 
 - Android: camera scanning with permission-denied and unavailable-camera states. Prevent repeated camera frames from increasing quantity without another deliberate scan.
-- Windows: external barcode reader. The owner has not purchased a reader yet; hardware compatibility remains pending until selection. Determine its model and protocol then. Keyboard-emulation readers and serial/vendor-specific readers need different adapters; do not claim universal compatibility without evidence.
+- Windows external barcode reader: deferred from the current initial delivery. When the owner re-authorizes it later, first identify the reader model, connection/input protocol, terminator, and any driver/SDK requirements. Keyboard-emulation readers and serial/vendor-specific readers need different adapters; do not claim universal compatibility without evidence.
 - Preserve barcode text, including leading zeros. Do not silently normalize codes into different identifiers.
 
 ## Remaining design decisions
 
-- Confirm camera-scanning package compatibility and the Windows reader hardware/input mode before their device tasks.
+- For any future Windows reader task, confirm the hardware/input mode before implementation; Android camera compatibility is already established for the merged SP-013 baseline.
 - SP-004 remains the owner-only bounded catalog RPC boundary; SP-012 does not add direct-table reads, full-table subscriptions, or a local catalog replica.
 - Session, sign-out, reset-order, refresh, price-change, and unsaved-edit behavior is specified across `PRODUCT.md`, `DATA_MODEL.md`, and `UX_FLOWS.md`.
 - Continue applying the CI and hardware acceptance gates in `QUALITY.md`; scanner tasks require real-device acceptance.
