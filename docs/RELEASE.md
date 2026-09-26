@@ -68,7 +68,7 @@ flutter build windows --release `
   --dart-define=SUPABASE_PUBLISHABLE_KEY="$env:SHERKO_SUPABASE_PUBLISHABLE_KEY"
 ```
 
-With the current x64 target, the runnable bundle is under `build\\windows\\x64\\runner\\Release\`. Distribute the complete Release directory, not only `sherko_pharma.exe`, because Flutter and plugin DLLs/data are required beside the executable.
+With the current x64 target, the runnable bundle is under `build\windows\x64\runner\Release\`. Distribute the complete Release directory, not only `sherko_pharma.exe`, because Flutter and plugin DLLs/data are required beside the executable.
 
 A convenient private handoff archive can be created with:
 
