@@ -75,7 +75,7 @@ The owner deferred SP-014 on 2026-09-26 and closed its current Issue as not plan
 | --- | --- | --- | --- |
 | SP-015 | Verify the current initial-delivery scope and prepare delivery | SP-013 and all non-deferred initial-delivery tasks; SP-014 is not required | Product acceptance checklist passes with recorded evidence for the current initial-delivery scope; Android and Windows application builds are tested as applicable; backend provisioning/import steps verified for the selected environment; unresolved issues and deferred SP-014 are reported; README setup and recovery instructions accurate; release identity/signing and artifact handling established before calling a build production-ready |
 
-SP-015 replaces the placeholder Android identity with `com.samo.sherkopharma` and removes debug-key fallback from release builds. Production Android signing remains external to Git, while CI uses a disposable synthetic key only to exercise release-mode signing. Windows release builds keep the complete runner bundle and are not claimed to be code-signed. `RELEASE.md` owns packaging and owner-only production-signing steps.
+SP-015 replaced the placeholder Android identity and removed debug-key fallback from release builds. Before public distribution, REL-001 / Issue #40 amends the Android application ID/namespace to `com.samo.sherkopharma`. Production Android signing remains external to Git, while CI uses a disposable synthetic key only to exercise release-mode signing. Windows release builds keep the complete runner bundle and are not claimed to be code-signed. `RELEASE.md` owns packaging and owner-only production-signing steps.
 
 ## Explicitly deferred
 
