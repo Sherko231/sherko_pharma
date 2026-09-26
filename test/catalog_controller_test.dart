@@ -385,4 +385,39 @@ void main() {
     expect(state.product?.displayName, 'Loaded detail');
   });
 
+
+  test('clearing a closed detail invalidates its in-flight response', () async {
+    final auth = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner'),
+    );
+    final gate = Completer<dynamic>();
+    final catalog = FakeCatalogRepository()
+      ..onGet = (_) => gate.future.then((value) => value);
+    final container = containerFor(auth, catalog);
+    addTearDown(container.dispose);
+    addTearDown(auth.dispose);
+
+    final pending = container
+        .read(catalogDetailControllerProvider.notifier)
+        .load('p1');
+    await Future<void>.delayed(Duration.zero);
+
+    container
+        .read(catalogDetailControllerProvider.notifier)
+        .clear('p1');
+
+    expect(
+      container.read(catalogDetailControllerProvider).status,
+      CatalogDetailStatus.idle,
+    );
+
+    gate.complete(testProduct(id: 'p1', nameEn: 'Late detail'));
+    await pending;
+
+    final state = container.read(catalogDetailControllerProvider);
+    expect(state.status, CatalogDetailStatus.idle);
+    expect(state.productId, isNull);
+    expect(state.product, isNull);
+  });
+
 }
