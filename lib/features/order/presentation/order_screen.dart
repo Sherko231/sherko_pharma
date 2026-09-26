@@ -76,6 +76,15 @@ class _OrderHeader extends ConsumerWidget {
           ],
         );
 
+        final scan = Platform.isAndroid
+            ? FilledButton.icon(
+                key: const Key('order-scan-barcode'),
+                onPressed: () => _scanBarcode(context),
+                icon: const Icon(Icons.qr_code_scanner),
+                label: const Text('Scan'),
+              )
+            : null;
+
         final newOrder = FilledButton.tonalIcon(
           key: const Key('order-new'),
           onPressed: () => _newOrder(context, ref),
@@ -94,6 +103,10 @@ class _OrderHeader extends ConsumerWidget {
               const SizedBox(height: 12),
               totals,
               const SizedBox(height: 12),
+              if (scan != null) ...[
+                scan,
+                const SizedBox(height: 8),
+              ],
               newOrder,
             ],
           );
@@ -109,6 +122,10 @@ class _OrderHeader extends ConsumerWidget {
             ),
             totals,
             const SizedBox(width: 12),
+            if (scan != null) ...[
+              scan,
+              const SizedBox(width: 8),
+            ],
             newOrder,
           ],
         );
