@@ -15,7 +15,8 @@ class AndroidBarcodeScannerScreen extends ConsumerStatefulWidget {
 }
 
 class _AndroidBarcodeScannerScreenState
-    extends ConsumerState<AndroidBarcodeScannerScreen> {
+    extends ConsumerState<AndroidBarcodeScannerScreen>
+    with WidgetsBindingObserver {
   late final MobileScannerController _camera;
   late final BarcodeScanController _scan;
   bool _accepting = false;
@@ -24,6 +25,7 @@ class _AndroidBarcodeScannerScreenState
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _camera = MobileScannerController(
       formats: const [
         BarcodeFormat.ean13,
@@ -45,8 +47,29 @@ class _AndroidBarcodeScannerScreenState
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _camera.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!_camera.value.hasCameraPermission) {
+      return;
+    }
+    switch (state) {
+      case AppLifecycleState.detached:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+        _camera.stop();
+        break;
+      case AppLifecycleState.resumed:
+        if (!_accepting) {
+          _camera.start();
+        }
+        break;
+    }
   }
 
   Future<void> _detected(BarcodeCapture capture) async {
