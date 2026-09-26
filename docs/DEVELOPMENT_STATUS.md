@@ -1,8 +1,8 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-26
-Active task: none.
-Status: SP-013 is complete, merged, and verified. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 is the next available roadmap task and no longer depends on SP-014.
+Task record: SP-015 / Issue #38; GitHub Issue/PR state is authoritative for live execution and merge status.
+Status: SP-013 is complete, merged, and verified. SP-014 remains deferred. SP-015 is the final current-scope delivery-preparation task and does not depend on SP-014.
 
 ## Verified baseline
 
@@ -14,6 +14,15 @@ Status: SP-013 is complete, merged, and verified. The owner deferred SP-014 on 2
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-015 delivery contract
+
+- Preserve the implemented SP-000 through SP-013 product behavior while preparing release-mode Android and Windows candidates.
+- Android identity is `com.sherko.pharma`; release builds must not fall back to the Flutter debug key.
+- Production signing material remains outside Git. Hosted CI may use only a disposable synthetic key to exercise the release configuration.
+- Windows release verification covers the complete runner bundle; no production code-signing claim is made without an external certificate.
+- CI does not publish distributable artifacts. Owner-controlled packaging, checksums, signing, and runtime configuration follow `RELEASE.md`.
+- The acceptance matrix in `DELIVERY_ACCEPTANCE.md` records deferred SP-014 and the remaining owner-only actions before public distribution.
 
 ## SP-013 contract
 
@@ -40,4 +49,4 @@ Requirement-derived tests cover exact barcode RPC mapping, leading-zero preserva
 
 PR #30 merged as `2f00898ff7cdeb5060c215c6997c62fe5791bd26`. The owner explicitly reported the real Android camera test as PASS on 2026-09-26. Post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
 
-SP-013 is complete. Issue #31 / PR #32 reconciled the post-merge handoff, and its post-merge CI run `36251023929` passed. There is no active implementation task. On 2026-09-26 the owner deferred SP-014 Windows external-reader integration and its Issue #35 was closed as not planned for now. SP-015 is the next available roadmap task; future SP-014 work requires fresh owner authorization and selected hardware/input-mode evidence.
+SP-013 is complete. Issue #31 / PR #32 reconciled its post-merge handoff, and post-merge CI run `36251023929` passed. On 2026-09-26 the owner deferred SP-014 Windows external-reader integration and Issue #35 was closed as not planned for now. SP-015 is tracked by Issue #38; its Issue/PR handoff records revision-specific CI, review, merge, and post-merge evidence. Future SP-014 work still requires fresh owner authorization and selected hardware/input-mode evidence.
