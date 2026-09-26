@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/catalog_detail_controller.dart';
+import '../application/catalog_search_controller.dart';
 import '../domain/catalog_product.dart';
 import 'catalog_text.dart';
 import 'catalog_product_form_screen.dart';
@@ -73,36 +74,62 @@ class _CatalogDetailScreenState extends ConsumerState<CatalogDetailScreen> {
             ),
         ],
       ),
-      body: switch (currentStatus) {
-        CatalogDetailStatus.idle || CatalogDetailStatus.loading => const Center(
-            key: Key('catalog-detail-loading'),
-            child: CircularProgressIndicator(),
-          ),
-        CatalogDetailStatus.loaded => _ProductDetailBody(
-            product: currentProduct!,
-          ),
-        CatalogDetailStatus.notFound => const _DetailMessage(
-            key: Key('catalog-detail-not-found'),
-            icon: Icons.search_off,
-            title: 'Product not found',
-            message: 'This product is no longer available in the catalog.',
-          ),
-        CatalogDetailStatus.error => _DetailMessage(
-            key: const Key('catalog-detail-error'),
-            icon: Icons.cloud_off,
-            title: 'Could not load product',
-            message: 'Check your connection and try again.',
-            action: FilledButton.tonal(
-              key: const Key('catalog-detail-retry'),
-              onPressed: () {
-                ref
-                    .read(catalogDetailControllerProvider.notifier)
-                    .retry();
-              },
-              child: const Text('Retry'),
+      body: Column(
+        children: [
+          if (detail.productId == widget.productId && detail.refreshFailed)
+            Material(
+              key: const Key('catalog-detail-refresh-error'),
+              color: Theme.of(context).colorScheme.tertiaryContainer,
+              child: const Padding(
+                padding: EdgeInsets.all(12),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Text(
+                    'Refresh failed. Showing the last known product details.',
+                  ),
+                ),
+              ),
             ),
+          if (detail.productId == widget.productId && detail.isRefreshing)
+            const LinearProgressIndicator(
+              key: Key('catalog-detail-refreshing'),
+            ),
+          Expanded(
+            child: switch (currentStatus) {
+              CatalogDetailStatus.idle ||
+              CatalogDetailStatus.loading =>
+                const Center(
+                  key: Key('catalog-detail-loading'),
+                  child: CircularProgressIndicator(),
+                ),
+              CatalogDetailStatus.loaded => _ProductDetailBody(
+                  product: currentProduct!,
+                ),
+              CatalogDetailStatus.notFound => const _DetailMessage(
+                  key: Key('catalog-detail-not-found'),
+                  icon: Icons.search_off,
+                  title: 'Product not found',
+                  message: 'This product is no longer available in the catalog.',
+                ),
+              CatalogDetailStatus.error => _DetailMessage(
+                  key: const Key('catalog-detail-error'),
+                  icon: Icons.cloud_off,
+                  title: 'Could not load product',
+                  message: 'Check your connection and try again.',
+                  action: FilledButton.tonal(
+                    key: const Key('catalog-detail-retry'),
+                    onPressed: () {
+                      ref
+                          .read(catalogDetailControllerProvider.notifier)
+                          .retry();
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ),
+            },
           ),
-      },
+        ],
+      ),
     );
   }
 
@@ -122,6 +149,9 @@ class _CatalogDetailScreenState extends ConsumerState<CatalogDetailScreen> {
     ref
         .read(catalogDetailControllerProvider.notifier)
         .acceptServerProduct(updated);
+    unawaited(
+      ref.read(catalogSearchControllerProvider.notifier).refresh(),
+    );
   }
 }
 
