@@ -1,16 +1,15 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-26
-Active task: [SP-013 / Issue #29](https://github.com/Sherko231/sherko_pharma/issues/29).
-Branch: `feat/sp-013-android-camera-scanning`.
-PR: [#30](https://github.com/Sherko231/sherko_pharma/pull/30).
-Status: SP-012 is merged with passing post-merge CI. SP-013 Android camera scanning is implemented and reviewed on the task branch; current-revision CI passed and the owner explicitly accepted the real Android camera behavior on 2026-09-26. Final merge and post-merge CI verification remain.
+Active task: [Docs follow-up / Issue #31](https://github.com/Sherko231/sherko_pharma/issues/31).
+Branch: `docs/sp-013-post-merge-handoff`.
+Status: SP-013 is merged and verified. This documentation-only follow-up reconciles the handoff with the live repository state. SP-014 remains blocked until the Windows reader hardware/input mode is selected.
 
 ## Verified baseline
 
-- Protected `main` is at `334d61444f56d193897e713a6bd2b44deff7d975`, the SP-012 merge from PR #28.
-- SP-000 through SP-012 and CI-001 are merged.
-- Issue #27 is closed as completed and PR #28 is merged; post-merge CI run `36235010740` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
+- Protected `main` is at `2f00898ff7cdeb5060c215c6997c62fe5791bd26`, the SP-013 merge from PR #30.
+- SP-000 through SP-013 and CI-001 are merged.
+- Issue #29 is closed as completed and PR #30 is merged; post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
 - No open Issue or PR existed immediately before SP-012 was authorized.
 - The dedicated Sherko Pharma Supabase project is active on the Free plan.
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
@@ -40,4 +39,6 @@ Status: SP-012 is merged with passing post-merge CI. SP-013 Android camera scann
 
 Requirement-derived tests cover exact barcode RPC mapping, leading-zero preservation, authoritative product revalidation, unknown/ambiguous rejection, invalid-price rejection, and concurrent duplicate-frame suppression.
 
-PR #30 uses the full application gate matrix. CI run `36244877949` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification on reviewed SHA `5f6c07a05f2153c8ab052c4545204864a30e1213`. Separate diff review found no blocking findings. The owner explicitly reported the real Android camera test as PASS on 2026-09-26. Final merge eligibility, merge verification, and post-merge CI remain.
+PR #30 merged as `2f00898ff7cdeb5060c215c6997c62fe5791bd26`. The owner explicitly reported the real Android camera test as PASS on 2026-09-26. Post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
+
+SP-013 is complete. The next roadmap task, SP-014 Windows external-reader integration, remains blocked until a reader model and its connection/input mode are selected and available for owner hardware acceptance.
