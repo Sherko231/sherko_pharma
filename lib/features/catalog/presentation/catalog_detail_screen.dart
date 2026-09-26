@@ -26,14 +26,16 @@ class CatalogDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _CatalogDetailScreenState extends ConsumerState<CatalogDetailScreen> {
+  late final CatalogDetailController _detailController;
+
   @override
   void initState() {
     super.initState();
+    _detailController =
+        ref.read(catalogDetailControllerProvider.notifier);
     scheduleMicrotask(() {
       if (mounted) {
-        ref
-            .read(catalogDetailControllerProvider.notifier)
-            .load(widget.productId);
+        _detailController.load(widget.productId);
       }
     });
   }
@@ -42,20 +44,14 @@ class _CatalogDetailScreenState extends ConsumerState<CatalogDetailScreen> {
   void didUpdateWidget(CatalogDetailScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.productId != widget.productId) {
-      ref
-          .read(catalogDetailControllerProvider.notifier)
-          .clear(oldWidget.productId);
-      ref
-          .read(catalogDetailControllerProvider.notifier)
-          .load(widget.productId);
+      _detailController.clear(oldWidget.productId);
+      _detailController.load(widget.productId);
     }
   }
 
   @override
   void dispose() {
-    ref
-        .read(catalogDetailControllerProvider.notifier)
-        .clear(widget.productId);
+    _detailController.clear(widget.productId);
     super.dispose();
   }
 
