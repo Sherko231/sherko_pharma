@@ -86,7 +86,12 @@ class ScopedCatalogRefreshController
       return;
     }
 
-    state = state.copyWith(isActive: active);
+    _identityGeneration += 1;
+    _refreshInFlight = false;
+    state = state.copyWith(
+      isActive: active,
+      isRefreshing: false,
+    );
     _timer?.cancel();
 
     if (!active) {
