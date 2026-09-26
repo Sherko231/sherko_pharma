@@ -9,6 +9,8 @@ abstract interface class CatalogRepository {
 
   Future<CatalogProduct> getById(String productId);
 
+  Future<List<CatalogProduct>> lookupBarcode(String code);
+
   Future<CatalogSaveResult> create({
     required String productId,
     required CatalogProductInput input,

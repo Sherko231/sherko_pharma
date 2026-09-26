@@ -82,6 +82,32 @@ class SupabaseCatalogRepository implements CatalogRepository {
   }
 
   @override
+  Future<List<CatalogProduct>> lookupBarcode(String code) async {
+    if (code.isEmpty) {
+      return const [];
+    }
+    try {
+      final response = await rpcClient.call(
+        'catalog_lookup_barcode',
+        params: {'code': code},
+      );
+      final rows = _rowsFromResponse(response);
+      final products = <String, CatalogProduct>{};
+      for (final row in rows) {
+        final product = CatalogProduct.fromRpcRow(row);
+        products[product.id] = product;
+      }
+      return products.values.toList(growable: false);
+    } on CatalogRepositoryException {
+      rethrow;
+    } on FormatException {
+      throw const CatalogResponseException();
+    } catch (_) {
+      throw const CatalogRepositoryException();
+    }
+  }
+
+  @override
   Future<CatalogProduct> getById(String productId) async {
     try {
       final response = await rpcClient.call(

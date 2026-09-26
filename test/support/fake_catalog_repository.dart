@@ -7,6 +7,7 @@ typedef SearchHandler = Future<List<CatalogProduct>> Function(
   int limit,
 );
 
+typedef BarcodeHandler = Future<List<CatalogProduct>> Function(String code);
 typedef DetailHandler = Future<CatalogProduct> Function(String productId);
 typedef CreateHandler = Future<CatalogSaveResult> Function(
   String productId,
@@ -29,6 +30,7 @@ class CatalogSearchCall {
 
 class FakeCatalogRepository implements CatalogRepository {
   SearchHandler? onSearch;
+  BarcodeHandler? onLookupBarcode;
   DetailHandler? onGet;
   CreateHandler? onCreate;
   UpdateHandler? onUpdate;
@@ -37,6 +39,7 @@ class FakeCatalogRepository implements CatalogRepository {
   List<CatalogProduct> searchResults = const [];
   final Map<String, CatalogProduct> products = {};
   final List<CatalogSearchCall> searchCalls = [];
+  final List<String> barcodeCalls = [];
   final List<String> detailCalls = [];
   final List<String> createIds = [];
   final List<CatalogProductInput> createInputs = [];
@@ -156,6 +159,22 @@ class FakeCatalogRepository implements CatalogRepository {
       return handler(original, input);
     }
     return const CatalogSaveRejected();
+  }
+
+  @override
+  Future<List<CatalogProduct>> lookupBarcode(String code) async {
+    barcodeCalls.add(code);
+    final handler = onLookupBarcode;
+    if (handler != null) {
+      return handler(code);
+    }
+    final unique = <String, CatalogProduct>{};
+    for (final product in products.values) {
+      if (product.barcode == code || product.barcode2 == code) {
+        unique[product.id] = product;
+      }
+    }
+    return unique.values.toList(growable: false);
   }
 
   @override

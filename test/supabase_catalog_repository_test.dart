@@ -79,6 +79,21 @@ void main() {
     expect(products.single.revision, 3);
   });
 
+  test('barcode lookup preserves exact code and deduplicates identity', () async {
+    final rpc = FakeRpcClient()
+      ..response = [
+        rpcRow(id: 'product-id'),
+        rpcRow(id: 'product-id'),
+      ];
+    final repository = SupabaseCatalogRepository(rpc);
+
+    final products = await repository.lookupBarcode('0012345');
+
+    expect(rpc.functionName, 'catalog_lookup_barcode');
+    expect(rpc.params, {'code': '0012345'});
+    expect(products.map((product) => product.id), ['product-id']);
+  });
+
   test('detail maps exactly one catalog_get row', () async {
     final rpc = FakeRpcClient()
       ..response = [rpcRow(id: 'product-id')];

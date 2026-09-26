@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../catalog/application/scoped_catalog_refresh_controller.dart';
 import '../application/order_controller.dart';
 import '../domain/order_model.dart';
+import '../../scanning/presentation/android_barcode_scanner_screen.dart';
 
 class OrderScreen extends ConsumerWidget {
   const OrderScreen({super.key});
@@ -73,6 +76,15 @@ class _OrderHeader extends ConsumerWidget {
           ],
         );
 
+        final scan = Platform.isAndroid
+            ? FilledButton.icon(
+                key: const Key('order-scan-barcode'),
+                onPressed: () => _scanBarcode(context),
+                icon: const Icon(Icons.qr_code_scanner),
+                label: const Text('Scan'),
+              )
+            : null;
+
         final newOrder = FilledButton.tonalIcon(
           key: const Key('order-new'),
           onPressed: () => _newOrder(context, ref),
@@ -91,6 +103,10 @@ class _OrderHeader extends ConsumerWidget {
               const SizedBox(height: 12),
               totals,
               const SizedBox(height: 12),
+              if (scan != null) ...[
+                scan,
+                const SizedBox(height: 8),
+              ],
               newOrder,
             ],
           );
@@ -106,11 +122,31 @@ class _OrderHeader extends ConsumerWidget {
             ),
             totals,
             const SizedBox(width: 12),
+            if (scan != null) ...[
+              scan,
+              const SizedBox(width: 8),
+            ],
             newOrder,
           ],
         );
       },
     );
+  }
+
+  Future<void> _scanBarcode(BuildContext context) async {
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const AndroidBarcodeScannerScreen(),
+      ),
+    );
+    if (!context.mounted || result == null) {
+      return;
+    }
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(content: Text('Barcode added to the current order.')),
+      );
   }
 
   Future<void> _newOrder(BuildContext context, WidgetRef ref) async {
