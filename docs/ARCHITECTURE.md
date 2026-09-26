@@ -1,7 +1,7 @@
 # Sherko Pharma — Architecture
 
-Updated: 2026-09-23
-Status: Product boundaries are agreed; the hosted schema, owner-only catalog API, authentication boundary, controlled 23,750-row source import, search/detail, create/edit, persistent drafts, and manual order calculator are in place. SP-011 account-scoped local page/order session persistence is implemented on its task branch; later refresh/scanner features remain pending. See `DEVELOPMENT_STATUS.md`.
+Updated: 2026-09-26
+Status: Product boundaries are agreed; the hosted schema, owner-only catalog API, authentication boundary, controlled 23,750-row source import, search/detail, create/edit, persistent drafts, manual order calculator, and account-scoped page/order persistence are in place. SP-012 scoped refresh and explicit order price-change handling are implemented on the task branch; scanner features remain pending. See `DEVELOPMENT_STATUS.md`.
 
 ## Current decision
 
@@ -66,8 +66,10 @@ Organize code by feature: authentication, catalog, order, and scanning. Keep app
 - Use exact text matching across both `barcode` and `barcode2`, returning distinct products by identity. Either field identifies the same package; cross-product collisions require user selection regardless of which field matched. Exclude empty identifiers. See `DATA_MODEL.md`.
 - Distinguish loading, no match, ambiguous match, connection failure, and authorization failure.
 - Ignore responses for superseded searches so slow requests cannot replace newer results.
-- Automatically refresh relevant visible data on successful mutations, reconnect, and application resume. While connected, choose a scoped invalidation/subscription or bounded polling policy in implementation; do not replicate the full table.
-- Re-read authoritative values after reconnect; a transient notification alone is not durable evidence that the displayed state is current.
+- SP-012 refreshes only relevant visible/session data: the active nonblank search, currently loaded detail, and products already present in the active order. It refreshes on application resume and uses a bounded two-minute poll only while the protected app is active; it does not subscribe to or replicate the full table.
+- Refresh continues through the existing bounded `catalog_search` / `catalog_get` repository operations. A failed refresh preserves last-known visible data and exposes a stale/retry state; a later successful bounded read is the recovery signal, so no separate connectivity dependency is required.
+- Before adding a product from search to a new order line, re-read that exact identity with `catalog_get`; if the read fails, leave the order unchanged rather than capturing a potentially stale price.
+- Re-read authoritative values after resume/recovery; a transient notification alone is not durable evidence that the displayed state is current.
 
 ## Catalog mutations and concurrency
 
@@ -82,7 +84,7 @@ Organize code by feature: authentication, catalog, order, and scanning. Keep app
 ## Order model and price updates
 
 - Keep one line per selected product with product identity, minimum display information, quantity, captured integer selling amount and currency, and the observed product revision where useful.
-- Adding quantity to an existing line uses the line's captured amount and currency. A server amount or currency change shows a notification and an explicit update option without silently changing totals; accept a valid new pair atomically.
+- Adding quantity to an existing line uses the line's captured amount and currency. SP-012 re-reads active order identities and records a server amount/currency change as a per-line notice without silently changing totals; accepting a valid new pair is explicit and atomic.
 - New customer orders use current server prices. Revalidate saved order products/prices on resume before claiming the data is current.
 - Use exact integer monetary arithmetic in whole currency units for both SYP and USD. Aggregate separately by captured currency; do not implement exchange rates or a converted/combined grand total. Validate prices and currency before addition, and detect overflow. See `DATA_MODEL.md`.
 - Preserve the existing order during network failures. New server-dependent catalog lookup and mutation operations cannot succeed offline.
@@ -108,10 +110,10 @@ Organize code by feature: authentication, catalog, order, and scanning. Keep app
 
 ## Remaining design decisions
 
-- Refresh the inspected repository baseline, verify an executable toolchain, and select compatible packages for session storage, credentials, and camera scanning.
-- Automatic-refresh mechanism remains to be chosen. SP-004 defines owner-only bounded catalog RPCs with server-enforced limits and denies normal client direct-table access.
-- Confirm reader hardware. Session, sign-out, reset-order, and unsaved-edit navigation behavior is specified in `UX_FLOWS.md`.
-- Implement the agreed CI and hardware acceptance gates in `QUALITY.md` before enabling task auto-merge.
+- Confirm camera-scanning package compatibility and the Windows reader hardware/input mode before their device tasks.
+- SP-004 remains the owner-only bounded catalog RPC boundary; SP-012 does not add direct-table reads, full-table subscriptions, or a local catalog replica.
+- Session, sign-out, reset-order, refresh, price-change, and unsaved-edit behavior is specified across `PRODUCT.md`, `DATA_MODEL.md`, and `UX_FLOWS.md`.
+- Continue applying the CI and hardware acceptance gates in `QUALITY.md`; scanner tasks require real-device acceptance.
 
 ## Official references used in the proposal
 
