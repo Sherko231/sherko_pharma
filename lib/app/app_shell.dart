@@ -23,24 +23,24 @@ class AppShell extends ConsumerStatefulWidget {
 
 class _AppShellState extends ConsumerState<AppShell>
     with WidgetsBindingObserver {
+  late final ScopedCatalogRefreshController _refreshController;
+
   @override
   void initState() {
     super.initState();
+    _refreshController =
+        ref.read(scopedCatalogRefreshControllerProvider.notifier);
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        ref
-            .read(scopedCatalogRefreshControllerProvider.notifier)
-            .setActive(true);
+        _refreshController.setActive(true);
       }
     });
   }
 
   @override
   void dispose() {
-    ref
-        .read(scopedCatalogRefreshControllerProvider.notifier)
-        .setActive(false);
+    _refreshController.setActive(false);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -48,9 +48,7 @@ class _AppShellState extends ConsumerState<AppShell>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final active = state == AppLifecycleState.resumed;
-    ref
-        .read(scopedCatalogRefreshControllerProvider.notifier)
-        .setActive(active);
+    _refreshController.setActive(active);
   }
 
   @override
