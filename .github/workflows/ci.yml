@@ -186,6 +186,24 @@ jobs:
           flutter-version: ${{ steps.sdk.outputs.version }}
           channel: stable
           cache: true
+      - name: Prepare ephemeral Android release signing
+        working-directory: android
+        run: |
+          keytool -genkeypair -noprompt \
+            -keystore ci-release.jks \
+            -storepass ci-only-password \
+            -keypass ci-only-password \
+            -alias ci \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 1 \
+            -dname "CN=Sherko Pharma CI,O=CI,C=US"
+          {
+            echo "storePassword=ci-only-password"
+            echo "keyPassword=ci-only-password"
+            echo "keyAlias=ci"
+            echo "storeFile=$PWD/ci-release.jks"
+          } > key.properties
       - run: python tool/verify.py android
 
   windows:

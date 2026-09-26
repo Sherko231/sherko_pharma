@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "sherko_pharma" "\0"
+            VALUE "CompanyName", "Sherko Pharma" "\0"
+            VALUE "FileDescription", "Sherko Pharma" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "sherko_pharma" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 Sherko Pharma. All rights reserved." "\0"
             VALUE "OriginalFilename", "sherko_pharma.exe" "\0"
-            VALUE "ProductName", "sherko_pharma" "\0"
+            VALUE "ProductName", "Sherko Pharma" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

@@ -1,4 +1,4 @@
-package com.example.sherko_pharma
+package com.sherko.pharma
 
 import io.flutter.embedding.android.FlutterActivity
 

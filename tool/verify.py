@@ -104,6 +104,19 @@ def gate(results):
     print(f"Required verification passed ({classification}).")
 
 
+def platform_build(mode):
+    if mode == "windows" and sys.platform != "win32":
+        raise RuntimeError("Windows builds require Windows and Visual Studio C++ desktop tools")
+    dependencies()
+    if mode == "android":
+        run("flutter", "build", "apk", "--release", "--no-pub")
+    elif mode == "windows":
+        run("flutter", "config", "--enable-windows-desktop")
+        run("flutter", "build", "windows", "--release", "--no-pub")
+    else:
+        raise ValueError(f"Unsupported platform build mode: {mode}")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=["docs", "scope", "quick", "android", "windows", "gate"])
@@ -120,14 +133,7 @@ def main():
     elif args.mode == "gate":
         gate(json.loads(os.environ["JOB_RESULTS"]))
     else:
-        if args.mode == "windows" and sys.platform != "win32":
-            raise RuntimeError("Windows builds require Windows and Visual Studio C++ desktop tools")
-        dependencies()
-        if args.mode == "android":
-            run("flutter", "build", "apk", "--debug", "--no-pub")
-        else:
-            run("flutter", "config", "--enable-windows-desktop")
-            run("flutter", "build", "windows", "--release", "--no-pub")
+        platform_build(args.mode)
 
 
 if __name__ == "__main__":

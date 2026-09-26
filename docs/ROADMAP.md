@@ -1,6 +1,6 @@
 # Sherko Pharma — Implementation Roadmap
 
-Status: SP-000 through SP-013 and CI-001 are merged. SP-013 merged via PR #30 at `2f00898ff7cdeb5060c215c6997c62fe5791bd26`; post-merge CI run `36250531971` passed. The owner deferred SP-014 on 2026-09-26 for later re-authorization, so it no longer blocks initial delivery. SP-015 is the next available roadmap task, subject to normal one-task-at-a-time authorization.
+Status: SP-000 through SP-013 and CI-001 are merged. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 is the final task in the current initial-delivery roadmap and is tracked by Issue #38; its Issue/PR handoff owns live execution and merge evidence.
 
 Repository: https://github.com/Sherko231/sherko_pharma
 Inspected baseline: `main` at `2c5e0aa32a7b7ef246511cafff034adaf977d8b7`.
@@ -75,7 +75,7 @@ The owner deferred SP-014 on 2026-09-26 and closed its current Issue as not plan
 | --- | --- | --- | --- |
 | SP-015 | Verify the current initial-delivery scope and prepare delivery | SP-013 and all non-deferred initial-delivery tasks; SP-014 is not required | Product acceptance checklist passes with recorded evidence for the current initial-delivery scope; Android and Windows application builds are tested as applicable; backend provisioning/import steps verified for the selected environment; unresolved issues and deferred SP-014 are reported; README setup and recovery instructions accurate; release identity/signing and artifact handling established before calling a build production-ready |
 
-The current Android application ID/namespace is `com.example.sherko_pharma`, and its release build is configured to use debug signing. Decide and configure final app identity and release signing before commercial distribution; a successful current build is not evidence of production release readiness.
+SP-015 replaces the placeholder Android identity with `com.sherko.pharma` and removes debug-key fallback from release builds. Production Android signing remains external to Git, while CI uses a disposable synthetic key only to exercise release-mode signing. Windows release builds keep the complete runner bundle and are not claimed to be code-signed. `RELEASE.md` owns packaging and owner-only production-signing steps.
 
 ## Explicitly deferred
 
@@ -85,4 +85,4 @@ SP-014 Windows external-reader integration is deferred from the current initial 
 
 SP-000 merged via PR #2 at `5d1d9b94c1faa31bcc7667f44c4ee60bb6dc399b`. SP-001 merged via PR #4 at `05f2da264ba881648dbdf5eb560948a16ca150b7` with protected-main CI verified before and after merge.
 
-SP-007 merged via PR #18 at `efd87540435624dcd8af52495f6675a1ff2cdb1f`. SP-008 merged via PR #20 at `e5fc0e9860628190e1cf0e78bcc8b67a62cea8b4`. SP-009 merged via PR #22 at `41bcc69edae80a8e8337d6920231e504d81a9e1a`. SP-010 merged via PR #24 at `7f9d6282a16fb30e4c61e3baf7300550c3b6f0e5` with post-merge CI verified. SP-011 merged via PR #26 at `594ad8b3958f64fa274c2debdf542364e589f6aa`; post-merge CI run `36150363815` passed. SP-012 merged via PR #28 at `334d61444f56d193897e713a6bd2b44deff7d975`; post-merge CI run `36235010740` passed. SP-013 merged via PR #30 at `2f00898ff7cdeb5060c215c6997c62fe5791bd26`; post-merge CI run `36250531971` passed after the owner accepted the real Android camera behavior on 2026-09-26. The owner deferred SP-014 on 2026-09-26; it does not block SP-015. SP-015 is the next available roadmap task when explicitly authorized. See [development status](DEVELOPMENT_STATUS.md) for live evidence.
+SP-007 merged via PR #18 at `efd87540435624dcd8af52495f6675a1ff2cdb1f`. SP-008 merged via PR #20 at `e5fc0e9860628190e1cf0e78bcc8b67a62cea8b4`. SP-009 merged via PR #22 at `41bcc69edae80a8e8337d6920231e504d81a9e1a`. SP-010 merged via PR #24 at `7f9d6282a16fb30e4c61e3baf7300550c3b6f0e5` with post-merge CI verified. SP-011 merged via PR #26 at `594ad8b3958f64fa274c2debdf542364e589f6aa`; post-merge CI run `36150363815` passed. SP-012 merged via PR #28 at `334d61444f56d193897e713a6bd2b44deff7d975`; post-merge CI run `36235010740` passed. SP-013 merged via PR #30 at `2f00898ff7cdeb5060c215c6997c62fe5791bd26`; post-merge CI run `36250531971` passed after the owner accepted the real Android camera behavior on 2026-09-26. The owner deferred SP-014 on 2026-09-26; it does not block SP-015. SP-015 is tracked by Issue #38 as the current initial-delivery task. No post-SP-015 feature task is automatically authorized. See [development status](DEVELOPMENT_STATUS.md) and [delivery acceptance](DELIVERY_ACCEPTANCE.md) for evidence.
