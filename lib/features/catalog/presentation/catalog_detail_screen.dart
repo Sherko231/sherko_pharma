@@ -50,12 +50,6 @@ class _CatalogDetailScreenState extends ConsumerState<CatalogDetailScreen> {
   }
 
   @override
-  void dispose() {
-    _detailController.clear(widget.productId);
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final detail = ref.watch(catalogDetailControllerProvider);
     final currentProduct = detail.productId == widget.productId
