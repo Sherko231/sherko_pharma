@@ -17,7 +17,7 @@ This checklist records the current initial-delivery scope and the evidence that 
 | Scoped refresh and price changes | SP-012 bounded refresh and explicit captured-price/currency update regressions remain in the Flutter suite | Verified |
 | Android camera barcode scanning | SP-013 automated barcode/duplicate-frame/failure-path coverage plus owner real-camera PASS on 2026-09-26 | Verified for current scanner behavior |
 | Windows external barcode reader | Owner deferred SP-014 on 2026-09-26 | Deferred; not a SP-015 blocker |
-| Android release identity/signing configuration | `com.sherko.pharma`; production release requires external private `key.properties`/keystore; CI exercises release signing with a disposable synthetic key | Verified by SP-015 CI; real production key remains owner-only |
+| Android release identity/signing configuration | `com.samo.sherkopharma`; production release requires external private `key.properties`/keystore; CI exercises release signing with a disposable synthetic key | Verified by SP-015 CI; real production key remains owner-only |
 | Windows release identity/bundle | Release-mode bundle built by CI; executable/window metadata use Sherko Pharma | Verified by SP-015 CI; no production code-signing certificate is configured |
 | Artifact publication | CI intentionally retains no distributable release artifacts | Owner-controlled handoff only |
 
