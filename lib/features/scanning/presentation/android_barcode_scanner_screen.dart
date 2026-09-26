@@ -34,7 +34,7 @@ class _AndroidBarcodeScannerScreenState
         BarcodeFormat.code39,
         BarcodeFormat.code93,
         BarcodeFormat.codabar,
-        BarcodeFormat.itf,
+        BarcodeFormat.itf14,
       ],
     );
     _scan = BarcodeScanController(
