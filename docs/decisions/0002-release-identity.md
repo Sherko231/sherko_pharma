@@ -2,7 +2,7 @@
 
 Status: Accepted
 Date: 2026-09-26
-Task: Issue #38 / SP-015.
+Task: Issue #38 / SP-015; Android identity amended by Issue #40 / REL-001 before public distribution.
 
 ## Context
 
@@ -23,9 +23,9 @@ The Flutter scaffold still used the placeholder Android identity `com.example.sh
 
 ## Decision and consequences
 
-Choose option 3.
+Choose option 3. Before public distribution, the owner amended the product-specific Android identity in Issue #40 / REL-001.
 
-- Android application ID/namespace is `com.sherko.pharma`.
+- Android application ID/namespace is `com.samo.sherkopharma`.
 - Android release builds fail rather than falling back to the debug key when signing configuration is missing.
 - `android/key.properties` and keystores remain ignored and private.
 - Hosted CI creates a one-day synthetic keystore on the disposable runner and uses it only for the release-build gate.
