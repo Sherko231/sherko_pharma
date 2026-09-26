@@ -284,8 +284,9 @@ class ScopedCatalogRefreshController
 
     priceChanges.remove(currentLine.productId);
     if (latest.revision > currentLine.productRevision && !priceChanged) {
-      (orderController ?? ref.read(orderControllerProvider.notifier))
-          .refreshCatalogMetadata(latest);
+      final controller =
+          orderController ?? ref.read(orderControllerProvider.notifier);
+      controller.refreshCatalogMetadata(latest);
     }
   }
 
