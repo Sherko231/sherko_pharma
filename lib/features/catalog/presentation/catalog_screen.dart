@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -82,6 +84,26 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
             ),
           ),
           const SizedBox(height: 16),
+          if (search.refreshFailed) ...[
+            Material(
+              key: const Key('catalog-search-refresh-error'),
+              color: Theme.of(context).colorScheme.tertiaryContainer,
+              borderRadius: BorderRadius.circular(12),
+              child: const Padding(
+                padding: EdgeInsets.all(12),
+                child: Text(
+                  'Refresh failed. Showing the last known search results.',
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
+          if (search.isRefreshing) ...[
+            const LinearProgressIndicator(
+              key: Key('catalog-search-refreshing'),
+            ),
+            const SizedBox(height: 10),
+          ],
           Expanded(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 1000),
@@ -113,6 +135,9 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
       return;
     }
 
+    unawaited(
+      ref.read(catalogSearchControllerProvider.notifier).refresh(),
+    );
     _openProduct(product);
   }
 
