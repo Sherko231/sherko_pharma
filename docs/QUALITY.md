@@ -40,7 +40,7 @@ Use Python 3.11+ locally (`python` on Windows, `python3` where required). CI use
 | `python -m unittest discover -s tool -p 'test_*.py' -v` | Ensure scope classification and aggregation reject missing/failing gates |
 | `python tool/verify.py quick` | Verify exact Flutter, enforce unchanged lockfile, analyze and run the full Flutter test suite; it intentionally does not enforce `dart format` |
 | `python tool/verify.py quick --test test/app_smoke_test.dart` | Targeted development feedback; never a replacement for the full pre-merge suite |
-| `python tool/verify.py android` | Enforce dependencies and build a debug APK; requires Android SDK/JDK |
+| `python tool/verify.py android` | Enforce dependencies and build a signed release APK; requires Android SDK/JDK plus external `android/key.properties` signing configuration |
 | `python tool/verify.py windows` | Enforce dependencies and build Windows release binaries; requires Windows and Visual Studio C++ desktop tooling |
 | PostgreSQL schema/API/import suite | Apply every migration to isolated PostgreSQL; run schema/authorization regressions plus controlled-import first-run/rerun/rejection tests |
 | `python tool/catalog_import.py dry-run --source <private-csv>` | Validate the exact private source fingerprint, rows and anomaly accounting without database access |
@@ -53,7 +53,7 @@ PRs changing only `README.md`, `AGENTS.md`, `.github/pull_request_template.md`, 
 
 The single required status is **`Required verification`**, produced by the CI workflow. It runs even after dependency failures and checks exact job results. On full runs, `Quality`, `Schema`, `Android build` and `Windows build` must all succeed. Only the documented docs classification permits skipped platform builds. Tests cover the aggregator's failure/cancellation/missing-result paths. Human/AI diff review and device acceptance are additional gates, not proven by this status.
 
-Builds are verification candidates, not commercial releases. Android currently uses debug signing; no artifacts are automatically published or retained by this task. Artifact distribution/retention and release signing are decided with the delivery task.
+CI builds are verification candidates, not commercial releases. Android full CI uses a one-day synthetic keystore created only on the disposable runner so release-mode signing/configuration is exercised without storing production keys. Production Android signing must use the owner's external `android/key.properties` and keystore. Windows CI builds the complete Release bundle but does not code-sign it. CI does not publish or retain release artifacts; packaging and production-signing steps are owned by `RELEASE.md`.
 
 ## Requirement-derived testing
 
