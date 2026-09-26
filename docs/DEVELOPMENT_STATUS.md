@@ -1,7 +1,7 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-26
-Task record: SP-015 / Issue #38; GitHub Issue/PR state is authoritative for live execution and merge status.
+Task record: REL-001 / Issue #40; GitHub Issue/PR state is authoritative for the current package-identity correction. SP-015 / Issue #38 remains the completed delivery-preparation baseline.
 Status: SP-013 is complete, merged, and verified. SP-014 remains deferred. SP-015 is the final current-scope delivery-preparation task and does not depend on SP-014.
 
 ## Verified baseline
@@ -18,7 +18,7 @@ Status: SP-013 is complete, merged, and verified. SP-014 remains deferred. SP-01
 ## SP-015 delivery contract
 
 - Preserve the implemented SP-000 through SP-013 product behavior while preparing release-mode Android and Windows candidates.
-- Android identity is `com.sherko.pharma`; release builds must not fall back to the Flutter debug key.
+- Android identity is `com.samo.sherkopharma`; release builds must not fall back to the Flutter debug key.
 - Production signing material remains outside Git. Hosted CI may use only a disposable synthetic key to exercise the release configuration.
 - Windows release verification covers the complete runner bundle; no production code-signing claim is made without an external certificate.
 - CI does not publish distributable artifacts. Owner-controlled packaging, checksums, signing, and runtime configuration follow `RELEASE.md`.

@@ -7,7 +7,7 @@ This document defines how to build and package the current initial-delivery scop
 - Product/display name: `Sherko Pharma`.
 - Flutter package: `sherko_pharma`.
 - Current version: `0.1.0`.
-- Android application ID and namespace: `com.sherko.pharma`.
+- Android application ID and namespace: `com.samo.sherkopharma`.
 - Windows executable: `sherko_pharma.exe`; file metadata and window title use `Sherko Pharma`.
 - SP-014 Windows external-reader integration is deferred and is not part of this delivery.
 

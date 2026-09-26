@@ -32,7 +32,7 @@ fun requiredSigningProperty(name: String): String =
         )
 
 android {
-    namespace = "com.sherko.pharma"
+    namespace = "com.samo.sherkopharma"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -46,7 +46,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.sherko.pharma"
+        applicationId = "com.samo.sherkopharma"
         minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
