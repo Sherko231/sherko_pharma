@@ -49,8 +49,8 @@ A release build fails if `android/key.properties` is absent or required properti
 Build a configured signed APK from the repository root:
 
 ```powershell
-flutter build apk --release \`
-  --dart-define=SUPABASE_URL="$env:SHERKO_SUPABASE_URL" \`
+flutter build apk --release `
+  --dart-define=SUPABASE_URL="$env:SHERKO_SUPABASE_URL" `
   --dart-define=SUPABASE_PUBLISHABLE_KEY="$env:SHERKO_SUPABASE_PUBLISHABLE_KEY"
 ```
 
@@ -63,17 +63,17 @@ For Play Store publication, use the store's current signing/upload-key process a
 Build on Windows with Visual Studio 2022 Desktop development with C++ installed:
 
 ```powershell
-flutter build windows --release \`
-  --dart-define=SUPABASE_URL="$env:SHERKO_SUPABASE_URL" \`
+flutter build windows --release `
+  --dart-define=SUPABASE_URL="$env:SHERKO_SUPABASE_URL" `
   --dart-define=SUPABASE_PUBLISHABLE_KEY="$env:SHERKO_SUPABASE_PUBLISHABLE_KEY"
 ```
 
-With the current x64 target, the runnable bundle is under `build\\windows\\x64\\runner\\Release\\`. Distribute the complete Release directory, not only `sherko_pharma.exe`, because Flutter and plugin DLLs/data are required beside the executable.
+With the current x64 target, the runnable bundle is under `build\\windows\\x64\\runner\\Release\`. Distribute the complete Release directory, not only `sherko_pharma.exe`, because Flutter and plugin DLLs/data are required beside the executable.
 
 A convenient private handoff archive can be created with:
 
 ```powershell
-Compress-Archive -Path build\\windows\\x64\\runner\\Release\\* -DestinationPath sherko-pharma-windows-x64-0.1.0.zip
+Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath sherko-pharma-windows-x64-0.1.0.zip
 ```
 
 The repository does not configure a Windows code-signing certificate. A successful Windows release build is therefore a technical delivery candidate, not evidence of a trusted production-signed executable. Obtain and apply an appropriate code-signing certificate before public distribution if required by the chosen distribution channel.
@@ -94,7 +94,7 @@ For an owner-controlled delivery:
 ## Recovery and data boundaries
 
 - Supabase remains authoritative for catalog data. Reinstalling the client does not replace confirmed server edits with the source CSV.
-- The controlled source import is insert-only for its approved dataset identity; future reruns use `docs/IMPORT.md` and must target an explicitly selected environment.
+- The controlled source import is insert-only for its approved dataset identity; future reruns use [IMPORT.md](IMPORT.md) and must target an explicitly selected environment.
 - Active order state and unfinished edit drafts are device-local, account-scoped session data. Device loss, application-data clearing, or uninstall can remove that local-only state; there is no cloud order/draft backup in the current scope.
 - Authentication sessions are stored through platform secure storage. A lost/cleared session requires sign-in again.
 - No release procedure should modify production catalog rows merely to prove that a client build starts.
@@ -104,7 +104,7 @@ For an owner-controlled delivery:
 Do not call an artifact publicly production-ready until all of the following are true for that exact revision/artifact:
 
 - required repository checks pass;
-- owner acceptance required by `docs/QUALITY.md` is recorded;
+- owner acceptance required by [QUALITY.md](QUALITY.md) is recorded;
 - Android is signed with the owner's real release/upload key, not the CI key;
 - Windows code-signing requirements for the chosen channel are resolved if applicable;
 - runtime configuration points to the intended hosted environment;
