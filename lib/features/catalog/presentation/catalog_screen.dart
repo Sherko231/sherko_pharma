@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../application/catalog_detail_controller.dart';
 import '../application/catalog_search_controller.dart';
 import '../application/scoped_catalog_refresh_controller.dart';
 import '../../order/application/order_controller.dart';
@@ -142,8 +143,8 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
     _openProduct(product);
   }
 
-  void _openProduct(CatalogProduct product) {
-    Navigator.of(context).push(
+  Future<void> _openProduct(CatalogProduct product) async {
+    await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => CatalogDetailScreen(
           productId: product.id,
@@ -151,6 +152,13 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
         ),
       ),
     );
+
+    if (!mounted) {
+      return;
+    }
+    ref
+        .read(catalogDetailControllerProvider.notifier)
+        .clear(product.id);
   }
 
   Future<void> _addToOrder(CatalogProduct product) async {
