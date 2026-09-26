@@ -268,7 +268,7 @@ void main() {
         .read(catalogSearchControllerProvider.notifier)
         .submit('aspirin');
 
-    catalog.onSearch = (_, __) async {
+    catalog.onSearch = (_, _) async {
       throw const CatalogRepositoryException();
     };
 
@@ -323,7 +323,7 @@ void main() {
     );
     final gate = Completer<List<dynamic>>();
     final catalog = FakeCatalogRepository()
-      ..onSearch = (_, __) => gate.future.then((rows) => rows.cast());
+      ..onSearch = (_, _) => gate.future.then((rows) => rows.cast());
     final container = containerFor(auth, catalog);
     addTearDown(container.dispose);
     addTearDown(auth.dispose);
