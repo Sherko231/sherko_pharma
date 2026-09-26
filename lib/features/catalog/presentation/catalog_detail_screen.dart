@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/catalog_detail_controller.dart';
 import '../application/catalog_search_controller.dart';
+import '../application/scoped_catalog_refresh_controller.dart';
 import '../domain/catalog_product.dart';
 import 'catalog_text.dart';
 import 'catalog_product_form_screen.dart';
@@ -149,6 +150,9 @@ class _CatalogDetailScreenState extends ConsumerState<CatalogDetailScreen> {
     ref
         .read(catalogDetailControllerProvider.notifier)
         .acceptServerProduct(updated);
+    ref
+        .read(scopedCatalogRefreshControllerProvider.notifier)
+        .reconcileCurrentProduct(updated);
     unawaited(
       ref.read(catalogSearchControllerProvider.notifier).refresh(),
     );
