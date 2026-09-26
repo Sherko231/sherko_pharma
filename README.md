@@ -4,7 +4,7 @@ Flutter project for an online pharmacy product catalog and customer-order calcul
 
 ## Current state
 
-SP-000 through SP-007 establish the product contract, protected hosted CI, schema/source mapping, owner-only bounded catalog API, controlled import workflow, secure owner authentication/session handling, and server-backed catalog search/detail. SP-008 adds validated product create/edit flows; SP-009 adds account-scoped persistent edit drafts; SP-010 adds the manual customer-order calculator; SP-011 adds account-scoped local page/order session persistence; SP-012 adds scoped current-data refresh and explicit order price-change handling; SP-013 adds Android camera barcode scanning. The dedicated hosted project remains on the Free plan; the approved corrected source catalog has been imported and verified at 23,750 source rows. See [development status](docs/DEVELOPMENT_STATUS.md) for live evidence.
+SP-000 through SP-007 establish the product contract, protected hosted CI, schema/source mapping, owner-only bounded catalog API, controlled import workflow, secure owner authentication/session handling, and server-backed catalog search/detail. SP-008 adds validated product create/edit flows; SP-009 adds account-scoped persistent edit drafts; SP-010 adds the manual customer-order calculator; SP-011 adds account-scoped local page/order session persistence; SP-012 adds scoped current-data refresh and explicit order price-change handling; SP-013 adds Android camera barcode scanning. SP-015 prepares the current scope for release-mode delivery without reintroducing deferred SP-014. The dedicated hosted project remains on the Free plan; the approved corrected source catalog has been imported and verified at 23,750 source rows. See [development status](docs/DEVELOPMENT_STATUS.md) and [delivery acceptance](docs/DELIVERY_ACCEPTANCE.md) for evidence.
 
 ## Setup and verification
 
@@ -14,9 +14,9 @@ SP-000 through SP-007 establish the product contract, protected hosted CI, schem
 4. From the repository root, run `python tool/verify.py quick` (`python3` where required). This enforces the pinned SDK and committed lockfile, then runs static analysis and all Flutter tests. This project does not enforce `dart format`; keep Flutter UI code conventionally readable in review.
 5. For an unconfigured development launch, run normally and the app will fail closed on a configuration-required screen. For a configured Supabase environment, provide the client-safe project values at build/run time, for example `flutter run -d windows --dart-define=SUPABASE_URL=https://PROJECT.supabase.co --dart-define=SUPABASE_PUBLISHABLE_KEY=CLIENT_SAFE_KEY`. Use the same defines for an Android target. Never pass a service-role/secret key.
 
-Build checks: `python tool/verify.py android` and `python tool/verify.py windows` on their supported hosts. Documentation checks: `python tool/verify.py docs`. See [QUALITY.md](docs/QUALITY.md) for exact CI jobs, targeted feedback, merge gates and limitations.
+Build checks: `python tool/verify.py android` and `python tool/verify.py windows` on their supported hosts. The Android gate is now a release build and therefore requires external signing configuration; hosted CI creates a disposable test keystore only for verification. Documentation checks: `python tool/verify.py docs`. See [QUALITY.md](docs/QUALITY.md) for exact CI jobs and [RELEASE.md](docs/RELEASE.md) for owner-controlled production signing/packaging.
 
-CI uses GitHub-hosted runners; after change classification, Quality, Schema, Android, and Windows checks run in parallel, and no production credentials are required. A successful build is not a commercially signed release or evidence of real scanner compatibility.
+CI uses GitHub-hosted runners; after change classification, Quality, Schema, Android, and Windows checks run in parallel, and no production credentials are required. Android CI signs its release-mode verification APK with a disposable synthetic key; Windows CI produces an unsigned release bundle. CI does not publish distributable artifacts. A successful build is not evidence of a production-signed public release.
 
 ## Agreed initial scope
 
@@ -41,11 +41,14 @@ Authentication, catalog search/detail, product create/edit, persistent product d
 | [Source mapping](docs/SOURCE_MAPPING.md) | Corrected CSV fingerprint, complete 25-column mapping, and anomaly policy |
 | [Controlled import](docs/IMPORT.md) | Dry-run, fingerprint enforcement, idempotent import, and deployment safety |
 | [Auth acceptance](docs/AUTH_ACCEPTANCE.md) | Secret-safe real Windows/Android sign-in and session-restoration checklist |
+| [Delivery acceptance](docs/DELIVERY_ACCEPTANCE.md) | Current initial-scope acceptance matrix and remaining owner-only release actions |
+| [Release procedure](docs/RELEASE.md) | Runtime configuration, external signing, packaging, artifact handling, and recovery |
 | [Interaction flows](docs/UX_FLOWS.md) | New orders, unsaved edits, drafts, and sign-out |
 | [Roadmap](docs/ROADMAP.md) | Task order, dependencies, and completion evidence |
 | [Development status](docs/DEVELOPMENT_STATUS.md) | Actual implementation state and handoff |
 | [Decision template](docs/decisions/TEMPLATE.md) | Context, alternatives and reasons for significant decisions |
 | [CI baseline decision](docs/decisions/0001-verification-baseline.md) | Toolchain, gates and cost/complexity tradeoffs |
+| [Release identity decision](docs/decisions/0002-release-identity.md) | Android package identity and external signing boundary |
 
 ## Contributing and agent work
 
