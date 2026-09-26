@@ -88,7 +88,8 @@ class CatalogDetailController extends Notifier<CatalogDetailState> {
   Future<bool> refresh() async {
     final current = state;
     final productId = current.productId;
-    if (productId == null) {
+    if (productId == null ||
+        current.status == CatalogDetailStatus.loading) {
       return true;
     }
 
