@@ -19,6 +19,8 @@ class CatalogSearchState {
     required this.query,
     required this.status,
     this.products = const [],
+    this.isRefreshing = false,
+    this.refreshFailed = false,
   });
 
   const CatalogSearchState.idle()
@@ -30,6 +32,8 @@ class CatalogSearchState {
   final String query;
   final CatalogSearchStatus status;
   final List<CatalogProduct> products;
+  final bool isRefreshing;
+  final bool refreshFailed;
 }
 
 final catalogRepositoryProvider = Provider<CatalogRepository>((ref) {
@@ -98,6 +102,53 @@ class CatalogSearchController extends Notifier<CatalogSearchState> {
 
   Future<void> retry() async {
     await submit(state.query);
+  }
+
+  Future<bool> refresh() async {
+    final current = state;
+    if (current.query.trim().isEmpty) {
+      return true;
+    }
+
+    _debounce?.cancel();
+    final generation = ++_generation;
+    state = CatalogSearchState(
+      query: current.query,
+      status: current.status,
+      products: current.products,
+      isRefreshing: true,
+    );
+
+    try {
+      final products = await ref.read(catalogRepositoryProvider).search(
+            current.query,
+            limit: requestLimit,
+          );
+      if (generation != _generation) {
+        return true;
+      }
+
+      state = CatalogSearchState(
+        query: current.query,
+        status: products.isEmpty
+            ? CatalogSearchStatus.empty
+            : CatalogSearchStatus.results,
+        products: products,
+      );
+      return true;
+    } catch (_) {
+      if (generation != _generation) {
+        return true;
+      }
+
+      state = CatalogSearchState(
+        query: current.query,
+        status: current.status,
+        products: current.products,
+        refreshFailed: true,
+      );
+      return false;
+    }
   }
 
   Future<void> _executeSearch(String query, int generation) async {
