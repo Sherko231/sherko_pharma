@@ -24,10 +24,10 @@ CI uses GitHub-hosted runners; after change classification, Quality, Schema, And
 - Search, create, and edit products; either barcode field identifies the same product/package.
 - Customer orders with whole-number SYP or USD prices and a separate total for each currency.
 - Persistent active order and local edit draft; drafts reach the server only after explicit Save.
-- Android camera scanning and Windows external-reader input. The Windows reader has not been selected.
+- Android camera scanning. Windows external-reader input is deferred from the current initial delivery and will be re-authorized as a later hardware task.
 - English interface initially, with readable Arabic product data.
 
-Authentication, catalog search/detail, product create/edit, persistent product drafts, manual order calculation, durable account-scoped local restoration, scoped catalog/order refresh, and Android camera barcode scanning are implemented. Server price/currency changes preserve captured order totals until explicit acceptance. Windows external-reader integration remains pending selected hardware. Inventory, sales history, offline catalog replication, licensing, and a separate administration app are deferred.
+Authentication, catalog search/detail, product create/edit, persistent product drafts, manual order calculation, durable account-scoped local restoration, scoped catalog/order refresh, and Android camera barcode scanning are implemented. Server price/currency changes preserve captured order totals until explicit acceptance. Windows external-reader integration is deferred from the current initial delivery and remains planned for later owner re-authorization after hardware selection. Inventory, sales history, offline catalog replication, licensing, and a separate administration app are also deferred.
 
 ## Documentation
 

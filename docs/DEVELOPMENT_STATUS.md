@@ -2,7 +2,7 @@
 
 Updated: 2026-09-26
 Active task: none.
-Status: SP-013 is complete, merged, and verified. SP-014 is next in dependency order but remains blocked until the Windows reader hardware/input mode is selected.
+Status: SP-013 is complete, merged, and verified. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 is the next available roadmap task and no longer depends on SP-014.
 
 ## Verified baseline
 
@@ -40,4 +40,4 @@ Requirement-derived tests cover exact barcode RPC mapping, leading-zero preserva
 
 PR #30 merged as `2f00898ff7cdeb5060c215c6997c62fe5791bd26`. The owner explicitly reported the real Android camera test as PASS on 2026-09-26. Post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
 
-SP-013 is complete. Issue #31 / PR #32 reconciled the post-merge handoff, and its post-merge CI run `36251023929` passed. There is no active implementation task. The next roadmap task, SP-014 Windows external-reader integration, remains blocked until a reader model and its connection/input mode are selected and available for owner hardware acceptance.
+SP-013 is complete. Issue #31 / PR #32 reconciled the post-merge handoff, and its post-merge CI run `36251023929` passed. There is no active implementation task. On 2026-09-26 the owner deferred SP-014 Windows external-reader integration and its Issue #35 was closed as not planned for now. SP-015 is the next available roadmap task; future SP-014 work requires fresh owner authorization and selected hardware/input-mode evidence.

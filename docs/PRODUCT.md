@@ -47,7 +47,7 @@ The order screen calculates separate currency totals for selected products. It d
 
 ## Barcode lookup
 
-- Support the camera on Android and an external barcode reader on Windows. External readers on Android and camera scanning on Windows are outside this initial scope. The Windows reader model and connection/input mode still require verification.
+- Support camera barcode scanning on Android. Windows external-reader integration is deferred from the current initial delivery and remains a future hardware task that requires separate owner re-authorization after the reader model and input mode are selected. External readers on Android and camera scanning on Windows are also outside the current initial scope.
 - Resolve the scanned barcode against both `barcode` and `barcode2`: either identifies the same product and package. Deduplicate matches by product identity; the same product matching both fields is one candidate. A code matching distinct products in either field remains ambiguous and requires selection.
 - One matching product: add the product to the current order.
 - Multiple matching products: display choices and let the user choose before adding anything.
