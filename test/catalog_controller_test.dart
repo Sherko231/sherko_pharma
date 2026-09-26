@@ -220,4 +220,100 @@ void main() {
       CatalogDetailStatus.error,
     );
   });
+
+  test('search refresh replaces results without clearing visible state first', () async {
+    final auth = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner'),
+    );
+    final catalog = FakeCatalogRepository()
+      ..searchResults = [
+        testProduct(id: 'p1', nameEn: 'Old', revision: 1),
+      ];
+    final container = containerFor(auth, catalog);
+    addTearDown(container.dispose);
+    addTearDown(auth.dispose);
+
+    await container
+        .read(catalogSearchControllerProvider.notifier)
+        .submit('aspirin');
+
+    catalog.searchResults = [
+      testProduct(id: 'p1', nameEn: 'New', revision: 2),
+    ];
+
+    final refreshed =
+        await container.read(catalogSearchControllerProvider.notifier).refresh();
+
+    expect(refreshed, isTrue);
+    final state = container.read(catalogSearchControllerProvider);
+    expect(state.status, CatalogSearchStatus.results);
+    expect(state.products.single.displayName, 'New');
+    expect(state.products.single.revision, 2);
+    expect(state.refreshFailed, isFalse);
+  });
+
+  test('failed search refresh keeps last known results visible', () async {
+    final auth = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner'),
+    );
+    final catalog = FakeCatalogRepository()
+      ..searchResults = [
+        testProduct(id: 'p1', nameEn: 'Known', revision: 1),
+      ];
+    final container = containerFor(auth, catalog);
+    addTearDown(container.dispose);
+    addTearDown(auth.dispose);
+
+    await container
+        .read(catalogSearchControllerProvider.notifier)
+        .submit('aspirin');
+
+    catalog.onSearch = (_, __) async {
+      throw const CatalogRepositoryException();
+    };
+
+    final refreshed =
+        await container.read(catalogSearchControllerProvider.notifier).refresh();
+
+    expect(refreshed, isFalse);
+    final state = container.read(catalogSearchControllerProvider);
+    expect(state.status, CatalogSearchStatus.results);
+    expect(state.products.single.displayName, 'Known');
+    expect(state.refreshFailed, isTrue);
+    expect(state.isRefreshing, isFalse);
+  });
+
+  test('failed detail refresh keeps last known product visible', () async {
+    final auth = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner'),
+    );
+    final catalog = FakeCatalogRepository()
+      ..products['p1'] = testProduct(
+        id: 'p1',
+        nameEn: 'Known detail',
+        revision: 1,
+      );
+    final container = containerFor(auth, catalog);
+    addTearDown(container.dispose);
+    addTearDown(auth.dispose);
+
+    await container
+        .read(catalogDetailControllerProvider.notifier)
+        .load('p1');
+
+    catalog.onGet = (_) async {
+      throw const CatalogRepositoryException();
+    };
+
+    final refreshed =
+        await container.read(catalogDetailControllerProvider.notifier).refresh();
+
+    expect(refreshed, isFalse);
+    final state = container.read(catalogDetailControllerProvider);
+    expect(state.status, CatalogDetailStatus.loaded);
+    expect(state.product?.displayName, 'Known detail');
+    expect(state.refreshFailed, isTrue);
+    expect(state.isRefreshing, isFalse);
+  });
+
 }
