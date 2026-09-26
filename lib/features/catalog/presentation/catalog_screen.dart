@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/catalog_search_controller.dart';
+import '../application/scoped_catalog_refresh_controller.dart';
 import '../../order/application/order_controller.dart';
 import '../domain/catalog_product.dart';
 import 'catalog_detail_screen.dart';
@@ -177,6 +178,9 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
     }
 
     final result = ref.read(orderControllerProvider.notifier).addProduct(latest);
+    ref
+        .read(scopedCatalogRefreshControllerProvider.notifier)
+        .reconcileCurrentProduct(latest);
     final message = switch (result) {
       OrderActionResult.added => 'Added to order.',
       OrderActionResult.incremented => 'Quantity increased in the order.',
