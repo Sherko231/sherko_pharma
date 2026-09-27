@@ -21,6 +21,7 @@ Status: SP-017 moves scanning inline on the Order page and reduces unique-scan v
 - The camera overlay is visual only; the instructional tip text is removed.
 - A unique barcode is resolved by one owner-authorized `catalog_lookup_barcode` call. The lookup already returns the current complete product snapshot needed for order capture, so the immediate second `catalog_get` round-trip is removed.
 - The camera remains active while server checking runs. A presentation gate suppresses the same code while it remains visible and unlocks it after it has been absent long enough, allowing a deliberate later presentation to increment quantity.
+- Order reset/session replacement advances an order mutation generation; a barcode lookup started against an older generation is discarded before it can mutate the new/restored order.
 - Unknown, ambiguous, invalid-price, overflow, permission, network and camera states remain non-destructive.
 - Real-device throughput, framing and repeat-scan behavior remain owner verification after pull/merge.
 
