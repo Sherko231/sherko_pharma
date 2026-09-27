@@ -239,6 +239,7 @@ begin
     where relationship_group = 'exact'
       and id = exact_alpha_id
       and group_position = 1
+      and normalization_status = 'high_confidence'
       and selling_amount = 2000
       and currency = 'SYP'
       and barcode = '028000000002'
