@@ -1,6 +1,6 @@
 # Sherko Pharma — Data Rules
 
-Status: SP-003 defines the versioned product schema and corrected-source mapping; SP-024 adds normalized manufacturer/dosage-form references and typed currency; SP-025/SP-026 add conservative derived composition and strength normalization; SP-027 adds a private strict pharmaceutical-equivalence model while preserving all authoritative raw catalog fields. The hosted baseline through SP-024 is deployed and the approved corrected source was imported at 23,750 rows on 2026-09-25.
+Status: SP-003 defines the versioned product schema and corrected-source mapping; SP-024 adds normalized manufacturer/dosage-form references and typed currency; SP-025/SP-026 add conservative derived composition and strength normalization; SP-027 adds a private strict pharmaceutical-equivalence model; SP-028 exposes bounded owner-only relationship groups without changing authoritative raw catalog fields. The hosted baseline through SP-024 is deployed and the approved corrected source was imported at 23,750 rows on 2026-09-25.
 
 ## Product identity and creation
 
@@ -86,6 +86,20 @@ Manufacturer and dosage-form reference rows have stable numeric IDs, canonical d
 - Products with unresolved/review composition or strength, missing dosage form, unknown/mixed form semantics, or unspecified parenteral route never receive a strict key.
 - Future composition changes refresh SP-025 → SP-026 → SP-027; strength-only changes refresh SP-026 → SP-027; dosage-form changes refresh SP-027 after SP-024 reference resolution.
 - SP-027 still does not expose alternatives. Query grouping belongs to SP-028 and UI presentation belongs to SP-029.
+
+### Alternatives query groups (SP-028)
+
+- `public.catalog_alternatives(target_product_id, requested_limit_per_group)` is an owner-only read API over the private derived normalization tables. It does not grant direct access to those tables.
+- The target must have trusted SP-025 composition, trusted SP-026 ingredient-strength mapping, and trusted SP-027 pharmaceutical equivalence before any relationship row is returned. Existing targets with incomplete/review/unresolved normalization return an empty result instead of guessed alternatives.
+- `exact` requires the same non-null trusted SP-027 `strict_equivalence_key` and excludes the target itself.
+- `same_ingredients_different_strength` requires the same trusted SP-025 ingredient-set key, different trusted SP-026 ingredient-strength set keys, and equal trusted SP-027 form class, route, and release class.
+- `same_ingredients_different_form` requires the same trusted ingredient set and the same trusted SP-026 ingredient-strength set key, while at least one trusted SP-027 form class, route, or release dimension differs.
+- These groups are mutually exclusive. A candidate that differs in both strength and form/route/release is omitted rather than ambiguously categorized.
+- Returned `normalization_status` propagates the trusted auto/high-confidence normalization state. It is not a medical probability, clinical suitability score, bioequivalence claim, or recommendation.
+- Results include the existing catalog product fields needed by SP-029. Price/currency values remain the current catalog values; the API does not alter captured order prices.
+- Result ordering is deterministic only. It does not rank by price, manufacturer, or inferred preference.
+- The requested limit defaults to 10 and is clamped to 1–25 rows per group on the server.
+- Missing target identity raises not-found. No therapeutic alternatives, synonym/salt/base inference, or candidates with unresolved strict normalization are introduced by this layer.
 
 New or edited manufacturer/dosage-form text is resolved atomically by the database trigger. A spelling-equivalent normalized value reuses the existing reference and returns its canonical display label. A genuinely new normalized value creates one new reference identity. Blank values remain nullable. Source text remains recoverable from `source_payload`.
 
