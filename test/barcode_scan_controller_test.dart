@@ -9,12 +9,10 @@ import 'package:sherko_pharma/features/scanning/application/barcode_scan_control
 import 'support/fake_catalog_repository.dart';
 
 void main() {
-  test('exact barcode uses latest product and preserves leading zeroes', () async {
+  test('exact barcode uses one server lookup and preserves leading zeroes', () async {
     final catalog = FakeCatalogRepository();
     catalog.onLookupBarcode =
-        (_) async => [testProduct(id: 'p1', sellingAmount: 1000)];
-    catalog.onGet =
-        (_) async => testProduct(id: 'p1', sellingAmount: 2500, revision: 2);
+        (_) async => [testProduct(id: 'p1', sellingAmount: 2500, revision: 2)];
     final container = ProviderContainer();
     addTearDown(container.dispose);
     final scan = BarcodeScanController(
@@ -24,7 +22,7 @@ void main() {
 
     expect((await scan.accept('0012345'))?.status, BarcodeScanStatus.added);
     expect(catalog.barcodeCalls, ['0012345']);
-    expect(catalog.detailCalls, ['p1']);
+    expect(catalog.detailCalls, isEmpty);
     expect(container.read(orderControllerProvider).lines.single.unitAmount, 2500);
   });
 
@@ -82,10 +80,10 @@ void main() {
     expect(container.read(orderControllerProvider).lines, isEmpty);
   });
 
-  test('invalid latest price is blocked', () async {
+  test('invalid lookup price is blocked without a second read', () async {
     final catalog = FakeCatalogRepository();
-    catalog.onLookupBarcode = (_) async => [testProduct(id: 'p1')];
-    catalog.onGet = (_) async => testProduct(id: 'p1', sellingAmount: 0);
+    catalog.onLookupBarcode =
+        (_) async => [testProduct(id: 'p1', sellingAmount: 0)];
     final container = ProviderContainer();
     addTearDown(container.dispose);
     final scan = BarcodeScanController(
@@ -94,6 +92,7 @@ void main() {
     );
 
     expect((await scan.accept('0012345'))?.status, BarcodeScanStatus.invalidPrice);
+    expect(catalog.detailCalls, isEmpty);
     expect(container.read(orderControllerProvider).lines, isEmpty);
   });
 
