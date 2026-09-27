@@ -65,6 +65,11 @@ Color scannerFeedbackColor(ScannerFeedbackState state) {
   };
 }
 
+bool scannerShouldPlaySuccessSound(BarcodeScanResult? result) {
+  return result?.status == BarcodeScanStatus.added ||
+      result?.status == BarcodeScanStatus.incremented;
+}
+
 class BarcodePresentationGate {
   BarcodePresentationGate({
     this.releaseAfter = const Duration(milliseconds: 650),
@@ -225,7 +230,7 @@ class _AndroidBarcodeScannerPanelState
     _presentationGate.lock(code, DateTime.now());
 
     final feedbackState = scannerFeedbackStateForResult(result);
-    if (feedbackState == ScannerFeedbackState.success) {
+    if (scannerShouldPlaySuccessSound(result)) {
       unawaited(_playSuccessSound());
     }
 
