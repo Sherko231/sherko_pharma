@@ -5,10 +5,7 @@ insert into app_private.owner_account (singleton, user_id)
 values (true, '11111111-1111-1111-1111-111111111111')
 on conflict (singleton) do update set user_id = excluded.user_id;
 
-set local role authenticated;
-set local "request.jwt.claim.sub" = '11111111-1111-1111-1111-111111111111';
-
-do $$
+do $
 declare
   tablet_id uuid;
   liquid_id uuid;
@@ -107,6 +104,22 @@ begin
   ) then
     raise exception 'implicit one-milliliter denominator failed';
   end if;
+
+  if has_function_privilege(
+    'authenticated',
+    'app_private.catalog_parse_strength_measure(text)',
+    'EXECUTE'
+  ) or has_function_privilege(
+    'authenticated',
+    'app_private.refresh_product_strength_normalization(uuid,text)',
+    'EXECUTE'
+  ) then
+    raise exception 'private strength helpers are executable by authenticated';
+  end if;
+
+  set local role authenticated;
+  set local "request.jwt.claim.sub" =
+    '11111111-1111-1111-1111-111111111111';
 
   select id into tablet_id
   from public.catalog_create_idempotent(
