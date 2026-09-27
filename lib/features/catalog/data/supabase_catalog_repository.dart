@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../domain/catalog_alternative.dart';
 import '../domain/catalog_product.dart';
 import '../domain/catalog_product_input.dart';
 import 'catalog_repository.dart';
@@ -51,6 +52,7 @@ class SupabaseCatalogRepository implements CatalogRepository {
   }
 
   static const int maxClientSearchResults = 25;
+  static const int maxClientAlternativesPerGroup = 25;
 
   final CatalogRpcClient rpcClient;
 
@@ -158,6 +160,41 @@ class SupabaseCatalogRepository implements CatalogRepository {
         throw const CatalogResponseException();
       }
       return CatalogProduct.fromRpcRow(rows.single);
+    } on CatalogRepositoryException {
+      rethrow;
+    } on FormatException {
+      throw const CatalogResponseException();
+    } catch (_) {
+      throw const CatalogRepositoryException();
+    }
+  }
+
+  @override
+  Future<List<CatalogAlternative>> alternatives(
+    String productId, {
+    int limitPerGroup = 10,
+  }) async {
+    final boundedLimit = limitPerGroup.clamp(
+      1,
+      maxClientAlternativesPerGroup,
+    );
+
+    try {
+      final response = await rpcClient.call(
+        'catalog_alternatives',
+        params: {
+          'target_product_id': productId,
+          'requested_limit_per_group': boundedLimit,
+        },
+      );
+
+      final rows = _rowsFromResponse(response);
+      return rows.map(CatalogAlternative.fromRpcRow).toList(growable: false);
+    } on CatalogRpcException catch (error) {
+      if (error.code == 'P0002') {
+        throw const CatalogNotFoundException();
+      }
+      throw const CatalogRepositoryException();
     } on CatalogRepositoryException {
       rethrow;
     } on FormatException {
