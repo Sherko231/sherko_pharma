@@ -96,6 +96,15 @@ These choices are an explicit resolution step; the default remains optimistic co
 - Format whole-unit monetary values with comma thousands grouping (for example `245,000`) everywhere they are displayed or edited; domain/storage values remain integers.
 - Prefer same-page inline interactions when they are part of one operational flow rather than adding navigation destinations.
 
+## UX reference basis
+
+SP-022 uses current retail/POS and adaptive-layout guidance as reference, without importing their unrelated payment/inventory features:
+
+- Shopify POS product search keeps the cart visible while search is active and supports direct add from search results: https://help.shopify.com/en/manual/sell-in-person/shopify-pos/inventory-management/searching-for-products
+- Square Retail treats checkout/cart as the operational home and supports adding by barcode scan or keyword search: https://squareup.com/help/ca/en/article/8238-build-your-customer-s-cart-in-the-square-retail-pos-app
+- Material/Android search guidance recommends a persistent search control when search is a primary task: https://developer.android.com/develop/ui/compose/components/search-bar
+- Android adaptive guidance recommends supporting/list-detail panes on larger windows instead of stretching one compact layout: https://developer.android.com/develop/adaptive-apps/guides/build-a-supporting-pane-layout
+
 ## Remaining decisions
 
 - Fine-grained visual polish may evolve within the permanent compact-density rules above.
