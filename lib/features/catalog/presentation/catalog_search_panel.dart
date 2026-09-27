@@ -284,7 +284,7 @@ class _CatalogSearchPanelState extends ConsumerState<CatalogSearchPanel> {
           const SnackBar(
             duration: Duration(seconds: 2),
             content: Text(
-              'Could not refresh this product. Check the connection and try again.',
+              'Could not refresh this product before adding it. Check the connection and try again.',
             ),
           ),
         );
