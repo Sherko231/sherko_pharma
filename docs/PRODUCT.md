@@ -8,7 +8,16 @@ Updated: 2026-09-23
 
 Provide an online medicine catalog and a customer order calculator for pharmacy use. The initial user is the project owner. Commercial distribution is a future goal, not a requirement to implement licensing or multiple-user management in this version.
 
-The order screen calculates separate currency totals for selected products. It does not record completed sales or manage inventory.
+The primary `Cart` workspace combines product acquisition and order calculation. It calculates separate currency totals for selected products and does not record completed sales or manage inventory.
+
+## Permanent UI conventions
+
+- `Cart` is the single primary workspace after authentication. Do not expose separate Catalog and Order destinations for the normal workflow.
+- Manual catalog search, Android barcode scanning, current cart lines, quantities, separate SYP/USD totals, and `New Order` belong in the same workspace. Product detail/create/edit may still open focused secondary screens.
+- Compact visual density is the application default on phone and desktop. Minimize unnecessary vertical space, oversized headers, padding, gaps, cards and navigation chrome; keep related primary actions close to their content. Compact must not mean unreadable text or unusably small touch targets.
+- Prefer an inline workflow over a separate full-screen destination when actions belong to the same primary task, as with search/scanning and cart management.
+- Display every whole-unit monetary amount with comma thousands grouping using Western digits, for example `245000` as `245,000` and `1250000` as `1,250,000`. Formatting is presentation/input normalization only: stored and calculated monetary values remain exact integers and currency rules do not change.
+- Preserve readable Arabic product data within compact layouts; truncate secondary metadata before hiding the product identity, price, quantity or primary actions.
 
 ## Platforms and language
 
@@ -54,7 +63,7 @@ The order screen calculates separate currency totals for selected products. It d
 - No matching product: display a not-found message and leave the order unchanged. Do not automatically create a product, link a barcode, or open a creation flow.
 - Product creation remains separately available from catalog management.
 - Treat barcode identifiers as text, preserving their exact characters and leading zeros.
-- On Android, scanning may remain open as a compact inline panel on the current Order page so multiple medicines can be scanned sequentially without reopening a full-screen camera route. Do not require a barcode to be upright; supported package barcodes should remain scannable when the package is rotated 180 degrees.
+- On Android, scanning may remain open as a compact inline panel in the Cart workspace so multiple medicines can be scanned sequentially without reopening a full-screen camera route. Do not require a barcode to be upright; supported package barcodes should remain scannable when the package is rotated 180 degrees.
 - A unique scan may use the complete current product snapshot returned by the owner-authorized barcode lookup directly; a second immediate detail read is not required solely to repeat the same server data.
 
 ### Source observations, not additional product features
@@ -65,7 +74,7 @@ These observations do not establish that all supplied codes are valid or corresp
 
 ## Customer order calculator
 
-- Add products by barcode scanning or manual selection from search results.
+- The calculator is presented as the single Cart workspace rather than a separate Order page. Add products by barcode scanning or manual selection from the embedded search results.
 - Display selected products, unit selling prices with currencies, quantities, and separate totals for SYP and USD as applicable.
 - Repeated deliberate scans of the same selected product increase its quantity on the existing line.
 - Allow quantity changes and removal of individual order lines.
@@ -81,7 +90,7 @@ These observations do not establish that all supplied codes are valid or corresp
 ## Session continuity
 
 - Save the active session and restore it after closing and reopening the application.
-- Restore the current page/location and the active order, including selected products, quantities, captured unit prices, and their currencies. Protect access to the restored session through the sign-in flow.
+- Restore the active order, including selected products, quantities, captured unit prices, and their currencies, into the Cart workspace. Legacy saved Catalog/Order destination values may be accepted for compatibility but must not recreate separate visible destinations. Protect access to the restored session through the sign-in flow.
 - Persist and restore the active unfinished product edit as a local unsaved draft. Upload only after the owner explicitly chooses Save; restoring or reconnecting must not submit it. Preserve the original revision for conflict detection, and clear the draft after confirmed save or explicit discard. See `UX_FLOWS.md`.
 - Restoring search text and exact list scroll position is not required. Filter restoration is not an initial acceptance requirement; this does not remove the requirement to restore the active screen, order, and edit draft.
 - Signing out retains the order and edit draft on the device but hides them until successful sign-in to the same account. Never expose another account's retained session or automatically submit a draft on sign-out/sign-in. See `UX_FLOWS.md`.
