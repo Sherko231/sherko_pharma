@@ -1,9 +1,9 @@
 # Sherko Pharma — Implementation Roadmap
 
-Status: SP-000 through SP-013 and CI-001 are merged. The owner retired hosted CI in OPS-001 / Issue #42; CI-001 remains historical only. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 completed the initial-delivery roadmap; SP-016 through SP-024 are merged post-delivery refinements. SP-025 / Issue #62 is the current owner-authorized composition-normalization task; SP-026 through SP-029 are dependency-ordered planning entries and require separate owner authorization.
+Status: SP-000 through SP-013 and CI-001 are merged. The owner retired hosted CI in OPS-001 / Issue #42; CI-001 remains historical only. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 completed the initial-delivery roadmap; SP-016 through SP-025 are merged post-delivery refinements/normalization foundations. SP-026 / Issue #64 is the current owner-authorized strength-normalization task; SP-027 through SP-029 remain dependency-ordered planning entries and require separate owner authorization.
 
 Repository: https://github.com/Sherko231/sherko_pharma
-Inspected baseline: `main` at `2c5e0aa32a7b7ef246511cafff034adaf977d8b7`.
+Inspected baseline for SP-026: `main` at `20782ce64cc72535502d9987a7ef636c9c8df2a9`.
 
 ## Starting point
 
@@ -102,7 +102,7 @@ SP-016 is tracked by Issue #44, SP-017 by Issue #46, SP-018 by Issue #48, SP-019
 | SP-028 | Add alternatives engine | SP-027 | Owner-authorized bounded API returns exact alternatives separately from same-ingredients/different-strength and same-ingredients/different-form groups; excludes unresolved normalization from strict substitution results |
 | SP-029 | Add alternatives UI | SP-028 | Product/Cart UI exposes clearly separated alternative groups with brand/company/price/strength/form and order-add action without implying equivalence beyond the server classification |
 
-SP-025 is tracked by Issue #62 and is authorized by the owner's 2026-09-27 instruction. SP-026 through SP-029 are planning only: this roadmap entry does not authorize their implementation, production deployment, or medical synonym curation.
+SP-025 is merged via Issue #62 / PR #63. SP-026 is tracked by Issue #64 and is authorized by the owner's explicit 2026-09-27 “كمل” instruction. SP-027 through SP-029 remain planning only: this roadmap entry does not authorize their implementation, production deployment, or medical synonym/equivalence curation.
 
 ## Explicitly deferred
 
