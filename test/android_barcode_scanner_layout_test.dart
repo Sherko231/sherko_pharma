@@ -79,6 +79,28 @@ void main() {
       }
     });
 
+    test('success sound is allowed only for real order mutations', () {
+      expect(
+        scannerShouldPlaySuccessSound(
+          const BarcodeScanResult(BarcodeScanStatus.added),
+        ),
+        isTrue,
+      );
+      expect(
+        scannerShouldPlaySuccessSound(
+          const BarcodeScanResult(BarcodeScanStatus.incremented),
+        ),
+        isTrue,
+      );
+      expect(
+        scannerShouldPlaySuccessSound(
+          const BarcodeScanResult(BarcodeScanStatus.unknown),
+        ),
+        isFalse,
+      );
+      expect(scannerShouldPlaySuccessSound(null), isFalse);
+    });
+
     test('feedback colors are distinct for each scanner state', () {
       expect(scannerFeedbackColor(ScannerFeedbackState.idle), Colors.white);
       expect(scannerFeedbackColor(ScannerFeedbackState.checking), Colors.amber);
