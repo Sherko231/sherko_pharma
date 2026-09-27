@@ -18,9 +18,23 @@ class SherkoPharmaApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF176B87),
+        ),
         visualDensity: VisualDensity.compact,
+        scaffoldBackgroundColor: const Color(0xFFF7F9FA),
+        appBarTheme: const AppBarTheme(
+          centerTitle: false,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          backgroundColor: Color(0xFFF7F9FA),
+          surfaceTintColor: Colors.transparent,
+        ),
         inputDecorationTheme: const InputDecorationTheme(
           isDense: true,
+        ),
+        snackBarTheme: const SnackBarThemeData(
+          behavior: SnackBarBehavior.floating,
         ),
       ),
       home: switch (runtime.status) {
