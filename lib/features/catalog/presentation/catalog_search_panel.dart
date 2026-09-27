@@ -301,8 +301,8 @@ class _CatalogSearchPanelState extends ConsumerState<CatalogSearchPanel> {
         .reconcileCurrentProduct(latest);
 
     final message = switch (result) {
-      OrderActionResult.added => 'Added to cart',
-      OrderActionResult.incremented => 'Quantity increased',
+      OrderActionResult.added => 'Added to cart.',
+      OrderActionResult.incremented => 'Quantity increased.',
       OrderActionResult.invalidPrice =>
         'Set a positive SYP or USD selling price before adding this product.',
       OrderActionResult.overflow =>
