@@ -4,19 +4,17 @@ Flutter project for an online pharmacy product catalog and customer-order calcul
 
 ## Current state
 
-SP-000 through SP-007 establish the product contract, protected hosted CI, schema/source mapping, owner-only bounded catalog API, controlled import workflow, secure owner authentication/session handling, and server-backed catalog search/detail. SP-008 adds validated product create/edit flows; SP-009 adds account-scoped persistent edit drafts; SP-010 adds the manual customer-order calculator; SP-011 adds account-scoped local page/order session persistence; SP-012 adds scoped current-data refresh and explicit order price-change handling; SP-013 adds Android camera barcode scanning. SP-015 prepares the current scope for release-mode delivery without reintroducing deferred SP-014. The dedicated hosted project remains on the Free plan; the approved corrected source catalog has been imported and verified at 23,750 source rows. See [development status](docs/DEVELOPMENT_STATUS.md) and [delivery acceptance](docs/DELIVERY_ACCEPTANCE.md) for evidence.
+SP-000 through SP-007 establish the product contract, schema/source mapping, owner-only bounded catalog API, controlled import workflow, secure owner authentication/session handling, and server-backed catalog search/detail. The earlier hosted-CI setup has been retired by owner decision. SP-008 adds validated product create/edit flows; SP-009 adds account-scoped persistent edit drafts; SP-010 adds the manual customer-order calculator; SP-011 adds account-scoped local page/order session persistence; SP-012 adds scoped current-data refresh and explicit order price-change handling; SP-013 adds Android camera barcode scanning. SP-015 prepares the current scope for release-mode delivery without reintroducing deferred SP-014. The dedicated hosted project remains on the Free plan; the approved corrected source catalog has been imported and verified at 23,750 source rows. See [development status](docs/DEVELOPMENT_STATUS.md) and [delivery acceptance](docs/DELIVERY_ACCEPTANCE.md) for evidence.
 
 ## Setup and verification
 
 1. Install the exact stable Flutter version from `.flutter-version` (currently 3.38.7) using the [official archive](https://docs.flutter.dev/install/archive), and add its `bin` directory to PATH. This is a compatible baseline, not a claim to be the newest release.
-2. Install Python 3.11+ (CI uses the current hosted Python 3.12 patch release). For Android, install Android SDK tooling and Temurin JDK 17; CI uses 17.0.18+8. For Windows, use Windows with Visual Studio 2022 and Desktop development with C++.
+2. Install Python 3.11+ for the optional local helper scripts. For Android, install Android SDK tooling and JDK 17. For Windows, use Windows with Visual Studio 2022 and Desktop development with C++.
 3. Run `flutter doctor -v` to inspect your target-platform prerequisites.
 4. From the repository root, run `python tool/verify.py quick` (`python3` where required). This enforces the pinned SDK and committed lockfile, then runs static analysis and all Flutter tests. This project does not enforce `dart format`; keep Flutter UI code conventionally readable in review.
 5. For an unconfigured development launch, run normally and the app will fail closed on a configuration-required screen. For a configured Supabase environment, provide the client-safe project values at build/run time, for example `flutter run -d windows --dart-define=SUPABASE_URL=https://PROJECT.supabase.co --dart-define=SUPABASE_PUBLISHABLE_KEY=CLIENT_SAFE_KEY`. Use the same defines for an Android target. Never pass a service-role/secret key.
 
-Build checks: `python tool/verify.py android` and `python tool/verify.py windows` on their supported hosts. The Android gate is now a release build and therefore requires external signing configuration; hosted CI creates a disposable test keystore only for verification. Documentation checks: `python tool/verify.py docs`. See [QUALITY.md](docs/QUALITY.md) for exact CI jobs and [RELEASE.md](docs/RELEASE.md) for owner-controlled production signing/packaging.
-
-CI uses GitHub-hosted runners; after change classification, Quality, Schema, Android, and Windows checks run in parallel, and no production credentials are required. Android CI signs its release-mode verification APK with a disposable synthetic key; Windows CI produces an unsigned release bundle. CI does not publish distributable artifacts. A successful build is not evidence of a production-signed public release.
+Optional local checks include `python tool/verify.py quick`, `python tool/verify.py android`, `python tool/verify.py windows`, and `python tool/verify.py docs`. They are available for diagnosis or release preparation but are not automatic merge gates. See [QUALITY.md](docs/QUALITY.md) for the current owner-local verification policy and [RELEASE.md](docs/RELEASE.md) for signing/packaging.
 
 ## Agreed initial scope
 
@@ -33,10 +31,10 @@ Authentication, catalog search/detail, product create/edit, persistent product d
 
 | Document | Purpose |
 | --- | --- |
-| [AGENTS.md](AGENTS.md) | Agent contract: inspect live state, one bounded Issue, PR, verification, merge, then stop |
+| [AGENTS.md](AGENTS.md) | Agent contract: inspect live state, one bounded Issue/PR, review, merge, then stop |
 | [Product requirements](docs/PRODUCT.md) | Agreed scope and acceptance criteria |
 | [Architecture](docs/ARCHITECTURE.md) | Technical boundaries and decisions |
-| [Quality gates](docs/QUALITY.md) | Required checks and physical-device acceptance |
+| [Local verification](docs/QUALITY.md) | Optional local checks, owner testing, and production-sensitive safeguards |
 | [Data rules](docs/DATA_MODEL.md) | Fields, validation, barcodes, prices, and currencies |
 | [Source mapping](docs/SOURCE_MAPPING.md) | Corrected CSV fingerprint, complete 25-column mapping, and anomaly policy |
 | [Controlled import](docs/IMPORT.md) | Dry-run, fingerprint enforcement, idempotent import, and deployment safety |
@@ -47,14 +45,14 @@ Authentication, catalog search/detail, product create/edit, persistent product d
 | [Roadmap](docs/ROADMAP.md) | Task order, dependencies, and completion evidence |
 | [Development status](docs/DEVELOPMENT_STATUS.md) | Actual implementation state and handoff |
 | [Decision template](docs/decisions/TEMPLATE.md) | Context, alternatives and reasons for significant decisions |
-| [CI baseline decision](docs/decisions/0001-verification-baseline.md) | Toolchain, gates and cost/complexity tradeoffs |
+| [Historical verification decision](docs/decisions/0001-verification-baseline.md) | Retired hosted-CI decision and current no-CI policy |
 | [Release identity decision](docs/decisions/0002-release-identity.md) | Android package identity and external signing boundary |
 
 ## Contributing and agent work
 
 Read [AGENTS.md](AGENTS.md) first and follow its document-reading order. Refresh the remote default branch and related Issues/PRs before starting. Use a task branch and PR; do not push implementation directly to the default branch.
 
-Use the GitHub task form and PR template to record acceptance examples, revision-specific evidence and a separate review pass. Apply the checks required by [QUALITY.md](docs/QUALITY.md). Documentation-only changes use its lighter review/link gates. Camera or reader behavior changes require the owner's real-device acceptance before merge. After completing one task, stop and wait for the owner to continue.
+Use the GitHub task form and PR template to record acceptance examples and a separate diff review. Hosted CI is intentionally disabled. Local checks are optional unless the owner explicitly asks for one; the owner may pull and test the merged revision on the real target device and report problems for a follow-up fix. After completing one task, stop and wait for the owner to continue.
 
 ## Data and configuration
 
