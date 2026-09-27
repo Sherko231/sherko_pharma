@@ -1,6 +1,6 @@
 # Sherko Pharma — Data Rules
 
-Status: SP-003 defines the versioned product schema and corrected-source mapping. The hosted schema is deployed and the approved corrected source was imported at 23,750 rows on 2026-09-25.
+Status: SP-003 defines the versioned product schema and corrected-source mapping; SP-024 adds normalized manufacturer/dosage-form references and typed currency; SP-025 adds conservative derived composition normalization while preserving raw composition text. The hosted baseline through SP-024 is deployed and the approved corrected source was imported at 23,750 rows on 2026-09-25.
 
 ## Product identity and creation
 
