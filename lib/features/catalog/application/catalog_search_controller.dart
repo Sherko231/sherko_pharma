@@ -42,7 +42,7 @@ final catalogRepositoryProvider = Provider<CatalogRepository>((ref) {
 
 class CatalogSearchController extends Notifier<CatalogSearchState> {
   static const int requestLimit = 25;
-  static const Duration debounceDuration = Duration(milliseconds: 300);
+  static const Duration debounceDuration = Duration(milliseconds: 180);
 
   Timer? _debounce;
   int _generation = 0;
