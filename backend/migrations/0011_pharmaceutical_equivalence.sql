@@ -870,7 +870,11 @@ declare
   composition_status_value app_private.composition_normalization_status;
   strength_status_value app_private.strength_normalization_status;
   ingredient_strength_key text;
-  profile_row record;
+  profile_status_value app_private.pharmaceutical_equivalence_status;
+  profile_form_class text;
+  profile_route app_private.pharmaceutical_route_class;
+  profile_release app_private.pharmaceutical_release_class;
+  profile_reason text;
   final_status app_private.pharmaceutical_equivalence_status;
   final_reason text;
   strict_key text;
@@ -885,6 +889,27 @@ begin
 
   if not found then
     return;
+  end if;
+
+  if product_row.dosage_form_id is not null then
+    perform app_private.refresh_catalog_dosage_form_equivalence_profile(
+      product_row.dosage_form_id
+    );
+
+    select
+      p.status,
+      p.form_class_key,
+      p.route_class,
+      p.release_class,
+      p.reason_code
+      into
+        profile_status_value,
+        profile_form_class,
+        profile_route,
+        profile_release,
+        profile_reason
+    from app_private.catalog_dosage_form_equivalence_profiles p
+    where p.dosage_form_id = product_row.dosage_form_id;
   end if;
 
   select c.status
@@ -919,56 +944,38 @@ begin
   elsif product_row.dosage_form_id is null then
     final_status := 'unresolved';
     final_reason := 'missing_dosage_form';
+  elsif profile_status_value is null then
+    final_status := 'unresolved';
+    final_reason := 'missing_dosage_form_profile';
+  elsif profile_status_value = 'unresolved' then
+    final_status := 'unresolved';
+    final_reason := coalesce(profile_reason, 'unclassified_dosage_form');
+  elsif profile_status_value = 'needs_review' then
+    final_status := 'needs_review';
+    final_reason := profile_reason;
   else
-    perform app_private.refresh_catalog_dosage_form_equivalence_profile(
-      product_row.dosage_form_id
-    );
+    final_status := case
+      when composition_status_value = 'high_confidence'
+        or strength_status_value = 'high_confidence'
+        or profile_status_value = 'high_confidence'
+        then 'high_confidence'
+      else 'auto_verified'
+    end;
 
-    select p.*
-      into profile_row
-    from app_private.catalog_dosage_form_equivalence_profiles p
-    where p.dosage_form_id = product_row.dosage_form_id;
+    final_reason := case
+      when final_status = 'high_confidence'
+        then 'trusted_dimensions_with_high_confidence_input'
+      else 'all_dimensions_auto_verified'
+    end;
 
-    if profile_row.status is null or profile_row.status = 'unresolved' then
-      final_status := 'unresolved';
-      final_reason := coalesce(
-        profile_row.reason_code,
-        'missing_dosage_form_profile'
-      );
-    elsif profile_row.status = 'needs_review' then
-      final_status := 'needs_review';
-      final_reason := profile_row.reason_code;
-    else
-      final_status := case
-        when composition_status_value = 'high_confidence'
-          or strength_status_value = 'high_confidence'
-          or profile_row.status = 'high_confidence'
-          then 'high_confidence'
-        else 'auto_verified'
-      end;
-
-      final_reason := case
-        when final_status = 'high_confidence'
-          then 'trusted_dimensions_with_high_confidence_input'
-        else 'all_dimensions_auto_verified'
-      end;
-
-      strict_key :=
-        char_length(ingredient_strength_key)::text || ':' ||
-        ingredient_strength_key ||
-        '|form=' ||
-        char_length(profile_row.form_class_key)::text || ':' ||
-        profile_row.form_class_key ||
-        '|route=' || profile_row.route_class::text ||
-        '|release=' || profile_row.release_class::text;
-    end if;
-  end if;
-
-  if profile_row.status is null and product_row.dosage_form_id is not null then
-    select p.*
-      into profile_row
-    from app_private.catalog_dosage_form_equivalence_profiles p
-    where p.dosage_form_id = product_row.dosage_form_id;
+    strict_key :=
+      char_length(ingredient_strength_key)::text || ':' ||
+      ingredient_strength_key ||
+      '|form=' ||
+      char_length(profile_form_class)::text || ':' ||
+      profile_form_class ||
+      '|route=' || profile_route::text ||
+      '|release=' || profile_release::text;
   end if;
 
   insert into app_private.product_pharmaceutical_equivalence(
@@ -993,11 +1000,11 @@ begin
     product_row.dosage_form_id,
     composition_status_value,
     strength_status_value,
-    profile_row.status,
+    profile_status_value,
     ingredient_strength_key,
-    profile_row.form_class_key,
-    profile_row.route_class,
-    profile_row.release_class,
+    profile_form_class,
+    profile_route,
+    profile_release,
     final_status,
     final_reason,
     case
