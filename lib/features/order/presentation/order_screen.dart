@@ -142,7 +142,13 @@ class _OrderHeader extends ConsumerWidget {
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ),
-                  totals,
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: totals,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 6),
@@ -250,8 +256,8 @@ class _EmptyOrder extends StatelessWidget {
         key: Key('order-empty'),
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.shopping_basket_outlined, size: 48),
-          SizedBox(height: 16),
+          Icon(Icons.shopping_basket_outlined, size: 36),
+          SizedBox(height: 8),
           Text('Order is empty'),
           SizedBox(height: 8),
           Text('Add products from Catalog search results.'),
@@ -283,10 +289,16 @@ class _OrderLineCard extends ConsumerWidget {
         ? pending
         : null;
 
+    final compact = MediaQuery.sizeOf(context).width < 600;
+    final controlConstraints = compact
+        ? const BoxConstraints.tightFor(width: 36, height: 36)
+        : null;
+
     return Card(
       key: Key('order-line-${line.productId}'),
+      margin: EdgeInsets.symmetric(vertical: compact ? 1 : 4),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(compact ? 10 : 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -298,11 +310,18 @@ class _OrderLineCard extends ConsumerWidget {
                     children: [
                       Text(
                         line.displayName,
-                        style: Theme.of(context).textTheme.titleMedium,
+                        style: compact
+                            ? Theme.of(context).textTheme.titleSmall
+                            : Theme.of(context).textTheme.titleMedium,
                       ),
-                      const SizedBox(height: 6),
-                      Text('${line.unitAmount} ${line.currency} each'),
-                      const SizedBox(height: 4),
+                      SizedBox(height: compact ? 2 : 6),
+                      Text(
+                        '${line.unitAmount} ${line.currency} each',
+                        style: compact
+                            ? Theme.of(context).textTheme.bodySmall
+                            : null,
+                      ),
+                      SizedBox(height: compact ? 1 : 4),
                       Text(
                         '${line.lineAmount} ${line.currency}',
                         key: Key('order-line-amount-${line.productId}'),
@@ -317,10 +336,14 @@ class _OrderLineCard extends ConsumerWidget {
                   onPressed: line.quantity <= 1
                       ? null
                       : () => controller.decrement(line.productId),
+                  visualDensity:
+                      compact ? VisualDensity.compact : VisualDensity.standard,
+                  constraints: controlConstraints,
+                  iconSize: compact ? 18 : 24,
                   icon: const Icon(Icons.remove),
                 ),
                 SizedBox(
-                  width: 44,
+                  width: compact ? 30 : 44,
                   child: Text(
                     '${line.quantity}',
                     key: Key('order-quantity-${line.productId}'),
@@ -342,12 +365,20 @@ class _OrderLineCard extends ConsumerWidget {
                       );
                     }
                   },
+                  visualDensity:
+                      compact ? VisualDensity.compact : VisualDensity.standard,
+                  constraints: controlConstraints,
+                  iconSize: compact ? 18 : 24,
                   icon: const Icon(Icons.add),
                 ),
                 IconButton(
                   key: Key('order-remove-${line.productId}'),
                   tooltip: 'Remove from order',
                   onPressed: () => controller.remove(line.productId),
+                  visualDensity:
+                      compact ? VisualDensity.compact : VisualDensity.standard,
+                  constraints: controlConstraints,
+                  iconSize: compact ? 18 : 24,
                   icon: const Icon(Icons.delete_outline),
                 ),
               ],
