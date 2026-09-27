@@ -69,27 +69,30 @@ class _CatalogSearchPanelState extends ConsumerState<CatalogSearchPanel> {
                   child: TapRegion(
                     groupId: _tapRegionGroup,
                     child: Material(
-                    key: const Key('catalog-search-overlay'),
-                    elevation: 8,
-                    shadowColor: Colors.black26,
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(12),
-                    clipBehavior: Clip.antiAlias,
-                    child: SizedBox(
-                      width: overlayWidth,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight: widget.maxResultsHeight,
-                        ),
-                        child: _SearchResultSurface(
-                          search: search,
-                          onRetry: () {
-                            ref
-                                .read(catalogSearchControllerProvider.notifier)
-                                .retry();
-                          },
-                          onOpenProduct: _openProduct,
-                          onAddToCart: _addToCart,
+                      key: const Key('catalog-search-overlay'),
+                      elevation: 8,
+                      shadowColor: Colors.black26,
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      clipBehavior: Clip.antiAlias,
+                      child: SizedBox(
+                        width: overlayWidth,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxHeight: widget.maxResultsHeight,
+                          ),
+                          child: _SearchResultSurface(
+                            search: search,
+                            onRetry: () {
+                              ref
+                                  .read(
+                                    catalogSearchControllerProvider.notifier,
+                                  )
+                                  .retry();
+                            },
+                            onOpenProduct: _openProduct,
+                            onAddToCart: _addToCart,
+                          ),
                         ),
                       ),
                     ),
@@ -104,97 +107,97 @@ class _CatalogSearchPanelState extends ConsumerState<CatalogSearchPanel> {
             child: CompositedTransformTarget(
               link: _layerLink,
               child: Row(
-              key: const Key('catalog-search-panel'),
-              children: [
-                Expanded(
-                  child: TextField(
-                    key: const Key('catalog-search-field'),
-                    controller: _searchController,
-                    focusNode: _searchFocusNode,
-                    textInputAction: TextInputAction.search,
-                    decoration: InputDecoration(
-                      hintText: 'Search products',
-                      prefixIcon: const Icon(Icons.search, size: 20),
-                      suffixIcon: _searchController.text.isEmpty
-                          ? null
-                          : IconButton(
-                              key: const Key('catalog-search-clear'),
-                              tooltip: 'Clear search',
-                              visualDensity: VisualDensity.compact,
-                              onPressed: _clearSearch,
-                              icon: const Icon(Icons.close, size: 18),
-                            ),
-                      filled: true,
-                      fillColor:
-                          Theme.of(context).colorScheme.surfaceContainerHigh,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 1.5,
+                key: const Key('catalog-search-panel'),
+                children: [
+                  Expanded(
+                    child: TextField(
+                      key: const Key('catalog-search-field'),
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
+                      textInputAction: TextInputAction.search,
+                      decoration: InputDecoration(
+                        hintText: 'Search products',
+                        prefixIcon: const Icon(Icons.search, size: 20),
+                        suffixIcon: _searchController.text.isEmpty
+                            ? null
+                            : IconButton(
+                                key: const Key('catalog-search-clear'),
+                                tooltip: 'Clear search',
+                                visualDensity: VisualDensity.compact,
+                                onPressed: _clearSearch,
+                                icon: const Icon(Icons.close, size: 18),
+                              ),
+                        filled: true,
+                        fillColor:
+                            Theme.of(context).colorScheme.surfaceContainerHigh,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 1.5,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 11,
                         ),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 11,
+                      onTap: () {
+                        if (widget.scannerOpen) {
+                          widget.onToggleScanner?.call();
+                        }
+                      },
+                      onChanged: (query) {
+                        ref
+                            .read(catalogSearchControllerProvider.notifier)
+                            .queryChanged(query);
+                        setState(() {});
+                      },
+                      onSubmitted: (query) {
+                        ref
+                            .read(catalogSearchControllerProvider.notifier)
+                            .submit(query);
+                      },
+                    ),
+                  ),
+                  if (widget.onToggleScanner != null) ...[
+                    const SizedBox(width: 6),
+                    IconButton.filled(
+                      key: const Key('order-scan-barcode'),
+                      tooltip:
+                          widget.scannerOpen ? 'Close scanner' : 'Scan barcode',
+                      onPressed: _toggleScanner,
+                      constraints: const BoxConstraints.tightFor(
+                        width: 44,
+                        height: 44,
+                      ),
+                      icon: Icon(
+                        widget.scannerOpen
+                            ? Icons.close
+                            : Icons.qr_code_scanner_rounded,
+                        size: 20,
                       ),
                     ),
-                    onTap: () {
-                      if (widget.scannerOpen) {
-                        widget.onToggleScanner?.call();
-                      }
-                    },
-                    onChanged: (query) {
-                      ref
-                          .read(catalogSearchControllerProvider.notifier)
-                          .queryChanged(query);
-                      setState(() {});
-                    },
-                    onSubmitted: (query) {
-                      ref
-                          .read(catalogSearchControllerProvider.notifier)
-                          .submit(query);
-                    },
-                  ),
-                ),
-                if (widget.onToggleScanner != null) ...[
+                  ],
                   const SizedBox(width: 6),
-                  IconButton.filled(
-                    key: const Key('order-scan-barcode'),
-                    tooltip:
-                        widget.scannerOpen ? 'Close scanner' : 'Scan barcode',
-                    onPressed: _toggleScanner,
+                  IconButton.filledTonal(
+                    key: const Key('catalog-new-product'),
+                    tooltip: 'New product',
+                    onPressed: _openCreate,
                     constraints: const BoxConstraints.tightFor(
                       width: 44,
                       height: 44,
                     ),
-                    icon: Icon(
-                      widget.scannerOpen
-                          ? Icons.close
-                          : Icons.qr_code_scanner_rounded,
-                      size: 20,
-                    ),
+                    icon: const Icon(Icons.add_rounded, size: 21),
                   ),
-                ],
-                const SizedBox(width: 6),
-                IconButton.filledTonal(
-                  key: const Key('catalog-new-product'),
-                  tooltip: 'New product',
-                  onPressed: _openCreate,
-                  constraints: const BoxConstraints.tightFor(
-                    width: 44,
-                    height: 44,
-                  ),
-                  icon: const Icon(Icons.add_rounded, size: 21),
-                ),
                 ],
               ),
             ),
