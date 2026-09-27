@@ -21,7 +21,7 @@ This replaces the earlier offline-first proposal. Do not introduce Drift, a comp
 | Riverpod controllers/providers | Screen state, dependency injection, loading/error handling | Confirmed by owner; compatible package version to select during setup |
 | Repository interfaces | Isolate catalog access, account access, and session storage from widgets | Proposed implementation baseline |
 | Auth session storage | Persist the Supabase auth session in platform secure storage, not ordinary preferences | SP-006 uses `flutter_secure_storage` 11.2.0 on Android/Windows |
-| Local app session store | Save current screen, order snapshot, and active unsaved edit draft without copying the catalog | SP-009 keeps product drafts account-scoped; SP-011 adds a separate versioned account-scoped page/order snapshot in the same secure key-value boundary |
+| Local app session store | Save the active cart/order snapshot and active unsaved edit draft without copying the catalog; retain the legacy destination field only for v1 compatibility | SP-009 keeps product drafts account-scoped; SP-011 adds a separate versioned account-scoped snapshot in the same secure key-value boundary; SP-021 always restores the visible workspace to Cart |
 | Android camera adapter | Produce deliberate barcode scan events | Confirmed; package to verify |
 | Windows reader adapter | Produce scan events from the owner's external reader | Deferred future task; re-authorize after hardware/input mode selection |
 
