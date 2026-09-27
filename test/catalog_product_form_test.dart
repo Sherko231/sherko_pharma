@@ -148,6 +148,11 @@ void main() {
     await pumpForm(tester, catalog: catalog);
 
     await enterValidCreate(tester);
+    final priceField = tester.widget<TextField>(
+      find.byKey(const Key('product-field-selling-amount')),
+    );
+    expect(priceField.controller?.text, '2,500');
+
     await tester.enterText(
       find.byKey(const Key('product-field-barcode')),
       '00012-A',
