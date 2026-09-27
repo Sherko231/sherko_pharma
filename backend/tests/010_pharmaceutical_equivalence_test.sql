@@ -67,6 +67,37 @@ begin
     raise exception 'unspecified injection route was trusted';
   end if;
 
+  if not exists (
+    select 1
+    from app_private.catalog_classify_dosage_form('أقراص مديدة التحرر')
+    where form_class_key = 'oral_tablet'
+      and route_class = 'oral'
+      and release_class = 'extended_release'
+      and status in ('auto_verified', 'high_confidence')
+  ) then
+    raise exception 'Arabic extended-release tablet classification failed';
+  end if;
+
+  if not exists (
+    select 1
+    from app_private.catalog_classify_dosage_form('أقراص ملبسة معوياً')
+    where form_class_key = 'oral_tablet'
+      and route_class = 'oral'
+      and release_class = 'delayed_release'
+      and status in ('auto_verified', 'high_confidence')
+  ) then
+    raise exception 'Arabic enteric tablet classification failed';
+  end if;
+
+  if not exists (
+    select 1
+    from app_private.catalog_classify_dosage_form('قطرة عينية انفيةأذنية')
+    where status = 'needs_review'
+      and reason_code = 'multiple_route_markers'
+  ) then
+    raise exception 'mixed-route dosage form was not quarantined';
+  end if;
+
   if has_function_privilege(
     'authenticated',
     'app_private.catalog_classify_dosage_form(text)',
@@ -325,12 +356,22 @@ begin
     select strict_equivalence_key
     from app_private.product_pharmaceutical_equivalence
     where product_id = eye_id
-  ) = (
-    select strict_equivalence_key
-    from app_private.product_pharmaceutical_equivalence
-    where product_id = ear_id
-  ) then
-    raise exception 'ophthalmic and otic routes compared equal';
+  ) is null
+     or (
+       select strict_equivalence_key
+       from app_private.product_pharmaceutical_equivalence
+       where product_id = ear_id
+     ) is null
+     or (
+       select strict_equivalence_key
+       from app_private.product_pharmaceutical_equivalence
+       where product_id = eye_id
+     ) = (
+       select strict_equivalence_key
+       from app_private.product_pharmaceutical_equivalence
+       where product_id = ear_id
+     ) then
+    raise exception 'ophthalmic and otic routes were not strictly separated';
   end if;
 
   if (
