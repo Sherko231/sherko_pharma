@@ -478,15 +478,20 @@ returns trigger
 language plpgsql
 security definer
 set search_path = pg_catalog, public, app_private
-as $$
+as $
 begin
+  if tg_op = 'UPDATE'
+     and new.composition is not distinct from old.composition then
+    return new;
+  end if;
+
   perform app_private.refresh_product_composition_normalization(
     new.id,
     new.composition
   );
   return new;
 end;
-$$;
+$;
 
 revoke all on function app_private.sync_product_composition_normalization()
 from public, anon, authenticated;
