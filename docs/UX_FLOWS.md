@@ -1,6 +1,6 @@
 # Sherko Pharma — Interaction Flows
 
-Status: Core interaction and session rules confirmed. SP-021 implements the single compact Cart workspace; fine-grained visual polish may evolve within the durable UI rules below. Initial UI labels are in English; Arabic explanations in the planning conversation describe their meaning.
+Status: Core interaction and session rules confirmed. SP-022 refines the single Cart into a POS-style workspace with persistent cart context, transient search results, a unified search/scan command surface, and adaptive supporting-pane layout. Initial UI labels are in English; Arabic explanations in the planning conversation describe their meaning.
 
 Use `PRODUCT.md` for scope, `DATA_MODEL.md` for data rules, and `ARCHITECTURE.md` for persistence and connectivity boundaries.
 
@@ -8,8 +8,12 @@ Use `PRODUCT.md` for scope, `DATA_MODEL.md` for data rules, and `ARCHITECTURE.md
 
 - After authentication, open the `Cart` workspace directly. Do not require switching between Catalog and Order pages.
 - Keep manual catalog search, Android Scan, cart totals, `New Order`, current lines and quantity/remove controls on the same page.
-- Manual search results are bounded and compact so the cart remains available; tapping Add revalidates that product through the existing authoritative catalog read before it is captured.
-- On wider desktop layouts, search/scanning may occupy a compact side column while the cart uses the remaining space. On phones, stack the same workflow vertically without introducing a separate destination.
+- Treat search and scanner as acquisition modes in one command surface: tapping Scan clears/dismisses an active manual search, and tapping Search closes an open scanner so the user does not manage two competing input surfaces.
+- Manual search results appear as a temporary elevated result surface anchored to the search controls. They may overlap the cart visually but must not reflow or permanently shrink it.
+- Tapping Add revalidates the selected product through the existing authoritative catalog read before capture. On successful add/increment, clear the query and keep the search field ready for rapid entry of the next product.
+- Keep cart item count, SYP/USD totals and New Order visible above the independently scrolling cart lines.
+- Use flat list rows with dividers for the cart. Prioritize product identity, line total and quantity controls; use secondary styling for unit price and de-emphasize destructive Remove.
+- On wider desktop layouts, search/scanning occupy a supporting side pane while the cart remains the main pane. On phones, stack the same workflow vertically without introducing a separate destination.
 - Product detail/create/edit remain focused secondary routes and return to the same Cart workspace.
 - Empty-cart guidance should point to Search or Scan on the current page.
 
@@ -85,7 +89,10 @@ These choices are an explicit resolution step; the default remains optimistic co
 
 ## Durable visual rules
 
-- Treat compact density as the default across application UI: prefer concise headers, small intentional gaps, compact controls/chips/cards and bounded inline panels while preserving readability and usable interaction targets.
+- Treat compact density as the default across application UI: prefer concise headers, small intentional gaps, compact controls and bounded inline panels while preserving readability and usable interaction targets.
+- Use visual hierarchy instead of repeated cards: primary acquisition controls and totals may use contained surfaces, while repeated cart/search rows should normally be flat list items separated by subtle dividers.
+- Search results are transient foreground context; the active cart is persistent background context.
+- On large windows, prefer a supporting pane for secondary acquisition tools while retaining the cart as the primary pane.
 - Format whole-unit monetary values with comma thousands grouping (for example `245,000`) everywhere they are displayed or edited; domain/storage values remain integers.
 - Prefer same-page inline interactions when they are part of one operational flow rather than adding navigation destinations.
 
