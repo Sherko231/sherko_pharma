@@ -1,6 +1,6 @@
 # Sherko Pharma — Interaction Flows
 
-Status: Core interaction and session rules confirmed; detailed visual design remains open. These are requirements, not implemented screens. Initial UI labels are in English; Arabic explanations in the planning conversation describe their meaning.
+Status: Core interaction and session rules confirmed. SP-021 implements the single compact Cart workspace; fine-grained visual polish may evolve within the durable UI rules below. Initial UI labels are in English; Arabic explanations in the planning conversation describe their meaning.
 
 Use `PRODUCT.md` for scope, `DATA_MODEL.md` for data rules, and `ARCHITECTURE.md` for persistence and connectivity boundaries.
 
