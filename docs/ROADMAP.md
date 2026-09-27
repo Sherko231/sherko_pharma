@@ -1,6 +1,6 @@
 # Sherko Pharma — Implementation Roadmap
 
-Status: SP-000 through SP-013 and CI-001 are merged. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 is the final task in the current initial-delivery roadmap and is tracked by Issue #38; its Issue/PR handoff owns live execution and merge evidence.
+Status: SP-000 through SP-013 and CI-001 are merged. The owner retired hosted CI in OPS-001 / Issue #42; CI-001 remains historical only. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 remains the final task in the current initial-delivery roadmap.
 
 Repository: https://github.com/Sherko231/sherko_pharma
 Inspected baseline: `main` at `2c5e0aa32a7b7ef246511cafff034adaf977d8b7`.
@@ -18,8 +18,9 @@ Read `DEVELOPMENT_STATUS.md` for evidence and limitations. Refresh live state be
 - Task IDs below are planning identifiers, not GitHub Issue numbers. SP-000 is tracked in [Issue #1](https://github.com/Sherko231/sherko_pharma/issues/1); SP-001 is tracked in [Issue #3](https://github.com/Sherko231/sherko_pharma/issues/3); later feature tasks do not yet have Issues.
 - Work on one owner-approved, bounded Issue at a time, with explicit acceptance criteria, a dedicated branch, and a PR.
 - Split a task into smaller Issues if its implementation cannot remain focused. Preserve the dependency order; a roadmap is not authorization to start every task.
-- Apply `QUALITY.md` gates to the current revision. Camera/reader behavior changes require the owner's real-device acceptance before merge.
-- After the current task is merged and its required follow-up checks are verified, report in Arabic and wait for "كمل".
+- `QUALITY.md` lists optional local verification only; hosted CI is retired and is not a merge requirement.
+- The owner may pull/test the merged revision on real hardware and report failures for a follow-up bounded task.
+- After the current task is merged and the remote result is confirmed, report in Arabic and wait for "كمل".
 - Keep the source CSV and credentials out of this public repository, commits, test fixtures, logs, and downloadable build artifacts. Use synthetic test data. Do not alter repository visibility as an incidental setup step.
 
 ## Phase 0 — Establish the project contract and checks
@@ -30,9 +31,7 @@ Read `DEVELOPMENT_STATUS.md` for evidence and limitations. Refresh live state be
 | SP-001 | Establish reproducible hosted CI and merge gates | SP-000 | Compatible exact Flutter/toolchain choices documented; formatting and analysis checks; meaningful application-launch smoke test; Android and Windows builds on GitHub-hosted runners; current PR checks pass; required check names and commands documented; task/PR templates and separate review evidence; requirement-derived tests; branch protection/external-review integration configured or their specific setup blockers reported |
 | SP-002 | Establish the minimal application structure | SP-001 | Riverpod wired into feature-level controllers/repositories; responsive navigation shell and explicit loading/error boundaries; no speculative empty layers or unapproved features |
 
-SP-000 is a documentation-only bootstrap task: it uses the lighter documentation gates already agreed in `QUALITY.md`, not nonexistent application workflows. SP-001 must demonstrate its own workflows on its PR. Do not enable routine unattended code merges before the required checks and repository protections are established.
-
-The repository's native GitHub auto-merge flag is currently off. This is distinct from the owner's authorization for an agent to merge after verifying all gates; either implementation must obey protections and the same acceptance policy. Do not bypass a required gate to get the bootstrap merged.
+SP-000/SP-001 describe the historical bootstrap. Their hosted-CI policy was superseded by OPS-001 / Issue #42. Current work does not require GitHub Actions or a required status check. Existing external repository protections must still be respected until the owner changes them in GitHub settings.
 
 ## Phase 1 — Establish the data and authorized server operations
 
@@ -75,7 +74,7 @@ The owner deferred SP-014 on 2026-09-26 and closed its current Issue as not plan
 | --- | --- | --- | --- |
 | SP-015 | Verify the current initial-delivery scope and prepare delivery | SP-013 and all non-deferred initial-delivery tasks; SP-014 is not required | Product acceptance checklist passes with recorded evidence for the current initial-delivery scope; Android and Windows application builds are tested as applicable; backend provisioning/import steps verified for the selected environment; unresolved issues and deferred SP-014 are reported; README setup and recovery instructions accurate; release identity/signing and artifact handling established before calling a build production-ready |
 
-SP-015 replaced the placeholder Android identity and removed debug-key fallback from release builds. Before public distribution, REL-001 / Issue #40 amends the Android application ID/namespace to `com.samo.sherkopharma`. Production Android signing remains external to Git, while CI uses a disposable synthetic key only to exercise release-mode signing. Windows release builds keep the complete runner bundle and are not claimed to be code-signed. `RELEASE.md` owns packaging and owner-only production-signing steps.
+SP-015 replaced the placeholder Android identity and removed debug-key fallback from release builds. Before public distribution, REL-001 / Issue #40 amended the Android application ID/namespace to `com.samo.sherkopharma`. Production Android signing remains external to Git. Hosted CI is retired; release builds and packaging are owner-controlled and described in `RELEASE.md`.
 
 ## Explicitly deferred
 

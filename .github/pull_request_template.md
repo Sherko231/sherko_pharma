@@ -2,34 +2,32 @@
 
 Closes #<!-- bounded Issue number -->
 
-Explain why the change is needed and what now happens. Link owning requirements.
+Explain why the change is needed and what now happens.
 
 ## Scope and risk
 
 - In scope / deliberately excluded:
-- Production data, authorization, verification-gate or hardware impact:
-- Applicable QUALITY.md gates and any documented exemption:
+- Production data, authorization or hardware impact:
+- Known limitations:
 
 ## Acceptance evidence
 
-| Requirement/example | Check and actual result |
+| Requirement/example | Evidence or review result |
 | --- | --- |
 | | |
 
-- Tested head SHA (or linked CI run with its head SHA):
-- Commands and CI links; distinguish passed, failed, pending, and not run:
-- Bug fix: regression failure before the fix and success after, or explain why not reproducible:
-- Remaining limitations / device acceptance:
+- Checks actually run locally, if any:
+- Owner/device testing, if applicable:
+- Bug fix: reproduction/regression evidence when practical:
 
 ## Separate review pass
 
 - Reviewed revision and reviewer/session (state explicitly if self-review):
-- Findings and resolutions; inspect full diff, tests and failure paths:
-- Required owner acceptance evidence, or why not applicable:
-- Any later change affecting the evidence above requires renewed verification.
+- Findings and resolutions:
+- Any owner approval required for a destructive production or fundamental access/security change:
 
 ## Handoff
 
 - Relevant documentation/status updated:
-- Merge and post-merge state (pending until verified):
+- Merge state:
 - Follow-up work outside this Issue:

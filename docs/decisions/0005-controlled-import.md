@@ -11,7 +11,7 @@ The approved corrected source contains 23,750 private catalog rows. Initial impo
 
 - Version a non-sensitive contract containing the exact source SHA-256, row count, ordered headers, dataset key, BOM expectation, and fixed initial currency.
 - Require a full dry-run before SQL generation or apply.
-- Keep the source CSV and generated source-containing SQL outside the repository and CI artifacts.
+- Keep the source CSV and generated source-containing SQL outside the repository and distributable artifacts.
 - Generate direct administrative inserts only after validation. Normal application roles continue using the SP-004 bounded API.
 - Use `(source_dataset, source_id)` as the import idempotency key and `ON CONFLICT DO NOTHING`; the importer never updates an existing source identity.
 - Recover missing approved rows on rerun, but reject unexpected source IDs already using the same dataset key.

@@ -1,8 +1,8 @@
 # Sherko Pharma — Development Status
 
-Updated: 2026-09-26
-Task record: REL-001 / Issue #40; GitHub Issue/PR state is authoritative for the current package-identity correction. SP-015 / Issue #38 remains the completed delivery-preparation baseline.
-Status: SP-013 is complete, merged, and verified. SP-014 remains deferred. SP-015 is the final current-scope delivery-preparation task and does not depend on SP-014.
+Updated: 2026-09-27
+Task record: OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates. REL-001 / Issue #40 and SP-015 / Issue #38 remain completed baselines.
+Status: SP-013 is complete. SP-014 remains deferred. SP-015 delivery preparation is complete. Current verification policy is owner-local after pull; hosted CI is retired.
 
 ## Verified baseline
 
@@ -19,9 +19,9 @@ Status: SP-013 is complete, merged, and verified. SP-014 remains deferred. SP-01
 
 - Preserve the implemented SP-000 through SP-013 product behavior while preparing release-mode Android and Windows candidates.
 - Android identity is `com.samo.sherkopharma`; release builds must not fall back to the Flutter debug key.
-- Production signing material remains outside Git. Hosted CI may use only a disposable synthetic key to exercise the release configuration.
-- Windows release verification covers the complete runner bundle; no production code-signing claim is made without an external certificate.
-- CI does not publish distributable artifacts. Owner-controlled packaging, checksums, signing, and runtime configuration follow `RELEASE.md`.
+- Production signing material remains outside Git.
+- Windows release packaging covers the complete runner bundle; no production code-signing claim is made without an external certificate.
+- Hosted CI is retired. Owner-controlled local builds, packaging, checksums, signing, runtime configuration and testing follow `RELEASE.md` and `QUALITY.md`.
 - The acceptance matrix in `DELIVERY_ACCEPTANCE.md` records deferred SP-014 and the remaining owner-only actions before public distribution.
 
 ## SP-013 contract
@@ -43,10 +43,8 @@ Status: SP-013 is complete, merged, and verified. SP-014 remains deferred. SP-01
 - Scanner lifecycle handling stops the camera while inactive and only resumes an uncommitted scan after the app returns active.
 - Android camera permission is declared without making camera hardware a required installation feature.
 
-## Verification
+## Verification policy
 
-Requirement-derived tests cover exact barcode RPC mapping, leading-zero preservation, authoritative product revalidation, unknown/ambiguous rejection, invalid-price rejection, and concurrent duplicate-frame suppression.
+Requirement-derived tests remain in the repository and can be run locally when useful. The owner explicitly reported the real Android camera test as PASS on 2026-09-26. Historical CI evidence from earlier completed tasks remains part of Git history, but it is no longer a current merge or completion requirement.
 
-PR #30 merged as `2f00898ff7cdeb5060c215c6997c62fe5791bd26`. The owner explicitly reported the real Android camera test as PASS on 2026-09-26. Post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
-
-SP-013 is complete. Issue #31 / PR #32 reconciled its post-merge handoff, and post-merge CI run `36251023929` passed. On 2026-09-26 the owner deferred SP-014 Windows external-reader integration and Issue #35 was closed as not planned for now. SP-015 is tracked by Issue #38; its Issue/PR handoff records revision-specific CI, review, merge, and post-merge evidence. Future SP-014 work still requires fresh owner authorization and selected hardware/input-mode evidence.
+Under OPS-001, the owner pulls/tests revisions locally and reports problems for bounded follow-up fixes. Future SP-014 work still requires fresh owner authorization and selected hardware/input-mode evidence.

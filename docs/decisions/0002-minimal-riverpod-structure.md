@@ -21,7 +21,7 @@ The owner also directed this repository to stop enforcing `dart format` because 
 - Provide a reusable `AsyncValue` presentation boundary with explicit loading, data and error states.
 - Show only honest Catalog/Order workspace placeholders. Do not add Supabase, persistence, calculations, scanner behavior or synthetic product data.
 - Do not create repository interfaces until a concrete feature requires I/O. This follows the existing architecture rule against speculative empty layers.
-- Keep lockfile enforcement, static analysis, full tests and both platform builds in CI. Remove only automatic Dart formatting enforcement; readability remains a review concern.
+- Keep the lockfile, analysis/tests and platform build helpers available for optional local verification. Hosted CI is retired by OPS-001; readability remains a review concern and `dart format` is not enforced.
 
 This establishes boundaries without pretending future features exist. Feature-specific repositories/controllers are introduced by the tasks that own their real behavior and data contracts.
 
