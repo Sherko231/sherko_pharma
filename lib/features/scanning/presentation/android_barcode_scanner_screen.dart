@@ -29,6 +29,52 @@ Rect barcodeScanWindowForSize(Size size) {
   );
 }
 
+
+class BarcodePresentationGate {
+  BarcodePresentationGate({
+    this.releaseAfter = const Duration(milliseconds: 650),
+  });
+
+  final Duration releaseAfter;
+  String? _lockedCode;
+  DateTime? _lastSeen;
+
+  String? get lockedCode => _lockedCode;
+
+  void observe(Iterable<String> codes, DateTime now) {
+    final locked = _lockedCode;
+    if (locked != null && codes.contains(locked)) {
+      _lastSeen = now;
+    }
+  }
+
+  String? nextCandidate(Iterable<String> codes) {
+    final locked = _lockedCode;
+    for (final code in codes) {
+      if (code.isNotEmpty && code != locked) {
+        return code;
+      }
+    }
+    return null;
+  }
+
+  void lock(String code, DateTime now) {
+    _lockedCode = code;
+    _lastSeen = now;
+  }
+
+  void releaseIfAbsent(DateTime now) {
+    final lastSeen = _lastSeen;
+    if (_lockedCode == null || lastSeen == null) {
+      return;
+    }
+    if (now.difference(lastSeen) >= releaseAfter) {
+      _lockedCode = null;
+      _lastSeen = null;
+    }
+  }
+}
+
 class AndroidBarcodeScannerPanel extends ConsumerStatefulWidget {
   const AndroidBarcodeScannerPanel({
     super.key,
@@ -45,15 +91,13 @@ class AndroidBarcodeScannerPanel extends ConsumerStatefulWidget {
 class _AndroidBarcodeScannerPanelState
     extends ConsumerState<AndroidBarcodeScannerPanel>
     with WidgetsBindingObserver {
-  static const _releaseAfter = Duration(milliseconds: 650);
   static const _releasePoll = Duration(milliseconds: 150);
 
   late final MobileScannerController _camera;
   late final BarcodeScanController _scan;
+  final BarcodePresentationGate _presentationGate = BarcodePresentationGate();
   Timer? _releaseTimer;
   bool _processing = false;
-  String? _lockedCode;
-  DateTime? _lockedCodeLastSeen;
   String? _message;
 
   @override
@@ -99,15 +143,7 @@ class _AndroidBarcodeScannerPanelState
   }
 
   void _releaseCodeIfAbsent() {
-    final lastSeen = _lockedCodeLastSeen;
-    if (_lockedCode == null || lastSeen == null) {
-      return;
-    }
-
-    if (DateTime.now().difference(lastSeen) >= _releaseAfter) {
-      _lockedCode = null;
-      _lockedCodeLastSeen = null;
-    }
+    _presentationGate.releaseIfAbsent(DateTime.now());
   }
 
   Future<void> _detected(BarcodeCapture capture) async {
@@ -121,22 +157,13 @@ class _AndroidBarcodeScannerPanelState
     }
 
     final now = DateTime.now();
-    final lockedCode = _lockedCode;
-    if (lockedCode != null && values.contains(lockedCode)) {
-      _lockedCodeLastSeen = now;
-    }
+    _presentationGate.observe(values, now);
 
     if (_processing) {
       return;
     }
 
-    String? code;
-    for (final value in values) {
-      if (value != lockedCode) {
-        code = value;
-        break;
-      }
-    }
+    final code = _presentationGate.nextCandidate(values);
     if (code == null) {
       return;
     }
@@ -151,8 +178,7 @@ class _AndroidBarcodeScannerPanelState
       return;
     }
 
-    _lockedCode = code;
-    _lockedCodeLastSeen = DateTime.now();
+    _presentationGate.lock(code, DateTime.now());
 
     setState(() {
       _processing = false;
