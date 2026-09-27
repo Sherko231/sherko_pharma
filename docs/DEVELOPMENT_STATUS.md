@@ -1,8 +1,8 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-27
-Task record: SP-021 / Issue #54 merges catalog search and order management into one compact Cart workspace. SP-020 / Issue #52 remains the amount/scanner-feedback baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
-Status: SP-021 removes visible Catalog/Order navigation, makes Cart the always-primary workspace, embeds authoritative manual search beside the existing scanner/order controls, and records permanent compact-density and monetary-formatting rules. Backend, barcode identity and order semantics remain unchanged. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
+Task record: SP-022 / Issue #56 redesigns the unified Cart as a professional POS-style workspace. SP-021 / Issue #54 remains the single-workspace baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
+Status: SP-022 makes product acquisition the primary command surface, moves manual results into a transient overlay, keeps cart totals persistent, flattens cart rows, improves scanner integration, and uses a supporting pane on wide windows. Backend, barcode identity, captured-price and order semantics remain unchanged. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
 
 ## Verified baseline
 
@@ -14,6 +14,18 @@ Status: SP-021 removes visible Catalog/Order navigation, makes Cart the always-p
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-022 professional Cart UX contract
+
+- Search and Android Scan are one acquisition command surface. Opening one mode dismisses the competing mode so the operator is never managing two input surfaces.
+- Manual search results render in a bounded elevated overlay anchored to search. The overlay does not change the cart summary/list layout or permanently consume cart height.
+- Successful manual add/increment keeps the existing authoritative product revalidation, then clears the query and leaves search ready for the next product.
+- Item count, separate SYP/USD totals and New Order stay visible above independently scrolling cart lines.
+- Cart items use flat dense rows with subtle dividers, readable Arabic/English product identity, strong line totals, compact quantity controls and de-emphasized Remove.
+- The scanner result/checking message is overlaid inside the camera surface to reduce vertical chrome; scan detection/feedback semantics are unchanged.
+- Wide windows use a 420 px acquisition/supporting pane beside the persistent cart. Compact windows stack command/scanner above the cart.
+- The application uses a restrained Material 3 blue-teal seed with a neutral light surface while retaining compact density and existing accessibility/touchability constraints.
+- No Supabase/schema/API, scan algorithm, barcode identity, captured price/currency, draft, refresh or order-calculation changes belong to SP-022.
 
 ## SP-021 unified Cart contract
 
@@ -96,6 +108,7 @@ Status: SP-021 removes visible Catalog/Order navigation, makes Cart the always-p
 
 ## Implementation state
 
+- SP-022 refines that workspace into a POS-style interaction model: persistent cart context, transient search results, integrated search/scan acquisition, flat cart rows and adaptive supporting pane.
 - SP-021 presents the customer workflow as one compact Cart workspace with embedded manual search and Android scanning; the previous visible Catalog/Order navigation is retired.
 - Added an Android-only order Scan action backed by `mobile_scanner`, pinned to a reviewed upstream commit in the application lockfile.
 - Added exact `catalog_lookup_barcode` repository access without direct product-table reads or a new backend migration.
