@@ -6,7 +6,7 @@ This checklist records the current initial-delivery scope and the evidence that 
 
 | Area | Current evidence | Delivery status |
 | --- | --- | --- |
-| Hosted catalog schema, source mapping, owner-only API | SP-003/SP-004 migrations and isolated authorization/API tests remain in full CI | Verified |
+| Hosted catalog schema, source mapping, owner-only API | SP-003/SP-004 migrations and historical isolated authorization/API verification | Verified baseline |
 | Controlled initial catalog import | Dedicated hosted project contains exactly 23,750 approved source rows; `IMPORT.md` records fingerprint, rerun protection, and recovery procedure | Verified |
 | Owner authentication/session gate | Automated auth/configuration/storage regressions pass; real Windows login/restart/sign-out acceptance is recorded in `AUTH_ACCEPTANCE.md` | Verified on Windows; Android-specific real auth checklist remains deferred |
 | Catalog search/detail | SP-007 server-backed bounded search/detail regressions remain in the Flutter suite | Verified |
@@ -17,24 +17,13 @@ This checklist records the current initial-delivery scope and the evidence that 
 | Scoped refresh and price changes | SP-012 bounded refresh and explicit captured-price/currency update regressions remain in the Flutter suite | Verified |
 | Android camera barcode scanning | SP-013 automated barcode/duplicate-frame/failure-path coverage plus owner real-camera PASS on 2026-09-26 | Verified for current scanner behavior |
 | Windows external barcode reader | Owner deferred SP-014 on 2026-09-26 | Deferred; not a SP-015 blocker |
-| Android release identity/signing configuration | `com.samo.sherkopharma`; production release requires external private `key.properties`/keystore; CI exercises release signing with a disposable synthetic key | Verified by SP-015 CI; real production key remains owner-only |
-| Windows release identity/bundle | Release-mode bundle built by CI; executable/window metadata use Sherko Pharma | Verified by SP-015 CI; no production code-signing certificate is configured |
-| Artifact publication | CI intentionally retains no distributable release artifacts | Owner-controlled handoff only |
+| Android release identity/signing configuration | `com.samo.sherkopharma`; production release requires external private `key.properties`/keystore | Release configuration established; real production key remains owner-only |
+| Windows release identity/bundle | Executable/window metadata use Sherko Pharma; local release build procedure is documented | No production code-signing certificate is configured |
+| Artifact publication | No automated hosted artifact publication | Owner-controlled local handoff only |
 
-## Required SP-015 verification
+## Current verification policy
 
-The final SP-015 revision must pass:
-
-- `python tool/verify.py docs`;
-- verification-tool unit tests;
-- `python tool/verify.py quick`;
-- isolated Schema/API/import suite;
-- Android signed release APK build using the CI-only disposable signing key;
-- Windows release build;
-- `Required verification`;
-- separate full-diff review.
-
-The PR/Issue handoff records the exact reviewed SHA, CI run, merge SHA, and post-merge CI result.
+The automated SP-015 CI evidence was historical delivery evidence at the time it ran. OPS-001 / Issue #42 retires hosted CI and Required verification as current requirements. Local commands remain optional, and the owner may pull/test the merged revision and report failures for follow-up fixes.
 
 ## Remaining owner-only actions before a public production release
 
@@ -46,4 +35,4 @@ These do not authorize new product features:
 - verify final store/package naming availability and store metadata before submission;
 - build from the reviewed merged commit with the intended client runtime configuration and record final artifact checksums.
 
-Until those external actions are satisfied for a concrete artifact, repository CI proves a release-mode delivery candidate, not a publicly production-signed release.
+Until those external actions are satisfied for a concrete artifact, the project should not be described as a publicly production-signed release.
