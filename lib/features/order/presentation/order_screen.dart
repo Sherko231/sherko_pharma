@@ -460,8 +460,8 @@ class _OrderLineRow extends ConsumerWidget {
                 onPressed: () => controller.remove(line.productId),
                 visualDensity: VisualDensity.compact,
                 constraints: const BoxConstraints.tightFor(
-                  width: 36,
-                  height: 36,
+                  width: 38,
+                  height: 38,
                 ),
                 iconSize: 19,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -531,15 +531,15 @@ class _QuantityStepper extends StatelessWidget {
             onPressed: onDecrement,
             visualDensity: VisualDensity.compact,
             constraints: const BoxConstraints.tightFor(
-              width: 34,
-              height: 32,
+              width: 36,
+              height: 36,
             ),
             padding: EdgeInsets.zero,
             iconSize: 17,
             icon: const Icon(Icons.remove_rounded),
           ),
           SizedBox(
-            width: 28,
+            width: 30,
             child: Text(
               '$quantity',
               key: Key('order-quantity-$productId'),
@@ -553,8 +553,8 @@ class _QuantityStepper extends StatelessWidget {
             onPressed: onIncrement,
             visualDensity: VisualDensity.compact,
             constraints: const BoxConstraints.tightFor(
-              width: 34,
-              height: 32,
+              width: 36,
+              height: 36,
             ),
             padding: EdgeInsets.zero,
             iconSize: 17,
