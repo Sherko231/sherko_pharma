@@ -13,8 +13,8 @@ import 'catalog_text.dart';
 Future<void> showCatalogAlternativesSheet({
   required BuildContext context,
   required CatalogProduct targetProduct,
-}) {
-  return showModalBottomSheet<void>(
+}) async {
+  await showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
