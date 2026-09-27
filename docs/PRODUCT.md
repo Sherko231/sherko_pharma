@@ -2,7 +2,7 @@
 
 Status: Initial product scope agreed with the owner; implementation details remain to be specified.
 Repository: `sherko_pharma`
-Updated: 2026-09-23
+Updated: 2026-09-27
 
 ## Purpose and users
 
@@ -61,7 +61,7 @@ The primary `Cart` workspace combines product acquisition and order calculation.
 - One matching product: add the product to the current order.
 - Multiple matching products: display choices and let the user choose before adding anything.
 - No matching product: display a not-found message and leave the order unchanged. Do not automatically create a product, link a barcode, or open a creation flow.
-- Product creation remains separately available from catalog management.
+- Product creation remains separately available from the Cart search controls and product-detail flow.
 - Treat barcode identifiers as text, preserving their exact characters and leading zeros.
 - On Android, scanning may remain open as a compact inline panel in the Cart workspace so multiple medicines can be scanned sequentially without reopening a full-screen camera route. Do not require a barcode to be upright; supported package barcodes should remain scannable when the package is rotated 180 degrees.
 - A unique scan may use the complete current product snapshot returned by the owner-authorized barcode lookup directly; a second immediate detail read is not required solely to repeat the same server data.
