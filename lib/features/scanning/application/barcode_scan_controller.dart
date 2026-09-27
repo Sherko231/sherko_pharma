@@ -37,6 +37,7 @@ class BarcodeScanController {
       return null;
     }
     _busy = true;
+    final orderGeneration = _order.mutationGeneration;
     try {
       final matches = await _catalog.lookupBarcode(code);
       if (matches.isEmpty) {
@@ -44,6 +45,10 @@ class BarcodeScanController {
       }
       if (matches.length != 1) {
         return const BarcodeScanResult(BarcodeScanStatus.ambiguous);
+      }
+
+      if (_order.mutationGeneration != orderGeneration) {
+        return null;
       }
 
       final product = matches.single;
