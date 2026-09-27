@@ -41,6 +41,8 @@ class FakeCatalogRepository implements CatalogRepository {
   final List<CatalogSearchCall> searchCalls = [];
   final List<String> barcodeCalls = [];
   final List<String> detailCalls = [];
+  List<CatalogReferenceOption> manufacturerOptions = const [];
+  List<CatalogReferenceOption> dosageFormOptions = const [];
   final List<String> createIds = [];
   final List<CatalogProductInput> createInputs = [];
   final List<CatalogProduct> updateOriginals = [];
@@ -159,6 +161,28 @@ class FakeCatalogRepository implements CatalogRepository {
       return handler(original, input);
     }
     return const CatalogSaveRejected();
+  }
+
+  @override
+  Future<List<CatalogReferenceOption>> referenceOptions(
+    CatalogReferenceKind kind, {
+    String query = '',
+    int limit = 500,
+  }) async {
+    final source = switch (kind) {
+      CatalogReferenceKind.manufacturer => manufacturerOptions,
+      CatalogReferenceKind.dosageForm => dosageFormOptions,
+    };
+    final normalizedQuery = query.trim().toLowerCase();
+    final filtered = normalizedQuery.isEmpty
+        ? source
+        : source
+            .where(
+              (option) =>
+                  option.label.toLowerCase().contains(normalizedQuery),
+            )
+            .toList(growable: false);
+    return filtered.take(limit).toList(growable: false);
   }
 
   @override
