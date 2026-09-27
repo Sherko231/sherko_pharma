@@ -30,10 +30,31 @@ The owner approved editing all of the following in the current application:
 
 These edits persist centrally under the existing owner authorization, confirmed-save, and revision-conflict rules. This approval covers the listed fields, not every source column or internal database identifier. Preserve other supplied properties without exposing additional editing controls until their behavior is specified. Editing a selected field must not clear unrelated fields omitted from the form.
 
+## Structured versus free-text product properties
+
+SP-024 profiles the hosted 23,750-row catalog and structures only fields whose semantics are stable enough to normalize safely.
+
+| Property | Storage decision | Reason |
+| --- | --- | --- |
+| Manufacturer / company | Reference table + product foreign key | Hundreds of reusable entities with spelling variants and future additions; a database enum would be too rigid |
+| Dosage form | Reference table + product foreign key | Reusable category domain with spelling/spacing variants, but broad enough that new values must remain possible |
+| Currency | PostgreSQL enum `app_private.catalog_currency` with `SYP` / `USD` | Small, explicitly finite supported domain |
+| Arabic / English product name | Text | Product identity labels are open-ended |
+| Composition / active ingredients | Text | 2,204 distinct source expressions, including multi-ingredient combinations and qualifiers; automatic decomposition would risk changing pharmaceutical meaning |
+| Strength | Text | 3,825 distinct expressions with combination strengths and heterogeneous units |
+| Package description | Text | Free descriptive packaging text with 2,280 distinct source values |
+| Barcodes | Text | Exact identifiers; leading zeroes and non-digit characters must be preserved |
+| Notes | Text | Intentionally free-form |
+| Source-only provenance | Raw preserved fields / JSONB | Historical source fidelity takes priority over inferred semantics |
+
+Manufacturer and dosage-form reference rows have stable numeric IDs, canonical display labels, normalized unique keys, and alias tables retaining every observed spelling. Existing product RPCs continue returning the canonical display strings for compatibility; products also store the corresponding foreign keys.
+
+New or edited manufacturer/dosage-form text is resolved atomically by the database trigger. A spelling-equivalent normalized value reuses the existing reference and returns its canonical display label. A genuinely new normalized value creates one new reference identity. Blank values remain nullable. Source text remains recoverable from `source_payload`.
+
 ## Selling price and currency
 
 - Each product has one current selling amount and currency. Different products may use different currencies in the same order.
-- Supported initial currencies: Syrian pound (`SYP`) and US dollar (`USD`).
+- Supported currencies are the typed database enum `app_private.catalog_currency`: Syrian pound (`SYP`) and US dollar (`USD`). RPCs continue exposing the labels as text for client compatibility.
 - The owner confirmed that all current selling-price values in the corrected initial CSV are in SYP. Assign explicit `SYP` currency during that controlled import without converting the amounts. This source-specific mapping does not force later edits or new products to use SYP.
 - Amounts are whole currency units only, including USD: no cents or fractional prices in the current scope. Do not silently round fractional source values to make them valid.
 - Store and validate the currency explicitly. Never infer currency from the amount, language, device locale, or currency of another product.
