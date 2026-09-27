@@ -1,19 +1,32 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-28
-Task record: SP-028 / Issue #68 adds the bounded owner-only alternatives engine over the SP-025/SP-026/SP-027 derived model. SP-027 / Issue #66 remains the strict pharmaceutical-equivalence baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
-Status: SP-028 exposes three bounded relationship groups—exact, same ingredients/different strength, and same ingredients/different form—only from trusted SP-025/SP-026/SP-027 state. It does not rank products, infer therapeutic interchangeability, or add UI. Backend authorization, raw composition/strength/dosage form, barcode identity, captured-price and order semantics remain unchanged. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
+Task record: SP-029 / Issue #70 adds the visible Product/Cart alternatives workflow over the SP-028 bounded relationship API. SP-028 / Issue #68 remains the server alternatives-engine baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
+Status: SP-029 exposes the three SP-028 relationship groups from Cart search results and Product Detail through one reusable compact sheet. Candidate rows show brand/company/price/strength/form, include a non-clinical-classification notice, and re-read the candidate before Add-to-cart so captured price/currency and order semantics remain unchanged. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
 
 ## Verified baseline
 
-- The latest merged repository baseline before SP-028 is SP-027 merge `d01fa988ea85bea5bdbd0f487e6cfce6042baaae` from PR #67. Hosted Supabase remains deployed through SP-024 only; SP-025, SP-026, SP-027, and SP-028 migrations are not applied by these repository tasks.
-- SP-000 through SP-013, SP-015 through SP-027, CI-001, and OPS-001 are merged; SP-014 remains deferred.
+- The latest merged repository baseline before SP-029 is SP-028 merge `24acccc4a892344bed605b1e93808b1c73803d08` from PR #69. Hosted Supabase remains deployed through SP-024 only; SP-025, SP-026, SP-027, and SP-028 migrations are not applied by these repository tasks.
+- SP-000 through SP-013, SP-015 through SP-028, CI-001, and OPS-001 are merged before this task; SP-014 remains deferred.
 - Issue #29 is closed as completed and PR #30 is merged; post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
 - No open Issue or PR existed immediately before SP-012 was authorized.
 - The dedicated Sherko Pharma Supabase project is active on the Free plan.
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-029 alternatives-UI contract
+
+- SP-029 is tracked by Issue #70 from SP-028 merge `24acccc4a892344bed605b1e93808b1c73803d08`.
+- Flutter adds a typed `CatalogAlternative` relationship model and extends `CatalogRepository` with a bounded alternatives read. Raw RPC maps do not enter presentation code.
+- The Supabase repository calls `catalog_alternatives`, clamps client requests to 25 per group, accepts only the three known relationship labels plus trusted `auto_verified`/`high_confidence` normalization states, and maps a missing target to the existing not-found error.
+- Cart search rows expose a compact Alternatives action without replacing Open/Add behavior. Product Detail exposes the same action.
+- Both entry points use one reusable modal sheet; no new primary destination or persistent alternatives state is added.
+- The sheet presents fixed, separate descriptive sections for same ingredients/strength/form, different strength, and different form. It displays product/brand, company, price/currency, strength, and dosage form.
+- A visible notice states that the groups are catalog-derived and do not establish clinical interchangeability or prescribing suitability.
+- Add-to-cart first re-reads the candidate through `catalog_get`, then uses the existing `OrderController.addProduct`. Network failure, invalid current price, and arithmetic overflow leave the Cart unchanged and show explicit feedback.
+- Repository/widget regressions cover typed RPC mapping, malformed metadata, limit clamping, loading/error/retry/empty states, grouped rendering, both entry points, and current-price revalidation before Add.
+- No production schema migration is deployed by SP-029. The visible feature requires hosted migrations 0009–0012 before the SP-028 RPC exists in production.
 
 ## SP-028 alternatives-engine contract
 
@@ -28,7 +41,7 @@ Status: SP-028 exposes three bounded relationship groups—exact, same ingredien
 - The API defaults to 10 results and clamps to a hard maximum of 25 rows per group.
 - Returned `normalization_status` is derived-model confidence only, not a clinical recommendation or probability.
 - Focused regression coverage exercises owner authorization, exact/strength/form grouping, group exclusivity, unresolved exclusion, target exclusion, deterministic ordering, not-found handling, and the hard result cap.
-- SP-029 remains responsible for UI presentation and order-add interaction.
+- SP-029 now provides the Product/Cart UI presentation and revalidated order-add interaction.
 - No SP-025/SP-026/SP-027/SP-028 production migration is deployed by this repository task.
 
 ## SP-027 pharmaceutical-equivalence contract
@@ -41,7 +54,7 @@ Status: SP-028 exposes three bounded relationship groups—exact, same ingredien
 - Upstream `high_confidence` propagates; it is never upgraded to auto-verified. Review/unresolved products never receive a strict key.
 - Composition edits refresh SP-025 → SP-026 → SP-027; strength-only edits refresh SP-026 → SP-027; dosage-form edits refresh SP-027 after SP-024 reference resolution.
 - Structural backfill guards composition, strength, dosage form/reference, revision, and `updated_at` against mutation.
-- SP-028 remains responsible for a bounded alternatives API and grouping; SP-029 remains the alternatives UI.
+- SP-028 provides the bounded alternatives API/grouping; SP-029 provides the reusable Product/Cart alternatives UI.
 - No SP-025/SP-026/SP-027 production migration is deployed by this repository task.
 
 ## SP-026 strength-normalization contract
@@ -55,7 +68,7 @@ Status: SP-028 exposes three bounded relationship groups—exact, same ingredien
 - Mismatched, partial, unitless, unsupported, descriptive, or SP-025 review/unresolved cases never receive a trusted ingredient-strength set key.
 - Ingredient-strength set keys are order-independent by normalized ingredient identity, so reversed ingredient order plus correspondingly reversed strength order can still compare equal.
 - Composition+strength edits refresh SP-025 first and SP-026 second; strength-only edits refresh SP-026. Structural backfill guards raw composition/strength, revision, and `updated_at` from mutation.
-- SP-027 now provides the conservative dosage-form/route/release compatibility layer and strict pharmaceutical-equivalence key. SP-028/SP-029 remain alternatives API/UI tasks.
+- SP-027 provides the conservative dosage-form/route/release compatibility layer and strict pharmaceutical-equivalence key; SP-028/SP-029 provide the alternatives API and UI layers above it.
 
 ## SP-025 composition-normalization contract
 
@@ -67,7 +80,7 @@ Status: SP-028 exposes three bounded relationship groups—exact, same ingredien
 - `high_confidence` is reserved for future explicitly verified semantic aliases; SP-025's initial automatic population is lexical-only.
 - The migration backfills one normalization summary for every product and guards that `composition`, `revision`, and `updated_at` are unchanged by the structural backfill.
 - An after-insert/update trigger refreshes derived composition rows when composition changes through the existing catalog API. Existing revision/conflict authorization remains unchanged.
-- SP-026 strength normalization and SP-027 pharmaceutical equivalence are separate derived layers above SP-025. SP-028 now provides bounded relationship querying; SP-029 alternatives UI remains a future task.
+- SP-026 strength normalization and SP-027 pharmaceutical equivalence are separate derived layers above SP-025. SP-028 provides bounded relationship querying and SP-029 provides its visible Product/Cart presentation.
 
 ## SP-024 product reference-data contract
 
