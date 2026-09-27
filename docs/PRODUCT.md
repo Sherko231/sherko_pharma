@@ -123,7 +123,7 @@ The separate administration application will eventually replace in-app catalog e
 5. Unknown barcodes produce a message without modifying the order or creating a product.
 6. Search supports Arabic name, English name, and active ingredient/composition, with manual addition to the order.
 7. Quantity changes and line removal update the total correctly using the selling price and the source-defined package unit.
-8. Closing and reopening the app restores the active order and page/location without creating a historical sale.
+8. Closing and reopening the app restores the active order into Cart without creating a historical sale.
 9. The English interface can display the supplied Arabic content readably.
 10. Unauthorized or signed-out requests cannot access or modify the catalog, even outside the application UI.
 11. A server price change does not silently change an existing order total. The owner is notified and can explicitly update the line price.
@@ -142,6 +142,6 @@ These are explicit open questions, not permission to invent additional features:
 
 - Exact display layout, complete source-to-schema mapping, and remaining validation limits; the editable fields and minimum name requirement are confirmed in `DATA_MODEL.md`.
 - Handling invalid imported prices; see `DATA_MODEL.md` for confirmed source currency, integer-price, and per-currency rules.
-- Detailed screen layout; confirmed session, sign-out, draft restoration, reset, and navigation rules are in `UX_FLOWS.md`.
+- Fine-grained visual polish may evolve, but the Cart hierarchy, compact-density, transient-search-results, persistent-summary, flat-list and adaptive-pane rules are confirmed in `UX_FLOWS.md`.
 
 Technical architecture, engineering workflow, quality gates, and delivery phases belong in their respective documents. Future ideas do not enter implementation scope until explicitly approved.
