@@ -54,6 +54,8 @@ The order screen calculates separate currency totals for selected products. It d
 - No matching product: display a not-found message and leave the order unchanged. Do not automatically create a product, link a barcode, or open a creation flow.
 - Product creation remains separately available from catalog management.
 - Treat barcode identifiers as text, preserving their exact characters and leading zeros.
+- On Android, scanning may remain open as a compact inline panel on the current Order page so multiple medicines can be scanned sequentially without reopening a full-screen camera route.
+- A unique scan may use the complete current product snapshot returned by the owner-authorized barcode lookup directly; a second immediate detail read is not required solely to repeat the same server data.
 
 ### Source observations, not additional product features
 
@@ -126,7 +128,6 @@ The separate administration application will eventually replace in-app catalog e
 These are explicit open questions, not permission to invent additional features:
 
 - Exact display layout, complete source-to-schema mapping, and remaining validation limits; the editable fields and minimum name requirement are confirmed in `DATA_MODEL.md`.
-- Scanner compatibility and the interaction for preventing repeated camera-frame additions.
 - Handling invalid imported prices; see `DATA_MODEL.md` for confirmed source currency, integer-price, and per-currency rules.
 - Detailed screen layout; confirmed session, sign-out, draft restoration, reset, and navigation rules are in `UX_FLOWS.md`.
 
