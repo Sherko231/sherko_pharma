@@ -303,120 +303,137 @@ class _AndroidBarcodeScannerPanelState
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Material(
       key: const Key('android-barcode-scanner-panel'),
-      margin: EdgeInsets.zero,
+      color: Theme.of(context).colorScheme.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(12),
       clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: const EdgeInsets.all(4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 440),
-                child: SizedBox(
-                  height: 112,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        LayoutBuilder(
-                          builder: (context, constraints) {
-                            final scanWindow = barcodeScanWindowForSize(
-                              Size(
-                                constraints.maxWidth,
-                                constraints.maxHeight,
-                              ),
-                            );
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 440),
+          child: SizedBox(
+            height: 108,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final scanWindow = barcodeScanWindowForSize(
+                      Size(
+                        constraints.maxWidth,
+                        constraints.maxHeight,
+                      ),
+                    );
 
-                            return MobileScanner(
-                              key: const Key('android-barcode-camera'),
-                              controller: _camera,
-                              onDetect: _detected,
-                              scanWindow: scanWindow,
-                              scanWindowUpdateThreshold: 0.0,
-                              tapToFocus: true,
-                              overlayBuilder: (context, constraints) =>
-                                  _BarcodeScannerOverlay(
-                                scanWindow: scanWindow,
-                                frameColor:
-                                    scannerFeedbackColor(_feedbackState),
-                              ),
-                              errorBuilder: (context, error) => Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                  ),
-                                  child: Text(
-                                    error.errorCode ==
-                                            MobileScannerErrorCode.permissionDenied
-                                        ? 'Camera permission is required.'
-                                        : 'Camera unavailable.',
-                                    textAlign: TextAlign.center,
-                                    style:
-                                        Theme.of(context).textTheme.bodySmall,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        Positioned(
-                          top: 4,
-                          right: 4,
-                          child: IconButton(
-                            key: const Key('scanner-close'),
-                            tooltip: 'Close scanner',
-                            onPressed: widget.onClose,
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints.tightFor(
-                              width: 30,
-                              height: 30,
-                            ),
-                            iconSize: 18,
-                            style: IconButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              backgroundColor: Colors.black54,
-                            ),
-                            icon: const Icon(Icons.close),
+                    return MobileScanner(
+                      key: const Key('android-barcode-camera'),
+                      controller: _camera,
+                      onDetect: _detected,
+                      scanWindow: scanWindow,
+                      scanWindowUpdateThreshold: 0.0,
+                      tapToFocus: true,
+                      overlayBuilder: (context, constraints) =>
+                          _BarcodeScannerOverlay(
+                        scanWindow: scanWindow,
+                        frameColor:
+                            scannerFeedbackColor(_feedbackState),
+                      ),
+                      errorBuilder: (context, error) => Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                          ),
+                          child: Text(
+                            error.errorCode ==
+                                    MobileScannerErrorCode.permissionDenied
+                                ? 'Camera permission is required.'
+                                : 'Camera unavailable.',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ),
-                      ],
+                      ),
+                    );
+                  },
+                ),
+                Positioned(
+                  top: 5,
+                  right: 5,
+                  child: IconButton(
+                    key: const Key('scanner-close'),
+                    tooltip: 'Close scanner',
+                    onPressed: widget.onClose,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints.tightFor(
+                      width: 30,
+                      height: 30,
                     ),
+                    iconSize: 18,
+                    style: IconButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.black54,
+                    ),
+                    icon: const Icon(Icons.close_rounded),
                   ),
                 ),
-              ),
-            ),
-            if (_message != null)
-              SizedBox(
-                height: 24,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (_processing) ...[
-                      const SizedBox(
-                        width: 12,
-                        height: 12,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                      const SizedBox(width: 6),
-                    ],
-                    Flexible(
-                      child: Text(
-                        _message!,
-                        key: const Key('scanner-status'),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodySmall,
+                if (_message != null)
+                  Positioned(
+                    left: 6,
+                    right: 6,
+                    bottom: 5,
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 360),
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (_processing) ...[
+                                  const SizedBox(
+                                    width: 11,
+                                    height: 11,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                ],
+                                Flexible(
+                                  child: Text(
+                                    _message!,
+                                    key: const Key('scanner-status'),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: Colors.white,
+                                        ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-          ],
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );
