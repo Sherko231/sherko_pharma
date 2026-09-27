@@ -1,8 +1,8 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-27
-Task record: SP-018 / Issue #48 compacts and recenters the inline Android scanner UI. SP-017 / Issue #46 remains the continuous-scanning baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
-Status: SP-018 fixes the compact overlay sizing/centering and reduces Order-page vertical chrome without changing scan lookup or order semantics. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
+Task record: SP-019 / Issue #50 adds scanner visual feedback and success sound. SP-018 / Issue #48 remains the compact scanner baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
+Status: SP-019 adds transient color feedback and a dependency-free system success click without changing scan lookup, camera zoom, repeat gating, or order semantics. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
 
 ## Verified baseline
 
@@ -14,6 +14,16 @@ Status: SP-018 fixes the compact overlay sizing/centering and reduces Order-page
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-019 scanner feedback contract
+
+- Keep SP-018 compact layout and SP-017 continuous scanning, one-RPC lookup and repeat-frame protection unchanged.
+- Scanner guide states: white while ready, amber while checking, green after a successful add/increment, and red for non-mutating scan failures.
+- Success/error guide colors are transient and return to the idle white state after 650 ms.
+- Play Flutter's platform `SystemSoundType.click` only after `added` or `incremented`; sound feedback is best-effort and never blocks scanning.
+- Do not add an audio dependency or bundled audio asset for this task.
+- Keep Android `autoZoom: true` and tap-to-focus unchanged.
+- Real-device sound behavior and visual timing remain owner verification after pull/merge.
 
 ## SP-018 compact scanner UI contract
 
