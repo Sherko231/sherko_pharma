@@ -35,6 +35,16 @@ Strict equivalence therefore means equality of the SP-026 order-independent ingr
 
 Dependency sequencing remains explicit. Composition edits refresh SP-025, then SP-026, then SP-027. Strength-only edits refresh SP-026 and then SP-027. Dosage-form edits refresh SP-027 only after SP-024 reference resolution. Structural backfill changes no authoritative composition, strength, dosage-form text/reference, revision, or updated-at values.
 
+## Alternatives query boundary
+
+SP-028 exposes the private SP-025/SP-026/SP-027 derived model through one bounded owner-authorized RPC, `public.catalog_alternatives`. It remains a query layer only: it does not modify normalization state, raw catalog data, product revisions, prices, barcodes, orders, sessions, or client-side persistence.
+
+The API returns three mutually exclusive relationship groups. `exact` requires the same trusted non-null SP-027 strict equivalence key. `same_ingredients_different_strength` requires the same trusted ingredient set and the same trusted form/route/release dimensions while the ingredient-strength set differs. `same_ingredients_different_form` requires the same trusted ingredient-strength set while at least one trusted form/route/release dimension differs. A candidate that changes both strength and form is intentionally omitted rather than forced into either comparison group.
+
+The target itself must be trusted across SP-025 through SP-027 before the relationship engine returns any rows. Review/unresolved target or candidate normalization is never promoted into `exact`, and unknown relationships remain absent instead of guessed. Returned `normalization_status` is derivation confidence only; it is not a clinical recommendation, bioequivalence rating, or therapeutic-interchangeability claim.
+
+The RPC reuses the existing catalog product fields, preserves exact barcode and integer price/currency semantics, requires `app_private.require_owner()`, and clamps each relationship group to a hard maximum of 25 rows. Ordering is deterministic by stable product identity/name fields and is not a price/manufacturer/preference ranking. SP-029 remains responsible for any UI presentation and must preserve the separation between the three relationship groups.
+
 ## Components
 
 | Component | Responsibility | Decision status |
