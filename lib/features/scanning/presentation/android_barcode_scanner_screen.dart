@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -5,6 +7,24 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../catalog/application/catalog_search_controller.dart';
 import '../../order/application/order_controller.dart';
 import '../application/barcode_scan_controller.dart';
+
+Rect barcodeScanWindowForSize(Size size) {
+  if (size.isEmpty) {
+    return Rect.zero;
+  }
+
+  const horizontalPadding = 24.0;
+  final availableWidth = math.max(0.0, size.width - (horizontalPadding * 2));
+  final width = math.min(420.0, availableWidth);
+  final preferredHeight = math.max(96.0, width * 0.32);
+  final height = math.min(preferredHeight, size.height * 0.32);
+
+  return Rect.fromCenter(
+    center: size.center(Offset.zero),
+    width: width,
+    height: height,
+  );
+}
 
 class AndroidBarcodeScannerScreen extends ConsumerStatefulWidget {
   const AndroidBarcodeScannerScreen({super.key});
@@ -26,7 +46,11 @@ class _AndroidBarcodeScannerScreenState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _camera = MobileScannerController();
+    _camera = MobileScannerController(
+      detectionSpeed: DetectionSpeed.normal,
+      detectionTimeoutMs: 100,
+      autoZoom: true,
+    );
     _scan = BarcodeScanController(
       catalog: ref.read(catalogRepositoryProvider),
       order: ref.read(orderControllerProvider.notifier),
@@ -104,7 +128,8 @@ class _AndroidBarcodeScannerScreenState
         _message = 'Order amount is too large to calculate safely.';
         break;
       case BarcodeScanStatus.failed:
-        _message = 'Could not verify this barcode. Check the connection and try again.';
+        _message =
+            'Could not verify this barcode. Check the connection and try again.';
         break;
     }
     setState(() {});
@@ -126,21 +151,35 @@ class _AndroidBarcodeScannerScreenState
       body: Column(
         children: [
           Expanded(
-            child: MobileScanner(
-              key: const Key('android-barcode-camera'),
-              controller: _camera,
-              onDetect: _detected,
-              errorBuilder: (context, error) => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Text(
-                    error.errorCode == MobileScannerErrorCode.permissionDenied
-                        ? 'Camera permission is required to scan barcodes.'
-                        : 'Camera is unavailable. Close other camera apps and try again.',
-                    textAlign: TextAlign.center,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final scanWindow = barcodeScanWindowForSize(
+                  Size(constraints.maxWidth, constraints.maxHeight),
+                );
+
+                return MobileScanner(
+                  key: const Key('android-barcode-camera'),
+                  controller: _camera,
+                  onDetect: _detected,
+                  scanWindow: scanWindow,
+                  scanWindowUpdateThreshold: 8,
+                  tapToFocus: true,
+                  overlayBuilder: (context, constraints) =>
+                      _BarcodeScannerOverlay(scanWindow: scanWindow),
+                  errorBuilder: (context, error) => Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        error.errorCode ==
+                                MobileScannerErrorCode.permissionDenied
+                            ? 'Camera permission is required to scan barcodes.'
+                            : 'Camera is unavailable. Close other camera apps and try again.',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
           if (_message != null)
@@ -162,5 +201,90 @@ class _AndroidBarcodeScannerScreenState
         ],
       ),
     );
+  }
+}
+
+class _BarcodeScannerOverlay extends StatelessWidget {
+  const _BarcodeScannerOverlay({required this.scanWindow});
+
+  final Rect scanWindow;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        CustomPaint(
+          painter: _BarcodeScannerOverlayPainter(scanWindow: scanWindow),
+        ),
+        Positioned(
+          left: 24,
+          right: 24,
+          bottom: 24,
+          child: Center(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                child: Text(
+                  'Align the barcode inside the frame. Tap the screen to focus.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _BarcodeScannerOverlayPainter extends CustomPainter {
+  const _BarcodeScannerOverlayPainter({required this.scanWindow});
+
+  final Rect scanWindow;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final cutout = RRect.fromRectAndRadius(
+      scanWindow,
+      const Radius.circular(16),
+    );
+
+    final shadePath = Path()
+      ..fillType = PathFillType.evenOdd
+      ..addRect(Offset.zero & size)
+      ..addRRect(cutout);
+    canvas.drawPath(
+      shadePath,
+      Paint()
+        ..style = PaintingStyle.fill
+        ..color = Colors.black54,
+    );
+
+    canvas.drawRRect(
+      cutout,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3
+        ..color = Colors.white,
+    );
+
+    canvas.drawLine(
+      Offset(scanWindow.left + 20, scanWindow.center.dy),
+      Offset(scanWindow.right - 20, scanWindow.center.dy),
+      Paint()
+        ..strokeWidth = 2
+        ..color = Colors.white70,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _BarcodeScannerOverlayPainter oldDelegate) {
+    return oldDelegate.scanWindow != scanWindow;
   }
 }
