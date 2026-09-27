@@ -15,6 +15,15 @@ Status: SP-013 is complete. SP-014 remains deferred. SP-015 delivery preparation
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
 
+## SP-016 scanner refinement contract
+
+- Keep the existing exact barcode identity, ambiguity, authoritative catalog re-read, order mutation, and deliberate-repeat behavior unchanged.
+- Show a centered horizontal barcode guide and use the same rectangle as the actual scanner scan window.
+- Keep throttled `DetectionSpeed.normal` behavior while reducing the camera-side detection timeout from 250 ms to 100 ms.
+- Enable Android-supported auto zoom and tap-to-focus without restricting the accepted barcode formats.
+- Pause frame analysis after the first accepted capture so retries can rearm the existing camera session quickly while repeated frames remain blocked.
+- Real-device responsiveness and framing remain owner verification after pull/merge.
+
 ## SP-015 delivery contract
 
 - Preserve the implemented SP-000 through SP-013 product behavior while preparing release-mode Android and Windows candidates.
