@@ -1,6 +1,6 @@
 # Sherko Pharma — Implementation Roadmap
 
-Status: SP-000 through SP-013 and CI-001 are merged. The owner retired hosted CI in OPS-001 / Issue #42; CI-001 remains historical only. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 completed the initial-delivery roadmap; SP-016 through SP-026 are merged post-delivery refinements/normalization foundations. SP-027 / Issue #66 is the current owner-authorized pharmaceutical-equivalence task; SP-028 through SP-029 remain dependency-ordered planning entries and require separate owner authorization.
+Status: SP-000 through SP-013 and CI-001 are merged. The owner retired hosted CI in OPS-001 / Issue #42; CI-001 remains historical only. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 completed the initial-delivery roadmap; SP-016 through SP-026 are merged post-delivery refinements/normalization foundations. SP-027 / Issue #66 is the latest owner-authorized pharmaceutical-equivalence task; SP-028 through SP-029 remain dependency-ordered planning entries and require separate owner authorization.
 
 Repository: https://github.com/Sherko231/sherko_pharma
 Inspected baseline for SP-027: `main` at `d92a4f9edb6d91222663159654c96aa11627bc83`.
