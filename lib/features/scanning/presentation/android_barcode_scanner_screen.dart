@@ -15,12 +15,12 @@ Rect barcodeScanWindowForSize(Size size) {
   }
 
   const horizontalPadding = 16.0;
-  const verticalPadding = 12.0;
+  const verticalPadding = 10.0;
   final availableWidth = math.max(0.0, size.width - (horizontalPadding * 2));
   final availableHeight = math.max(0.0, size.height - (verticalPadding * 2));
-  final width = math.min(420.0, availableWidth);
-  final preferredHeight = math.max(72.0, width * 0.28);
-  final height = math.min(104.0, math.min(preferredHeight, availableHeight));
+  final width = math.min(300.0, availableWidth * 0.78);
+  final preferredHeight = math.max(44.0, width * 0.20);
+  final height = math.min(58.0, math.min(preferredHeight, availableHeight));
 
   return Rect.fromCenter(
     center: size.center(Offset.zero),
@@ -216,92 +216,115 @@ class _AndroidBarcodeScannerPanelState
   Widget build(BuildContext context) {
     return Card(
       key: const Key('android-barcode-scanner-panel'),
+      margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        padding: const EdgeInsets.all(4),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              children: [
-                Text(
-                  'Barcode scanner',
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                const Spacer(),
-                IconButton(
-                  key: const Key('scanner-close'),
-                  tooltip: 'Close scanner',
-                  onPressed: widget.onClose,
-                  visualDensity: VisualDensity.compact,
-                  icon: const Icon(Icons.close),
-                ),
-              ],
-            ),
             Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 520),
+                constraints: const BoxConstraints(maxWidth: 440),
                 child: SizedBox(
-                  height: 160,
+                  height: 112,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final scanWindow = barcodeScanWindowForSize(
-                          Size(constraints.maxWidth, constraints.maxHeight),
-                        );
-
-                        return MobileScanner(
-                          key: const Key('android-barcode-camera'),
-                          controller: _camera,
-                          onDetect: _detected,
-                          scanWindow: scanWindow,
-                          scanWindowUpdateThreshold: 0.01,
-                          tapToFocus: true,
-                          overlayBuilder: (context, constraints) =>
-                              _BarcodeScannerOverlay(scanWindow: scanWindow),
-                          errorBuilder: (context, error) => Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Text(
-                                error.errorCode ==
-                                        MobileScannerErrorCode.permissionDenied
-                                    ? 'Camera permission is required to scan barcodes.'
-                                    : 'Camera is unavailable. Close other camera apps and try again.',
-                                textAlign: TextAlign.center,
+                    borderRadius: BorderRadius.circular(10),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final scanWindow = barcodeScanWindowForSize(
+                              Size(
+                                constraints.maxWidth,
+                                constraints.maxHeight,
                               ),
+                            );
+
+                            return MobileScanner(
+                              key: const Key('android-barcode-camera'),
+                              controller: _camera,
+                              onDetect: _detected,
+                              scanWindow: scanWindow,
+                              scanWindowUpdateThreshold: 0.0,
+                              tapToFocus: true,
+                              overlayBuilder: (context, constraints) =>
+                                  _BarcodeScannerOverlay(
+                                scanWindow: scanWindow,
+                              ),
+                              errorBuilder: (context, error) => Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                  ),
+                                  child: Text(
+                                    error.errorCode ==
+                                            MobileScannerErrorCode.permissionDenied
+                                        ? 'Camera permission is required.'
+                                        : 'Camera unavailable.',
+                                    textAlign: TextAlign.center,
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: IconButton(
+                            key: const Key('scanner-close'),
+                            tooltip: 'Close scanner',
+                            onPressed: widget.onClose,
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints.tightFor(
+                              width: 30,
+                              height: 30,
                             ),
+                            iconSize: 18,
+                            style: IconButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.black54,
+                            ),
+                            icon: const Icon(Icons.close),
                           ),
-                        );
-                      },
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
             ),
-            if (_message != null) ...[
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (_processing) ...[
-                    const SizedBox(
-                      width: 14,
-                      height: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+            if (_message != null)
+              SizedBox(
+                height: 24,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (_processing) ...[
+                      const SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      const SizedBox(width: 6),
+                    ],
+                    Flexible(
+                      child: Text(
+                        _message!,
+                        key: const Key('scanner-status'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ),
-                    const SizedBox(width: 8),
                   ],
-                  Flexible(
-                    child: Text(
-                      _message!,
-                      key: const Key('scanner-status'),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ],
           ],
         ),
       ),
@@ -316,8 +339,10 @@ class _BarcodeScannerOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _BarcodeScannerOverlayPainter(scanWindow: scanWindow),
+    return SizedBox.expand(
+      child: CustomPaint(
+        painter: _BarcodeScannerOverlayPainter(scanWindow: scanWindow),
+      ),
     );
   }
 }
@@ -349,13 +374,13 @@ class _BarcodeScannerOverlayPainter extends CustomPainter {
       cutout,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 3
+        ..strokeWidth = 2
         ..color = Colors.white,
     );
 
     canvas.drawLine(
-      Offset(scanWindow.left + 18, scanWindow.center.dy),
-      Offset(scanWindow.right - 18, scanWindow.center.dy),
+      Offset(scanWindow.left + 14, scanWindow.center.dy),
+      Offset(scanWindow.right - 14, scanWindow.center.dy),
       Paint()
         ..strokeWidth = 2
         ..color = Colors.white70,

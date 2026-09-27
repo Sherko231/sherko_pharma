@@ -1,8 +1,8 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-27
-Task record: SP-017 / Issue #46 optimizes continuous Android barcode scanning. SP-016 / Issue #44 remains the prior scanner refinement baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
-Status: SP-017 moves scanning inline on the Order page and reduces unique-scan verification to one owner-authorized server lookup. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
+Task record: SP-018 / Issue #48 compacts and recenters the inline Android scanner UI. SP-017 / Issue #46 remains the continuous-scanning baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
+Status: SP-018 fixes the compact overlay sizing/centering and reduces Order-page vertical chrome without changing scan lookup or order semantics. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
 
 ## Verified baseline
 
@@ -14,6 +14,16 @@ Status: SP-017 moves scanning inline on the Order page and reduces unique-scan v
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-018 compact scanner UI contract
+
+- Keep SP-017 continuous scanning, one-RPC lookup, repeat-frame protection and order semantics unchanged.
+- Reduce the camera preview from the prior 160 px panel to a compact 112 px strip with minimal outer padding and no separate scanner title row.
+- Keep the close action overlaid on the preview and the result/checking status to one compact line.
+- Make the overlay explicitly fill the complete camera preview before painting the guide so its coordinate system matches the scan window.
+- Use a smaller centered guide capped at 300 px wide and 58 px high; update the internal scan window on every actual geometry change instead of applying a threshold.
+- Compact the mobile Order header into one title/totals row plus one side-by-side actions row, and reduce mobile order-row padding/control sizes so scanned items stay visible.
+- Real-device visual alignment remains owner verification after pull/merge.
 
 ## SP-017 continuous scanner contract
 

@@ -22,9 +22,11 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
   Widget build(BuildContext context) {
     final order = ref.watch(orderControllerProvider);
 
+    final compact = MediaQuery.sizeOf(context).width < 600;
+
     return Padding(
       key: const Key('order-workspace'),
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(compact ? 10 : 16),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1000),
@@ -38,12 +40,12 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
                     : null,
               ),
               if (_scannerOpen && Platform.isAndroid) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 6),
                 AndroidBarcodeScannerPanel(
                   onClose: () => setState(() => _scannerOpen = false),
                 ),
               ],
-              const SizedBox(height: 16),
+              SizedBox(height: compact ? 8 : 16),
               Expanded(
                 child: order.isEmpty
                     ? const _EmptyOrder()
@@ -99,40 +101,64 @@ class _OrderHeader extends ConsumerWidget {
           ],
         );
 
+        final compactButtonStyle = FilledButton.styleFrom(
+          visualDensity: VisualDensity.compact,
+          minimumSize: const Size(0, 38),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+        );
+
         final scan = onToggleScanner == null
             ? null
             : FilledButton.icon(
                 key: const Key('order-scan-barcode'),
                 onPressed: onToggleScanner,
+                style: compactButtonStyle,
                 icon: Icon(
                   scannerOpen ? Icons.close : Icons.qr_code_scanner,
+                  size: 18,
                 ),
-                label: Text(scannerOpen ? 'Hide scanner' : 'Scan'),
+                label: Text(scannerOpen ? 'Hide' : 'Scan'),
               );
 
         final newOrder = FilledButton.tonalIcon(
           key: const Key('order-new'),
           onPressed: () => _newOrder(context, ref),
-          icon: const Icon(Icons.restart_alt),
-          label: const Text('New Order'),
+          style: compactButtonStyle,
+          icon: const Icon(Icons.restart_alt, size: 18),
+          label: const Text('New order'),
         );
 
         if (constraints.maxWidth < 600) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Customer order',
-                style: Theme.of(context).textTheme.headlineSmall,
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Order',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: totals,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              totals,
-              const SizedBox(height: 12),
-              if (scan != null) ...[
-                scan,
-                const SizedBox(height: 8),
-              ],
-              newOrder,
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  if (scan != null) ...[
+                    Expanded(child: scan),
+                    const SizedBox(width: 6),
+                  ],
+                  Expanded(child: newOrder),
+                ],
+              ),
             ],
           );
         }
@@ -207,7 +233,13 @@ class _TotalChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Chip(
-      label: Text('$amount $label'),
+      visualDensity: VisualDensity.compact,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+      label: Text(
+        '$amount $label',
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
     );
   }
 }
@@ -222,8 +254,8 @@ class _EmptyOrder extends StatelessWidget {
         key: Key('order-empty'),
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.shopping_basket_outlined, size: 48),
-          SizedBox(height: 16),
+          Icon(Icons.shopping_basket_outlined, size: 36),
+          SizedBox(height: 8),
           Text('Order is empty'),
           SizedBox(height: 8),
           Text('Add products from Catalog search results.'),
@@ -255,10 +287,16 @@ class _OrderLineCard extends ConsumerWidget {
         ? pending
         : null;
 
+    final compact = MediaQuery.sizeOf(context).width < 600;
+    final controlConstraints = compact
+        ? const BoxConstraints.tightFor(width: 36, height: 36)
+        : null;
+
     return Card(
       key: Key('order-line-${line.productId}'),
+      margin: EdgeInsets.symmetric(vertical: compact ? 1 : 4),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(compact ? 10 : 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -270,11 +308,18 @@ class _OrderLineCard extends ConsumerWidget {
                     children: [
                       Text(
                         line.displayName,
-                        style: Theme.of(context).textTheme.titleMedium,
+                        style: compact
+                            ? Theme.of(context).textTheme.titleSmall
+                            : Theme.of(context).textTheme.titleMedium,
                       ),
-                      const SizedBox(height: 6),
-                      Text('${line.unitAmount} ${line.currency} each'),
-                      const SizedBox(height: 4),
+                      SizedBox(height: compact ? 2 : 6),
+                      Text(
+                        '${line.unitAmount} ${line.currency} each',
+                        style: compact
+                            ? Theme.of(context).textTheme.bodySmall
+                            : null,
+                      ),
+                      SizedBox(height: compact ? 1 : 4),
                       Text(
                         '${line.lineAmount} ${line.currency}',
                         key: Key('order-line-amount-${line.productId}'),
@@ -289,10 +334,14 @@ class _OrderLineCard extends ConsumerWidget {
                   onPressed: line.quantity <= 1
                       ? null
                       : () => controller.decrement(line.productId),
+                  visualDensity:
+                      compact ? VisualDensity.compact : VisualDensity.standard,
+                  constraints: controlConstraints,
+                  iconSize: compact ? 18 : 24,
                   icon: const Icon(Icons.remove),
                 ),
                 SizedBox(
-                  width: 44,
+                  width: compact ? 30 : 44,
                   child: Text(
                     '${line.quantity}',
                     key: Key('order-quantity-${line.productId}'),
@@ -314,12 +363,20 @@ class _OrderLineCard extends ConsumerWidget {
                       );
                     }
                   },
+                  visualDensity:
+                      compact ? VisualDensity.compact : VisualDensity.standard,
+                  constraints: controlConstraints,
+                  iconSize: compact ? 18 : 24,
                   icon: const Icon(Icons.add),
                 ),
                 IconButton(
                   key: Key('order-remove-${line.productId}'),
                   tooltip: 'Remove from order',
                   onPressed: () => controller.remove(line.productId),
+                  visualDensity:
+                      compact ? VisualDensity.compact : VisualDensity.standard,
+                  constraints: controlConstraints,
+                  iconSize: compact ? 18 : 24,
                   icon: const Icon(Icons.delete_outline),
                 ),
               ],

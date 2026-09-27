@@ -21,8 +21,19 @@ void main() {
 
     final window = barcodeScanWindowForSize(preview);
 
-    expect(window.width, 420);
+    expect(window.width, 300);
     expect(window.center, preview.center(Offset.zero));
+  });
+
+  test('compact phone preview keeps a smaller guide exactly centered', () {
+    const preview = Size(340, 112);
+
+    final window = barcodeScanWindowForSize(preview);
+
+    expect(window.center, preview.center(Offset.zero));
+    expect(window.width, lessThan(preview.width * 0.8));
+    expect(window.height, lessThanOrEqualTo(58));
+    expect(window.width, greaterThan(window.height * 4));
   });
 
   test('barcode scan window remains inside a short landscape preview', () {
