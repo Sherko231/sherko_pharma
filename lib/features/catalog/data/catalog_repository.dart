@@ -1,6 +1,25 @@
 import '../domain/catalog_product.dart';
 import '../domain/catalog_product_input.dart';
 
+enum CatalogReferenceKind {
+  manufacturer('manufacturer'),
+  dosageForm('dosage_form');
+
+  const CatalogReferenceKind(this.rpcValue);
+
+  final String rpcValue;
+}
+
+class CatalogReferenceOption {
+  const CatalogReferenceOption({
+    required this.id,
+    required this.label,
+  });
+
+  final int id;
+  final String label;
+}
+
 abstract interface class CatalogRepository {
   Future<List<CatalogProduct>> search(
     String query, {
@@ -10,6 +29,12 @@ abstract interface class CatalogRepository {
   Future<CatalogProduct> getById(String productId);
 
   Future<List<CatalogProduct>> lookupBarcode(String code);
+
+  Future<List<CatalogReferenceOption>> referenceOptions(
+    CatalogReferenceKind kind, {
+    String query = '',
+    int limit = 500,
+  });
 
   Future<CatalogSaveResult> create({
     required String productId,
