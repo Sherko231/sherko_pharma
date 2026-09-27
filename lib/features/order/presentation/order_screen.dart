@@ -101,12 +101,10 @@ class _OrderHeader extends ConsumerWidget {
           ],
         );
 
-        final compactButtonStyle = ButtonStyle(
+        final compactButtonStyle = FilledButton.styleFrom(
           visualDensity: VisualDensity.compact,
-          minimumSize: const WidgetStatePropertyAll(Size(0, 38)),
-          padding: const WidgetStatePropertyAll(
-            EdgeInsets.symmetric(horizontal: 10),
-          ),
+          minimumSize: const Size(0, 38),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
         );
 
         final scan = onToggleScanner == null
