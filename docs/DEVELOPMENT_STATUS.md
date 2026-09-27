@@ -1,12 +1,12 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-27
-Task record: SP-025 / Issue #62 adds a conservative derived composition-normalization layer without rewriting raw pharmaceutical text. SP-024 / Issue #60 remains the stable reference-data baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
-Status: SP-025 introduces private ingredient identities, lexical aliases/spellings, product ingredient links, order-independent ingredient-set keys, explicit normalization statuses, and automatic derived-row synchronization after composition edits. It deliberately does not parse strengths or infer pharmaceutical interchangeability. Backend authorization, raw composition, barcode identity, captured-price and order semantics remain unchanged. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
+Task record: SP-026 / Issue #64 adds conservative ingredient-strength normalization on top of SP-025 without rewriting raw strength text. SP-025 / Issue #62 remains the ingredient-identity baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
+Status: SP-026 derives exact canonical strength measures and trusted ingredient-strength pairs only when syntax/component alignment is deterministic, distinguishes quantitative concentration denominators from recognized presentation suffixes, and quarantines ambiguous or incomplete source values. Backend authorization, raw composition/strength, barcode identity, captured-price and order semantics remain unchanged. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
 
 ## Verified baseline
 
-- The latest merged baseline before SP-025 is SP-024 merge `1a26add321ddbf5637e01cf9ea3b746d8fca6494` from PR #61. SP-025 is developed separately on Issue #62 and is not a deployed-hosted baseline until explicitly applied.
+- The latest merged repository baseline before SP-026 is SP-025 merge `20782ce64cc72535502d9987a7ef636c9c8df2a9` from PR #63. Hosted Supabase remains deployed only through the earlier schema baseline; SP-025 and SP-026 migrations are not applied by these repository tasks.
 - SP-000 through SP-013, SP-015 through SP-024, CI-001, and OPS-001 are merged; SP-014 remains deferred.
 - Issue #29 is closed as completed and PR #30 is merged; post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
 - No open Issue or PR existed immediately before SP-012 was authorized.
@@ -14,6 +14,19 @@ Status: SP-025 introduces private ingredient identities, lexical aliases/spellin
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-026 strength-normalization contract
+
+- Read-only hosted profiling at task start found 19,084 rows with nonblank strength, 3,825 distinct strength strings, 4,042 rows containing `+`, and 14,810 rows containing `/`.
+- Slash syntax is heterogeneous: source examples include presentation suffixes such as `500 MG/CTD TAB.` and `1 G/VIAL`, plus quantitative concentrations such as `250 MG/5 ML.` and `1 MG/ML.`.
+- `products.strength` remains untouched raw/editable text. SP-026 adds only private derived summary/link rows.
+- Supported deterministic units normalize exactly with PostgreSQL `numeric`: mass to `mg`, quantitative denominator mass/volume to `mg`/`ml`, while IU, generic U, mEq, mmol, and percent remain distinct unit domains.
+- Trusted multi-ingredient pairing requires a trusted SP-025 composition plus an exact `+` component-count match. The hosted source has 3,970 multi-ingredient rows with matching counts and 783 with mismatched counts before applying SP-025 trust filters.
+- Recognized presentation suffixes are removed from numeric comparison only; they are not treated as route/release equivalence. A shared trailing quantitative denominator across multiple explicit strength components produces at most `high_confidence`.
+- Mismatched, partial, unitless, unsupported, descriptive, or SP-025 review/unresolved cases never receive a trusted ingredient-strength set key.
+- Ingredient-strength set keys are order-independent by normalized ingredient identity, so reversed ingredient order plus correspondingly reversed strength order can still compare equal.
+- Composition+strength edits refresh SP-025 first and SP-026 second; strength-only edits refresh SP-026. Structural backfill guards raw composition/strength, revision, and `updated_at` from mutation.
+- SP-027 remains responsible for dosage-form/route/release compatibility and strict pharmaceutical equivalence. SP-028/SP-029 remain alternatives API/UI tasks.
 
 ## SP-025 composition-normalization contract
 
