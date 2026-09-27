@@ -4,15 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../catalog/application/scoped_catalog_refresh_controller.dart';
+import '../../scanning/presentation/android_barcode_scanner_screen.dart';
 import '../application/order_controller.dart';
 import '../domain/order_model.dart';
-import '../../scanning/presentation/android_barcode_scanner_screen.dart';
 
-class OrderScreen extends ConsumerWidget {
+class OrderScreen extends ConsumerStatefulWidget {
   const OrderScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OrderScreen> createState() => _OrderScreenState();
+}
+
+class _OrderScreenState extends ConsumerState<OrderScreen> {
+  bool _scannerOpen = false;
+
+  @override
+  Widget build(BuildContext context) {
     final order = ref.watch(orderControllerProvider);
 
     return Padding(
@@ -23,7 +30,19 @@ class OrderScreen extends ConsumerWidget {
           constraints: const BoxConstraints(maxWidth: 1000),
           child: Column(
             children: [
-              _OrderHeader(order: order),
+              _OrderHeader(
+                order: order,
+                scannerOpen: _scannerOpen,
+                onToggleScanner: Platform.isAndroid
+                    ? () => setState(() => _scannerOpen = !_scannerOpen)
+                    : null,
+              ),
+              if (_scannerOpen && Platform.isAndroid) ...[
+                const SizedBox(height: 12),
+                AndroidBarcodeScannerPanel(
+                  onClose: () => setState(() => _scannerOpen = false),
+                ),
+              ],
               const SizedBox(height: 16),
               Expanded(
                 child: order.isEmpty
@@ -51,9 +70,13 @@ class OrderScreen extends ConsumerWidget {
 class _OrderHeader extends ConsumerWidget {
   const _OrderHeader({
     required this.order,
+    required this.scannerOpen,
+    required this.onToggleScanner,
   });
 
   final OrderState order;
+  final bool scannerOpen;
+  final VoidCallback? onToggleScanner;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -76,14 +99,16 @@ class _OrderHeader extends ConsumerWidget {
           ],
         );
 
-        final scan = Platform.isAndroid
-            ? FilledButton.icon(
+        final scan = onToggleScanner == null
+            ? null
+            : FilledButton.icon(
                 key: const Key('order-scan-barcode'),
-                onPressed: () => _scanBarcode(context),
-                icon: const Icon(Icons.qr_code_scanner),
-                label: const Text('Scan'),
-              )
-            : null;
+                onPressed: onToggleScanner,
+                icon: Icon(
+                  scannerOpen ? Icons.close : Icons.qr_code_scanner,
+                ),
+                label: Text(scannerOpen ? 'Hide scanner' : 'Scan'),
+              );
 
         final newOrder = FilledButton.tonalIcon(
           key: const Key('order-new'),
@@ -131,22 +156,6 @@ class _OrderHeader extends ConsumerWidget {
         );
       },
     );
-  }
-
-  Future<void> _scanBarcode(BuildContext context) async {
-    final result = await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const AndroidBarcodeScannerScreen(),
-      ),
-    );
-    if (!context.mounted || result == null) {
-      return;
-    }
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        const SnackBar(content: Text('Barcode added to the current order.')),
-      );
   }
 
   Future<void> _newOrder(BuildContext context, WidgetRef ref) async {

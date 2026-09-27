@@ -63,7 +63,7 @@ Organize code by feature: authentication, catalog, order, and scanning. Keep app
 ## Catalog reads and automatic refresh
 
 - Supabase is the source of truth. Search by Arabic name, English name, and composition on the server with bounded results and appropriate indexes.
-- Use exact text matching across both `barcode` and `barcode2`, returning distinct products by identity. Either field identifies the same package; cross-product collisions require user selection regardless of which field matched. Exclude empty identifiers. See `DATA_MODEL.md`.
+- Use exact text matching across both `barcode` and `barcode2`, returning distinct products by identity. Either field identifies the same package; cross-product collisions require user selection regardless of which field matched. Exclude empty identifiers. The owner-authorized barcode RPC returns the complete current product snapshot needed by the order flow; SP-017 uses that snapshot directly instead of adding a redundant immediate `catalog_get` round-trip. See `DATA_MODEL.md`.
 - Distinguish loading, no match, ambiguous match, connection failure, and authorization failure.
 - Ignore responses for superseded searches so slow requests cannot replace newer results.
 - SP-012 refreshes only relevant visible/session data: the active nonblank search, currently loaded detail, and products already present in the active order. It refreshes on application resume and uses a bounded two-minute poll only while the protected app is active; it does not subscribe to or replicate the full table.
@@ -104,7 +104,7 @@ Organize code by feature: authentication, catalog, order, and scanning. Keep app
 
 ## Platform input
 
-- Android: camera scanning with permission-denied and unavailable-camera states. Prevent repeated camera frames from increasing quantity without another deliberate scan.
+- Android: a compact scanner panel can remain open inside the Order page for continuous multi-item scanning. Permission-denied and unavailable-camera states remain explicit. A presentation gate suppresses a barcode while it remains visible and unlocks it after an observed absence window so a later presentation can be deliberate.
 - Windows external barcode reader: deferred from the current initial delivery. When the owner re-authorizes it later, first identify the reader model, connection/input protocol, terminator, and any driver/SDK requirements. Keyboard-emulation readers and serial/vendor-specific readers need different adapters; do not claim universal compatibility without evidence.
 - Preserve barcode text, including leading zeros. Do not silently normalize codes into different identifiers.
 

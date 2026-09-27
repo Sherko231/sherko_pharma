@@ -37,6 +37,7 @@ class BarcodeScanController {
       return null;
     }
     _busy = true;
+    final orderGeneration = _order.mutationGeneration;
     try {
       final matches = await _catalog.lookupBarcode(code);
       if (matches.isEmpty) {
@@ -46,8 +47,12 @@ class BarcodeScanController {
         return const BarcodeScanResult(BarcodeScanStatus.ambiguous);
       }
 
-      final latest = await _catalog.getById(matches.single.id);
-      final orderResult = _order.addProduct(latest);
+      if (_order.mutationGeneration != orderGeneration) {
+        return null;
+      }
+
+      final product = matches.single;
+      final orderResult = _order.addProduct(product);
       final status = switch (orderResult) {
         OrderActionResult.added => BarcodeScanStatus.added,
         OrderActionResult.incremented => BarcodeScanStatus.incremented,
@@ -55,7 +60,7 @@ class BarcodeScanController {
         OrderActionResult.overflow => BarcodeScanStatus.overflow,
         _ => BarcodeScanStatus.failed,
       };
-      return BarcodeScanResult(status, product: latest);
+      return BarcodeScanResult(status, product: product);
     } catch (_) {
       return const BarcodeScanResult(BarcodeScanStatus.failed);
     } finally {
