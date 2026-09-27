@@ -14,6 +14,8 @@ const _scannerFeedbackChannel = MethodChannel(
   'com.samo.sherkopharma/scanner_feedback',
 );
 
+const androidScannerAutoZoomEnabled = false;
+
 Rect barcodeScanWindowForSize(Size size) {
   if (size.isEmpty) {
     return Rect.zero;
@@ -153,7 +155,7 @@ class _AndroidBarcodeScannerPanelState
     _camera = MobileScannerController(
       detectionSpeed: DetectionSpeed.normal,
       detectionTimeoutMs: 100,
-      autoZoom: false,
+      autoZoom: androidScannerAutoZoomEnabled,
     );
     _scan = BarcodeScanController(
       catalog: ref.read(catalogRepositoryProvider),
@@ -254,7 +256,7 @@ class _AndroidBarcodeScannerPanelState
     }
 
     try {
-      await HapticFeedback.mediumImpact();
+      await HapticFeedback.lightImpact();
     } catch (_) {
       // Haptic feedback is best-effort and must never block scanning.
     }
