@@ -40,7 +40,7 @@ SP-024 profiles the hosted 23,750-row catalog and structures only fields whose s
 | Dosage form | Reference table + product foreign key | Reusable category domain with spelling/spacing variants, but broad enough that new values must remain possible |
 | Currency | PostgreSQL enum `app_private.catalog_currency` with `SYP` / `USD` | Small, explicitly finite supported domain |
 | Arabic / English product name | Text | Product identity labels are open-ended |
-| Composition / active ingredients | Text | 2,204 distinct source expressions, including multi-ingredient combinations and qualifiers; automatic decomposition would risk changing pharmaceutical meaning |
+| Composition / active ingredients | Raw text + private derived ingredient normalization | The exact catalog/source text remains unchanged. SP-025 conservatively derives ingredient identities and set keys, while ambiguous syntax is quarantined instead of guessed. |
 | Strength | Text | 3,825 distinct expressions with combination strengths and heterogeneous units |
 | Package description | Text | Free descriptive packaging text with 2,280 distinct source values |
 | Barcodes | Text | Exact identifiers; leading zeroes and non-digit characters must be preserved |
@@ -48,6 +48,18 @@ SP-024 profiles the hosted 23,750-row catalog and structures only fields whose s
 | Source-only provenance | Raw preserved fields / JSONB | Historical source fidelity takes priority over inferred semantics |
 
 Manufacturer and dosage-form reference rows have stable numeric IDs, canonical display labels, normalized unique keys, and alias tables retaining every observed spelling. Existing product RPCs continue returning the canonical display strings for compatibility; products also store the corresponding foreign keys.
+
+### Composition normalization (SP-025)
+
+- `products.composition` remains the editable/raw display value and is never rewritten by the normalization layer.
+- `app_private.catalog_ingredients` stores stable ingredient identities. Initial automatic identity resolution is lexical/deterministic only; medically similar names, salts, vitamin forms, extracts, or other semantic candidates are not fuzzy-merged.
+- Ingredient alias keys are unique normalized lexical keys, while observed spellings are retained separately. The model can later hold explicitly reviewed semantic aliases without treating them as automatic text equivalence.
+- `app_private.product_ingredients` stores product-to-ingredient candidates in source component order with the raw component text. SP-025 splits only on an explicit `+` separator.
+- `app_private.product_composition_normalization` records an order-independent ingredient-set key plus `auto_verified`, `high_confidence`, `needs_review`, or `unresolved` status. Parenthesized/special-delimiter expressions, embedded strength units, duplicate components, and incomplete splits are not silently trusted.
+- `high_confidence` is reserved for compositions that later resolve through explicitly verified semantic aliases. SP-025 seeds no semantic synonym mapping; current automatic backfill therefore uses lexical identities only.
+- Every product receives a normalization summary, including blank/unresolved compositions. Existing product revision and `updated_at` values are not advanced by the structural backfill.
+- A database trigger refreshes only the derived normalization rows after a future composition create/edit. Normal catalog revision/conflict behavior remains owned by the existing product update path.
+- Ingredient-set equality in SP-025 means only “same conservatively normalized ingredient identities.” It is not pharmaceutical equivalence and must not by itself drive direct substitution. Strength, route/form compatibility, and release type belong to later tasks.
 
 New or edited manufacturer/dosage-form text is resolved atomically by the database trigger. A spelling-equivalent normalized value reuses the existing reference and returns its canonical display label. A genuinely new normalized value creates one new reference identity. Blank values remain nullable. Source text remains recoverable from `source_payload`.
 
