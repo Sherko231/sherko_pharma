@@ -75,7 +75,9 @@ void main() {
     await tester.pump(const Duration(milliseconds: 301));
     await tester.pumpAndSettle();
 
+    expect(find.byKey(const Key('catalog-search-overlay')), findsOneWidget);
     expect(find.byKey(const Key('catalog-search-results')), findsOneWidget);
+    expect(find.byKey(const Key('cart-summary')), findsOneWidget);
     final resultCard = find.byKey(Key('catalog-result-${product.id}'));
     expect(
       find.descendant(
@@ -151,7 +153,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('catalog-search-error')), findsOneWidget);
-    expect(find.text('Could not load the catalog'), findsOneWidget);
+    expect(find.text('Could not load products'), findsOneWidget);
     expect(find.byKey(const Key('catalog-search-retry')), findsOneWidget);
   });
 
@@ -264,6 +266,12 @@ void main() {
     expect(catalog.createIds, isEmpty);
     expect(catalog.updateOriginals, isEmpty);
     expect(find.text('Added to cart.'), findsOneWidget);
+    final searchField = tester.widget<TextField>(
+      find.byKey(const Key('catalog-search-field')),
+    );
+    expect(searchField.controller?.text, isEmpty);
+    expect(find.byKey(const Key('catalog-search-overlay')), findsNothing);
+    expect(find.text('1 item'), findsOneWidget);
   });
 
   testWidgets('catalog rejects zero-price product with clear feedback', (
