@@ -870,6 +870,7 @@ declare
   composition_status_value app_private.composition_normalization_status;
   strength_status_value app_private.strength_normalization_status;
   ingredient_strength_key text;
+  profile_source_name text;
   profile_status_value app_private.pharmaceutical_equivalence_status;
   profile_form_class text;
   profile_route app_private.pharmaceutical_route_class;
@@ -892,17 +893,15 @@ begin
   end if;
 
   if product_row.dosage_form_id is not null then
-    perform app_private.refresh_catalog_dosage_form_equivalence_profile(
-      product_row.dosage_form_id
-    );
-
     select
+      p.source_name,
       p.status,
       p.form_class_key,
       p.route_class,
       p.release_class,
       p.reason_code
       into
+        profile_source_name,
         profile_status_value,
         profile_form_class,
         profile_route,
@@ -910,6 +909,30 @@ begin
         profile_reason
     from app_private.catalog_dosage_form_equivalence_profiles p
     where p.dosage_form_id = product_row.dosage_form_id;
+
+    if not found
+       or profile_source_name is distinct from product_row.dosage_form then
+      perform app_private.refresh_catalog_dosage_form_equivalence_profile(
+        product_row.dosage_form_id
+      );
+
+      select
+        p.source_name,
+        p.status,
+        p.form_class_key,
+        p.route_class,
+        p.release_class,
+        p.reason_code
+        into
+          profile_source_name,
+          profile_status_value,
+          profile_form_class,
+          profile_route,
+          profile_release,
+          profile_reason
+      from app_private.catalog_dosage_form_equivalence_profiles p
+      where p.dosage_form_id = product_row.dosage_form_id;
+    end if;
   end if;
 
   select c.status
