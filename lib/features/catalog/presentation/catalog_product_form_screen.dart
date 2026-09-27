@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/application/auth_controller.dart';
@@ -10,6 +11,8 @@ import '../data/catalog_repository.dart';
 import '../domain/catalog_product.dart';
 import '../domain/catalog_product_id.dart';
 import '../domain/catalog_product_input.dart';
+import '../../../shared/formatting/whole_amount.dart';
+import '../../../shared/presentation/whole_amount_text_input_formatter.dart';
 
 class CatalogProductFormScreen extends ConsumerStatefulWidget {
   const CatalogProductFormScreen.create({super.key}) : product = null;
@@ -327,6 +330,9 @@ class _CatalogProductFormScreenState
                         label: 'Whole-unit amount',
                         errorText: _validation['sellingAmount'],
                         keyboardType: TextInputType.number,
+                        inputFormatters: const [
+                          WholeAmountTextInputFormatter(),
+                        ],
                       );
                       final currencyField = _currencyField();
 
@@ -381,6 +387,7 @@ class _CatalogProductFormScreenState
     int maxLines = 1,
     TextInputType? keyboardType,
     TextDirection? textDirection,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -391,6 +398,7 @@ class _CatalogProductFormScreenState
         maxLines: maxLines,
         keyboardType: keyboardType,
         textDirection: textDirection,
+        inputFormatters: inputFormatters,
         decoration: InputDecoration(
           labelText: label,
           errorText: errorText,
@@ -904,7 +912,10 @@ class _CatalogProductFormScreenState
     _packageController.text = data.packageDescription;
     _barcodeController.text = data.barcode;
     _barcode2Controller.text = data.barcode2;
-    _sellingAmountController.text = data.sellingAmountText;
+    final restoredAmount = parseWholeAmountText(data.sellingAmountText);
+    _sellingAmountController.text = restoredAmount == null
+        ? data.sellingAmountText
+        : formatWholeAmount(restoredAmount);
     _notesController.text = data.notes;
     _currency = data.currency;
   }
