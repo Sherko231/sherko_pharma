@@ -86,7 +86,7 @@ void main() {
       store: store,
     );
 
-    expect(find.byKey(const Key('order-workspace')), findsOneWidget);
+    expect(find.byKey(const Key('cart-workspace')), findsOneWidget);
     expect(find.byKey(const Key('order-line-p1')), findsOneWidget);
     expect(find.text('Saved product'), findsOneWidget);
     expect(find.text('3'), findsOneWidget);
@@ -134,7 +134,7 @@ void main() {
       store: store,
     );
 
-    expect(find.byKey(const Key('order-workspace')), findsOneWidget);
+    expect(find.byKey(const Key('cart-workspace')), findsOneWidget);
     expect(find.byKey(const Key('order-empty')), findsOneWidget);
     expect(find.byKey(const Key('order-line-p1')), findsNothing);
   });
@@ -222,7 +222,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AppShell), findsOneWidget);
-    expect(find.byKey(const Key('catalog-workspace')), findsOneWidget);
+    expect(find.byKey(const Key('cart-workspace')), findsOneWidget);
     expect(find.text('Saved product'), findsNothing);
 
     final shellContainer = ProviderScope.containerOf(
