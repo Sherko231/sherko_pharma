@@ -92,7 +92,7 @@ These observations do not establish that all supplied codes are valid or corresp
 - Save the active session and restore it after closing and reopening the application.
 - Restore the active order, including selected products, quantities, captured unit prices, and their currencies, into the Cart workspace. Legacy saved Catalog/Order destination values may be accepted for compatibility but must not recreate separate visible destinations. Protect access to the restored session through the sign-in flow.
 - Persist and restore the active unfinished product edit as a local unsaved draft. Upload only after the owner explicitly chooses Save; restoring or reconnecting must not submit it. Preserve the original revision for conflict detection, and clear the draft after confirmed save or explicit discard. See `UX_FLOWS.md`.
-- Restoring search text and exact list scroll position is not required. Filter restoration is not an initial acceptance requirement; this does not remove the requirement to restore the active screen, order, and edit draft.
+- Restoring search text and exact list scroll position is not required. Filter restoration is not an initial acceptance requirement; the persisted cart/order and active edit draft still restore under the session rules.
 - Signing out retains the order and edit draft on the device but hides them until successful sign-in to the same account. Never expose another account's retained session or automatically submit a draft on sign-out/sign-in. See `UX_FLOWS.md`.
 - Session persistence is distinct from historical sales storage; it must not create a sales-history feature.
 
