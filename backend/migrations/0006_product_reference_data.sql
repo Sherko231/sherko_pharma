@@ -10,12 +10,12 @@ immutable
 strict
 parallel safe
 set search_path = pg_catalog
-as $
+as $reference_key$
   select coalesce(
     nullif(app_private.catalog_search_normalize(input_text), ''),
     'raw:' || lower(normalize(btrim(input_text), NFKC))
   )
-$;
+$reference_key$;
 
 revoke all on function app_private.catalog_reference_key(text)
 from public, anon, authenticated;
