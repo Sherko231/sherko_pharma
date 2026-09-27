@@ -122,8 +122,6 @@ void main() {
   testWidgets('empty New Order does not ask for confirmation', (tester) async {
     await pumpOrderApp(tester);
 
-    await tester.tap(find.text('Order'));
-    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('order-new')));
     await tester.pump();
 
