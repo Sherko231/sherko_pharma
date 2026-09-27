@@ -113,7 +113,7 @@ Organize code by feature: authentication, catalog, order, and scanning. Keep app
 - For any future Windows reader task, confirm the hardware/input mode before implementation; Android camera compatibility is already established for the merged SP-013 baseline.
 - SP-004 remains the owner-only bounded catalog RPC boundary; SP-012 does not add direct-table reads, full-table subscriptions, or a local catalog replica.
 - Session, sign-out, reset-order, refresh, price-change, and unsaved-edit behavior is specified across `PRODUCT.md`, `DATA_MODEL.md`, and `UX_FLOWS.md`.
-- Continue applying the CI and hardware acceptance gates in `QUALITY.md`; scanner tasks require real-device acceptance.
+- Hosted CI is retired by OPS-001. Keep local verification helpers available, and use owner real-device testing for scanner/hardware behavior as described in `QUALITY.md`.
 
 ## Official references used in the proposal
 
