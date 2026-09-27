@@ -38,18 +38,18 @@ Future<void> pumpCatalog(
 }
 
 void main() {
-  testWidgets('initial catalog state explains searchable fields', (tester) async {
+  testWidgets('Cart exposes compact manual catalog search immediately', (
+    tester,
+  ) async {
     await pumpCatalog(
       tester,
       catalog: FakeCatalogRepository(),
     );
 
-    expect(find.byKey(const Key('catalog-search-idle')), findsOneWidget);
-    expect(find.text('Search the catalog'), findsOneWidget);
-    expect(
-      find.textContaining('Arabic or English product name'),
-      findsOneWidget,
-    );
+    expect(find.byKey(const Key('cart-workspace')), findsOneWidget);
+    expect(find.byKey(const Key('catalog-search-field')), findsOneWidget);
+    expect(find.byKey(const Key('catalog-search-idle')), findsNothing);
+    expect(find.byKey(const Key('order-empty')), findsOneWidget);
   });
 
   testWidgets('phone search renders Arabic data and opens current detail', (
@@ -259,7 +259,7 @@ void main() {
     expect(order.lines.single.currency, 'SYP');
     expect(catalog.createIds, isEmpty);
     expect(catalog.updateOriginals, isEmpty);
-    expect(find.text('Added to order.'), findsOneWidget);
+    expect(find.text('Added to cart.'), findsOneWidget);
   });
 
   testWidgets('catalog rejects zero-price product with clear feedback', (
