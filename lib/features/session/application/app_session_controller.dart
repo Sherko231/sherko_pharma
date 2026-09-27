@@ -157,7 +157,7 @@ class AppSessionController extends Notifier<AppSessionViewState> {
         );
     ref
         .read(appNavigationControllerProvider.notifier)
-        .restoreForSession(AppDestination.catalog);
+        .restoreForSession(AppDestination.order);
   }
 
   Future<void> _restore(
@@ -181,7 +181,7 @@ class AppSessionController extends Notifier<AppSessionViewState> {
     final resolved = snapshot ??
         AppSessionSnapshot(
           ownerId: ownerId,
-          destination: AppDestination.catalog,
+          destination: AppDestination.order,
           order: const OrderState(),
         );
 
@@ -190,7 +190,7 @@ class AppSessionController extends Notifier<AppSessionViewState> {
         .replaceForSession(resolved.order);
     ref
         .read(appNavigationControllerProvider.notifier)
-        .restoreForSession(resolved.destination);
+        .restoreForSession(AppDestination.order);
 
     _suppressPersistence = false;
     state = AppSessionViewState.ready(
