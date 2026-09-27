@@ -50,7 +50,9 @@ class _CatalogAlternativesSheetState
   @override
   void initState() {
     super.initState();
-    scheduleMicrotask(_load);
+    scheduleMicrotask(() {
+      unawaited(_load());
+    });
   }
 
   Future<void> _load() async {
@@ -202,7 +204,11 @@ class _CatalogAlternativesSheetState
     for (final group in CatalogAlternativeGroup.values) {
       final items = _alternatives
           .where((alternative) => alternative.group == group)
-          .toList(growable: false);
+          .toList(growable: true)
+        ..sort(
+          (left, right) =>
+              left.groupPosition.compareTo(right.groupPosition),
+        );
       if (items.isEmpty) {
         continue;
       }
