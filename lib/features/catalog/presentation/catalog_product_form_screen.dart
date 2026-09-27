@@ -11,6 +11,7 @@ import '../data/catalog_repository.dart';
 import '../domain/catalog_product.dart';
 import '../domain/catalog_product_id.dart';
 import '../domain/catalog_product_input.dart';
+import '../domain/catalog_reference_text.dart';
 import '../../../shared/formatting/whole_amount.dart';
 import '../../../shared/presentation/whole_amount_text_input_formatter.dart';
 
@@ -436,12 +437,14 @@ class _CatalogProductFormScreenState
         focusNode: focusNode,
         displayStringForOption: (option) => option,
         optionsBuilder: (value) {
-          final query = value.text.trim().toLowerCase();
+          final query = normalizeCatalogReferenceText(value.text) ?? '';
           final matches = query.isEmpty
               ? options
               : options
                   .where(
-                    (option) => option.toLowerCase().contains(query),
+                    (option) =>
+                        (normalizeCatalogReferenceText(option) ?? '')
+                            .contains(query),
                   )
                   .toList(growable: false);
           return matches.take(40);
@@ -460,9 +463,10 @@ class _CatalogProductFormScreenState
             enabled: _fieldsEnabled,
             decoration: InputDecoration(
               labelText: label,
-              helperText: options.isEmpty
-                  ? 'Type a value'
-                  : 'Choose an existing value or type a new one',
+              helperText: _referenceHelperText(
+                fieldController.text,
+                options,
+              ),
               border: const OutlineInputBorder(),
             ),
             onChanged: (_) => _formChanged(),
@@ -509,6 +513,27 @@ class _CatalogProductFormScreenState
         },
       ),
     );
+  }
+
+  String _referenceHelperText(
+    String value,
+    List<String> options,
+  ) {
+    if (options.isEmpty) {
+      return 'Type a value';
+    }
+
+    final normalized = normalizeCatalogReferenceText(value);
+    if (normalized == null) {
+      return 'Choose an existing value or type a new one';
+    }
+
+    final exists = options.any(
+      (option) => normalizeCatalogReferenceText(option) == normalized,
+    );
+    return exists
+        ? 'Existing catalog value'
+        : 'New reference will be created on save';
   }
 
   Widget _currencyField() {
