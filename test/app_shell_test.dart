@@ -10,99 +10,86 @@ import 'package:sherko_pharma/main.dart';
 import 'support/fake_auth_gateway.dart';
 import 'support/fake_catalog_repository.dart';
 
+Future<ProviderContainer> pumpShell(
+  WidgetTester tester, {
+  required Size size,
+  FakeCatalogRepository? catalog,
+}) async {
+  tester.view.physicalSize = size;
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+
+  final gateway = FakeAuthGateway(
+    initialIdentity: const AuthIdentity(userId: 'owner-user-id'),
+  );
+  addTearDown(gateway.dispose);
+
+  await tester.pumpWidget(
+    AppBootstrap(
+      runtime: AppRuntime.configured(
+        gateway,
+        catalogRepository: catalog ?? FakeCatalogRepository(),
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+
+  final shell = find.byType(AppShell);
+  return ProviderScope.containerOf(tester.element(shell));
+}
+
 void main() {
-  testWidgets('phone layout uses NavigationBar and Riverpod selection', (
+  testWidgets('phone opens one compact Cart workspace without navigation', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(360, 800);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final gateway = FakeAuthGateway(
-      initialIdentity: const AuthIdentity(userId: 'owner-user-id'),
+    final container = await pumpShell(
+      tester,
+      size: const Size(360, 800),
     );
-    addTearDown(gateway.dispose);
 
-    await tester.pumpWidget(
-      AppBootstrap(
-        runtime: AppRuntime.configured(
-          gateway,
-          catalogRepository: FakeCatalogRepository(),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
     expect(find.byType(NavigationRail), findsNothing);
-    expect(find.byKey(const Key('catalog-workspace')), findsOneWidget);
-
-    await tester.tap(find.text('Order'));
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const Key('order-workspace')), findsOneWidget);
-
-    final shellContext = tester.element(find.byType(AppShell));
-    final container = ProviderScope.containerOf(shellContext);
-
+    expect(find.byKey(const Key('cart-workspace')), findsOneWidget);
+    expect(find.text('Cart'), findsOneWidget);
+    expect(find.byKey(const Key('catalog-search-field')), findsOneWidget);
+    expect(find.byKey(const Key('order-new')), findsOneWidget);
     expect(
       container.read(appNavigationControllerProvider),
       AppDestination.order,
     );
-  });
-
-  testWidgets('desktop layout uses NavigationRail', (tester) async {
-    tester.view.physicalSize = const Size(1280, 720);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final gateway = FakeAuthGateway(
-      initialIdentity: const AuthIdentity(userId: 'owner-user-id'),
-    );
-    addTearDown(gateway.dispose);
-
-    await tester.pumpWidget(
-      AppBootstrap(
-        runtime: AppRuntime.configured(
-          gateway,
-          catalogRepository: FakeCatalogRepository(),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.byType(NavigationRail), findsOneWidget);
-    expect(find.byType(NavigationBar), findsNothing);
-    expect(find.byKey(const Key('catalog-workspace')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('resume refreshes the active catalog query', (tester) async {
-    tester.view.physicalSize = const Size(390, 800);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final gateway = FakeAuthGateway(
-      initialIdentity: const AuthIdentity(userId: 'owner-user-id'),
+  testWidgets('desktop keeps Cart and manual search on the same page', (
+    tester,
+  ) async {
+    await pumpShell(
+      tester,
+      size: const Size(1280, 720),
     );
-    addTearDown(gateway.dispose);
+
+    expect(find.byType(NavigationRail), findsNothing);
+    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.byKey(const Key('cart-workspace')), findsOneWidget);
+    expect(find.byKey(const Key('catalog-search-panel')), findsOneWidget);
+    expect(find.byKey(const Key('order-empty')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('resume refreshes the active embedded catalog query', (
+    tester,
+  ) async {
     final catalog = FakeCatalogRepository()
       ..searchResults = [
         testProduct(id: 'p1', nameEn: 'Old result', revision: 1),
       ];
 
-    await tester.pumpWidget(
-      AppBootstrap(
-        runtime: AppRuntime.configured(
-          gateway,
-          catalogRepository: catalog,
-        ),
-      ),
+    await pumpShell(
+      tester,
+      size: const Size(390, 800),
+      catalog: catalog,
     );
-    await tester.pumpAndSettle();
 
     await tester.enterText(
       find.byKey(const Key('catalog-search-field')),
@@ -128,5 +115,4 @@ void main() {
     expect(find.text('Fresh result'), findsOneWidget);
     expect(find.text('Old result'), findsNothing);
   });
-
 }
