@@ -50,7 +50,7 @@ class AppSessionViewState {
 
 class AppSessionController extends Notifier<AppSessionViewState> {
   static const String persistenceErrorMessage =
-      'Local session storage failed. The current page or order may not survive a restart.';
+      'Local session storage failed. The current cart may not survive a restart.';
   static const String restoreErrorMessage =
       'The saved local session could not be restored safely. An empty local session was opened instead.';
 
