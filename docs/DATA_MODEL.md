@@ -41,7 +41,7 @@ SP-024 profiles the hosted 23,750-row catalog and structures only fields whose s
 | Currency | PostgreSQL enum `app_private.catalog_currency` with `SYP` / `USD` | Small, explicitly finite supported domain |
 | Arabic / English product name | Text | Product identity labels are open-ended |
 | Composition / active ingredients | Raw text + private derived ingredient normalization | The exact catalog/source text remains unchanged. SP-025 conservatively derives ingredient identities and set keys, while ambiguous syntax is quarantined instead of guessed. |
-| Strength | Text | 3,825 distinct expressions with combination strengths and heterogeneous units |
+| Strength | Raw text + private derived strength normalization | The exact catalog/source text remains unchanged. SP-026 parses only supported deterministic numeric/unit syntax, pairs it to trusted SP-025 ingredient components, and quarantines ambiguous combinations. |
 | Package description | Text | Free descriptive packaging text with 2,280 distinct source values |
 | Barcodes | Text | Exact identifiers; leading zeroes and non-digit characters must be preserved |
 | Notes | Text | Intentionally free-form |
@@ -60,6 +60,19 @@ Manufacturer and dosage-form reference rows have stable numeric IDs, canonical d
 - Every product receives a normalization summary, including blank/unresolved compositions. Existing product revision and `updated_at` values are not advanced by the structural backfill.
 - A database trigger refreshes only the derived normalization rows after a future composition create/edit. Normal catalog revision/conflict behavior remains owned by the existing product update path.
 - Ingredient-set equality in SP-025 means only “same conservatively normalized ingredient identities.” It is not pharmaceutical equivalence and must not by itself drive direct substitution. Strength, route/form compatibility, and release type belong to later tasks.
+
+### Strength normalization (SP-026)
+
+- `products.strength` remains the editable/raw display value and is never rewritten by the normalization layer.
+- The live source contains presentation-style slash suffixes such as `500 MG/CTD TAB.` alongside quantitative concentrations such as `250 MG/5 ML.`; SP-026 treats these as different syntax classes.
+- Supported numerator units are normalized deterministically: `G`, `MG`, and `MCG/UG` become exact `mg`; `IU`, generic `U`, `MEQ`, `MMOL`, and percent remain separate canonical unit domains. Numeric arithmetic uses PostgreSQL `numeric`, not floating point.
+- Quantitative denominators support exact mass/volume normalization to `mg` or `ml`. For example, `250 MG/5 ML` gets comparison key `mg/ml:50`, while the raw 250 mg per 5 ml values remain stored separately.
+- Recognized tablet/capsule/vial/ampoule/suppository and related presentation suffixes are excluded from numeric strength comparison; SP-027 remains responsible for dosage-form, route, and release compatibility.
+- Explicit `+` strength components are positionally paired only when the trusted SP-025 ingredient count matches exactly. A shared final concentration denominator may apply across the explicit components, but that inference is capped at `high_confidence`.
+- Mismatched counts, partial strings, missing units, unsupported shorthand, descriptive strength values, or products whose SP-025 composition is review/unresolved cannot receive a trusted ingredient-strength set key.
+- `app_private.product_ingredient_strengths` stores fully trusted ingredient-strength links. `app_private.product_strength_normalization` stores the raw source snapshot, status/reason, parsing counts, and order-independent ingredient-strength set key.
+- A strength-only product edit refreshes SP-026 directly. When composition and strength change together, SP-025 refreshes ingredient identities first and then SP-026 rebuilds the strength pairing. Structural backfill does not advance product revision or `updated_at`.
+- SP-026 equality still does not mean direct pharmaceutical substitution. SP-027 must additionally evaluate dosage form, route, and release semantics before a strict alternative can exist.
 
 New or edited manufacturer/dosage-form text is resolved atomically by the database trigger. A spelling-equivalent normalized value reuses the existing reference and returns its canonical display label. A genuinely new normalized value creates one new reference identity. Blank values remain nullable. Source text remains recoverable from `source_payload`.
 
