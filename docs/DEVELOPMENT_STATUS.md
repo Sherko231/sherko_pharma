@@ -1,8 +1,8 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-27
-Task record: SP-016 / Issue #44 refines Android barcode responsiveness and framing. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates. REL-001 / Issue #40 and SP-015 / Issue #38 remain completed baselines.
-Status: SP-016 preserves the SP-013 barcode/order contract while adding focused scan guidance and faster camera-side detection. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
+Task record: SP-017 / Issue #46 optimizes continuous Android barcode scanning. SP-016 / Issue #44 remains the prior scanner refinement baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
+Status: SP-017 moves scanning inline on the Order page and reduces unique-scan verification to one owner-authorized server lookup. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
 
 ## Verified baseline
 
@@ -14,6 +14,15 @@ Status: SP-016 preserves the SP-013 barcode/order contract while adding focused 
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-017 continuous scanner contract
+
+- One Android Scan action opens a compact inline scanner on the Order page; successful scans do not navigate away or require reopening the camera.
+- The camera overlay is visual only; the instructional tip text is removed.
+- A unique barcode is resolved by one owner-authorized `catalog_lookup_barcode` call. The lookup already returns the current complete product snapshot needed for order capture, so the immediate second `catalog_get` round-trip is removed.
+- The camera remains active while server checking runs. A presentation gate suppresses the same code while it remains visible and unlocks it after it has been absent long enough, allowing a deliberate later presentation to increment quantity.
+- Unknown, ambiguous, invalid-price, overflow, permission, network and camera states remain non-destructive.
+- Real-device throughput, framing and repeat-scan behavior remain owner verification after pull/merge.
 
 ## SP-016 scanner refinement contract
 
@@ -37,7 +46,7 @@ Status: SP-016 preserves the SP-013 barcode/order contract while adding focused 
 
 - Android camera scanning resolves complete barcode text through the existing bounded owner-authorized catalog API.
 - Match either approved barcode field, preserve leading zeroes, deduplicate the same product identity, and reject ambiguous distinct-product matches.
-- Re-read the resolved product with `catalog_get` before mutating the order so current authoritative selling values are used.
+- SP-013 originally re-read the resolved product with `catalog_get`; SP-017 supersedes that extra round-trip because `catalog_lookup_barcode` itself is owner-authorized and returns the complete current product snapshot used for order capture.
 - Repeated frames from one physical presentation must not increment quantity; a deliberate later scan can increment the existing line.
 - Unknown, ambiguous, invalid-price, permission, and camera interruption states are non-destructive and recoverable.
 - No Windows reader integration, inventory, checkout/history, cloud order sync, full catalog cache, or production release work belongs to SP-013.
@@ -47,8 +56,8 @@ Status: SP-016 preserves the SP-013 barcode/order contract while adding focused 
 - Added an Android-only order Scan action backed by `mobile_scanner`, pinned to a reviewed upstream commit in the application lockfile.
 - Added exact `catalog_lookup_barcode` repository access without direct product-table reads or a new backend migration.
 - Barcode lookup preserves the scanned string, deduplicates results by product ID, and treats multiple distinct product matches as ambiguous.
-- The scan controller is single-flight, revalidates the resolved product with `catalog_get`, and delegates price/currency/overflow rules to the existing order controller.
-- The camera stops after the first accepted frame. Failed/unknown scans require explicit rearm; successful scans return to the order, so a later deliberate scan starts a new scan session.
+- The scan controller is single-flight and delegates the server lookup snapshot to the existing order controller for price/currency/overflow rules; SP-017 removes the redundant immediate `catalog_get`.
+- SP-017 keeps the camera in a compact inline Order-page panel for continuous scanning. The same visible barcode is suppressed until it leaves the frame long enough to count as a new presentation.
 - Scanner lifecycle handling stops the camera while inactive and only resumes an uncommitted scan after the app returns active.
 - Android camera permission is declared without making camera hardware a required installation feature.
 
