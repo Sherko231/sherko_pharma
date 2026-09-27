@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../features/catalog/application/scoped_catalog_refresh_controller.dart';
-import '../features/catalog/presentation/catalog_screen.dart';
-import '../features/navigation/application/app_navigation_controller.dart';
 import '../features/order/presentation/order_screen.dart';
 import '../features/session/application/app_session_controller.dart';
 
@@ -12,8 +10,6 @@ class AppShell extends ConsumerStatefulWidget {
     super.key,
     this.onSignOut,
   });
-
-  static const double railBreakpoint = 800;
 
   final VoidCallback? onSignOut;
 
@@ -47,103 +43,33 @@ class _AppShellState extends ConsumerState<AppShell>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    final active = state == AppLifecycleState.resumed;
-    _refreshController.setActive(active);
+    _refreshController.setActive(state == AppLifecycleState.resumed);
   }
 
   @override
   Widget build(BuildContext context) {
-    final destination = ref.watch(appNavigationControllerProvider);
-    final selectedIndex = AppDestination.values.indexOf(destination);
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final useNavigationRail =
-            constraints.maxWidth >= AppShell.railBreakpoint;
-
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Sherko Pharma'),
-            actions: [
-              if (widget.onSignOut != null)
-                IconButton(
-                  key: const Key('sign-out-button'),
-                  tooltip: 'Sign out',
-                  onPressed: widget.onSignOut,
-                  icon: const Icon(Icons.logout),
-                ),
-            ],
-          ),
-          body: useNavigationRail
-              ? Row(
-                  children: [
-                    NavigationRail(
-                      selectedIndex: selectedIndex,
-                      onDestinationSelected: (index) {
-                        _selectDestination(ref, index);
-                      },
-                      destinations: const [
-                        NavigationRailDestination(
-                          icon: Icon(Icons.medication_outlined),
-                          selectedIcon: Icon(Icons.medication),
-                          label: Text('Catalog'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.receipt_long_outlined),
-                          selectedIcon: Icon(Icons.receipt_long),
-                          label: Text('Order'),
-                        ),
-                      ],
-                    ),
-                    const VerticalDivider(width: 1),
-                    Expanded(
-                      child: _SessionAwareDestination(
-                        destination: destination,
-                      ),
-                    ),
-                  ],
-                )
-              : _SessionAwareDestination(
-                  destination: destination,
-                ),
-          bottomNavigationBar: useNavigationRail
-              ? null
-              : NavigationBar(
-                  selectedIndex: selectedIndex,
-                  onDestinationSelected: (index) {
-                    _selectDestination(ref, index);
-                  },
-                  destinations: const [
-                    NavigationDestination(
-                      icon: Icon(Icons.medication_outlined),
-                      selectedIcon: Icon(Icons.medication),
-                      label: 'Catalog',
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.receipt_long_outlined),
-                      selectedIcon: Icon(Icons.receipt_long),
-                      label: 'Order',
-                    ),
-                  ],
-                ),
-        );
-      },
+    return Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 48,
+        title: const Text('Sherko Pharma'),
+        actions: [
+          if (widget.onSignOut != null)
+            IconButton(
+              key: const Key('sign-out-button'),
+              tooltip: 'Sign out',
+              visualDensity: VisualDensity.compact,
+              onPressed: widget.onSignOut,
+              icon: const Icon(Icons.logout, size: 20),
+            ),
+        ],
+      ),
+      body: const _SessionAwareCart(),
     );
-  }
-
-  void _selectDestination(WidgetRef ref, int index) {
-    ref
-        .read(appNavigationControllerProvider.notifier)
-        .select(AppDestination.values[index]);
   }
 }
 
-class _SessionAwareDestination extends ConsumerWidget {
-  const _SessionAwareDestination({
-    required this.destination,
-  });
-
-  final AppDestination destination;
+class _SessionAwareCart extends ConsumerWidget {
+  const _SessionAwareCart();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -153,106 +79,84 @@ class _SessionAwareDestination extends ConsumerWidget {
     return Column(
       children: [
         if (session.errorMessage != null)
-          Material(
+          _CompactStatusBanner(
             key: const Key('local-session-error'),
             color: Theme.of(context).colorScheme.errorContainer,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 10,
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.warning_amber_rounded,
-                    color: Theme.of(context).colorScheme.onErrorContainer,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      session.errorMessage!,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onErrorContainer,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  TextButton(
-                    key: const Key('local-session-retry'),
-                    onPressed: () {
-                      ref
-                          .read(appSessionControllerProvider.notifier)
-                          .retryPersistence();
-                    },
-                    child: const Text('Retry local save'),
-                  ),
-                ],
-              ),
+            foreground: Theme.of(context).colorScheme.onErrorContainer,
+            icon: Icons.warning_amber_rounded,
+            message: session.errorMessage!,
+            action: TextButton(
+              key: const Key('local-session-retry'),
+              onPressed: () {
+                ref
+                    .read(appSessionControllerProvider.notifier)
+                    .retryPersistence();
+              },
+              child: const Text('Retry local save'),
             ),
           ),
         if (refresh.errorMessage != null)
-          Material(
+          _CompactStatusBanner(
             key: const Key('catalog-refresh-error'),
             color: Theme.of(context).colorScheme.tertiaryContainer,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 10,
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.sync_problem,
-                    color: Theme.of(context).colorScheme.onTertiaryContainer,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      refresh.errorMessage!,
-                      style: TextStyle(
-                        color:
-                            Theme.of(context).colorScheme.onTertiaryContainer,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  TextButton(
-                    key: const Key('catalog-refresh-retry'),
-                    onPressed: () {
-                      ref
-                          .read(
-                            scopedCatalogRefreshControllerProvider.notifier,
-                          )
-                          .retry();
-                    },
-                    child: const Text('Retry refresh'),
-                  ),
-                ],
-              ),
+            foreground: Theme.of(context).colorScheme.onTertiaryContainer,
+            icon: Icons.sync_problem,
+            message: refresh.errorMessage!,
+            action: TextButton(
+              key: const Key('catalog-refresh-retry'),
+              onPressed: () {
+                ref
+                    .read(scopedCatalogRefreshControllerProvider.notifier)
+                    .retry();
+              },
+              child: const Text('Retry refresh'),
             ),
           ),
-        Expanded(
-          child: _DestinationContent(
-            destination: destination,
-          ),
-        ),
+        const Expanded(child: OrderScreen()),
       ],
     );
   }
 }
 
-class _DestinationContent extends StatelessWidget {
-  const _DestinationContent({
-    required this.destination,
+class _CompactStatusBanner extends StatelessWidget {
+  const _CompactStatusBanner({
+    super.key,
+    required this.color,
+    required this.foreground,
+    required this.icon,
+    required this.message,
+    required this.action,
   });
 
-  final AppDestination destination;
+  final Color color;
+  final Color foreground;
+  final IconData icon;
+  final String message;
+  final Widget action;
 
   @override
   Widget build(BuildContext context) {
-    return switch (destination) {
-      AppDestination.catalog => const CatalogScreen(),
-      AppDestination.order => const OrderScreen(),
-    };
+    return Material(
+      color: color,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        child: Row(
+          children: [
+            Icon(icon, color: foreground, size: 18),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                message,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: foreground),
+              ),
+            ),
+            const SizedBox(width: 6),
+            action,
+          ],
+        ),
+      ),
+    );
   }
 }
