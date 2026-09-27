@@ -26,5 +26,11 @@ String normalizeWholeAmountText(String text) {
 }
 
 int? parseWholeAmountText(String text) {
-  return int.tryParse(normalizeWholeAmountText(text));
+  final trimmed = text.trim();
+  final validGrouping = RegExp(r'^(?:\d+|\d{1,3}(?:,\d{3})+)
+);
+  if (!validGrouping.hasMatch(trimmed)) {
+    return null;
+  }
+  return int.tryParse(normalizeWholeAmountText(trimmed));
 }
