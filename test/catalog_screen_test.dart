@@ -257,6 +257,10 @@ void main() {
     expect(order.lines.single.productId, 'order-product');
     expect(order.lines.single.unitAmount, 1250);
     expect(order.lines.single.currency, 'SYP');
+    expect(
+      find.byKey(const Key('order-line-order-product')),
+      findsOneWidget,
+    );
     expect(catalog.createIds, isEmpty);
     expect(catalog.updateOriginals, isEmpty);
     expect(find.text('Added to cart.'), findsOneWidget);
