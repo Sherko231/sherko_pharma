@@ -101,7 +101,7 @@ class _AndroidBarcodeScannerScreenState
       _accepting = true;
       _message = 'Checking barcode...';
     });
-    await _camera.stop();
+    await _camera.pause();
     final result = await _scan.accept(code);
     if (!mounted) return;
 
