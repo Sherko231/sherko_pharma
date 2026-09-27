@@ -1,6 +1,6 @@
 # Sherko Pharma — Architecture
 
-Updated: 2026-09-26
+Updated: 2026-09-27
 Status: Product boundaries are agreed; the hosted schema, owner-only catalog API, authentication boundary, controlled 23,750-row source import, search/detail, create/edit, persistent drafts, manual order calculator, account-scoped page/order persistence, scoped refresh/price-change handling, and Android camera scanning are in place. Windows external-reader integration is deferred for later owner re-authorization. See `DEVELOPMENT_STATUS.md`.
 
 ## Current decision
