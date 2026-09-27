@@ -1,8 +1,8 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-27
-Task record: OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates. REL-001 / Issue #40 and SP-015 / Issue #38 remain completed baselines.
-Status: SP-013 is complete. SP-014 remains deferred. SP-015 delivery preparation is complete. Current verification policy is owner-local after pull; hosted CI is retired.
+Task record: SP-016 / Issue #44 refines Android barcode responsiveness and framing. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates. REL-001 / Issue #40 and SP-015 / Issue #38 remain completed baselines.
+Status: SP-016 preserves the SP-013 barcode/order contract while adding focused scan guidance and faster camera-side detection. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
 
 ## Verified baseline
 
@@ -14,6 +14,15 @@ Status: SP-013 is complete. SP-014 remains deferred. SP-015 delivery preparation
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-016 scanner refinement contract
+
+- Keep the existing exact barcode identity, ambiguity, authoritative catalog re-read, order mutation, and deliberate-repeat behavior unchanged.
+- Show a centered horizontal barcode guide and use the same rectangle as the actual scanner scan window.
+- Keep throttled `DetectionSpeed.normal` behavior while reducing the camera-side detection timeout from 250 ms to 100 ms.
+- Enable Android-supported auto zoom and tap-to-focus without restricting the accepted barcode formats.
+- Pause frame analysis after the first accepted capture so retries can rearm the existing camera session quickly while repeated frames remain blocked.
+- Real-device responsiveness and framing remain owner verification after pull/merge.
 
 ## SP-015 delivery contract
 
