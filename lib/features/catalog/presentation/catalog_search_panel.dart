@@ -147,6 +147,11 @@ class _CatalogSearchPanelState extends ConsumerState<CatalogSearchPanel> {
                         vertical: 11,
                       ),
                     ),
+                    onTap: () {
+                      if (widget.scannerOpen) {
+                        widget.onToggleScanner?.call();
+                      }
+                    },
                     onChanged: (query) {
                       ref
                           .read(catalogSearchControllerProvider.notifier)
@@ -166,7 +171,7 @@ class _CatalogSearchPanelState extends ConsumerState<CatalogSearchPanel> {
                     key: const Key('order-scan-barcode'),
                     tooltip:
                         widget.scannerOpen ? 'Close scanner' : 'Scan barcode',
-                    onPressed: widget.onToggleScanner,
+                    onPressed: _toggleScanner,
                     constraints: const BoxConstraints.tightFor(
                       width: 44,
                       height: 44,
@@ -213,6 +218,11 @@ class _CatalogSearchPanelState extends ConsumerState<CatalogSearchPanel> {
         _overlayController.hide();
       }
     });
+  }
+
+  void _toggleScanner() {
+    _clearSearch(keepFocus: false);
+    widget.onToggleScanner?.call();
   }
 
   void _dismissResults() {
