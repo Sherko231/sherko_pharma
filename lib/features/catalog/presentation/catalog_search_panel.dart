@@ -8,7 +8,6 @@ import '../../order/application/order_controller.dart';
 import '../application/catalog_detail_controller.dart';
 import '../application/catalog_search_controller.dart';
 import '../application/scoped_catalog_refresh_controller.dart';
-import '../data/catalog_repository.dart';
 import '../domain/catalog_product.dart';
 import 'catalog_detail_screen.dart';
 import 'catalog_product_form_screen.dart';

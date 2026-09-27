@@ -10,13 +10,13 @@ class CatalogScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      key: Key('catalog-workspace'),
-      padding: EdgeInsets.all(8),
+    return Padding(
+      key: const Key('catalog-workspace'),
+      padding: const EdgeInsets.all(8),
       child: Center(
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 900),
-          child: CatalogSearchPanel(maxResultsHeight: 420),
+          constraints: const BoxConstraints(maxWidth: 900),
+          child: const CatalogSearchPanel(maxResultsHeight: 420),
         ),
       ),
     );
