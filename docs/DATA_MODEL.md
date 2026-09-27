@@ -1,6 +1,6 @@
 # Sherko Pharma — Data Rules
 
-Status: SP-003 defines the versioned product schema and corrected-source mapping; SP-024 adds normalized manufacturer/dosage-form references and typed currency; SP-025 adds conservative derived composition normalization while preserving raw composition text. The hosted baseline through SP-024 is deployed and the approved corrected source was imported at 23,750 rows on 2026-09-25.
+Status: SP-003 defines the versioned product schema and corrected-source mapping; SP-024 adds normalized manufacturer/dosage-form references and typed currency; SP-025/SP-026 add conservative derived composition and strength normalization; SP-027 adds a private strict pharmaceutical-equivalence model while preserving all authoritative raw catalog fields. The hosted baseline through SP-024 is deployed and the approved corrected source was imported at 23,750 rows on 2026-09-25.
 
 ## Product identity and creation
 
@@ -73,6 +73,19 @@ Manufacturer and dosage-form reference rows have stable numeric IDs, canonical d
 - `app_private.product_ingredient_strengths` stores fully trusted ingredient-strength links. `app_private.product_strength_normalization` stores the raw source snapshot, status/reason, parsing counts, and order-independent ingredient-strength set key.
 - A strength-only product edit refreshes SP-026 directly. When composition and strength change together, SP-025 refreshes ingredient identities first and then SP-026 rebuilds the strength pairing. Structural backfill does not advance product revision or `updated_at`.
 - SP-026 equality still does not mean direct pharmaceutical substitution. SP-027 must additionally evaluate dosage form, route, and release semantics before a strict alternative can exist.
+
+### Pharmaceutical equivalence (SP-027)
+
+- SP-027 is derived/private metadata only. It does not rewrite `products.composition`, `products.strength`, `products.dosage_form`, `dosage_form_id`, source provenance, price/currency, barcode identity, or revision state.
+- `app_private.catalog_dosage_form_equivalence_profiles` classifies each SP-024 dosage-form reference into a form-class key, route class, release class, confidence/status, and reason. Unknown, mixed-route, or insufficiently specific labels remain review/unresolved.
+- The route model distinguishes oral, sublingual, oromucosal, ophthalmic, otic, nasal, cutaneous, vaginal, rectal, inhalation, and an explicitly non-strict `parenteral_unspecified` state. Injection-like records do not become strict alternatives unless a future task provides a sufficiently specific route.
+- Release classification distinguishes immediate, extended, delayed/enteric, and not-applicable semantics. Matching ingredients/strengths cannot collapse these release classes.
+- `app_private.product_pharmaceutical_equivalence` stores upstream composition/strength states, dosage-form classification, and a nullable strict equivalence key.
+- A strict key exists only when composition, strength, and dosage-form profiles are all trusted and complete. The key combines the SP-026 order-independent ingredient-strength set with form class, route, and release class.
+- `high_confidence` propagates from any trusted upstream dimension; SP-027 never silently upgrades it to `auto_verified`.
+- Products with unresolved/review composition or strength, missing dosage form, unknown/mixed form semantics, or unspecified parenteral route never receive a strict key.
+- Future composition changes refresh SP-025 → SP-026 → SP-027; strength-only changes refresh SP-026 → SP-027; dosage-form changes refresh SP-027 after SP-024 reference resolution.
+- SP-027 still does not expose alternatives. Query grouping belongs to SP-028 and UI presentation belongs to SP-029.
 
 New or edited manufacturer/dosage-form text is resolved atomically by the database trigger. A spelling-equivalent normalized value reuses the existing reference and returns its canonical display label. A genuinely new normalized value creates one new reference identity. Blank values remain nullable. Source text remains recoverable from `source_payload`.
 
