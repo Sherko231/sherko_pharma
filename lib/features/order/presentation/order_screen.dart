@@ -60,7 +60,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
                                   onCloseScanner: () => setState(
                                     () => _scannerOpen = false,
                                   ),
-                                  maxResultsHeight: 430,
+                                  maxResultsHeight: 300,
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -370,14 +370,14 @@ class _OrderLineCard extends ConsumerWidget {
 
     final compact = MediaQuery.sizeOf(context).width < 600;
     final controlConstraints = compact
-        ? const BoxConstraints.tightFor(width: 36, height: 36)
+        ? const BoxConstraints.tightFor(width: 34, height: 34)
         : null;
 
     return Card(
       key: Key('order-line-${line.productId}'),
-      margin: EdgeInsets.symmetric(vertical: compact ? 1 : 4),
+      margin: EdgeInsets.symmetric(vertical: compact ? 1 : 2),
       child: Padding(
-        padding: EdgeInsets.all(compact ? 10 : 16),
+        padding: EdgeInsets.all(compact ? 9 : 11),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -418,7 +418,7 @@ class _OrderLineCard extends ConsumerWidget {
                   visualDensity:
                       compact ? VisualDensity.compact : VisualDensity.standard,
                   constraints: controlConstraints,
-                  iconSize: compact ? 18 : 24,
+                  iconSize: compact ? 18 : 20,
                   icon: const Icon(Icons.remove),
                 ),
                 SizedBox(
@@ -447,7 +447,7 @@ class _OrderLineCard extends ConsumerWidget {
                   visualDensity:
                       compact ? VisualDensity.compact : VisualDensity.standard,
                   constraints: controlConstraints,
-                  iconSize: compact ? 18 : 24,
+                  iconSize: compact ? 18 : 20,
                   icon: const Icon(Icons.add),
                 ),
                 IconButton(
@@ -457,7 +457,7 @@ class _OrderLineCard extends ConsumerWidget {
                   visualDensity:
                       compact ? VisualDensity.compact : VisualDensity.standard,
                   constraints: controlConstraints,
-                  iconSize: compact ? 18 : 24,
+                  iconSize: compact ? 18 : 20,
                   icon: const Icon(Icons.delete_outline),
                 ),
               ],
@@ -519,7 +519,7 @@ class _PriceChangeNotice extends StatelessWidget {
       color: Theme.of(context).colorScheme.secondaryContainer,
       borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(8),
         child: Wrap(
           crossAxisAlignment: WrapCrossAlignment.center,
           spacing: 12,
