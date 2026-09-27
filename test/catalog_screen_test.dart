@@ -80,6 +80,45 @@ void main() {
     expect(after.height, before.height);
   });
 
+  testWidgets('dismissed search overlay stays dismissed across cart rebuilds', (
+    tester,
+  ) async {
+    final product = testProduct(id: 'dismissed-overlay');
+    final catalog = FakeCatalogRepository()
+      ..searchResults = [product]
+      ..products[product.id] = product;
+
+    await pumpCatalog(
+      tester,
+      catalog: catalog,
+    );
+
+    await tester.enterText(
+      find.byKey(const Key('catalog-search-field')),
+      'Aspirin',
+    );
+    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('catalog-search-overlay')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('cart-summary')));
+    await tester.pump();
+    expect(find.byKey(const Key('catalog-search-overlay')), findsNothing);
+
+    final shellContext = tester.element(find.byType(AppShell));
+    final container = ProviderScope.containerOf(shellContext);
+    container
+        .read(orderControllerProvider.notifier)
+        .addProduct(testProduct(id: 'rebuild-product', sellingAmount: 1000));
+    await tester.pump();
+
+    expect(find.byKey(const Key('catalog-search-overlay')), findsNothing);
+    final searchField = tester.widget<TextField>(
+      find.byKey(const Key('catalog-search-field')),
+    );
+    expect(searchField.controller?.text, 'Aspirin');
+  });
+
   testWidgets('phone search renders Arabic data and opens current detail', (
     tester,
   ) async {
