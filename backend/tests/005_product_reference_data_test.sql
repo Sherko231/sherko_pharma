@@ -90,6 +90,43 @@ begin
   set local role authenticated;
   set local "request.jwt.claim.sub" = '11111111-1111-1111-1111-111111111111';
 
+  perform *
+  from public.catalog_update(
+    created_id,
+    1,
+    'Reference Test',
+    null,
+    'PARACETAMOL',
+    null,
+    '500 MG',
+    null,
+    '20 tablets',
+    null,
+    null,
+    1000,
+    'SYP',
+    null
+  );
+
+  reset role;
+
+  if exists (
+    select 1
+    from public.products
+    where id = created_id
+      and (
+        manufacturer is not null
+        or manufacturer_id is not null
+        or dosage_form is not null
+        or dosage_form_id is not null
+      )
+  ) then
+    raise exception 'clearing reference text did not clear its FK/cache pair';
+  end if;
+
+  set local role authenticated;
+  set local "request.jwt.claim.sub" = '11111111-1111-1111-1111-111111111111';
+
   begin
     perform *
     from public.catalog_create_idempotent(
