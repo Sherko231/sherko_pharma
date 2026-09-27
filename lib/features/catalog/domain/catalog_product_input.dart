@@ -1,3 +1,4 @@
+import '../../../shared/formatting/whole_amount.dart';
 import 'catalog_product.dart';
 
 class CatalogProductInput {
@@ -109,7 +110,7 @@ class CatalogProductFormData {
       packageDescription: product.packageDescription ?? '',
       barcode: product.barcode ?? '',
       barcode2: product.barcode2 ?? '',
-      sellingAmountText: product.sellingAmount.toString(),
+      sellingAmountText: formatWholeAmount(product.sellingAmount),
       currency: product.currency,
       notes: product.notes ?? '',
     );
@@ -137,7 +138,7 @@ class CatalogProductFormData {
       errors['names'] = 'Enter an English or Arabic name.';
     }
 
-    final amount = int.tryParse(sellingAmountText);
+    final amount = parseWholeAmountText(sellingAmountText);
     if (amount == null || amount <= 0) {
       errors['sellingAmount'] = 'Enter a positive whole-number selling price.';
     }
@@ -165,7 +166,7 @@ class CatalogProductFormData {
       packageDescription: packageDescription,
       barcode: barcode,
       barcode2: barcode2,
-      sellingAmount: int.parse(sellingAmountText),
+      sellingAmount: parseWholeAmountText(sellingAmountText)!,
       currency: currency,
       notes: notes,
     );
