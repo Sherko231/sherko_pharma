@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -29,6 +30,45 @@ Rect barcodeScanWindowForSize(Size size) {
   );
 }
 
+
+enum ScannerFeedbackState {
+  idle,
+  checking,
+  success,
+  error,
+}
+
+ScannerFeedbackState scannerFeedbackStateForResult(BarcodeScanResult? result) {
+  if (result == null) {
+    return ScannerFeedbackState.idle;
+  }
+
+  return switch (result.status) {
+    BarcodeScanStatus.added ||
+    BarcodeScanStatus.incremented =>
+      ScannerFeedbackState.success,
+    BarcodeScanStatus.unknown ||
+    BarcodeScanStatus.ambiguous ||
+    BarcodeScanStatus.invalidPrice ||
+    BarcodeScanStatus.overflow ||
+    BarcodeScanStatus.failed =>
+      ScannerFeedbackState.error,
+  };
+}
+
+Color scannerFeedbackColor(ScannerFeedbackState state) {
+  return switch (state) {
+    ScannerFeedbackState.idle => Colors.white,
+    ScannerFeedbackState.checking => Colors.amber,
+    ScannerFeedbackState.success => Colors.greenAccent,
+    ScannerFeedbackState.error => Colors.redAccent,
+  };
+}
+
+bool scannerShouldPlaySuccessSound(BarcodeScanResult? result) {
+  return result?.status == BarcodeScanStatus.added ||
+      result?.status == BarcodeScanStatus.incremented;
+}
 
 class BarcodePresentationGate {
   BarcodePresentationGate({
@@ -97,7 +137,9 @@ class _AndroidBarcodeScannerPanelState
   late final BarcodeScanController _scan;
   final BarcodePresentationGate _presentationGate = BarcodePresentationGate();
   Timer? _releaseTimer;
+  Timer? _feedbackTimer;
   bool _processing = false;
+  ScannerFeedbackState _feedbackState = ScannerFeedbackState.idle;
   String? _message;
 
   @override
@@ -119,6 +161,7 @@ class _AndroidBarcodeScannerPanelState
   @override
   void dispose() {
     _releaseTimer?.cancel();
+    _feedbackTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _camera.dispose();
     super.dispose();
@@ -172,8 +215,10 @@ class _AndroidBarcodeScannerPanelState
       return;
     }
 
+    _feedbackTimer?.cancel();
     setState(() {
       _processing = true;
+      _feedbackState = ScannerFeedbackState.checking;
       _message = 'Checking...';
     });
 
@@ -184,9 +229,41 @@ class _AndroidBarcodeScannerPanelState
 
     _presentationGate.lock(code, DateTime.now());
 
+    final feedbackState = scannerFeedbackStateForResult(result);
+    if (scannerShouldPlaySuccessSound(result)) {
+      unawaited(_playSuccessSound());
+    }
+
     setState(() {
       _processing = false;
+      _feedbackState = feedbackState;
       _message = _messageFor(result);
+    });
+    _scheduleFeedbackReset(feedbackState);
+  }
+
+  Future<void> _playSuccessSound() async {
+    try {
+      await SystemSound.play(SystemSoundType.click);
+    } catch (_) {
+      // Sound feedback is best-effort and must never block scanning.
+    }
+  }
+
+  void _scheduleFeedbackReset(ScannerFeedbackState state) {
+    _feedbackTimer?.cancel();
+    if (state != ScannerFeedbackState.success &&
+        state != ScannerFeedbackState.error) {
+      return;
+    }
+
+    _feedbackTimer = Timer(const Duration(milliseconds: 650), () {
+      if (!mounted || _processing) {
+        return;
+      }
+      setState(() {
+        _feedbackState = ScannerFeedbackState.idle;
+      });
     });
   }
 
@@ -252,6 +329,8 @@ class _AndroidBarcodeScannerPanelState
                               overlayBuilder: (context, constraints) =>
                                   _BarcodeScannerOverlay(
                                 scanWindow: scanWindow,
+                                frameColor:
+                                    scannerFeedbackColor(_feedbackState),
                               ),
                               errorBuilder: (context, error) => Center(
                                 child: Padding(
@@ -333,24 +412,35 @@ class _AndroidBarcodeScannerPanelState
 }
 
 class _BarcodeScannerOverlay extends StatelessWidget {
-  const _BarcodeScannerOverlay({required this.scanWindow});
+  const _BarcodeScannerOverlay({
+    required this.scanWindow,
+    required this.frameColor,
+  });
 
   final Rect scanWindow;
+  final Color frameColor;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox.expand(
       child: CustomPaint(
-        painter: _BarcodeScannerOverlayPainter(scanWindow: scanWindow),
+        painter: _BarcodeScannerOverlayPainter(
+          scanWindow: scanWindow,
+          frameColor: frameColor,
+        ),
       ),
     );
   }
 }
 
 class _BarcodeScannerOverlayPainter extends CustomPainter {
-  const _BarcodeScannerOverlayPainter({required this.scanWindow});
+  const _BarcodeScannerOverlayPainter({
+    required this.scanWindow,
+    required this.frameColor,
+  });
 
   final Rect scanWindow;
+  final Color frameColor;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -375,7 +465,7 @@ class _BarcodeScannerOverlayPainter extends CustomPainter {
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2
-        ..color = Colors.white,
+        ..color = frameColor,
     );
 
     canvas.drawLine(
@@ -383,12 +473,13 @@ class _BarcodeScannerOverlayPainter extends CustomPainter {
       Offset(scanWindow.right - 14, scanWindow.center.dy),
       Paint()
         ..strokeWidth = 2
-        ..color = Colors.white70,
+        ..color = frameColor.withValues(alpha: 0.80),
     );
   }
 
   @override
   bool shouldRepaint(covariant _BarcodeScannerOverlayPainter oldDelegate) {
-    return oldDelegate.scanWindow != scanWindow;
+    return oldDelegate.scanWindow != scanWindow ||
+        oldDelegate.frameColor != frameColor;
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sherko_pharma/features/scanning/application/barcode_scan_controller.dart';
 import 'package:sherko_pharma/features/scanning/presentation/android_barcode_scanner_screen.dart';
 
 void main() {
@@ -45,6 +46,73 @@ void main() {
     expect(window.top, greaterThanOrEqualTo(0));
     expect(window.right, lessThanOrEqualTo(preview.width));
     expect(window.bottom, lessThanOrEqualTo(preview.height));
+  });
+
+  group('scanner feedback', () {
+    test('added and incremented scans map to success', () {
+      expect(
+        scannerFeedbackStateForResult(
+          const BarcodeScanResult(BarcodeScanStatus.added),
+        ),
+        ScannerFeedbackState.success,
+      );
+      expect(
+        scannerFeedbackStateForResult(
+          const BarcodeScanResult(BarcodeScanStatus.incremented),
+        ),
+        ScannerFeedbackState.success,
+      );
+    });
+
+    test('non-mutating scan outcomes map to error', () {
+      for (final status in [
+        BarcodeScanStatus.unknown,
+        BarcodeScanStatus.ambiguous,
+        BarcodeScanStatus.invalidPrice,
+        BarcodeScanStatus.overflow,
+        BarcodeScanStatus.failed,
+      ]) {
+        expect(
+          scannerFeedbackStateForResult(BarcodeScanResult(status)),
+          ScannerFeedbackState.error,
+        );
+      }
+    });
+
+    test('success sound is allowed only for real order mutations', () {
+      expect(
+        scannerShouldPlaySuccessSound(
+          const BarcodeScanResult(BarcodeScanStatus.added),
+        ),
+        isTrue,
+      );
+      expect(
+        scannerShouldPlaySuccessSound(
+          const BarcodeScanResult(BarcodeScanStatus.incremented),
+        ),
+        isTrue,
+      );
+      expect(
+        scannerShouldPlaySuccessSound(
+          const BarcodeScanResult(BarcodeScanStatus.unknown),
+        ),
+        isFalse,
+      );
+      expect(scannerShouldPlaySuccessSound(null), isFalse);
+    });
+
+    test('feedback colors are distinct for each scanner state', () {
+      expect(scannerFeedbackColor(ScannerFeedbackState.idle), Colors.white);
+      expect(scannerFeedbackColor(ScannerFeedbackState.checking), Colors.amber);
+      expect(
+        scannerFeedbackColor(ScannerFeedbackState.success),
+        Colors.greenAccent,
+      );
+      expect(
+        scannerFeedbackColor(ScannerFeedbackState.error),
+        Colors.redAccent,
+      );
+    });
   });
 
   group('barcode presentation gate', () {
