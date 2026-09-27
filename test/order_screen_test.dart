@@ -65,6 +65,14 @@ void main() {
     await tester.pump();
 
     expect(find.byKey(const Key('order-lines')), findsOneWidget);
+    expect(find.text('2 items'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('order-lines')),
+        matching: find.byType(Card),
+      ),
+      findsNothing,
+    );
     expect(find.text('1,000 SYP'), findsWidgets);
     expect(find.text('5 USD'), findsWidgets);
 
@@ -158,7 +166,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('order-price-change-p1')), findsOneWidget);
-    expect(find.textContaining('1,000 SYP to 1,500 SYP'), findsOneWidget);
+    expect(find.textContaining('1,000 SYP → 1,500 SYP'), findsOneWidget);
     expect(
       find.descendant(
         of: find.byKey(const Key('order-total-syp')),

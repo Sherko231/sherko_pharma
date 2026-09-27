@@ -51,7 +51,7 @@ void main() {
     expect(find.byType(NavigationBar), findsNothing);
     expect(find.byType(NavigationRail), findsNothing);
     expect(find.byKey(const Key('cart-workspace')), findsOneWidget);
-    expect(find.text('Cart'), findsOneWidget);
+    expect(find.byKey(const Key('cart-summary')), findsOneWidget);
     expect(find.byKey(const Key('catalog-search-field')), findsOneWidget);
     expect(find.byKey(const Key('order-new')), findsOneWidget);
     final shellContext = tester.element(find.byType(AppShell));
@@ -76,6 +76,10 @@ void main() {
     expect(find.byType(NavigationBar), findsNothing);
     expect(find.byKey(const Key('cart-workspace')), findsOneWidget);
     expect(find.byKey(const Key('catalog-search-panel')), findsOneWidget);
+    expect(
+      tester.getSize(find.byKey(const Key('catalog-search-panel'))).width,
+      420,
+    );
     expect(find.byKey(const Key('order-empty')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

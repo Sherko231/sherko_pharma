@@ -32,6 +32,7 @@ Package versions are pinned in `pubspec.yaml`/`pubspec.lock` after compatibility
 Organize code by feature: authentication, catalog, order, and scanning. Keep application bootstrap and shared UI separate from feature behavior. Each feature separates widgets from controllers and data access as needed; do not generate empty layers just to match a folder diagram.
 
 - Widgets render state and dispatch user actions. They do not issue database queries.
+- SP-022 keeps the Cart as the persistent primary pane. The catalog search panel is a presentation adapter over the existing search/repository controllers: its result overlay changes layout behavior only, not query or authorization semantics. Wide windows use a supporting acquisition pane; compact windows stack acquisition controls above the same cart.
 - Controllers manage user actions and state transitions.
 - Repositories expose typed operations and hide Supabase or local storage details.
 - Domain models and the order calculator are independently testable Dart code.

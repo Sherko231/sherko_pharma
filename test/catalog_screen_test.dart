@@ -52,6 +52,73 @@ void main() {
     expect(find.byKey(const Key('order-empty')), findsOneWidget);
   });
 
+  testWidgets('search results overlay without shrinking the cart', (
+    tester,
+  ) async {
+    final product = testProduct(id: 'overlay-product');
+    final catalog = FakeCatalogRepository()
+      ..searchResults = [product]
+      ..products[product.id] = product;
+
+    await pumpCatalog(
+      tester,
+      catalog: catalog,
+    );
+
+    final before = tester.getRect(find.byKey(const Key('cart-summary')));
+
+    await tester.enterText(
+      find.byKey(const Key('catalog-search-field')),
+      'Aspirin',
+    );
+    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pumpAndSettle();
+
+    final after = tester.getRect(find.byKey(const Key('cart-summary')));
+    expect(find.byKey(const Key('catalog-search-overlay')), findsOneWidget);
+    expect(after.top, before.top);
+    expect(after.height, before.height);
+  });
+
+  testWidgets('dismissed search overlay stays dismissed across cart rebuilds', (
+    tester,
+  ) async {
+    final product = testProduct(id: 'dismissed-overlay');
+    final catalog = FakeCatalogRepository()
+      ..searchResults = [product]
+      ..products[product.id] = product;
+
+    await pumpCatalog(
+      tester,
+      catalog: catalog,
+    );
+
+    await tester.enterText(
+      find.byKey(const Key('catalog-search-field')),
+      'Aspirin',
+    );
+    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('catalog-search-overlay')), findsOneWidget);
+
+    await tester.tap(find.text('Sherko Pharma'));
+    await tester.pump();
+    expect(find.byKey(const Key('catalog-search-overlay')), findsNothing);
+
+    final shellContext = tester.element(find.byType(AppShell));
+    final container = ProviderScope.containerOf(shellContext);
+    container
+        .read(orderControllerProvider.notifier)
+        .addProduct(testProduct(id: 'rebuild-product', sellingAmount: 1000));
+    await tester.pump();
+
+    expect(find.byKey(const Key('catalog-search-overlay')), findsNothing);
+    final searchField = tester.widget<TextField>(
+      find.byKey(const Key('catalog-search-field')),
+    );
+    expect(searchField.controller?.text, 'Aspirin');
+  });
+
   testWidgets('phone search renders Arabic data and opens current detail', (
     tester,
   ) async {
@@ -75,7 +142,9 @@ void main() {
     await tester.pump(const Duration(milliseconds: 301));
     await tester.pumpAndSettle();
 
+    expect(find.byKey(const Key('catalog-search-overlay')), findsOneWidget);
     expect(find.byKey(const Key('catalog-search-results')), findsOneWidget);
+    expect(find.byKey(const Key('cart-summary')), findsOneWidget);
     final resultCard = find.byKey(Key('catalog-result-${product.id}'));
     expect(
       find.descendant(
@@ -151,7 +220,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('catalog-search-error')), findsOneWidget);
-    expect(find.text('Could not load the catalog'), findsOneWidget);
+    expect(find.text('Could not load products'), findsOneWidget);
     expect(find.byKey(const Key('catalog-search-retry')), findsOneWidget);
   });
 
@@ -264,6 +333,12 @@ void main() {
     expect(catalog.createIds, isEmpty);
     expect(catalog.updateOriginals, isEmpty);
     expect(find.text('Added to cart.'), findsOneWidget);
+    final searchField = tester.widget<TextField>(
+      find.byKey(const Key('catalog-search-field')),
+    );
+    expect(searchField.controller?.text, isEmpty);
+    expect(find.byKey(const Key('catalog-search-overlay')), findsNothing);
+    expect(find.text('1 item'), findsOneWidget);
   });
 
   testWidgets('catalog rejects zero-price product with clear feedback', (

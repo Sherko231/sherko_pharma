@@ -14,7 +14,11 @@ The primary `Cart` workspace combines product acquisition and order calculation.
 
 - `Cart` is the single primary workspace after authentication. Do not expose separate Catalog and Order destinations for the normal workflow.
 - Manual catalog search, Android barcode scanning, current cart lines, quantities, separate SYP/USD totals, and `New Order` belong in the same workspace. Product detail/create/edit may still open focused secondary screens.
+- Product acquisition is the primary Cart action: search is always immediately available, Android Scan sits beside search, and switching between search and scanner must not require page navigation.
+- Search results are temporary elevated content associated with the search field; they must not permanently reduce the visible cart area. After a successful manual add/increment, clear the query and leave search ready for the next product.
+- Cart totals and New Order remain visible while cart lines scroll. Cart lines use a flat dense list with dividers rather than a separate large card for every product.
 - Compact visual density is the application default on phone and desktop. Minimize unnecessary vertical space, oversized headers, padding, gaps, cards and navigation chrome; keep related primary actions close to their content. Compact must not mean unreadable text or unusably small touch targets.
+- On wide windows, use a supporting acquisition pane beside the persistent cart instead of stretching the phone layout across the screen.
 - Prefer an inline workflow over a separate full-screen destination when actions belong to the same primary task, as with search/scanning and cart management.
 - Display every whole-unit monetary amount with comma thousands grouping using Western digits, for example `245000` as `245,000` and `1250000` as `1,250,000`. Formatting is presentation/input normalization only: stored and calculated monetary values remain exact integers and currency rules do not change.
 - Preserve readable Arabic product data within compact layouts; truncate secondary metadata before hiding the product identity, price, quantity or primary actions.
@@ -119,7 +123,7 @@ The separate administration application will eventually replace in-app catalog e
 5. Unknown barcodes produce a message without modifying the order or creating a product.
 6. Search supports Arabic name, English name, and active ingredient/composition, with manual addition to the order.
 7. Quantity changes and line removal update the total correctly using the selling price and the source-defined package unit.
-8. Closing and reopening the app restores the active order and page/location without creating a historical sale.
+8. Closing and reopening the app restores the active order into Cart without creating a historical sale.
 9. The English interface can display the supplied Arabic content readably.
 10. Unauthorized or signed-out requests cannot access or modify the catalog, even outside the application UI.
 11. A server price change does not silently change an existing order total. The owner is notified and can explicitly update the line price.
@@ -138,6 +142,6 @@ These are explicit open questions, not permission to invent additional features:
 
 - Exact display layout, complete source-to-schema mapping, and remaining validation limits; the editable fields and minimum name requirement are confirmed in `DATA_MODEL.md`.
 - Handling invalid imported prices; see `DATA_MODEL.md` for confirmed source currency, integer-price, and per-currency rules.
-- Detailed screen layout; confirmed session, sign-out, draft restoration, reset, and navigation rules are in `UX_FLOWS.md`.
+- Fine-grained visual polish may evolve, but the Cart hierarchy, compact-density, transient-search-results, persistent-summary, flat-list and adaptive-pane rules are confirmed in `UX_FLOWS.md`.
 
 Technical architecture, engineering workflow, quality gates, and delivery phases belong in their respective documents. Future ideas do not enter implementation scope until explicitly approved.
