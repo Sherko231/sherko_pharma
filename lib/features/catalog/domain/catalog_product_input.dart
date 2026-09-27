@@ -1,5 +1,6 @@
 import '../../../shared/formatting/whole_amount.dart';
 import 'catalog_product.dart';
+import 'catalog_reference_text.dart';
 
 class CatalogProductInput {
   const CatalogProductInput({
@@ -51,9 +52,9 @@ class CatalogProductInput {
     return _serverText(nameEn) == product.nameEn &&
         _serverText(nameAr) == product.nameAr &&
         _serverText(composition) == product.composition &&
-        _referenceText(manufacturer) == _referenceText(product.manufacturer) &&
+        normalizeCatalogReferenceText(manufacturer) == normalizeCatalogReferenceText(product.manufacturer) &&
         _serverText(strength) == product.strength &&
-        _referenceText(dosageForm) == _referenceText(product.dosageForm) &&
+        normalizeCatalogReferenceText(dosageForm) == normalizeCatalogReferenceText(product.dosageForm) &&
         _serverText(packageDescription) == product.packageDescription &&
         _serverText(barcode) == product.barcode &&
         _serverText(barcode2) == product.barcode2 &&
@@ -66,27 +67,6 @@ class CatalogProductInput {
     return value.trim().isEmpty ? null : value;
   }
 
-  static String? _referenceText(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return null;
-    }
-
-    const source = 'آأإٱؤئىيک٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹';
-    const target = 'ااااويييك01234567890123456789';
-    final buffer = StringBuffer();
-    for (final rune in value.trim().toLowerCase().runes) {
-      final character = String.fromCharCode(rune);
-      final index = source.indexOf(character);
-      buffer.write(index >= 0 ? target[index] : character);
-    }
-
-    return buffer
-        .toString()
-        .replaceAll(RegExp(r'[ًٌٍَُِّْٰـ]'), '')
-        .replaceAll(RegExp(r'[^a-z0-9\u0600-\u06ff]+'), ' ')
-        .trim()
-        .replaceAll(RegExp(r'\s+'), ' ');
-  }
 }
 
 class CatalogProductFormData {
