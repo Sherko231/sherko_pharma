@@ -52,6 +52,34 @@ void main() {
     expect(find.byKey(const Key('order-empty')), findsOneWidget);
   });
 
+  testWidgets('search results overlay without shrinking the cart', (
+    tester,
+  ) async {
+    final product = testProduct(id: 'overlay-product');
+    final catalog = FakeCatalogRepository()
+      ..searchResults = [product]
+      ..products[product.id] = product;
+
+    await pumpCatalog(
+      tester,
+      catalog: catalog,
+    );
+
+    final before = tester.getRect(find.byKey(const Key('cart-summary')));
+
+    await tester.enterText(
+      find.byKey(const Key('catalog-search-field')),
+      'Aspirin',
+    );
+    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pumpAndSettle();
+
+    final after = tester.getRect(find.byKey(const Key('cart-summary')));
+    expect(find.byKey(const Key('catalog-search-overlay')), findsOneWidget);
+    expect(after.top, before.top);
+    expect(after.height, before.height);
+  });
+
   testWidgets('phone search renders Arabic data and opens current detail', (
     tester,
   ) async {
