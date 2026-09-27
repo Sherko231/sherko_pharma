@@ -64,9 +64,6 @@ void main() {
     );
     await tester.pump();
 
-    await tester.tap(find.text('Order'));
-    await tester.pumpAndSettle();
-
     expect(find.byKey(const Key('order-lines')), findsOneWidget);
     expect(find.text('1,000 SYP'), findsWidgets);
     expect(find.text('5 USD'), findsWidgets);
@@ -104,9 +101,6 @@ void main() {
         .read(orderControllerProvider.notifier)
         .addProduct(testProduct(id: 'p1', sellingAmount: 1000));
     await tester.pump();
-
-    await tester.tap(find.text('Order'));
-    await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const Key('order-new')));
     await tester.pumpAndSettle();
@@ -165,9 +159,6 @@ void main() {
         .refreshNow();
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Order'));
-    await tester.pumpAndSettle();
-
     expect(find.byKey(const Key('order-price-change-p1')), findsOneWidget);
     expect(find.textContaining('1,000 SYP to 1,500 SYP'), findsOneWidget);
     expect(
@@ -217,9 +208,6 @@ void main() {
     await container
         .read(scopedCatalogRefreshControllerProvider.notifier)
         .refreshNow();
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Order'));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('order-price-change-p1')), findsOneWidget);
