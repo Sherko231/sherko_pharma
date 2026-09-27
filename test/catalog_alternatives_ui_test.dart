@@ -164,8 +164,12 @@ void main() {
     );
 
     expect(find.text('Exact Brand'), findsOneWidget);
-    expect(find.text('Company: Asia Pharma'), findsOneWidget);
-    expect(find.text('Strength: 500 mg  •  Form: Tablet'), findsWidgets);
+    expect(find.text('Company: '), findsWidgets);
+    expect(find.text('Asia Pharma'), findsOneWidget);
+    expect(find.text('Strength: '), findsWidgets);
+    expect(find.text('500 mg'), findsWidgets);
+    expect(find.text('Form: '), findsWidgets);
+    expect(find.text('Tablet'), findsWidgets);
     expect(find.text('12,000 SYP'), findsOneWidget);
     expect(
       find.byKey(const Key('catalog-alternative-add-exact')),
