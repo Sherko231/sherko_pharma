@@ -162,7 +162,7 @@ class _AndroidBarcodeScannerScreenState
                   controller: _camera,
                   onDetect: _detected,
                   scanWindow: scanWindow,
-                  scanWindowUpdateThreshold: 8,
+                  scanWindowUpdateThreshold: 0.01,
                   tapToFocus: true,
                   overlayBuilder: (context, constraints) =>
                       _BarcodeScannerOverlay(scanWindow: scanWindow),
