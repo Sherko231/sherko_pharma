@@ -46,7 +46,7 @@ python tool/catalog_import.py emit-sql \
   --output "import_working_dir/catalog-import.sql"
 ```
 
-The generated SQL contains private source data. On POSIX systems the tool creates/restricts it to mode `600`. Keep it out of Git, logs, shared folders, and CI artifacts; delete it when no longer needed.
+The generated SQL contains private source data. On POSIX systems the tool creates/restricts it to mode `600`. Keep it out of Git, logs, shared folders, and distributable artifacts; delete it when no longer needed.
 
 The SQL:
 
