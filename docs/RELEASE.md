@@ -44,7 +44,7 @@ keyAlias=<private key alias>
 storeFile=<absolute path to the private .jks/.keystore file>
 ```
 
-A release build fails if `android/key.properties` is absent or required properties are empty. CI uses a disposable synthetic keystore solely to prove the release configuration; it is not a distribution key.
+A release build fails if `android/key.properties` is absent or required properties are empty. Use only the owner's external release/upload keystore for a distributable Android build.
 
 Build a configured signed APK from the repository root:
 
@@ -54,7 +54,7 @@ flutter build apk --release `
   --dart-define=SUPABASE_PUBLISHABLE_KEY="$env:SHERKO_SUPABASE_PUBLISHABLE_KEY"
 ```
 
-The expected APK is `build/app/outputs/flutter-apk/app-release.apk`. Keep the private keystore and `key.properties` separate from the APK and never place either in a CI artifact.
+The expected APK is `build/app/outputs/flutter-apk/app-release.apk`. Keep the private keystore and `key.properties` separate from the APK and never commit or distribute the signing material.
 
 For Play Store publication, use the store's current signing/upload-key process and build the requested artifact type with the same external signing configuration. Store submission is outside SP-015.
 
@@ -78,9 +78,9 @@ Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath sherk
 
 The repository does not configure a Windows code-signing certificate. A successful Windows release build is therefore a technical delivery candidate, not evidence of a trusted production-signed executable. Obtain and apply an appropriate code-signing certificate before public distribution if required by the chosen distribution channel.
 
-## Verification artifacts and retention
+## Owner-controlled artifacts
 
-GitHub CI verifies release-mode builds but does not upload or retain distributable APK/Windows bundles. This deliberately avoids publishing unconfigured binaries or production data/configuration.
+Hosted CI is not used. Build and package release candidates locally under owner control.
 
 For an owner-controlled delivery:
 
@@ -103,9 +103,8 @@ For an owner-controlled delivery:
 
 Do not call an artifact publicly production-ready until all of the following are true for that exact revision/artifact:
 
-- required repository checks pass;
-- owner acceptance required by [QUALITY.md](QUALITY.md) is recorded;
-- Android is signed with the owner's real release/upload key, not the CI key;
+- the owner has tested the intended artifact to the level appropriate for the release;
+- Android is signed with the owner's real release/upload key;
 - Windows code-signing requirements for the chosen channel are resolved if applicable;
 - runtime configuration points to the intended hosted environment;
 - package/store identity availability and store-specific metadata are confirmed;
