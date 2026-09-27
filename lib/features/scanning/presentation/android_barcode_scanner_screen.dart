@@ -392,7 +392,7 @@ class _AndroidBarcodeScannerPanelState
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
-                              vertical: 4,
+                              vertical: 2,
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -400,8 +400,8 @@ class _AndroidBarcodeScannerPanelState
                               children: [
                                 if (_processing) ...[
                                   const SizedBox(
-                                    width: 11,
-                                    height: 11,
+                                    width: 10,
+                                    height: 10,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       color: Colors.white,
