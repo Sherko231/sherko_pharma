@@ -22,7 +22,7 @@ Status: SP-018 fixes the compact overlay sizing/centering and reduces Order-page
 - Keep the close action overlaid on the preview and the result/checking status to one compact line.
 - Make the overlay explicitly fill the complete camera preview before painting the guide so its coordinate system matches the scan window.
 - Use a smaller centered guide capped at 300 px wide and 58 px high; update the internal scan window on every actual geometry change instead of applying a threshold.
-- Compact the mobile Order header into one title/totals row plus one side-by-side actions row.
+- Compact the mobile Order header into one title/totals row plus one side-by-side actions row, and reduce mobile order-row padding/control sizes so scanned items stay visible.
 - Real-device visual alignment remains owner verification after pull/merge.
 
 ## SP-017 continuous scanner contract
