@@ -54,6 +54,9 @@ void main() {
     expect(find.text('Cart'), findsOneWidget);
     expect(find.byKey(const Key('catalog-search-field')), findsOneWidget);
     expect(find.byKey(const Key('order-new')), findsOneWidget);
+    final shellContext = tester.element(find.byType(AppShell));
+    expect(Theme.of(shellContext).visualDensity, VisualDensity.compact);
+    expect(Theme.of(shellContext).inputDecorationTheme.isDense, isTrue);
     expect(
       container.read(appNavigationControllerProvider),
       AppDestination.order,
