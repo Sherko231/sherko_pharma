@@ -14,6 +14,10 @@ enum OrderActionResult {
 }
 
 class OrderController extends Notifier<OrderState> {
+  int _mutationGeneration = 0;
+
+  int get mutationGeneration => _mutationGeneration;
+
   @override
   OrderState build() {
     return const OrderState();
@@ -78,11 +82,13 @@ class OrderController extends Notifier<OrderState> {
   }
 
   void clear() {
+    _mutationGeneration++;
     state = const OrderState();
   }
 
   void replaceForSession(OrderState restored) {
     _checkedTotals(restored.lines);
+    _mutationGeneration++;
     state = restored;
   }
 
