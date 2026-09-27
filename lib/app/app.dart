@@ -18,6 +18,10 @@ class SherkoPharmaApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
+        visualDensity: VisualDensity.compact,
+        inputDecorationTheme: const InputDecorationTheme(
+          isDense: true,
+        ),
       ),
       home: switch (runtime.status) {
         AppRuntimeStatus.configured => const AuthGate(),

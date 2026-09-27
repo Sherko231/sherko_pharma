@@ -1,8 +1,8 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-27
-Task record: SP-020 / Issue #52 formats monetary amounts and refines Android scanner feedback. SP-019 / Issue #50 remains the color-feedback baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
-Status: SP-020 applies comma-grouped amount display, disables scanner auto zoom, and replaces the quiet system click with a native Android beep plus light haptic feedback. Barcode lookup/order semantics remain unchanged. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
+Task record: SP-021 / Issue #54 merges catalog search and order management into one compact Cart workspace. SP-020 / Issue #52 remains the amount/scanner-feedback baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
+Status: SP-021 removes visible Catalog/Order navigation, makes Cart the always-primary workspace, embeds authoritative manual search beside the existing scanner/order controls, and records permanent compact-density and monetary-formatting rules. Backend, barcode identity and order semantics remain unchanged. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
 
 ## Verified baseline
 
@@ -14,6 +14,17 @@ Status: SP-020 applies comma-grouped amount display, disables scanner auto zoom,
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-021 unified Cart contract
+
+- Cart is the only visible primary application workspace after authentication; separate Catalog and Order navigation controls are removed.
+- The same Cart page contains manual catalog search, Android Scan, current lines, quantity/remove controls, separate SYP/USD totals and New Order.
+- Manual search keeps the existing server search and exact revalidation-before-add semantics. Product detail, product creation and product editing remain reachable as focused secondary routes.
+- Phone layout stacks compact search/scanner/cart sections; wide desktop layout places compact acquisition controls beside the cart without creating another destination.
+- Search result space is bounded so results do not replace the cart; result rows and cart rows use reduced padding/gaps/control chrome while preserving readable product identity and prices.
+- Legacy version-1 session destination values remain parseable, but restoration normalizes the visible workspace to Cart and preserves the exact persisted order values.
+- Permanent product UI rules now require comma thousands grouping for whole-unit monetary display/input and compact density throughout the application.
+- No Supabase/schema/API, barcode lookup, captured price/currency, draft, refresh or order-calculation semantics change in SP-021.
 
 ## SP-020 amount-format and scanner-feedback contract
 
@@ -85,6 +96,7 @@ Status: SP-020 applies comma-grouped amount display, disables scanner auto zoom,
 
 ## Implementation state
 
+- SP-021 presents the customer workflow as one compact Cart workspace with embedded manual search and Android scanning; the previous visible Catalog/Order navigation is retired.
 - Added an Android-only order Scan action backed by `mobile_scanner`, pinned to a reviewed upstream commit in the application lockfile.
 - Added exact `catalog_lookup_barcode` repository access without direct product-table reads or a new backend migration.
 - Barcode lookup preserves the scanned string, deduplicates results by product ID, and treats multiple distinct product matches as ambiguous.

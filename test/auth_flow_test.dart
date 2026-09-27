@@ -71,7 +71,7 @@ void main() {
     expect(gateway.lastEmail, 'owner@example.test');
     expect(gateway.lastPassword, 'temporary-secret');
     expect(find.byType(AppShell), findsOneWidget);
-    expect(find.byKey(const Key('catalog-workspace')), findsOneWidget);
+    expect(find.byKey(const Key('cart-workspace')), findsOneWidget);
   });
 
   testWidgets('failed sign-in is generic and clears only the password', (

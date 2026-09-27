@@ -64,9 +64,6 @@ void main() {
     );
     await tester.pump();
 
-    await tester.tap(find.text('Order'));
-    await tester.pumpAndSettle();
-
     expect(find.byKey(const Key('order-lines')), findsOneWidget);
     expect(find.text('1,000 SYP'), findsWidgets);
     expect(find.text('5 USD'), findsWidgets);
@@ -105,9 +102,6 @@ void main() {
         .addProduct(testProduct(id: 'p1', sellingAmount: 1000));
     await tester.pump();
 
-    await tester.tap(find.text('Order'));
-    await tester.pumpAndSettle();
-
     await tester.tap(find.byKey(const Key('order-new')));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('new-order-dialog')), findsOneWidget);
@@ -128,8 +122,6 @@ void main() {
   testWidgets('empty New Order does not ask for confirmation', (tester) async {
     await pumpOrderApp(tester);
 
-    await tester.tap(find.text('Order'));
-    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('order-new')));
     await tester.pump();
 
@@ -163,9 +155,6 @@ void main() {
     await container
         .read(scopedCatalogRefreshControllerProvider.notifier)
         .refreshNow();
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Order'));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('order-price-change-p1')), findsOneWidget);
@@ -217,9 +206,6 @@ void main() {
     await container
         .read(scopedCatalogRefreshControllerProvider.notifier)
         .refreshNow();
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Order'));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('order-price-change-p1')), findsOneWidget);

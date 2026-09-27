@@ -21,7 +21,7 @@ This replaces the earlier offline-first proposal. Do not introduce Drift, a comp
 | Riverpod controllers/providers | Screen state, dependency injection, loading/error handling | Confirmed by owner; compatible package version to select during setup |
 | Repository interfaces | Isolate catalog access, account access, and session storage from widgets | Proposed implementation baseline |
 | Auth session storage | Persist the Supabase auth session in platform secure storage, not ordinary preferences | SP-006 uses `flutter_secure_storage` 11.2.0 on Android/Windows |
-| Local app session store | Save current screen, order snapshot, and active unsaved edit draft without copying the catalog | SP-009 keeps product drafts account-scoped; SP-011 adds a separate versioned account-scoped page/order snapshot in the same secure key-value boundary |
+| Local app session store | Save the active cart/order snapshot and active unsaved edit draft without copying the catalog; retain the legacy destination field only for v1 compatibility | SP-009 keeps product drafts account-scoped; SP-011 adds a separate versioned account-scoped snapshot in the same secure key-value boundary; SP-021 always restores the visible workspace to Cart |
 | Android camera adapter | Produce deliberate barcode scan events | Confirmed; package to verify |
 | Windows reader adapter | Produce scan events from the owner's external reader | Deferred future task; re-authorize after hardware/input mode selection |
 
@@ -92,19 +92,19 @@ Organize code by feature: authentication, catalog, order, and scanning. Keep app
 
 ## Session persistence
 
-- Persist the active page/location and order snapshot, including quantities, captured prices, and captured currencies, on state changes rather than relying solely on a shutdown callback.
+- Persist the order snapshot, including quantities, captured prices, and captured currencies, on state changes rather than relying solely on a shutdown callback. SP-021 has one visible Cart workspace; the existing destination field/provider is retained only for version-1 session compatibility, and legacy Catalog/Order destinations normalize to Cart on restore.
 - Persist active edit input with the owner identity, product identity, and original server revision. Restoring a draft must not silently adopt a newer revision or replace user input. Preserve atomic/versioned writes and report local persistence errors.
 - Keep draft persistence separate from server mutations: startup/reconnect cannot enqueue or submit writes. Only explicit Save triggers validation and revision-checked persistence. Reconcile ambiguous prior save outcomes before retrying; prevent stale asynchronous draft writes from resurrecting discarded or successfully saved input.
 - Write snapshots atomically and include a schema version. Corrupt snapshots must cause an explicit recoverable error, not silent loss represented as a successful restore.
 - A confirmed New Order reset must persist the empty active order without history. Invalidate pending scan/lookup responses belonging to the previous order so they cannot populate the new one. Report snapshot-write failures explicitly.
 - Associate saved sessions with the authenticated owner. Sign-out retains persisted order/draft state but clears protected visible/in-memory presentation state. Restore only after successful authentication as the same owner; never expose it to another or signed-out account. Preserve active draft input before hiding the form, and prevent late asynchronous responses from repopulating signed-out UI.
 - Persist only what restoration needs. In-memory search results are not a reason to create a persistent catalog cache.
-- Search text, exact scroll position, and filter restoration are not initial acceptance requirements. Retain active screen/order/draft restoration under `UX_FLOWS.md`.
+- Search text, exact scroll position, and filter restoration are not acceptance requirements. Restore the order into Cart and retain draft restoration under `UX_FLOWS.md`.
 - This small local snapshot still contains some product names/prices. Online-only does not mean zero local data.
 
 ## Platform input
 
-- Android: a compact scanner panel can remain open inside the Order page for continuous multi-item scanning. Permission-denied and unavailable-camera states remain explicit. A presentation gate suppresses a barcode while it remains visible and unlocks it after an observed absence window so a later presentation can be deliberate.
+- Android: a compact scanner panel can remain open inside the Cart workspace for continuous multi-item scanning. Permission-denied and unavailable-camera states remain explicit. A presentation gate suppresses a barcode while it remains visible and unlocks it after an observed absence window so a later presentation can be deliberate.
 - Windows external barcode reader: deferred from the current initial delivery. When the owner re-authorizes it later, first identify the reader model, connection/input protocol, terminator, and any driver/SDK requirements. Keyboard-emulation readers and serial/vendor-specific readers need different adapters; do not claim universal compatibility without evidence.
 - Preserve barcode text, including leading zeros. Do not silently normalize codes into different identifiers.
 

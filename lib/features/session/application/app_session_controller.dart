@@ -50,7 +50,7 @@ class AppSessionViewState {
 
 class AppSessionController extends Notifier<AppSessionViewState> {
   static const String persistenceErrorMessage =
-      'Local session storage failed. The current page or order may not survive a restart.';
+      'Local session storage failed. The current cart may not survive a restart.';
   static const String restoreErrorMessage =
       'The saved local session could not be restored safely. An empty local session was opened instead.';
 
@@ -157,7 +157,7 @@ class AppSessionController extends Notifier<AppSessionViewState> {
         );
     ref
         .read(appNavigationControllerProvider.notifier)
-        .restoreForSession(AppDestination.catalog);
+        .restoreForSession(AppDestination.order);
   }
 
   Future<void> _restore(
@@ -181,7 +181,7 @@ class AppSessionController extends Notifier<AppSessionViewState> {
     final resolved = snapshot ??
         AppSessionSnapshot(
           ownerId: ownerId,
-          destination: AppDestination.catalog,
+          destination: AppDestination.order,
           order: const OrderState(),
         );
 
@@ -190,7 +190,7 @@ class AppSessionController extends Notifier<AppSessionViewState> {
         .replaceForSession(resolved.order);
     ref
         .read(appNavigationControllerProvider.notifier)
-        .restoreForSession(resolved.destination);
+        .restoreForSession(AppDestination.order);
 
     _suppressPersistence = false;
     state = AppSessionViewState.ready(
@@ -213,7 +213,7 @@ class AppSessionController extends Notifier<AppSessionViewState> {
   AppSessionSnapshot _snapshotFor(String ownerId) {
     return AppSessionSnapshot(
       ownerId: ownerId,
-      destination: ref.read(appNavigationControllerProvider),
+      destination: AppDestination.order,
       order: ref.read(orderControllerProvider),
     );
   }
