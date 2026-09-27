@@ -3,6 +3,23 @@
 -- Existing product text columns remain compatibility/search caches maintained from
 -- the reference identity by a trigger, so current RPC shapes do not change.
 
+create or replace function app_private.catalog_reference_key(input_text text)
+returns text
+language sql
+immutable
+strict
+parallel safe
+set search_path = pg_catalog
+as $
+  select coalesce(
+    nullif(app_private.catalog_search_normalize(input_text), ''),
+    'raw:' || lower(normalize(btrim(input_text), NFKC))
+  )
+$;
+
+revoke all on function app_private.catalog_reference_key(text)
+from public, anon, authenticated;
+
 create table app_private.catalog_manufacturers (
   id bigint generated always as identity primary key,
   name text not null,
@@ -13,7 +30,7 @@ create table app_private.catalog_manufacturers (
   constraint catalog_manufacturers_normalized_name_nonblank
     check (btrim(normalized_name) <> ''),
   constraint catalog_manufacturers_normalized_name_matches
-    check (normalized_name = app_private.catalog_search_normalize(name))
+    check (normalized_name = app_private.catalog_reference_key(name))
 );
 
 create table app_private.catalog_manufacturer_aliases (
@@ -38,7 +55,7 @@ create table app_private.catalog_dosage_forms (
   constraint catalog_dosage_forms_normalized_name_nonblank
     check (btrim(normalized_name) <> ''),
   constraint catalog_dosage_forms_normalized_name_matches
-    check (normalized_name = app_private.catalog_search_normalize(name))
+    check (normalized_name = app_private.catalog_reference_key(name))
 );
 
 create table app_private.catalog_dosage_form_aliases (
@@ -66,7 +83,7 @@ from public, anon, authenticated;
 -- wins; aliases retain every distinct observed spelling.
 with counted as (
   select
-    app_private.catalog_search_normalize(btrim(manufacturer)) as normalized_name,
+    app_private.catalog_reference_key(btrim(manufacturer)) as normalized_name,
     btrim(manufacturer) as name,
     count(*) as usage_count
   from public.products
@@ -92,12 +109,12 @@ select distinct m.id, btrim(p.manufacturer)
 from public.products p
 join app_private.catalog_manufacturers m
   on m.normalized_name =
-     app_private.catalog_search_normalize(btrim(p.manufacturer))
+     app_private.catalog_reference_key(btrim(p.manufacturer))
 where nullif(btrim(p.manufacturer), '') is not null;
 
 with counted as (
   select
-    app_private.catalog_search_normalize(btrim(dosage_form)) as normalized_name,
+    app_private.catalog_reference_key(btrim(dosage_form)) as normalized_name,
     btrim(dosage_form) as name,
     count(*) as usage_count
   from public.products
@@ -123,7 +140,7 @@ select distinct f.id, btrim(p.dosage_form)
 from public.products p
 join app_private.catalog_dosage_forms f
   on f.normalized_name =
-     app_private.catalog_search_normalize(btrim(p.dosage_form))
+     app_private.catalog_reference_key(btrim(p.dosage_form))
 where nullif(btrim(p.dosage_form), '') is not null;
 
 alter table public.products
@@ -143,7 +160,7 @@ set
 from app_private.catalog_manufacturers m
 where nullif(btrim(p.manufacturer), '') is not null
   and m.normalized_name =
-      app_private.catalog_search_normalize(btrim(p.manufacturer));
+      app_private.catalog_reference_key(btrim(p.manufacturer));
 
 update public.products p
 set
@@ -152,7 +169,7 @@ set
 from app_private.catalog_dosage_forms f
 where nullif(btrim(p.dosage_form), '') is not null
   and f.normalized_name =
-      app_private.catalog_search_normalize(btrim(p.dosage_form));
+      app_private.catalog_reference_key(btrim(p.dosage_form));
 
 alter table public.products enable trigger products_set_revision;
 
@@ -195,7 +212,7 @@ begin
     new.manufacturer := canonical_label;
   else
     normalized_label :=
-      app_private.catalog_search_normalize(input_label);
+      app_private.catalog_reference_key(input_label);
 
     insert into app_private.catalog_manufacturers(name, normalized_name)
     values (input_label, normalized_label)
@@ -236,7 +253,7 @@ begin
     new.dosage_form := canonical_label;
   else
     normalized_label :=
-      app_private.catalog_search_normalize(input_label);
+      app_private.catalog_reference_key(input_label);
 
     insert into app_private.catalog_dosage_forms(name, normalized_name)
     values (input_label, normalized_label)
