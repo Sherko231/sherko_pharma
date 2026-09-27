@@ -78,6 +78,8 @@ void main() {
     expect(data('-1').validate()['sellingAmount'], isNotNull);
     expect(data('1.5').validate()['sellingAmount'], isNotNull);
     expect(data('100').validate()['sellingAmount'], isNull);
+    expect(data('200,000').validate()['sellingAmount'], isNull);
+    expect(data('200,000').toInput().sellingAmount, 200000);
   });
 
   test('only SYP and USD are supported', () {
