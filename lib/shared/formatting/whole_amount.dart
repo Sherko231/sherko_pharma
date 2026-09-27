@@ -27,9 +27,9 @@ String normalizeWholeAmountText(String text) {
 
 int? parseWholeAmountText(String text) {
   final trimmed = text.trim();
-  final validGrouping = RegExp(r'^(?:\d+|\d{1,3}(?:,\d{3})+)
-);
-  if (!validGrouping.hasMatch(trimmed)) {
+  final plain = RegExp(r'^\d+$');
+  final grouped = RegExp(r'^\d{1,3}(?:,\d{3})+$');
+  if (!plain.hasMatch(trimmed) && !grouped.hasMatch(trimmed)) {
     return null;
   }
   return int.tryParse(normalizeWholeAmountText(trimmed));
