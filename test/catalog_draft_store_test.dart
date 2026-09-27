@@ -67,6 +67,48 @@ void main() {
     expect(otherOwner, isNull);
   });
 
+  test('draft storage keeps grouped selling amount as plain digits', () async {
+    final secure = _MemorySecureStore();
+    final store = SecureCatalogDraftStore(
+      store: secure,
+      keyPrefix: 'test:draft:v1',
+    );
+    const draft = CatalogProductDraft(
+      ownerId: 'owner-a',
+      scopeKey: 'create',
+      productId: '22222222-2222-4222-8222-222222222222',
+      formData: CatalogProductFormData(
+        nameEn: 'Product',
+        nameAr: '',
+        composition: '',
+        manufacturer: '',
+        strength: '',
+        dosageForm: '',
+        packageDescription: '',
+        barcode: '',
+        barcode2: '',
+        sellingAmountText: '200,000',
+        currency: 'SYP',
+        notes: '',
+      ),
+      baseProduct: null,
+      uncertain: false,
+    );
+
+    await store.save(draft);
+
+    expect(
+      secure.values.values.single,
+      contains('"selling_amount_text":"200000"'),
+    );
+
+    final restored = await store.load(
+      ownerId: 'owner-a',
+      scopeKey: 'create',
+    );
+    expect(restored!.formData.sellingAmountText, '200000');
+  });
+
   test('malformed draft fails closed and is removed', () async {
     final secure = _MemorySecureStore();
     final store = SecureCatalogDraftStore(
