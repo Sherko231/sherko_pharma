@@ -86,6 +86,27 @@ void main() {
     expect(order.lines.single.productRevision, 7);
   });
 
+  test('legacy catalog destination restores into Cart order workspace', () async {
+    final auth = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner-a'),
+    );
+    final store = FakeAppSessionStore()
+      ..snapshots['owner-a'] = savedOrder(
+        ownerId: 'owner-a',
+        destination: AppDestination.catalog,
+      );
+    final container = sessionContainer(auth: auth, store: store);
+
+    container.read(appSessionControllerProvider);
+    await pumpEventQueue();
+
+    expect(
+      container.read(appNavigationControllerProvider),
+      AppDestination.order,
+    );
+    expect(container.read(orderControllerProvider).lines, hasLength(1));
+  });
+
   test('sign-out hides state and a different account cannot receive it', () async {
     final auth = FakeAuthGateway(
       initialIdentity: const AuthIdentity(userId: 'owner-a'),
@@ -105,7 +126,7 @@ void main() {
     expect(container.read(orderControllerProvider).lines, isEmpty);
     expect(
       container.read(appNavigationControllerProvider),
-      AppDestination.catalog,
+      AppDestination.order,
     );
     expect(
       container.read(appSessionControllerProvider).status,
@@ -119,7 +140,7 @@ void main() {
     expect(container.read(orderControllerProvider).lines, isEmpty);
     expect(
       container.read(appNavigationControllerProvider),
-      AppDestination.catalog,
+      AppDestination.order,
     );
 
     auth.emitIdentity(const AuthIdentity(userId: 'owner-a'));
@@ -244,7 +265,7 @@ void main() {
     expect(container.read(orderControllerProvider).lines, isEmpty);
     expect(
       container.read(appNavigationControllerProvider),
-      AppDestination.catalog,
+      AppDestination.order,
     );
   });
 }
