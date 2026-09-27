@@ -1,6 +1,6 @@
 # Sherko Pharma — Implementation Roadmap
 
-Status: SP-000 through SP-013 and CI-001 are merged. The owner retired hosted CI in OPS-001 / Issue #42; CI-001 remains historical only. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 completed the initial-delivery roadmap; SP-016 / Issue #44 is an owner-authorized Android scanner refinement.
+Status: SP-000 through SP-013 and CI-001 are merged. The owner retired hosted CI in OPS-001 / Issue #42; CI-001 remains historical only. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 completed the initial-delivery roadmap; SP-016 and SP-017 are owner-authorized Android scanner refinements.
 
 Repository: https://github.com/Sherko231/sherko_pharma
 Inspected baseline: `main` at `2c5e0aa32a7b7ef246511cafff034adaf977d8b7`.
@@ -81,8 +81,9 @@ SP-015 replaced the placeholder Android identity and removed debug-key fallback 
 | ID | Task | Depends on | Completion evidence |
 | --- | --- | --- | --- |
 | SP-016 | Improve Android barcode scan responsiveness and framing | SP-013 | Visible centered barcode guide matches the effective scan window; normal detection uses a 100 ms timeout; Android auto zoom and tap-to-focus are enabled; repeated-frame protection and authoritative server verification remain unchanged; owner checks responsiveness/framing on the real Android device |
+| SP-017 | Optimize continuous Android barcode scanning | SP-016 | Compact inline Order-page scanner; no instructional tip; one owner-authorized barcode lookup per unique scan instead of lookup plus immediate detail read; camera remains open across distinct scans; same held presentation cannot repeatedly increment; owner checks real-device throughput and repeat behavior |
 
-SP-016 is tracked by Issue #44 and is explicitly authorized by the owner. It does not reopen deferred SP-014 or authorize unrelated roadmap work.
+SP-016 is tracked by Issue #44 and SP-017 by Issue #46; both are explicitly authorized by the owner. Neither reopens deferred SP-014 or authorizes unrelated roadmap work.
 
 ## Explicitly deferred
 
@@ -92,4 +93,4 @@ SP-014 Windows external-reader integration is deferred from the current initial 
 
 SP-000 merged via PR #2 at `5d1d9b94c1faa31bcc7667f44c4ee60bb6dc399b`. SP-001 merged via PR #4 at `05f2da264ba881648dbdf5eb560948a16ca150b7` with protected-main CI verified before and after merge.
 
-SP-007 merged via PR #18 at `efd87540435624dcd8af52495f6675a1ff2cdb1f`. SP-008 merged via PR #20 at `e5fc0e9860628190e1cf0e78bcc8b67a62cea8b4`. SP-009 merged via PR #22 at `41bcc69edae80a8e8337d6920231e504d81a9e1a`. SP-010 merged via PR #24 at `7f9d6282a16fb30e4c61e3baf7300550c3b6f0e5` with post-merge CI verified. SP-011 merged via PR #26 at `594ad8b3958f64fa274c2debdf542364e589f6aa`; post-merge CI run `36150363815` passed. SP-012 merged via PR #28 at `334d61444f56d193897e713a6bd2b44deff7d975`; post-merge CI run `36235010740` passed. SP-013 merged via PR #30 at `2f00898ff7cdeb5060c215c6997c62fe5791bd26`; post-merge CI run `36250531971` passed after the owner accepted the real Android camera behavior on 2026-09-26. The owner deferred SP-014 on 2026-09-26; it does not block SP-015. SP-015 was tracked by Issue #38 as the final initial-delivery task. On 2026-09-27 the owner explicitly authorized SP-016 / Issue #44 to refine Android scanner responsiveness and framing. No other post-SP-015 feature task is automatically authorized. See [development status](DEVELOPMENT_STATUS.md) and [delivery acceptance](DELIVERY_ACCEPTANCE.md) for evidence.
+SP-007 merged via PR #18 at `efd87540435624dcd8af52495f6675a1ff2cdb1f`. SP-008 merged via PR #20 at `e5fc0e9860628190e1cf0e78bcc8b67a62cea8b4`. SP-009 merged via PR #22 at `41bcc69edae80a8e8337d6920231e504d81a9e1a`. SP-010 merged via PR #24 at `7f9d6282a16fb30e4c61e3baf7300550c3b6f0e5` with post-merge CI verified. SP-011 merged via PR #26 at `594ad8b3958f64fa274c2debdf542364e589f6aa`; post-merge CI run `36150363815` passed. SP-012 merged via PR #28 at `334d61444f56d193897e713a6bd2b44deff7d975`; post-merge CI run `36235010740` passed. SP-013 merged via PR #30 at `2f00898ff7cdeb5060c215c6997c62fe5791bd26`; post-merge CI run `36250531971` passed after the owner accepted the real Android camera behavior on 2026-09-26. The owner deferred SP-014 on 2026-09-26; it does not block SP-015. SP-015 was tracked by Issue #38 as the final initial-delivery task. On 2026-09-27 the owner explicitly authorized SP-016 / Issue #44 and then SP-017 / Issue #46 to refine Android scanner responsiveness and continuous multi-scan workflow. No other post-SP-015 feature task is automatically authorized. See [development status](DEVELOPMENT_STATUS.md) and [delivery acceptance](DELIVERY_ACCEPTANCE.md) for evidence.
