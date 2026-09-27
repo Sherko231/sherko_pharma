@@ -1,4 +1,5 @@
 import 'package:sherko_pharma/features/catalog/data/catalog_repository.dart';
+import 'package:sherko_pharma/features/catalog/domain/catalog_alternative.dart';
 import 'package:sherko_pharma/features/catalog/domain/catalog_product.dart';
 import 'package:sherko_pharma/features/catalog/domain/catalog_product_input.dart';
 
@@ -9,6 +10,10 @@ typedef SearchHandler = Future<List<CatalogProduct>> Function(
 
 typedef BarcodeHandler = Future<List<CatalogProduct>> Function(String code);
 typedef DetailHandler = Future<CatalogProduct> Function(String productId);
+typedef AlternativesHandler = Future<List<CatalogAlternative>> Function(
+  String productId,
+  int limitPerGroup,
+);
 typedef CreateHandler = Future<CatalogSaveResult> Function(
   String productId,
   CatalogProductInput input,
@@ -32,15 +37,18 @@ class FakeCatalogRepository implements CatalogRepository {
   SearchHandler? onSearch;
   BarcodeHandler? onLookupBarcode;
   DetailHandler? onGet;
+  AlternativesHandler? onAlternatives;
   CreateHandler? onCreate;
   UpdateHandler? onUpdate;
   CreateHandler? onReconcileCreate;
   UpdateHandler? onReconcileUpdate;
   List<CatalogProduct> searchResults = const [];
+  List<CatalogAlternative> alternativeResults = const [];
   final Map<String, CatalogProduct> products = {};
   final List<CatalogSearchCall> searchCalls = [];
   final List<String> barcodeCalls = [];
   final List<String> detailCalls = [];
+  final List<CatalogSearchCall> alternativeCalls = [];
   List<CatalogReferenceOption> manufacturerOptions = const [];
   List<CatalogReferenceOption> dosageFormOptions = const [];
   final List<String> createIds = [];
@@ -215,6 +223,26 @@ class FakeCatalogRepository implements CatalogRepository {
       throw const CatalogNotFoundException();
     }
     return product;
+  }
+
+
+  @override
+  Future<List<CatalogAlternative>> alternatives(
+    String productId, {
+    int limitPerGroup = 10,
+  }) async {
+    alternativeCalls.add(
+      CatalogSearchCall(
+        query: productId,
+        limit: limitPerGroup,
+      ),
+    );
+
+    final handler = onAlternatives;
+    if (handler != null) {
+      return handler(productId, limitPerGroup);
+    }
+    return alternativeResults;
   }
 }
 
