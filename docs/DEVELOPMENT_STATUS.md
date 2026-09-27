@@ -1,19 +1,32 @@
 # Sherko Pharma — Development Status
 
-Updated: 2026-09-27
-Task record: SP-026 / Issue #64 adds conservative ingredient-strength normalization on top of SP-025 without rewriting raw strength text. SP-025 / Issue #62 remains the ingredient-identity baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
-Status: SP-026 derives exact canonical strength measures and trusted ingredient-strength pairs only when syntax/component alignment is deterministic, distinguishes quantitative concentration denominators from recognized presentation suffixes, and quarantines ambiguous or incomplete source values. Backend authorization, raw composition/strength, barcode identity, captured-price and order semantics remain unchanged. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
+Updated: 2026-09-28
+Task record: SP-027 / Issue #66 adds conservative strict pharmaceutical-equivalence modeling on top of SP-024/SP-025/SP-026. SP-026 / Issue #64 remains the ingredient-strength baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
+Status: SP-027 derives a strict equivalence key only when trusted ingredient-strength, dosage-form, route, and release dimensions are complete. Ambiguous/mixed dosage forms and unspecified parenteral routes remain review/unresolved. Backend authorization, raw composition/strength/dosage form, barcode identity, captured-price and order semantics remain unchanged. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
 
 ## Verified baseline
 
-- The latest merged repository baseline before SP-026 is SP-025 merge `20782ce64cc72535502d9987a7ef636c9c8df2a9` from PR #63. Hosted Supabase remains deployed only through the earlier schema baseline; SP-025 and SP-026 migrations are not applied by these repository tasks.
-- SP-000 through SP-013, SP-015 through SP-024, CI-001, and OPS-001 are merged; SP-014 remains deferred.
+- The latest merged repository baseline before SP-027 is SP-026 merge `d92a4f9edb6d91222663159654c96aa11627bc83` from PR #65. Hosted Supabase remains deployed through SP-024 only; SP-025, SP-026, and SP-027 migrations are not applied by these repository tasks.
+- SP-000 through SP-013, SP-015 through SP-026, CI-001, and OPS-001 are merged; SP-014 remains deferred.
 - Issue #29 is closed as completed and PR #30 is merged; post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
 - No open Issue or PR existed immediately before SP-012 was authorized.
 - The dedicated Sherko Pharma Supabase project is active on the Free plan.
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-027 pharmaceutical-equivalence contract
+
+- SP-027 is tracked by Issue #66 from SP-026 merge `d92a4f9edb6d91222663159654c96aa11627bc83`.
+- Read-only hosted profiling found roughly 280 dosage-form references. A conservative prototype recognized trusted form/route semantics for 81 reference values covering 16,741 products, marked 11 injection-like forms / 1,445 products for review because the specific parenteral route is absent, and left 180 forms / 3,680 products unresolved; another 1,884 products have no dosage form.
+- The source has no dedicated route/release columns. SP-027 therefore derives those dimensions only from sufficiently explicit dosage-form reference text and never guesses a missing parenteral route.
+- A private dosage-form profile stores form class, route, release class, status, and reason. A private per-product equivalence summary combines that profile with SP-025/SP-026 states.
+- Strict keys require trusted composition, trusted ingredient-strength pairing, and a complete trusted dosage-form profile. Immediate, extended, and delayed/enteric release classes remain distinct, as do clinically distinct routes/forms.
+- Upstream `high_confidence` propagates; it is never upgraded to auto-verified. Review/unresolved products never receive a strict key.
+- Composition edits refresh SP-025 → SP-026 → SP-027; strength-only edits refresh SP-026 → SP-027; dosage-form edits refresh SP-027 after SP-024 reference resolution.
+- Structural backfill guards composition, strength, dosage form/reference, revision, and `updated_at` against mutation.
+- SP-028 remains responsible for a bounded alternatives API and grouping; SP-029 remains the alternatives UI.
+- No SP-025/SP-026/SP-027 production migration is deployed by this repository task.
 
 ## SP-026 strength-normalization contract
 
@@ -26,7 +39,7 @@ Status: SP-026 derives exact canonical strength measures and trusted ingredient-
 - Mismatched, partial, unitless, unsupported, descriptive, or SP-025 review/unresolved cases never receive a trusted ingredient-strength set key.
 - Ingredient-strength set keys are order-independent by normalized ingredient identity, so reversed ingredient order plus correspondingly reversed strength order can still compare equal.
 - Composition+strength edits refresh SP-025 first and SP-026 second; strength-only edits refresh SP-026. Structural backfill guards raw composition/strength, revision, and `updated_at` from mutation.
-- SP-027 remains responsible for dosage-form/route/release compatibility and strict pharmaceutical equivalence. SP-028/SP-029 remain alternatives API/UI tasks.
+- SP-027 now provides the conservative dosage-form/route/release compatibility layer and strict pharmaceutical-equivalence key. SP-028/SP-029 remain alternatives API/UI tasks.
 
 ## SP-025 composition-normalization contract
 
@@ -38,7 +51,7 @@ Status: SP-026 derives exact canonical strength measures and trusted ingredient-
 - `high_confidence` is reserved for future explicitly verified semantic aliases; SP-025's initial automatic population is lexical-only.
 - The migration backfills one normalization summary for every product and guards that `composition`, `revision`, and `updated_at` are unchanged by the structural backfill.
 - An after-insert/update trigger refreshes derived composition rows when composition changes through the existing catalog API. Existing revision/conflict authorization remains unchanged.
-- SP-026 strength normalization, SP-027 pharmaceutical equivalence, SP-028 alternatives querying and SP-029 alternatives UI remain separate future tasks.
+- SP-026 strength normalization and SP-027 pharmaceutical equivalence are separate derived layers above SP-025. SP-028 alternatives querying and SP-029 alternatives UI remain future tasks.
 
 ## SP-024 product reference-data contract
 
