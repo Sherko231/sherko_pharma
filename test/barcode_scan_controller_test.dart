@@ -96,6 +96,26 @@ void main() {
     expect(container.read(orderControllerProvider).lines, isEmpty);
   });
 
+  test('late lookup is discarded after a new-order reset', () async {
+    final pending = Completer<List<CatalogProduct>>();
+    final catalog = FakeCatalogRepository();
+    catalog.onLookupBarcode = (_) => pending.future;
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final order = container.read(orderControllerProvider.notifier);
+    final scan = BarcodeScanController(
+      catalog: catalog,
+      order: order,
+    );
+
+    final result = scan.accept('0012345');
+    order.clear();
+    pending.complete([testProduct(id: 'p1')]);
+
+    expect(await result, isNull);
+    expect(container.read(orderControllerProvider).lines, isEmpty);
+  });
+
   test('concurrent duplicate frame is ignored', () async {
     final pending = Completer<List<CatalogProduct>>();
     final catalog = FakeCatalogRepository();
