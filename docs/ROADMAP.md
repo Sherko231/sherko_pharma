@@ -1,6 +1,6 @@
 # Sherko Pharma — Implementation Roadmap
 
-Status: SP-000 through SP-013 and CI-001 are merged. The owner retired hosted CI in OPS-001 / Issue #42; CI-001 remains historical only. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 completed the initial-delivery roadmap; SP-016 through SP-024 are owner-authorized post-delivery refinements.
+Status: SP-000 through SP-013 and CI-001 are merged. The owner retired hosted CI in OPS-001 / Issue #42; CI-001 remains historical only. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 completed the initial-delivery roadmap; SP-016 through SP-024 are merged post-delivery refinements. SP-025 / Issue #62 is the current owner-authorized composition-normalization task; SP-026 through SP-029 are dependency-ordered planning entries and require separate owner authorization.
 
 Repository: https://github.com/Sherko231/sherko_pharma
 Inspected baseline: `main` at `2c5e0aa32a7b7ef246511cafff034adaf977d8b7`.
@@ -91,6 +91,18 @@ SP-015 replaced the placeholder Android identity and removed debug-key fallback 
 | SP-024 | Normalize product reference data and typed currency | SP-023 | Manufacturer/dosage-form reference tables + aliases/FKs; canonical server resolution; typed SYP/USD database enum; reference-aware form autocomplete; complex composition/strength/package fields deliberately remain text after data profiling |
 
 SP-016 is tracked by Issue #44, SP-017 by Issue #46, SP-018 by Issue #48, SP-019 by Issue #50, SP-020 by Issue #52, SP-021 by Issue #54, SP-022 by Issue #56, SP-023 by Issue #58 and SP-024 by Issue #60; all are explicitly authorized by the owner. Neither reopens deferred SP-014 or authorizes unrelated roadmap work.
+
+## Phase 6 — Conservative pharmaceutical normalization and alternatives
+
+| ID | Task | Depends on | Completion evidence |
+| --- | --- | --- | --- |
+| SP-025 | Normalize composition into conservative ingredient identities | SP-024 | Raw composition remains unchanged; private ingredient registry + lexical aliases/spellings; product ingredient links; order-independent ingredient-set key; explicit auto/high-confidence/review/unresolved status; synchronization on future composition edits; focused regression coverage |
+| SP-026 | Normalize ingredient strengths | SP-025 | Parse supported strength/unit expressions and pair each strength with the correct ingredient only when deterministic; preserve raw strength text; quarantine ambiguous combinations instead of guessing |
+| SP-027 | Model pharmaceutical equivalence | SP-024, SP-025, SP-026 | Build a strict equivalence key from reviewed ingredient identities + paired strengths + compatible dosage form/route + release type; unverified/missing dimensions cannot be labeled strict alternatives |
+| SP-028 | Add alternatives engine | SP-027 | Owner-authorized bounded API returns exact alternatives separately from same-ingredients/different-strength and same-ingredients/different-form groups; excludes unresolved normalization from strict substitution results |
+| SP-029 | Add alternatives UI | SP-028 | Product/Cart UI exposes clearly separated alternative groups with brand/company/price/strength/form and order-add action without implying equivalence beyond the server classification |
+
+SP-025 is tracked by Issue #62 and is authorized by the owner's 2026-09-27 instruction. SP-026 through SP-029 are planning only: this roadmap entry does not authorize their implementation, production deployment, or medical synonym curation.
 
 ## Explicitly deferred
 

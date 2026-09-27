@@ -1,6 +1,6 @@
 # Sherko Pharma — Architecture
 
-Updated: 2026-09-26
+Updated: 2026-09-27
 Status: Product boundaries are agreed; the hosted schema, owner-only catalog API, authentication boundary, controlled 23,750-row source import, search/detail, create/edit, persistent drafts, manual order calculator, account-scoped page/order persistence, scoped refresh/price-change handling, and Android camera scanning are in place. Windows external-reader integration is deferred for later owner re-authorization. See `DEVELOPMENT_STATUS.md`.
 
 ## Current decision
@@ -10,6 +10,12 @@ Build an online Flutter application for Android and Windows, backed by Supabase.
 This replaces the earlier offline-first proposal. Do not introduce Drift, a complete local SQLite catalog, catalog encryption infrastructure, or an offline write queue in this version. Offline support can be evaluated as a later architecture change.
 
 `PRODUCT.md` defines user behavior. `AGENTS.md` defines the implementation workflow. This document defines boundaries and a proposed implementation structure, not completion claims.
+
+## Composition normalization boundary
+
+SP-025 adds a private derived normalization layer beside the authoritative `products.composition` text. It creates reusable ingredient identities, lexical aliases, product-component links, an order-independent ingredient-set key, and explicit normalization confidence/review status. The layer is refreshed by database trigger when composition changes, but it does not rewrite the product text or advance product revisions during structural backfill.
+
+This boundary is deliberately conservative. Automatic parsing recognizes only explicit `+` composition separation and deterministic lexical normalization. Ambiguous syntax and semantic synonym candidates remain reviewable/unresolved. Strength pairing, route/release equivalence, direct-alternative classification, and alternatives UI/API remain separate later tasks so medication substitution is never inferred from composition text alone.
 
 ## Components
 
