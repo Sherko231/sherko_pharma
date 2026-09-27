@@ -17,6 +17,7 @@ declare
   cyanocobalamin_id uuid;
   review_id uuid;
   unresolved_id uuid;
+  embedded_strength_id uuid;
   first_key text;
   second_key text;
   first_revision bigint;
@@ -141,6 +142,23 @@ begin
     null
   );
 
+  select id into embedded_strength_id
+  from public.catalog_create_idempotent(
+    '70000000-0000-4000-8000-000000000008',
+    'Embedded Strength Case',
+    null,
+    'PARACETAMOL 500 MG',
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000,
+    'SYP',
+    null
+  );
+
   reset role;
 
   select ingredient_set_key
@@ -219,6 +237,14 @@ begin
     where product_id = unresolved_id
   ) is not null then
     raise exception 'unresolved composition unexpectedly has a trusted set key';
+  end if;
+
+  if (
+    select status
+    from app_private.product_composition_normalization
+    where product_id = embedded_strength_id
+  ) <> 'needs_review' then
+    raise exception 'embedded strength text was trusted as a plain ingredient';
   end if;
 
   if (
