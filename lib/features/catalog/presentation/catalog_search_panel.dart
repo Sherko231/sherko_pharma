@@ -255,13 +255,13 @@ class _SearchResultArea extends StatelessWidget {
         return const _CompactMessage(
           key: Key('catalog-search-empty'),
           icon: Icons.search_off,
-          text: 'No products found.',
+          text: 'No products found',
         );
       case CatalogSearchStatus.error:
         return _CompactMessage(
           key: const Key('catalog-search-error'),
           icon: Icons.cloud_off,
-          text: 'Could not load the catalog.',
+          text: 'Could not load the catalog',
           action: TextButton(
             key: const Key('catalog-search-retry'),
             onPressed: onRetry,
