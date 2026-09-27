@@ -21,6 +21,7 @@ void main() {
       expect(parseWholeAmountText('200,000'), 200000);
       expect(parseWholeAmountText(' 1,234,567 '), 1234567);
       expect(parseWholeAmountText('1.5'), isNull);
+      expect(parseWholeAmountText('1,2,3'), isNull);
     });
   });
 
