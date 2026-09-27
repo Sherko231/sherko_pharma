@@ -22,9 +22,11 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
   Widget build(BuildContext context) {
     final order = ref.watch(orderControllerProvider);
 
+    final compact = MediaQuery.sizeOf(context).width < 600;
+
     return Padding(
       key: const Key('order-workspace'),
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(compact ? 10 : 16),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1000),
@@ -38,12 +40,12 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
                     : null,
               ),
               if (_scannerOpen && Platform.isAndroid) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 6),
                 AndroidBarcodeScannerPanel(
                   onClose: () => setState(() => _scannerOpen = false),
                 ),
               ],
-              const SizedBox(height: 16),
+              SizedBox(height: compact ? 8 : 16),
               Expanded(
                 child: order.isEmpty
                     ? const _EmptyOrder()
@@ -99,40 +101,60 @@ class _OrderHeader extends ConsumerWidget {
           ],
         );
 
+        final compactButtonStyle = ButtonStyle(
+          visualDensity: VisualDensity.compact,
+          minimumSize: const WidgetStatePropertyAll(Size(0, 38)),
+          padding: const WidgetStatePropertyAll(
+            EdgeInsets.symmetric(horizontal: 10),
+          ),
+        );
+
         final scan = onToggleScanner == null
             ? null
             : FilledButton.icon(
                 key: const Key('order-scan-barcode'),
                 onPressed: onToggleScanner,
+                style: compactButtonStyle,
                 icon: Icon(
                   scannerOpen ? Icons.close : Icons.qr_code_scanner,
+                  size: 18,
                 ),
-                label: Text(scannerOpen ? 'Hide scanner' : 'Scan'),
+                label: Text(scannerOpen ? 'Hide' : 'Scan'),
               );
 
         final newOrder = FilledButton.tonalIcon(
           key: const Key('order-new'),
           onPressed: () => _newOrder(context, ref),
-          icon: const Icon(Icons.restart_alt),
-          label: const Text('New Order'),
+          style: compactButtonStyle,
+          icon: const Icon(Icons.restart_alt, size: 18),
+          label: const Text('New order'),
         );
 
         if (constraints.maxWidth < 600) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Customer order',
-                style: Theme.of(context).textTheme.headlineSmall,
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Order',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                  totals,
+                ],
               ),
-              const SizedBox(height: 12),
-              totals,
-              const SizedBox(height: 12),
-              if (scan != null) ...[
-                scan,
-                const SizedBox(height: 8),
-              ],
-              newOrder,
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  if (scan != null) ...[
+                    Expanded(child: scan),
+                    const SizedBox(width: 6),
+                  ],
+                  Expanded(child: newOrder),
+                ],
+              ),
             ],
           );
         }
@@ -207,7 +229,13 @@ class _TotalChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Chip(
-      label: Text('$amount $label'),
+      visualDensity: VisualDensity.compact,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+      label: Text(
+        '$amount $label',
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
     );
   }
 }
