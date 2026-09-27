@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../shared/formatting/whole_amount.dart';
 
 import '../../catalog/application/scoped_catalog_refresh_controller.dart';
+import '../../catalog/presentation/catalog_search_panel.dart';
 import '../../scanning/presentation/android_barcode_scanner_screen.dart';
 import '../application/order_controller.dart';
 import '../domain/order_model.dart';
@@ -24,49 +25,127 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
   Widget build(BuildContext context) {
     final order = ref.watch(orderControllerProvider);
 
-    final compact = MediaQuery.sizeOf(context).width < 600;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 600;
+        final desktopSplit = constraints.maxWidth >= 900;
 
-    return Padding(
-      key: const Key('order-workspace'),
-      padding: EdgeInsets.all(compact ? 10 : 16),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1000),
-          child: Column(
-            children: [
-              _OrderHeader(
-                order: order,
-                scannerOpen: _scannerOpen,
-                onToggleScanner: Platform.isAndroid
-                    ? () => setState(() => _scannerOpen = !_scannerOpen)
-                    : null,
+        return Padding(
+          key: const Key('cart-workspace'),
+          padding: EdgeInsets.all(compact ? 8 : 12),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1180),
+              child: Column(
+                children: [
+                  _OrderHeader(
+                    order: order,
+                    scannerOpen: _scannerOpen,
+                    onToggleScanner: Platform.isAndroid
+                        ? () => setState(
+                              () => _scannerOpen = !_scannerOpen,
+                            )
+                        : null,
+                  ),
+                  SizedBox(height: compact ? 6 : 8),
+                  Expanded(
+                    child: desktopSplit
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              SizedBox(
+                                width: 410,
+                                child: _AcquisitionColumn(
+                                  scannerOpen: _scannerOpen,
+                                  onCloseScanner: () => setState(
+                                    () => _scannerOpen = false,
+                                  ),
+                                  maxResultsHeight: 430,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _CartLines(order: order),
+                              ),
+                            ],
+                          )
+                        : Column(
+                            children: [
+                              CatalogSearchPanel(
+                                maxResultsHeight: compact ? 180 : 240,
+                              ),
+                              if (_scannerOpen && Platform.isAndroid) ...[
+                                const SizedBox(height: 5),
+                                AndroidBarcodeScannerPanel(
+                                  onClose: () => setState(
+                                    () => _scannerOpen = false,
+                                  ),
+                                ),
+                              ],
+                              SizedBox(height: compact ? 5 : 8),
+                              Expanded(
+                                child: _CartLines(order: order),
+                              ),
+                            ],
+                          ),
+                  ),
+                ],
               ),
-              if (_scannerOpen && Platform.isAndroid) ...[
-                const SizedBox(height: 6),
-                AndroidBarcodeScannerPanel(
-                  onClose: () => setState(() => _scannerOpen = false),
-                ),
-              ],
-              SizedBox(height: compact ? 8 : 16),
-              Expanded(
-                child: order.isEmpty
-                    ? const _EmptyOrder()
-                    : ListView.separated(
-                        key: const Key('order-lines'),
-                        itemCount: order.lines.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 8),
-                        itemBuilder: (context, index) {
-                          return _OrderLineCard(
-                            line: order.lines[index],
-                          );
-                        },
-                      ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
+    );
+  }
+}
+
+class _AcquisitionColumn extends StatelessWidget {
+  const _AcquisitionColumn({
+    required this.scannerOpen,
+    required this.onCloseScanner,
+    required this.maxResultsHeight,
+  });
+
+  final bool scannerOpen;
+  final VoidCallback onCloseScanner;
+  final double maxResultsHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        CatalogSearchPanel(maxResultsHeight: maxResultsHeight),
+        if (scannerOpen && Platform.isAndroid) ...[
+          const SizedBox(height: 6),
+          AndroidBarcodeScannerPanel(onClose: onCloseScanner),
+        ],
+      ],
+    );
+  }
+}
+
+class _CartLines extends StatelessWidget {
+  const _CartLines({
+    required this.order,
+  });
+
+  final OrderState order;
+
+  @override
+  Widget build(BuildContext context) {
+    if (order.isEmpty) {
+      return const _EmptyOrder();
+    }
+
+    return ListView.separated(
+      key: const Key('order-lines'),
+      itemCount: order.lines.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 5),
+      itemBuilder: (context, index) {
+        return _OrderLineCard(
+          line: order.lines[index],
+        );
+      },
     );
   }
 }
@@ -138,7 +217,7 @@ class _OrderHeader extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      'Order',
+                      'Cart',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ),
@@ -169,7 +248,7 @@ class _OrderHeader extends ConsumerWidget {
           children: [
             Expanded(
               child: Text(
-                'Customer order',
+                'Cart',
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
             ),
@@ -258,9 +337,9 @@ class _EmptyOrder extends StatelessWidget {
         children: [
           Icon(Icons.shopping_basket_outlined, size: 36),
           SizedBox(height: 8),
-          Text('Order is empty'),
+          Text('Cart is empty'),
           SizedBox(height: 8),
-          Text('Add products from Catalog search results.'),
+          Text('Use search or Scan above to add products.'),
         ],
       ),
     );
