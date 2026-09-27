@@ -395,20 +395,21 @@ class _AlternativeRow extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
                 const SizedBox(height: 2),
-                CatalogText(
-                  'Company: ${company}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall,
+                _AlternativeMetadataLine(
+                  label: 'Company',
+                  value: company,
                 ),
                 const SizedBox(height: 1),
-                CatalogText(
-                  'Strength: ${strength}  •  Form: ${form}',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                _AlternativeMetadataLine(
+                  label: 'Strength',
+                  value: strength,
+                  muted: true,
+                ),
+                const SizedBox(height: 1),
+                _AlternativeMetadataLine(
+                  label: 'Form',
+                  value: form,
+                  muted: true,
                 ),
               ],
             ),
@@ -451,6 +452,49 @@ class _AlternativeRow extends StatelessWidget {
   String _visibleOrFallback(String? value, String fallback) {
     final trimmed = value?.trim();
     return trimmed == null || trimmed.isEmpty ? fallback : trimmed;
+  }
+}
+
+class _AlternativeMetadataLine extends StatelessWidget {
+  const _AlternativeMetadataLine({
+    required this.label,
+    required this.value,
+    this.muted = false,
+  });
+
+  final String label;
+  final String value;
+  final bool muted;
+
+  @override
+  Widget build(BuildContext context) {
+    final baseStyle = Theme.of(context).textTheme.bodySmall;
+    final style = muted
+        ? baseStyle?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          )
+        : baseStyle;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '$label: ',
+          style: style,
+        ),
+        Expanded(
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: CatalogText(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: style,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 
