@@ -15,7 +15,7 @@ This replaces the earlier offline-first proposal. Do not introduce Drift, a comp
 
 SP-025 adds a private derived normalization layer beside the authoritative `products.composition` text. It creates reusable ingredient identities, lexical aliases, product-component links, an order-independent ingredient-set key, and explicit normalization confidence/review status. The layer is refreshed by database trigger when composition changes, but it does not rewrite the product text or advance product revisions during structural backfill.
 
-This boundary is deliberately conservative. Automatic parsing recognizes only explicit `+` composition separation and deterministic lexical normalization. Ambiguous syntax and semantic synonym candidates remain reviewable/unresolved. Strength pairing, route/release equivalence, direct-alternative classification, and alternatives UI/API remain separate later tasks so medication substitution is never inferred from composition text alone.
+This boundary is deliberately conservative. Automatic parsing recognizes only explicit `+` composition separation and deterministic lexical normalization. Ambiguous syntax and semantic synonym candidates remain reviewable/unresolved. Strength pairing, route/release equivalence, direct-alternative classification, and alternatives API/UI are implemented as separate downstream layers so medication substitution is never inferred from composition text alone.
 
 ## Strength normalization boundary
 
@@ -43,7 +43,17 @@ The API returns three mutually exclusive relationship groups. `exact` requires t
 
 The target itself must be trusted across SP-025 through SP-027 before the relationship engine returns any rows. Review/unresolved target or candidate normalization is never promoted into `exact`, and unknown relationships remain absent instead of guessed. Returned `normalization_status` is derivation confidence only; it is not a clinical recommendation, bioequivalence rating, or therapeutic-interchangeability claim.
 
-The RPC reuses the existing catalog product fields, preserves exact barcode and integer price/currency semantics, requires `app_private.require_owner()`, and clamps each relationship group to a hard maximum of 25 rows. Ordering is deterministic by stable product identity/name fields and is not a price/manufacturer/preference ranking. SP-029 remains responsible for any UI presentation and must preserve the separation between the three relationship groups.
+The RPC reuses the existing catalog product fields, preserves exact barcode and integer price/currency semantics, requires `app_private.require_owner()`, and clamps each relationship group to a hard maximum of 25 rows. Ordering is deterministic by stable product identity/name fields and is not a price/manufacturer/preference ranking. SP-029 consumes this boundary in the Product/Cart UI while preserving the separation between the three relationship groups.
+
+## Alternatives presentation boundary
+
+SP-029 is a presentation/repository extension over the SP-028 query boundary. `CatalogRepository.alternatives` maps the bounded RPC into typed relationship-group results; widgets do not consume raw RPC maps or private database structures.
+
+The Cart search result row and Product Detail both open the same reusable alternatives bottom sheet. No new primary navigation destination or persisted alternatives state is introduced. The sheet renders the three server relationship groups separately and uses descriptive matching labels rather than asserting clinical interchangeability. A visible notice states that the grouping is catalog-derived and does not establish prescribing suitability.
+
+Candidate rows show the product/brand identity, manufacturer/company, current returned selling price/currency, strength, and dosage form. Add-to-cart does not trust the alternatives response as the final price snapshot: it re-reads the exact candidate identity through `catalog_get` immediately before calling the existing `OrderController.addProduct`, preserving current integer price/currency, revision, invalid-price, quantity, and overflow semantics.
+
+Alternatives remain in-memory transient UI data. A failed relationship query or candidate revalidation leaves the Cart unchanged and exposes retry/error feedback. The client asks for at most 10 candidates per group in the sheet, while the repository still clamps any caller request to the SP-028 server maximum of 25.
 
 ## Components
 

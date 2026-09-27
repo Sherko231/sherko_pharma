@@ -9,6 +9,7 @@ import '../application/catalog_detail_controller.dart';
 import '../application/catalog_search_controller.dart';
 import '../application/scoped_catalog_refresh_controller.dart';
 import '../domain/catalog_product.dart';
+import 'catalog_alternatives_sheet.dart';
 import 'catalog_detail_screen.dart';
 import 'catalog_product_form_screen.dart';
 import 'catalog_text.dart';
@@ -91,6 +92,7 @@ class _CatalogSearchPanelState extends ConsumerState<CatalogSearchPanel> {
                                   .retry();
                             },
                             onOpenProduct: _openProduct,
+                            onAlternatives: _openAlternatives,
                             onAddToCart: _addToCart,
                           ),
                         ),
@@ -296,6 +298,14 @@ class _CatalogSearchPanelState extends ConsumerState<CatalogSearchPanel> {
     ref.read(catalogDetailControllerProvider.notifier).clear(product.id);
   }
 
+  Future<void> _openAlternatives(CatalogProduct product) async {
+    _dismissResults();
+    await showCatalogAlternativesSheet(
+      context: context,
+      targetProduct: product,
+    );
+  }
+
   Future<void> _addToCart(CatalogProduct product) async {
     CatalogProduct latest;
     try {
@@ -357,12 +367,14 @@ class _SearchResultSurface extends StatelessWidget {
     required this.search,
     required this.onRetry,
     required this.onOpenProduct,
+    required this.onAlternatives,
     required this.onAddToCart,
   });
 
   final CatalogSearchState search;
   final VoidCallback onRetry;
   final ValueChanged<CatalogProduct> onOpenProduct;
+  final ValueChanged<CatalogProduct> onAlternatives;
   final ValueChanged<CatalogProduct> onAddToCart;
 
   @override
@@ -413,6 +425,7 @@ class _SearchResultSurface extends StatelessWidget {
             return _ProductSearchResult(
               product: product,
               onOpen: () => onOpenProduct(product),
+              onAlternatives: () => onAlternatives(product),
               onAdd: () => onAddToCart(product),
             );
           },
@@ -425,11 +438,13 @@ class _ProductSearchResult extends StatelessWidget {
   const _ProductSearchResult({
     required this.product,
     required this.onOpen,
+    required this.onAlternatives,
     required this.onAdd,
   });
 
   final CatalogProduct product;
   final VoidCallback onOpen;
+  final VoidCallback onAlternatives;
   final VoidCallback onAdd;
 
   @override
@@ -498,17 +513,35 @@ class _ProductSearchResult extends StatelessWidget {
                   style: Theme.of(context).textTheme.labelLarge,
                 ),
                 const SizedBox(height: 3),
-                IconButton.filledTonal(
-                  key: Key('catalog-add-to-order-${product.id}'),
-                  tooltip: 'Add to cart',
-                  onPressed: onAdd,
-                  constraints: const BoxConstraints.tightFor(
-                    width: 38,
-                    height: 34,
-                  ),
-                  padding: EdgeInsets.zero,
-                  iconSize: 18,
-                  icon: const Icon(Icons.add_shopping_cart_rounded),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      key: Key('catalog-alternatives-${product.id}'),
+                      tooltip: 'Alternatives',
+                      onPressed: onAlternatives,
+                      constraints: const BoxConstraints.tightFor(
+                        width: 34,
+                        height: 34,
+                      ),
+                      padding: EdgeInsets.zero,
+                      iconSize: 18,
+                      icon: const Icon(Icons.compare_arrows_rounded),
+                    ),
+                    const SizedBox(width: 2),
+                    IconButton.filledTonal(
+                      key: Key('catalog-add-to-order-${product.id}'),
+                      tooltip: 'Add to cart',
+                      onPressed: onAdd,
+                      constraints: const BoxConstraints.tightFor(
+                        width: 38,
+                        height: 34,
+                      ),
+                      padding: EdgeInsets.zero,
+                      iconSize: 18,
+                      icon: const Icon(Icons.add_shopping_cart_rounded),
+                    ),
+                  ],
                 ),
               ],
             ),

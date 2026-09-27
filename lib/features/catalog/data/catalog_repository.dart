@@ -1,3 +1,4 @@
+import '../domain/catalog_alternative.dart';
 import '../domain/catalog_product.dart';
 import '../domain/catalog_product_input.dart';
 
@@ -27,6 +28,11 @@ abstract interface class CatalogRepository {
   });
 
   Future<CatalogProduct> getById(String productId);
+
+  Future<List<CatalogAlternative>> alternatives(
+    String productId, {
+    int limitPerGroup = 10,
+  });
 
   Future<List<CatalogProduct>> lookupBarcode(String code);
 

@@ -17,6 +17,19 @@ Use `PRODUCT.md` for scope, `DATA_MODEL.md` for data rules, and `ARCHITECTURE.md
 - Product detail/create/edit remain focused secondary routes and return to the same Cart workspace.
 - Empty-cart guidance should point to Search or Scan on the current page.
 
+## View and add catalog alternatives
+
+- Search-result rows in the Cart expose a compact `Alternatives` action beside the existing Add control. Product Detail exposes the same action in its app bar.
+- Opening Alternatives dismisses transient search results as needed but does not navigate away from the Cart workflow. Both entry points open the same modal/bottom-sheet surface.
+- Keep the explanatory notice visible near the top: the groups are catalog-derived matches and do not establish clinical interchangeability or prescribing suitability.
+- Render only relationship groups returned by the server, in the fixed descriptive order: `Same ingredients, strength & form`, `Same ingredients · different strength`, then `Same ingredients & strength · different form`. Do not merge groups or label one group as better/preferred.
+- Each candidate row shows product/brand name, company/manufacturer, price/currency, strength, dosage form, and a compact Add-to-cart action. Missing company/strength/form values remain explicit rather than invented.
+- Loading is explicit. Empty trusted results show a neutral no-matches state. Server/connection failure shows Retry and does not imply that no alternatives exist.
+- Tapping Add re-reads the exact candidate identity through the authoritative catalog detail RPC before modifying the Cart. A failed read leaves the Cart unchanged and shows connection feedback.
+- A valid refreshed product uses the existing order controller. New candidates are added, existing candidates increment quantity, invalid current prices are rejected, and arithmetic overflow leaves the Cart unchanged.
+- Keep the sheet open after a successful Add so several candidates can be added deliberately. Do not auto-select, rank, or bulk-add alternatives.
+- Alternatives results are transient. Do not persist them in the session snapshot or create an offline alternatives cache.
+
 ## Start a new customer order
 
 - Provide a `New Order` action on the Cart workspace.

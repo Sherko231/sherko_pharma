@@ -9,6 +9,7 @@ import '../application/catalog_detail_controller.dart';
 import '../application/catalog_search_controller.dart';
 import '../application/scoped_catalog_refresh_controller.dart';
 import '../domain/catalog_product.dart';
+import 'catalog_alternatives_sheet.dart';
 import 'catalog_text.dart';
 import 'catalog_product_form_screen.dart';
 
@@ -69,13 +70,27 @@ class _CatalogDetailScreenState extends ConsumerState<CatalogDetailScreen> {
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
-          if (currentProduct != null)
+          if (currentProduct != null) ...[
+            IconButton(
+              key: const Key('catalog-detail-alternatives'),
+              tooltip: 'Alternatives',
+              onPressed: () {
+                unawaited(
+                  showCatalogAlternativesSheet(
+                    context: context,
+                    targetProduct: currentProduct,
+                  ),
+                );
+              },
+              icon: const Icon(Icons.compare_arrows_rounded),
+            ),
             IconButton(
               key: const Key('catalog-edit-product'),
               tooltip: 'Edit product',
               onPressed: () => _openEdit(currentProduct),
               icon: const Icon(Icons.edit_outlined),
             ),
+          ],
         ],
       ),
       body: Column(
