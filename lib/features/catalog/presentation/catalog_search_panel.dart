@@ -38,6 +38,7 @@ class _CatalogSearchPanelState extends ConsumerState<CatalogSearchPanel> {
   );
   final _layerLink = LayerLink();
   final Object _tapRegionGroup = Object();
+  bool _resultsDismissed = false;
 
   @override
   void dispose() {
@@ -154,14 +155,21 @@ class _CatalogSearchPanelState extends ConsumerState<CatalogSearchPanel> {
                         if (widget.scannerOpen) {
                           widget.onToggleScanner?.call();
                         }
+                        if (_resultsDismissed) {
+                          setState(() => _resultsDismissed = false);
+                        }
                       },
                       onChanged: (query) {
+                        _resultsDismissed = false;
                         ref
                             .read(catalogSearchControllerProvider.notifier)
                             .queryChanged(query);
                         setState(() {});
                       },
                       onSubmitted: (query) {
+                        if (_resultsDismissed) {
+                          setState(() => _resultsDismissed = false);
+                        }
                         ref
                             .read(catalogSearchControllerProvider.notifier)
                             .submit(query);
@@ -208,7 +216,8 @@ class _CatalogSearchPanelState extends ConsumerState<CatalogSearchPanel> {
   }
 
   void _scheduleOverlaySync(CatalogSearchState search) {
-    final shouldShow = _searchController.text.trim().isNotEmpty &&
+    final shouldShow = !_resultsDismissed &&
+        _searchController.text.trim().isNotEmpty &&
         search.status != CatalogSearchStatus.idle;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -232,10 +241,14 @@ class _CatalogSearchPanelState extends ConsumerState<CatalogSearchPanel> {
     if (_overlayController.isShowing) {
       _overlayController.hide();
     }
+    if (!_resultsDismissed) {
+      setState(() => _resultsDismissed = true);
+    }
     _searchFocusNode.unfocus();
   }
 
   void _clearSearch({bool keepFocus = true}) {
+    _resultsDismissed = false;
     _searchController.clear();
     ref.read(catalogSearchControllerProvider.notifier).queryChanged('');
     if (_overlayController.isShowing) {
