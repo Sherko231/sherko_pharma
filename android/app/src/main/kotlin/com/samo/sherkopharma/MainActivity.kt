@@ -32,13 +32,18 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun playSuccessBeep() {
-        val tone = scannerTone ?: ToneGenerator(
-            AudioManager.STREAM_MUSIC,
-            100,
-        ).also { scannerTone = it }
+        try {
+            val tone = scannerTone ?: ToneGenerator(
+                AudioManager.STREAM_MUSIC,
+                100,
+            ).also { scannerTone = it }
 
-        tone.stopTone()
-        tone.startTone(ToneGenerator.TONE_PROP_BEEP, 160)
+            tone.stopTone()
+            tone.startTone(ToneGenerator.TONE_PROP_BEEP, 160)
+        } catch (_: RuntimeException) {
+            scannerTone?.release()
+            scannerTone = null
+        }
     }
 
     override fun onDestroy() {
