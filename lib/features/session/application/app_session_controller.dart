@@ -213,7 +213,7 @@ class AppSessionController extends Notifier<AppSessionViewState> {
   AppSessionSnapshot _snapshotFor(String ownerId) {
     return AppSessionSnapshot(
       ownerId: ownerId,
-      destination: ref.read(appNavigationControllerProvider),
+      destination: AppDestination.order,
       order: ref.read(orderControllerProvider),
     );
   }
