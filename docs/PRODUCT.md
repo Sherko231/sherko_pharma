@@ -14,7 +14,11 @@ The primary `Cart` workspace combines product acquisition and order calculation.
 
 - `Cart` is the single primary workspace after authentication. Do not expose separate Catalog and Order destinations for the normal workflow.
 - Manual catalog search, Android barcode scanning, current cart lines, quantities, separate SYP/USD totals, and `New Order` belong in the same workspace. Product detail/create/edit may still open focused secondary screens.
+- Product acquisition is the primary Cart action: search is always immediately available, Android Scan sits beside search, and switching between search and scanner must not require page navigation.
+- Search results are temporary elevated content associated with the search field; they must not permanently reduce the visible cart area. After a successful manual add/increment, clear the query and leave search ready for the next product.
+- Cart totals and New Order remain visible while cart lines scroll. Cart lines use a flat dense list with dividers rather than a separate large card for every product.
 - Compact visual density is the application default on phone and desktop. Minimize unnecessary vertical space, oversized headers, padding, gaps, cards and navigation chrome; keep related primary actions close to their content. Compact must not mean unreadable text or unusably small touch targets.
+- On wide windows, use a supporting acquisition pane beside the persistent cart instead of stretching the phone layout across the screen.
 - Prefer an inline workflow over a separate full-screen destination when actions belong to the same primary task, as with search/scanning and cart management.
 - Display every whole-unit monetary amount with comma thousands grouping using Western digits, for example `245000` as `245,000` and `1250000` as `1,250,000`. Formatting is presentation/input normalization only: stored and calculated monetary values remain exact integers and currency rules do not change.
 - Preserve readable Arabic product data within compact layouts; truncate secondary metadata before hiding the product identity, price, quantity or primary actions.
