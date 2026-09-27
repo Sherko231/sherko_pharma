@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../shared/formatting/whole_amount.dart';
+
 import '../application/catalog_detail_controller.dart';
 import '../application/catalog_search_controller.dart';
 import '../application/scoped_catalog_refresh_controller.dart';
@@ -214,7 +216,7 @@ class _ProductDetailBody extends StatelessWidget {
             ),
             _DetailField(
               label: 'Selling price',
-              value: '${product.sellingAmount} ${product.currency}',
+              value: '${formatWholeAmount(product.sellingAmount)} ${product.currency}',
             ),
             _DetailField(
               label: 'Notes',

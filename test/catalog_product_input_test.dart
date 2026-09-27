@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sherko_pharma/features/catalog/domain/catalog_product_input.dart';
 import 'package:sherko_pharma/features/catalog/domain/catalog_product_id.dart';
 
+import 'support/fake_catalog_repository.dart';
+
 void main() {
   test('either English or Arabic name satisfies the name requirement', () {
     const englishOnly = CatalogProductFormData(
@@ -78,6 +80,17 @@ void main() {
     expect(data('-1').validate()['sellingAmount'], isNotNull);
     expect(data('1.5').validate()['sellingAmount'], isNotNull);
     expect(data('100').validate()['sellingAmount'], isNull);
+    expect(data('200,000').validate()['sellingAmount'], isNull);
+    expect(data('200,000').toInput().sellingAmount, 200000);
+  });
+
+  test('product form data displays grouped price without changing value', () {
+    final data = CatalogProductFormData.fromProduct(
+      testProduct(sellingAmount: 200000),
+    );
+
+    expect(data.sellingAmountText, '200,000');
+    expect(data.toInput().sellingAmount, 200000);
   });
 
   test('only SYP and USD are supported', () {

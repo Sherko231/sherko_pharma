@@ -94,7 +94,7 @@ void main() {
     expect(
       find.descendant(
         of: resultCard,
-        matching: find.text('15000 SYP'),
+        matching: find.text('15,000 SYP'),
       ),
       findsOneWidget,
     );
@@ -335,7 +335,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 301));
     await tester.pumpAndSettle();
 
-    expect(find.text('1000 SYP'), findsOneWidget);
+    expect(find.text('1,000 SYP'), findsOneWidget);
 
     await tester.tap(
       find.byKey(const Key('catalog-add-to-order-latest-price')),

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/data/secure_supabase_local_storage.dart';
+import '../../../shared/formatting/whole_amount.dart';
 import '../domain/catalog_product.dart';
 import '../domain/catalog_product_input.dart';
 
@@ -170,7 +171,7 @@ class CatalogProductDraft {
       'package_description': data.packageDescription,
       'barcode': data.barcode,
       'barcode2': data.barcode2,
-      'selling_amount_text': data.sellingAmountText,
+      'selling_amount_text': normalizeWholeAmountText(data.sellingAmountText),
       'currency': data.currency,
       'notes': data.notes,
     };

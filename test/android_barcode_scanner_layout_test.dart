@@ -48,6 +48,10 @@ void main() {
     expect(window.bottom, lessThanOrEqualTo(preview.height));
   });
 
+  test('Android scanner auto zoom is disabled', () {
+    expect(androidScannerAutoZoomEnabled, isFalse);
+  });
+
   group('scanner feedback', () {
     test('added and incremented scans map to success', () {
       expect(
@@ -81,24 +85,24 @@ void main() {
 
     test('success sound is allowed only for real order mutations', () {
       expect(
-        scannerShouldPlaySuccessSound(
+        scannerShouldPlaySuccessFeedback(
           const BarcodeScanResult(BarcodeScanStatus.added),
         ),
         isTrue,
       );
       expect(
-        scannerShouldPlaySuccessSound(
+        scannerShouldPlaySuccessFeedback(
           const BarcodeScanResult(BarcodeScanStatus.incremented),
         ),
         isTrue,
       );
       expect(
-        scannerShouldPlaySuccessSound(
+        scannerShouldPlaySuccessFeedback(
           const BarcodeScanResult(BarcodeScanStatus.unknown),
         ),
         isFalse,
       );
-      expect(scannerShouldPlaySuccessSound(null), isFalse);
+      expect(scannerShouldPlaySuccessFeedback(null), isFalse);
     });
 
     test('feedback colors are distinct for each scanner state', () {

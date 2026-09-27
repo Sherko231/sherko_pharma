@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../shared/formatting/whole_amount.dart';
+
 import '../../catalog/application/scoped_catalog_refresh_controller.dart';
 import '../../scanning/presentation/android_barcode_scanner_screen.dart';
 import '../application/order_controller.dart';
@@ -237,7 +239,7 @@ class _TotalChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       labelPadding: const EdgeInsets.symmetric(horizontal: 4),
       label: Text(
-        '$amount $label',
+        '${formatWholeAmount(amount)} $label',
         style: Theme.of(context).textTheme.bodySmall,
       ),
     );
@@ -314,14 +316,14 @@ class _OrderLineCard extends ConsumerWidget {
                       ),
                       SizedBox(height: compact ? 2 : 6),
                       Text(
-                        '${line.unitAmount} ${line.currency} each',
+                        '${formatWholeAmount(line.unitAmount)} ${line.currency} each',
                         style: compact
                             ? Theme.of(context).textTheme.bodySmall
                             : null,
                       ),
                       SizedBox(height: compact ? 1 : 4),
                       Text(
-                        '${line.lineAmount} ${line.currency}',
+                        '${formatWholeAmount(line.lineAmount)} ${line.currency}',
                         key: Key('order-line-amount-${line.productId}'),
                         style: Theme.of(context).textTheme.titleSmall,
                       ),
@@ -447,11 +449,11 @@ class _PriceChangeNotice extends StatelessWidget {
             Text(
               canAccept
                   ? 'Catalog price changed from '
-                      '${line.unitAmount} ${line.currency} to '
-                      '$latestAmount $latestCurrency. '
+                      '${formatWholeAmount(line.unitAmount)} ${line.currency} to '
+                      '${formatWholeAmount(latestAmount)} $latestCurrency. '
                       'Your captured order price is unchanged.'
                   : 'The latest catalog price is invalid. '
-                      'Your captured ${line.unitAmount} ${line.currency} '
+                      'Your captured ${formatWholeAmount(line.unitAmount)} ${line.currency} '
                       'price is unchanged.',
             ),
             if (canAccept)

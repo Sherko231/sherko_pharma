@@ -10,6 +10,12 @@ import '../../catalog/application/catalog_search_controller.dart';
 import '../../order/application/order_controller.dart';
 import '../application/barcode_scan_controller.dart';
 
+const _scannerFeedbackChannel = MethodChannel(
+  'com.samo.sherkopharma/scanner_feedback',
+);
+
+const androidScannerAutoZoomEnabled = false;
+
 Rect barcodeScanWindowForSize(Size size) {
   if (size.isEmpty) {
     return Rect.zero;
@@ -65,7 +71,7 @@ Color scannerFeedbackColor(ScannerFeedbackState state) {
   };
 }
 
-bool scannerShouldPlaySuccessSound(BarcodeScanResult? result) {
+bool scannerShouldPlaySuccessFeedback(BarcodeScanResult? result) {
   return result?.status == BarcodeScanStatus.added ||
       result?.status == BarcodeScanStatus.incremented;
 }
@@ -149,7 +155,7 @@ class _AndroidBarcodeScannerPanelState
     _camera = MobileScannerController(
       detectionSpeed: DetectionSpeed.normal,
       detectionTimeoutMs: 100,
-      autoZoom: true,
+      autoZoom: androidScannerAutoZoomEnabled,
     );
     _scan = BarcodeScanController(
       catalog: ref.read(catalogRepositoryProvider),
@@ -230,8 +236,8 @@ class _AndroidBarcodeScannerPanelState
     _presentationGate.lock(code, DateTime.now());
 
     final feedbackState = scannerFeedbackStateForResult(result);
-    if (scannerShouldPlaySuccessSound(result)) {
-      unawaited(_playSuccessSound());
+    if (scannerShouldPlaySuccessFeedback(result)) {
+      unawaited(_playSuccessFeedback());
     }
 
     setState(() {
@@ -242,11 +248,17 @@ class _AndroidBarcodeScannerPanelState
     _scheduleFeedbackReset(feedbackState);
   }
 
-  Future<void> _playSuccessSound() async {
+  Future<void> _playSuccessFeedback() async {
     try {
-      await SystemSound.play(SystemSoundType.click);
+      await _scannerFeedbackChannel.invokeMethod<void>('playSuccessBeep');
     } catch (_) {
-      // Sound feedback is best-effort and must never block scanning.
+      // Audio feedback is best-effort and must never block scanning.
+    }
+
+    try {
+      await HapticFeedback.lightImpact();
+    } catch (_) {
+      // Haptic feedback is best-effort and must never block scanning.
     }
   }
 

@@ -90,7 +90,7 @@ void main() {
     expect(find.byKey(const Key('order-line-p1')), findsOneWidget);
     expect(find.text('Saved product'), findsOneWidget);
     expect(find.text('3'), findsOneWidget);
-    expect(find.text('3000 SYP'), findsWidgets);
+    expect(find.text('3,000 SYP'), findsWidgets);
   });
 
   testWidgets('confirmed New Order remains empty after a fresh app restore', (
