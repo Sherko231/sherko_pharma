@@ -15,7 +15,7 @@ This replaces the earlier offline-first proposal. Do not introduce Drift, a comp
 
 SP-025 adds a private derived normalization layer beside the authoritative `products.composition` text. It creates reusable ingredient identities, lexical aliases, product-component links, an order-independent ingredient-set key, and explicit normalization confidence/review status. The layer is refreshed by database trigger when composition changes, but it does not rewrite the product text or advance product revisions during structural backfill.
 
-This boundary is deliberately conservative. Automatic parsing recognizes only explicit `+` composition separation and deterministic lexical normalization. Ambiguous syntax and semantic synonym candidates remain reviewable/unresolved. Strength pairing, route/release equivalence, direct-alternative classification, and alternatives UI/API remain separate later tasks so medication substitution is never inferred from composition text alone.
+This boundary is deliberately conservative. Automatic parsing recognizes only explicit `+` composition separation and deterministic lexical normalization. Ambiguous syntax and semantic synonym candidates remain reviewable/unresolved. Strength pairing, route/release equivalence, direct-alternative classification, and alternatives API/UI are implemented as separate downstream layers so medication substitution is never inferred from composition text alone.
 
 ## Strength normalization boundary
 
@@ -43,7 +43,7 @@ The API returns three mutually exclusive relationship groups. `exact` requires t
 
 The target itself must be trusted across SP-025 through SP-027 before the relationship engine returns any rows. Review/unresolved target or candidate normalization is never promoted into `exact`, and unknown relationships remain absent instead of guessed. Returned `normalization_status` is derivation confidence only; it is not a clinical recommendation, bioequivalence rating, or therapeutic-interchangeability claim.
 
-The RPC reuses the existing catalog product fields, preserves exact barcode and integer price/currency semantics, requires `app_private.require_owner()`, and clamps each relationship group to a hard maximum of 25 rows. Ordering is deterministic by stable product identity/name fields and is not a price/manufacturer/preference ranking. SP-029 remains responsible for any UI presentation and must preserve the separation between the three relationship groups.
+The RPC reuses the existing catalog product fields, preserves exact barcode and integer price/currency semantics, requires `app_private.require_owner()`, and clamps each relationship group to a hard maximum of 25 rows. Ordering is deterministic by stable product identity/name fields and is not a price/manufacturer/preference ranking. SP-029 consumes this boundary in the Product/Cart UI while preserving the separation between the three relationship groups.
 
 ## Alternatives presentation boundary
 
