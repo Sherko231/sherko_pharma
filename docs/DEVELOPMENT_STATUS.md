@@ -67,7 +67,7 @@ Status: SP-028 exposes three bounded relationship groups—exact, same ingredien
 - `high_confidence` is reserved for future explicitly verified semantic aliases; SP-025's initial automatic population is lexical-only.
 - The migration backfills one normalization summary for every product and guards that `composition`, `revision`, and `updated_at` are unchanged by the structural backfill.
 - An after-insert/update trigger refreshes derived composition rows when composition changes through the existing catalog API. Existing revision/conflict authorization remains unchanged.
-- SP-026 strength normalization and SP-027 pharmaceutical equivalence are separate derived layers above SP-025. SP-028 alternatives querying and SP-029 alternatives UI remain future tasks.
+- SP-026 strength normalization and SP-027 pharmaceutical equivalence are separate derived layers above SP-025. SP-028 now provides bounded relationship querying; SP-029 alternatives UI remains a future task.
 
 ## SP-024 product reference-data contract
 
