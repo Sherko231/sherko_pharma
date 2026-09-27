@@ -120,7 +120,6 @@ void main() {
     final pending = Completer<List<CatalogProduct>>();
     final catalog = FakeCatalogRepository();
     catalog.onLookupBarcode = (_) => pending.future;
-    catalog.onGet = (id) async => testProduct(id: id);
     final container = ProviderContainer();
     addTearDown(container.dispose);
     final scan = BarcodeScanController(
@@ -132,6 +131,7 @@ void main() {
     expect(await scan.accept('0012345'), isNull);
     pending.complete([testProduct(id: 'p1')]);
     expect((await first)?.status, BarcodeScanStatus.added);
+    expect(catalog.detailCalls, isEmpty);
     expect(container.read(orderControllerProvider).lines.single.quantity, 1);
   });
 }
