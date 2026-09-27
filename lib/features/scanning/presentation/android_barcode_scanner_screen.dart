@@ -329,7 +329,8 @@ class _AndroidBarcodeScannerPanelState
         ),
       ),
     );
-  }}
+  }
+}
 
 class _BarcodeScannerOverlay extends StatelessWidget {
   const _BarcodeScannerOverlay({required this.scanWindow});
@@ -371,13 +372,13 @@ class _BarcodeScannerOverlayPainter extends CustomPainter {
       cutout,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 3
+        ..strokeWidth = 2
         ..color = Colors.white,
     );
 
     canvas.drawLine(
-      Offset(scanWindow.left + 18, scanWindow.center.dy),
-      Offset(scanWindow.right - 18, scanWindow.center.dy),
+      Offset(scanWindow.left + 14, scanWindow.center.dy),
+      Offset(scanWindow.right - 14, scanWindow.center.dy),
       Paint()
         ..strokeWidth = 2
         ..color = Colors.white70,
