@@ -1,8 +1,8 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-27
-Task record: OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates. REL-001 / Issue #40 and SP-015 / Issue #38 remain completed baselines.
-Status: SP-013 is complete. SP-014 remains deferred. SP-015 delivery preparation is complete. Current verification policy is owner-local after pull; hosted CI is retired.
+Task record: SP-016 / Issue #44 refines Android barcode responsiveness and framing. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates. REL-001 / Issue #40 and SP-015 / Issue #38 remain completed baselines.
+Status: SP-016 preserves the SP-013 barcode/order contract while adding focused scan guidance and faster camera-side detection. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
 
 ## Verified baseline
 
