@@ -46,8 +46,8 @@ class BarcodeScanController {
         return const BarcodeScanResult(BarcodeScanStatus.ambiguous);
       }
 
-      final latest = await _catalog.getById(matches.single.id);
-      final orderResult = _order.addProduct(latest);
+      final product = matches.single;
+      final orderResult = _order.addProduct(product);
       final status = switch (orderResult) {
         OrderActionResult.added => BarcodeScanStatus.added,
         OrderActionResult.incremented => BarcodeScanStatus.incremented,
@@ -55,7 +55,7 @@ class BarcodeScanController {
         OrderActionResult.overflow => BarcodeScanStatus.overflow,
         _ => BarcodeScanStatus.failed,
       };
-      return BarcodeScanResult(status, product: latest);
+      return BarcodeScanResult(status, product: product);
     } catch (_) {
       return const BarcodeScanResult(BarcodeScanStatus.failed);
     } finally {
