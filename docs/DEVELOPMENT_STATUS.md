@@ -1,8 +1,8 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-27
-Task record: SP-022 / Issue #56 redesigns the unified Cart as a professional POS-style workspace. SP-021 / Issue #54 remains the single-workspace baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
-Status: SP-022 makes product acquisition the primary command surface, moves manual results into a transient overlay, keeps cart totals persistent, flattens cart rows, improves scanner integration, and uses a supporting pane on wide windows. Backend, barcode identity, captured-price and order semantics remain unchanged. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
+Task record: SP-023 / Issue #58 upgrades manual catalog search to indexed multilingual fuzzy ranking. SP-022 / Issue #56 remains the Cart UX baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
+Status: SP-023 adds Unicode/Arabic normalization, multi-token prefix matching, typo tolerance, weighted ranking, exact typed-barcode priority and indexed candidate retrieval while preserving the existing RPC shape and owner-only boundary. Backend, barcode identity, captured-price and order semantics remain unchanged. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
 
 ## Verified baseline
 
@@ -14,6 +14,19 @@ Status: SP-022 makes product acquisition the primary command surface, moves manu
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-023 intelligent search contract
+
+- Keep the existing `catalog_search(text, integer)` RPC signature, result shape, owner authorization and hard result bound.
+- Normalize Unicode with NFKC; lowercase; remove common Arabic diacritics/tatweel; normalize common Arabic/Persian letter and digit variants; collapse punctuation and whitespace.
+- Exact typed barcode ranks first but barcode matching remains exact text, preserving leading zeroes.
+- Rank exact name above name prefix; then weighted multi-token prefix/full-text, composition, substring and typo similarity. Product names carry the highest relevance weight; composition is next; manufacturer/strength/dosage/package are secondary signals.
+- Queries of one or two characters remain conservative; fuzzy expansion begins at three normalized characters with length-sensitive thresholds.
+- Add `pg_trgm`, normalized stored search fields, weighted stored `tsvector`, GIN trigram/full-text indexes and name prefix indexes.
+- Retrieve candidates through separate index-friendly branches before computing fuzzy/ranking scores.
+- Hosted verification on 23,750 rows after `ANALYZE`: representative measured database execution was about 38 ms for a short prefix, 95 ms for `amoksiklaf`, 146 ms for `amoksiklav 1000`, 185 ms for Arabic `أموكسيكلاف 1000`, and 198 ms for `metfor 850` in the sampled runs.
+- Flutter debounce is reduced from 300 ms to 180 ms; stale-response generation guards remain unchanged.
+- No vector/semantic search is used for medication selection, and no client-side full catalog/cache is introduced.
 
 ## SP-022 professional Cart UX contract
 
