@@ -51,9 +51,9 @@ class CatalogProductInput {
     return _serverText(nameEn) == product.nameEn &&
         _serverText(nameAr) == product.nameAr &&
         _serverText(composition) == product.composition &&
-        _serverText(manufacturer) == product.manufacturer &&
+        _referenceText(manufacturer) == _referenceText(product.manufacturer) &&
         _serverText(strength) == product.strength &&
-        _serverText(dosageForm) == product.dosageForm &&
+        _referenceText(dosageForm) == _referenceText(product.dosageForm) &&
         _serverText(packageDescription) == product.packageDescription &&
         _serverText(barcode) == product.barcode &&
         _serverText(barcode2) == product.barcode2 &&
@@ -64,6 +64,28 @@ class CatalogProductInput {
 
   static String? _serverText(String value) {
     return value.trim().isEmpty ? null : value;
+  }
+
+  static String? _referenceText(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return null;
+    }
+
+    const source = 'آأإٱؤئىيک٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹';
+    const target = 'ااااويييك01234567890123456789';
+    final buffer = StringBuffer();
+    for (final rune in value.trim().toLowerCase().runes) {
+      final character = String.fromCharCode(rune);
+      final index = source.indexOf(character);
+      buffer.write(index >= 0 ? target[index] : character);
+    }
+
+    return buffer
+        .toString()
+        .replaceAll(RegExp(r'[ًٌٍَُِّْٰـ]'), '')
+        .replaceAll(RegExp(r'[^a-z0-9\u0600-\u06ff]+'), ' ')
+        .trim()
+        .replaceAll(RegExp(r'\s+'), ' ');
   }
 }
 
