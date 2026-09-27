@@ -339,8 +339,10 @@ class _BarcodeScannerOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _BarcodeScannerOverlayPainter(scanWindow: scanWindow),
+    return SizedBox.expand(
+      child: CustomPaint(
+        painter: _BarcodeScannerOverlayPainter(scanWindow: scanWindow),
+      ),
     );
   }
 }
