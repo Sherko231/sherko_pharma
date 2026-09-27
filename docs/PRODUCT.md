@@ -42,7 +42,7 @@ The order screen calculates separate currency totals for selected products. It d
 - Refresh relevant displayed catalog data automatically while connected, including after reconnecting. Do not require a manual catalog download or replicate the whole catalog.
 - If competing edits affect the same product, show a conflict and let the owner choose rather than silently overwriting a change.
 - The catalog price field `price` is the selling price. Each product has an explicit currency, initially SYP or USD; products using different currencies can coexist. The owner confirmed that all current source CSV selling prices are in SYP; label them accordingly during initial import without conversion. `purchasePrice` must not be substituted for the selling price in customer totals.
-- Selling prices are whole currency units only, including USD. Products with missing or zero selling prices cannot be added to an order until their catalog prices are corrected.
+- Selling prices are whole currency units only, including USD. Display whole-unit monetary amounts with comma thousands separators (for example `200000` as `200,000`) without changing the stored integer value. Products with missing or zero selling prices cannot be added to an order until their catalog prices are corrected.
 - New products require at least one nonempty name in Arabic or English and a positive integer selling price with a supported currency. The second language's name and barcodes are optional; products without a barcode remain available through search. Editing cannot leave both names empty.
 
 ## Barcode lookup
@@ -54,7 +54,7 @@ The order screen calculates separate currency totals for selected products. It d
 - No matching product: display a not-found message and leave the order unchanged. Do not automatically create a product, link a barcode, or open a creation flow.
 - Product creation remains separately available from catalog management.
 - Treat barcode identifiers as text, preserving their exact characters and leading zeros.
-- On Android, scanning may remain open as a compact inline panel on the current Order page so multiple medicines can be scanned sequentially without reopening a full-screen camera route.
+- On Android, scanning may remain open as a compact inline panel on the current Order page so multiple medicines can be scanned sequentially without reopening a full-screen camera route. Do not require a barcode to be upright; supported package barcodes should remain scannable when the package is rotated 180 degrees.
 - A unique scan may use the complete current product snapshot returned by the owner-authorized barcode lookup directly; a second immediate detail read is not required solely to repeat the same server data.
 
 ### Source observations, not additional product features
