@@ -422,7 +422,7 @@ create or replace function app_private.refresh_product_strength_normalization(
 returns void
 language plpgsql
 security definer
-set search_path = pg_catalog, public, app_private
+set search_path = ''
 as $$
 declare
   composition_status app_private.composition_normalization_status;
@@ -798,7 +798,7 @@ create or replace function app_private.sync_product_composition_normalization()
 returns trigger
 language plpgsql
 security definer
-set search_path = pg_catalog, public, app_private
+set search_path = ''
 as $$
 begin
   if tg_op = 'UPDATE'
@@ -827,7 +827,7 @@ create or replace function app_private.sync_product_strength_normalization()
 returns trigger
 language plpgsql
 security definer
-set search_path = pg_catalog, public, app_private
+set search_path = ''
 as $$
 begin
   -- If composition changed in the same UPDATE, the SP-025 composition trigger
