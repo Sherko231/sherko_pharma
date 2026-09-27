@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../shared/formatting/whole_amount.dart';
-
 import '../../catalog/application/scoped_catalog_refresh_controller.dart';
 import '../../catalog/presentation/catalog_search_panel.dart';
+import '../../catalog/presentation/catalog_text.dart';
 import '../../scanning/presentation/android_barcode_scanner_screen.dart';
 import '../application/order_controller.dart';
 import '../domain/order_model.dart';
@@ -28,85 +28,88 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final compact = constraints.maxWidth < 600;
-        final desktopSplit = constraints.maxWidth >= 900;
+        final wide = constraints.maxWidth >= 960;
 
         return Padding(
           key: const Key('cart-workspace'),
-          padding: EdgeInsets.all(compact ? 8 : 12),
+          padding: EdgeInsets.fromLTRB(
+            compact ? 8 : 12,
+            8,
+            compact ? 8 : 12,
+            compact ? 6 : 10,
+          ),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1180),
-              child: Column(
-                children: [
-                  _OrderHeader(
-                    order: order,
-                    scannerOpen: _scannerOpen,
-                    onToggleScanner: Platform.isAndroid
-                        ? () => setState(
-                              () => _scannerOpen = !_scannerOpen,
-                            )
-                        : null,
-                  ),
-                  SizedBox(height: compact ? 6 : 8),
-                  Expanded(
-                    child: desktopSplit
-                        ? Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              SizedBox(
-                                width: 410,
-                                child: _AcquisitionColumn(
-                                  scannerOpen: _scannerOpen,
-                                  onCloseScanner: () => setState(
-                                    () => _scannerOpen = false,
-                                  ),
-                                  maxResultsHeight: 300,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: _CartLines(order: order),
-                              ),
-                            ],
-                          )
-                        : Column(
-                            children: [
-                              CatalogSearchPanel(
-                                maxResultsHeight: compact ? 180 : 240,
-                              ),
-                              if (_scannerOpen && Platform.isAndroid) ...[
-                                const SizedBox(height: 5),
-                                AndroidBarcodeScannerPanel(
-                                  onClose: () => setState(
-                                    () => _scannerOpen = false,
-                                  ),
-                                ),
-                              ],
-                              SizedBox(height: compact ? 5 : 8),
-                              Expanded(
-                                child: _CartLines(order: order),
-                              ),
-                            ],
+              constraints: const BoxConstraints(maxWidth: 1240),
+              child: wide
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox(
+                          width: 420,
+                          child: _AcquisitionPane(
+                            scannerOpen: _scannerOpen,
+                            onToggleScanner: Platform.isAndroid
+                                ? _toggleScanner
+                                : null,
+                            onCloseScanner: _closeScanner,
+                            maxResultsHeight: 430,
                           ),
-                  ),
-                ],
-              ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _CartPane(order: order),
+                        ),
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        CatalogSearchPanel(
+                          scannerOpen: _scannerOpen,
+                          onToggleScanner:
+                              Platform.isAndroid ? _toggleScanner : null,
+                          maxResultsHeight: compact ? 340 : 400,
+                        ),
+                        if (_scannerOpen && Platform.isAndroid) ...[
+                          const SizedBox(height: 6),
+                          AndroidBarcodeScannerPanel(
+                            onClose: _closeScanner,
+                          ),
+                        ],
+                        const SizedBox(height: 6),
+                        Expanded(
+                          child: _CartPane(order: order),
+                        ),
+                      ],
+                    ),
             ),
           ),
         );
       },
     );
   }
+
+  void _toggleScanner() {
+    setState(() => _scannerOpen = !_scannerOpen);
+  }
+
+  void _closeScanner() {
+    if (_scannerOpen) {
+      setState(() => _scannerOpen = false);
+    }
+  }
 }
 
-class _AcquisitionColumn extends StatelessWidget {
-  const _AcquisitionColumn({
+class _AcquisitionPane extends StatelessWidget {
+  const _AcquisitionPane({
     required this.scannerOpen,
+    required this.onToggleScanner,
     required this.onCloseScanner,
     required this.maxResultsHeight,
   });
 
   final bool scannerOpen;
+  final VoidCallback? onToggleScanner;
   final VoidCallback onCloseScanner;
   final double maxResultsHeight;
 
@@ -114,9 +117,13 @@ class _AcquisitionColumn extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CatalogSearchPanel(maxResultsHeight: maxResultsHeight),
+        CatalogSearchPanel(
+          scannerOpen: scannerOpen,
+          onToggleScanner: onToggleScanner,
+          maxResultsHeight: maxResultsHeight,
+        ),
         if (scannerOpen && Platform.isAndroid) ...[
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           AndroidBarcodeScannerPanel(onClose: onCloseScanner),
         ],
       ],
@@ -124,8 +131,8 @@ class _AcquisitionColumn extends StatelessWidget {
   }
 }
 
-class _CartLines extends StatelessWidget {
-  const _CartLines({
+class _CartPane extends StatelessWidget {
+  const _CartPane({
     required this.order,
   });
 
@@ -133,135 +140,103 @@ class _CartLines extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (order.isEmpty) {
-      return const _EmptyOrder();
-    }
-
-    return ListView.separated(
-      key: const Key('order-lines'),
-      itemCount: order.lines.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 5),
-      itemBuilder: (context, index) {
-        return _OrderLineCard(
-          line: order.lines[index],
-        );
-      },
+    return Column(
+      children: [
+        _CartSummaryBar(order: order),
+        const SizedBox(height: 4),
+        Expanded(
+          child: _CartLines(order: order),
+        ),
+      ],
     );
   }
 }
 
-class _OrderHeader extends ConsumerWidget {
-  const _OrderHeader({
+class _CartSummaryBar extends ConsumerWidget {
+  const _CartSummaryBar({
     required this.order,
-    required this.scannerOpen,
-    required this.onToggleScanner,
   });
 
   final OrderState order;
-  final bool scannerOpen;
-  final VoidCallback? onToggleScanner;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final totals = Wrap(
-          spacing: 8,
-          runSpacing: 8,
+    final itemCount = order.lines.fold<int>(
+      0,
+      (total, line) => total + line.quantity,
+    );
+    final narrow = MediaQuery.sizeOf(context).width < 600;
+
+    return Material(
+      key: const Key('cart-summary'),
+      color: Theme.of(context).colorScheme.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        child: Row(
           children: [
-            _TotalChip(
-              key: const Key('order-total-syp'),
-              label: 'SYP',
-              amount: order.totalSyp,
+            Icon(
+              Icons.shopping_bag_outlined,
+              size: 18,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-            _TotalChip(
-              key: const Key('order-total-usd'),
-              label: 'USD',
-              amount: order.totalUsd,
+            const SizedBox(width: 6),
+            Text(
+              '$itemCount ${itemCount == 1 ? 'item' : 'items'}',
+              key: const Key('cart-item-count'),
+              style: Theme.of(context).textTheme.labelLarge,
             ),
-          ],
-        );
-
-        final compactButtonStyle = FilledButton.styleFrom(
-          visualDensity: VisualDensity.compact,
-          minimumSize: const Size(0, 38),
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-        );
-
-        final scan = onToggleScanner == null
-            ? null
-            : FilledButton.icon(
-                key: const Key('order-scan-barcode'),
-                onPressed: onToggleScanner,
-                style: compactButtonStyle,
-                icon: Icon(
-                  scannerOpen ? Icons.close : Icons.qr_code_scanner,
-                  size: 18,
-                ),
-                label: Text(scannerOpen ? 'Hide' : 'Scan'),
-              );
-
-        final newOrder = FilledButton.tonalIcon(
-          key: const Key('order-new'),
-          onPressed: () => _newOrder(context, ref),
-          style: compactButtonStyle,
-          icon: const Icon(Icons.restart_alt, size: 18),
-          label: const Text('New order'),
-        );
-
-        if (constraints.maxWidth < 600) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Cart',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                  Flexible(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerRight,
-                      child: totals,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  if (scan != null) ...[
-                    Expanded(child: scan),
-                    const SizedBox(width: 6),
-                  ],
-                  Expanded(child: newOrder),
-                ],
-              ),
-            ],
-          );
-        }
-
-        return Row(
-          children: [
+            const SizedBox(width: 8),
             Expanded(
-              child: Text(
-                'Cart',
-                style: Theme.of(context).textTheme.headlineSmall,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerRight,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _TotalText(
+                      key: const Key('order-total-syp'),
+                      amount: order.totalSyp,
+                      currency: 'SYP',
+                    ),
+                    const SizedBox(width: 12),
+                    _TotalText(
+                      key: const Key('order-total-usd'),
+                      amount: order.totalUsd,
+                      currency: 'USD',
+                    ),
+                  ],
+                ),
               ),
             ),
-            totals,
-            const SizedBox(width: 12),
-            if (scan != null) ...[
-              scan,
-              const SizedBox(width: 8),
-            ],
-            newOrder,
+            const SizedBox(width: 4),
+            if (narrow)
+              IconButton(
+                key: const Key('order-new'),
+                tooltip: 'New order',
+                onPressed: () => _newOrder(context, ref),
+                visualDensity: VisualDensity.compact,
+                constraints: const BoxConstraints.tightFor(
+                  width: 36,
+                  height: 36,
+                ),
+                iconSize: 19,
+                icon: const Icon(Icons.restart_alt_rounded),
+              )
+            else
+              TextButton.icon(
+                key: const Key('order-new'),
+                onPressed: () => _newOrder(context, ref),
+                style: TextButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                ),
+                icon: const Icon(Icons.restart_alt_rounded, size: 18),
+                label: const Text('New order'),
+              ),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -278,7 +253,7 @@ class _OrderHeader extends ConsumerWidget {
         key: const Key('new-order-dialog'),
         title: const Text('Start a new order?'),
         content: const Text(
-          'This clears the current order. No sale history will be created.',
+          'This clears the current cart. No sale history will be created.',
         ),
         actions: [
           TextButton(
@@ -289,7 +264,7 @@ class _OrderHeader extends ConsumerWidget {
           FilledButton(
             key: const Key('new-order-confirm'),
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Clear order'),
+            child: const Text('Clear cart'),
           ),
         ],
       ),
@@ -301,53 +276,113 @@ class _OrderHeader extends ConsumerWidget {
   }
 }
 
-class _TotalChip extends StatelessWidget {
-  const _TotalChip({
+class _TotalText extends StatelessWidget {
+  const _TotalText({
     super.key,
-    required this.label,
     required this.amount,
+    required this.currency,
   });
 
-  final String label;
   final int amount;
+  final String currency;
 
   @override
   Widget build(BuildContext context) {
-    return Chip(
-      visualDensity: VisualDensity.compact,
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-      label: Text(
-        '${formatWholeAmount(amount)} $label',
-        style: Theme.of(context).textTheme.bodySmall,
-      ),
-    );
-  }
-}
-
-class _EmptyOrder extends StatelessWidget {
-  const _EmptyOrder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Column(
-        key: Key('order-empty'),
-        mainAxisSize: MainAxisSize.min,
+    return Text.rich(
+      TextSpan(
         children: [
-          Icon(Icons.shopping_basket_outlined, size: 36),
-          SizedBox(height: 8),
-          Text('Cart is empty'),
-          SizedBox(height: 8),
-          Text('Use search or Scan above to add products.'),
+          TextSpan(
+            text: formatWholeAmount(amount),
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+          TextSpan(
+            text: ' $currency',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+          ),
         ],
       ),
     );
   }
 }
 
-class _OrderLineCard extends ConsumerWidget {
-  const _OrderLineCard({
+class _CartLines extends StatelessWidget {
+  const _CartLines({
+    required this.order,
+  });
+
+  final OrderState order;
+
+  @override
+  Widget build(BuildContext context) {
+    if (order.isEmpty) {
+      return const _EmptyCart();
+    }
+
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      borderRadius: BorderRadius.circular(10),
+      clipBehavior: Clip.antiAlias,
+      child: ListView.separated(
+        key: const Key('order-lines'),
+        padding: EdgeInsets.zero,
+        itemCount: order.lines.length,
+        separatorBuilder: (context, index) => Divider(
+          height: 1,
+          indent: 10,
+          endIndent: 10,
+          color: Theme.of(context).colorScheme.outlineVariant,
+        ),
+        itemBuilder: (context, index) {
+          return _OrderLineRow(line: order.lines[index]);
+        },
+      ),
+    );
+  }
+}
+
+class _EmptyCart extends StatelessWidget {
+  const _EmptyCart();
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Padding(
+        key: const Key('order-empty'),
+        padding: const EdgeInsets.only(top: 40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.shopping_bag_outlined,
+              size: 34,
+              color: Theme.of(context).colorScheme.outline,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Cart is empty',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 3),
+            Text(
+              'Search for a product or scan a barcode.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _OrderLineRow extends ConsumerWidget {
+  const _OrderLineRow({
     required this.line,
   });
 
@@ -368,127 +403,176 @@ class _OrderLineCard extends ConsumerWidget {
         ? pending
         : null;
 
-    final compact = MediaQuery.sizeOf(context).width < 600;
-    final controlConstraints = compact
-        ? const BoxConstraints.tightFor(width: 36, height: 36)
-        : null;
-
-    return Card(
+    return Padding(
       key: Key('order-line-${line.productId}'),
-      margin: EdgeInsets.symmetric(vertical: compact ? 1 : 2),
-      child: Padding(
-        padding: EdgeInsets.all(compact ? 9 : 11),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        line.displayName,
-                        style: compact
-                            ? Theme.of(context).textTheme.titleSmall
-                            : Theme.of(context).textTheme.titleMedium,
-                      ),
-                      SizedBox(height: compact ? 2 : 6),
-                      Text(
-                        '${formatWholeAmount(line.unitAmount)} ${line.currency} each',
-                        style: compact
-                            ? Theme.of(context).textTheme.bodySmall
-                            : null,
-                      ),
-                      SizedBox(height: compact ? 1 : 4),
-                      Text(
-                        '${formatWholeAmount(line.lineAmount)} ${line.currency}',
-                        key: Key('order-line-amount-${line.productId}'),
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                    ],
-                  ),
+      padding: const EdgeInsets.fromLTRB(10, 8, 6, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: CatalogText(
+                  line.displayName,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleSmall,
                 ),
-                IconButton(
-                  key: Key('order-decrement-${line.productId}'),
-                  tooltip: 'Decrease quantity',
-                  onPressed: line.quantity <= 1
-                      ? null
-                      : () => controller.decrement(line.productId),
-                  visualDensity:
-                      compact ? VisualDensity.compact : VisualDensity.standard,
-                  constraints: controlConstraints,
-                  iconSize: compact ? 18 : 20,
-                  icon: const Icon(Icons.remove),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                '${formatWholeAmount(line.lineAmount)} ${line.currency}',
+                key: Key('order-line-amount-${line.productId}'),
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '${formatWholeAmount(line.unitAmount)} ${line.currency} each',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color:
+                            Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                 ),
-                SizedBox(
-                  width: compact ? 30 : 44,
-                  child: Text(
-                    '${line.quantity}',
-                    key: Key('order-quantity-${line.productId}'),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                IconButton(
-                  key: Key('order-increment-${line.productId}'),
-                  tooltip: 'Increase quantity',
-                  onPressed: () {
-                    final result = controller.increment(line.productId);
-                    if (result == OrderActionResult.overflow) {
-                      ScaffoldMessenger.of(context).showSnackBar(
+              ),
+              _QuantityStepper(
+                productId: line.productId,
+                quantity: line.quantity,
+                onDecrement: line.quantity <= 1
+                    ? null
+                    : () => controller.decrement(line.productId),
+                onIncrement: () {
+                  final result = controller.increment(line.productId);
+                  if (result == OrderActionResult.overflow) {
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
                         const SnackBar(
                           content: Text(
                             'Quantity is too large to calculate safely.',
                           ),
                         ),
                       );
-                    }
-                  },
-                  visualDensity:
-                      compact ? VisualDensity.compact : VisualDensity.standard,
-                  constraints: controlConstraints,
-                  iconSize: compact ? 18 : 20,
-                  icon: const Icon(Icons.add),
-                ),
-                IconButton(
-                  key: Key('order-remove-${line.productId}'),
-                  tooltip: 'Remove from order',
-                  onPressed: () => controller.remove(line.productId),
-                  visualDensity:
-                      compact ? VisualDensity.compact : VisualDensity.standard,
-                  constraints: controlConstraints,
-                  iconSize: compact ? 18 : 20,
-                  icon: const Icon(Icons.delete_outline),
-                ),
-              ],
-            ),
-            if (latest != null) ...[
-              const SizedBox(height: 12),
-              _PriceChangeNotice(
-                line: line,
-                latestAmount: latest.sellingAmount,
-                latestCurrency: latest.currency,
-                onAccept: () {
-                  final result = ref
-                      .read(scopedCatalogRefreshControllerProvider.notifier)
-                      .acceptPriceChange(line.productId);
-                  final message = switch (result) {
-                    OrderActionResult.updated =>
-                      'Order price updated to the latest catalog value.',
-                    OrderActionResult.invalidPrice =>
-                      'The latest catalog price is not valid for an order.',
-                    OrderActionResult.overflow =>
-                      'The latest price would make this order too large to calculate safely.',
-                    _ => 'Order price was not changed.',
-                  };
-                  ScaffoldMessenger.of(context)
-                    ..hideCurrentSnackBar()
-                    ..showSnackBar(SnackBar(content: Text(message)));
+                  }
                 },
               ),
+              const SizedBox(width: 2),
+              IconButton(
+                key: Key('order-remove-${line.productId}'),
+                tooltip: 'Remove',
+                onPressed: () => controller.remove(line.productId),
+                visualDensity: VisualDensity.compact,
+                constraints: const BoxConstraints.tightFor(
+                  width: 36,
+                  height: 36,
+                ),
+                iconSize: 19,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                icon: const Icon(Icons.delete_outline_rounded),
+              ),
             ],
+          ),
+          if (latest != null) ...[
+            const SizedBox(height: 6),
+            _PriceChangeNotice(
+              line: line,
+              latestAmount: latest.sellingAmount,
+              latestCurrency: latest.currency,
+              onAccept: () {
+                final result = ref
+                    .read(scopedCatalogRefreshControllerProvider.notifier)
+                    .acceptPriceChange(line.productId);
+                final message = switch (result) {
+                  OrderActionResult.updated =>
+                    'Cart price updated to the latest catalog value.',
+                  OrderActionResult.invalidPrice =>
+                    'The latest catalog price is not valid for the cart.',
+                  OrderActionResult.overflow =>
+                    'The latest price would make this cart too large to calculate safely.',
+                  _ => 'Cart price was not changed.',
+                };
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(SnackBar(content: Text(message)));
+              },
+            ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class _QuantityStepper extends StatelessWidget {
+  const _QuantityStepper({
+    required this.productId,
+    required this.quantity,
+    required this.onDecrement,
+    required this.onIncrement,
+  });
+
+  final String productId;
+  final int quantity;
+  final VoidCallback? onDecrement;
+  final VoidCallback onIncrement;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outlineVariant,
         ),
+        borderRadius: BorderRadius.circular(9),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            key: Key('order-decrement-$productId'),
+            tooltip: 'Decrease quantity',
+            onPressed: onDecrement,
+            visualDensity: VisualDensity.compact,
+            constraints: const BoxConstraints.tightFor(
+              width: 34,
+              height: 32,
+            ),
+            padding: EdgeInsets.zero,
+            iconSize: 17,
+            icon: const Icon(Icons.remove_rounded),
+          ),
+          SizedBox(
+            width: 28,
+            child: Text(
+              '$quantity',
+              key: Key('order-quantity-$productId'),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+          ),
+          IconButton(
+            key: Key('order-increment-$productId'),
+            tooltip: 'Increase quantity',
+            onPressed: onIncrement,
+            visualDensity: VisualDensity.compact,
+            constraints: const BoxConstraints.tightFor(
+              width: 34,
+              height: 32,
+            ),
+            padding: EdgeInsets.zero,
+            iconSize: 17,
+            icon: const Icon(Icons.add_rounded),
+          ),
+        ],
       ),
     );
   }
@@ -517,29 +601,43 @@ class _PriceChangeNotice extends StatelessWidget {
     return Material(
       key: Key('order-price-change-${line.productId}'),
       color: Theme.of(context).colorScheme.secondaryContainer,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(8),
       child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 12,
-          runSpacing: 8,
+        padding: const EdgeInsets.fromLTRB(8, 5, 4, 5),
+        child: Row(
           children: [
-            Text(
+            Icon(
               canAccept
-                  ? 'Catalog price changed from '
-                      '${formatWholeAmount(line.unitAmount)} ${line.currency} to '
-                      '${formatWholeAmount(latestAmount)} $latestCurrency. '
-                      'Your captured order price is unchanged.'
-                  : 'The latest catalog price is invalid. '
-                      'Your captured ${formatWholeAmount(line.unitAmount)} ${line.currency} '
-                      'price is unchanged.',
+                  ? Icons.sync_rounded
+                  : Icons.warning_amber_rounded,
+              size: 17,
+              color: Theme.of(context).colorScheme.onSecondaryContainer,
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                canAccept
+                    ? 'Price changed: '
+                        '${formatWholeAmount(line.unitAmount)} ${line.currency} → '
+                        '${formatWholeAmount(latestAmount)} $latestCurrency'
+                    : 'Latest catalog price is invalid; captured price is unchanged.',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color:
+                          Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
+              ),
             ),
             if (canAccept)
-              FilledButton.tonal(
+              TextButton(
                 key: Key('order-price-update-${line.productId}'),
                 onPressed: onAccept,
-                child: const Text('Use latest price'),
+                style: TextButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.symmetric(horizontal: 7),
+                ),
+                child: const Text('Update'),
               ),
           ],
         ),
