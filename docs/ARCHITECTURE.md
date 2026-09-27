@@ -17,6 +17,14 @@ SP-025 adds a private derived normalization layer beside the authoritative `prod
 
 This boundary is deliberately conservative. Automatic parsing recognizes only explicit `+` composition separation and deterministic lexical normalization. Ambiguous syntax and semantic synonym candidates remain reviewable/unresolved. Strength pairing, route/release equivalence, direct-alternative classification, and alternatives UI/API remain separate later tasks so medication substitution is never inferred from composition text alone.
 
+## Strength normalization boundary
+
+SP-026 extends the SP-025 derived pharmaceutical model without changing the authoritative `products.strength` text. It parses supported numeric/unit expressions into exact canonical measures, links them to trusted ingredient components only when component counts and syntax align, and creates an order-independent ingredient-strength set key for later equivalence work.
+
+Slash syntax is context-sensitive: quantitative forms such as `250 MG/5 ML` are normalized as concentrations, while recognized presentation suffixes such as `500 MG/CTD TAB` or `1 G/VIAL` are excluded from numeric comparison and left for the dosage-form/release model. Shared trailing concentration denominators across explicit `+` components are accepted only as high-confidence derivations. Unsupported shorthand, partial combinations, unitless values, and untrusted SP-025 compositions remain review/unresolved.
+
+Composition edits own dependency sequencing: the existing SP-025 composition trigger refreshes ingredient links and then SP-026 strength links. A separate strength-update trigger handles strength-only edits and deliberately skips combined composition+strength updates. Neither path changes the existing catalog revision/conflict rules beyond the normal product update itself.
+
 ## Components
 
 | Component | Responsibility | Decision status |
