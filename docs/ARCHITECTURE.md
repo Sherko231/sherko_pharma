@@ -35,7 +35,7 @@ Organize code by feature: authentication, catalog, order, and scanning. Keep app
 - Controllers manage user actions and state transitions.
 - Repositories expose typed operations and hide Supabase or local storage details.
 - Domain models and the order calculator are independently testable Dart code.
-- Platform scanner adapters emit the same barcode event type to the order workflow.
+- Platform scanner adapters emit the same barcode event type to the order workflow. On Android, SP-020 keeps barcode detection in `mobile_scanner`/ML Kit, disables auto zoom, and uses one narrow Flutter `MethodChannel` to request a best-effort native `ToneGenerator` success beep; light haptic feedback remains in Flutter.
 - Do not build the future administration application, a general plugin framework, or a multi-tenant system now.
 
 ## Server access and catalog confidentiality
@@ -57,7 +57,7 @@ Organize code by feature: authentication, catalog, order, and scanning. Keep app
 - `products.id` is a generated UUID independent of source identifiers, names, barcodes and prices.
 - Corrected-source provenance uses a versioned dataset key, explicit source identifiers and a complete raw JSONB row. See [SOURCE_MAPPING.md](SOURCE_MAPPING.md).
 - Barcode columns are nullable text with non-unique indexes. Duplicated identifiers across distinct products remain valid stored state and later lookup ambiguity.
-- Selling amount is whole-unit `bigint` paired with explicit `SYP` or `USD`; zero is representable only for a source-import anomaly.
+- Selling amount is whole-unit `bigint` paired with explicit `SYP` or `USD`; zero is representable only for a source-import anomaly. SP-020 formats amounts with comma thousands separators at the UI/input boundary only; parsing strips those separators before producing the same integer domain value.
 - Each accepted database update increments `revision` exactly once. SP-004 must combine this with an atomic expected-revision predicate before exposing mutations.
 
 ## Catalog reads and automatic refresh
