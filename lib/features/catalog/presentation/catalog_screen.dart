@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../shared/formatting/whole_amount.dart';
+
 import '../application/catalog_detail_controller.dart';
 import '../application/catalog_search_controller.dart';
 import '../application/scoped_catalog_refresh_controller.dart';
@@ -334,7 +336,7 @@ class _ProductResultCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '${product.sellingAmount} ${product.currency}',
+                    '${formatWholeAmount(product.sellingAmount)} ${product.currency}',
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   const SizedBox(height: 8),
