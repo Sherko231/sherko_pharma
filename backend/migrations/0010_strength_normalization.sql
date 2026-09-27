@@ -668,9 +668,12 @@ begin
     final_status := 'needs_review';
     final_reason := 'component_count_mismatch';
   else
-    if shared_denominator and component_count_value > 1 then
+    if component_count_value > 1 then
       final_status := 'high_confidence';
-      final_reason := 'shared_quantitative_denominator';
+      final_reason := case
+        when shared_denominator then 'shared_quantitative_denominator'
+        else 'positional_component_mapping'
+      end;
     elsif composition_status = 'high_confidence' then
       final_status := 'high_confidence';
       final_reason := 'verified_ingredient_alias';
