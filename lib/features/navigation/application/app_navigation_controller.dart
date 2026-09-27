@@ -8,7 +8,7 @@ enum AppDestination {
 class AppNavigationController extends Notifier<AppDestination> {
   @override
   AppDestination build() {
-    return AppDestination.catalog;
+    return AppDestination.order;
   }
 
   void select(AppDestination destination) {
