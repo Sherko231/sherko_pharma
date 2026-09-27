@@ -377,8 +377,8 @@ class _CompactProductResult extends StatelessWidget {
                     onPressed: onAdd,
                     visualDensity: VisualDensity.compact,
                     constraints: const BoxConstraints.tightFor(
-                      width: 34,
-                      height: 30,
+                      width: 38,
+                      height: 34,
                     ),
                     padding: EdgeInsets.zero,
                     iconSize: 17,
