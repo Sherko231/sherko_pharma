@@ -4,12 +4,21 @@ Status: Core interaction and session rules confirmed; detailed visual design rem
 
 Use `PRODUCT.md` for scope, `DATA_MODEL.md` for data rules, and `ARCHITECTURE.md` for persistence and connectivity boundaries.
 
+## Primary Cart workflow
+
+- After authentication, open the `Cart` workspace directly. Do not require switching between Catalog and Order pages.
+- Keep manual catalog search, Android Scan, cart totals, `New Order`, current lines and quantity/remove controls on the same page.
+- Manual search results are bounded and compact so the cart remains available; tapping Add revalidates that product through the existing authoritative catalog read before it is captured.
+- On wider desktop layouts, search/scanning may occupy a compact side column while the cart uses the remaining space. On phones, stack the same workflow vertically without introducing a separate destination.
+- Product detail/create/edit remain focused secondary routes and return to the same Cart workspace.
+- Empty-cart guidance should point to Search or Scan on the current page.
+
 ## Start a new customer order
 
-- Provide a `New Order` action on the customer order screen.
+- Provide a `New Order` action on the Cart workspace.
 - If the current order contains products, show a confirmation explaining that its items will be cleared and no historical sale will be saved. Suggested actions: `Cancel` and `Clear and Start New`.
 - Cancel or dismiss: leave the order, quantities, captured prices/currencies, and saved session unchanged.
-- Confirm: clear all order lines and currency totals, remain on the order screen, and persist the new empty active order.
+- Confirm: clear all order lines and currency totals, remain in Cart, and persist the new empty active order.
 - An already empty order does not require a destructive-action confirmation.
 - Do not create a sales-history entry, checkout record, or stock movement.
 - Do not restore the previous order after a successfully persisted reset. If persistence fails, show an explicit error; do not silently claim a durable reset.
@@ -68,12 +77,18 @@ These choices are an explicit resolution step; the default remains optimistic co
 
 ## Session restoration and sign-out
 
-- Restore the active screen, customer order, and active edit draft as already specified. Restoring search text or the exact list scroll position is not required; those controls may return to their initial state. Filter restoration is not an initial acceptance requirement.
+- Restore the customer order into Cart and restore the active edit draft as already specified. Legacy persisted page identifiers must not reintroduce separate Catalog/Order navigation. Restoring search text or the exact list scroll position is not required; those controls may return to their initial state. Filter restoration is not an initial acceptance requirement.
 - Signing out retains the current order and unfinished edit draft on that device. It does not clear them, complete a sale, or upload the draft.
 - Show the signed-out/login UI and remove protected order/draft content from the visible application state. Only successful authentication as the same account can restore its retained session.
 - A different account must never receive another account's order or draft. Retention is device-local and does not introduce cross-device session synchronization.
 - When signing out from a changed form, preserve its draft under the confirmed retention rule; do not treat sign-out as an implicit Discard or Save. General navigation away from an edit form still follows the existing three-choice flow.
 
+## Durable visual rules
+
+- Treat compact density as the default across application UI: prefer concise headers, small intentional gaps, compact controls/chips/cards and bounded inline panels while preserving readability and usable interaction targets.
+- Format whole-unit monetary values with comma thousands grouping (for example `245,000`) everywhere they are displayed or edited; domain/storage values remain integers.
+- Prefer same-page inline interactions when they are part of one operational flow rather than adding navigation destinations.
+
 ## Remaining decisions
 
-- Detailed screen layout and visual design.
+- Fine-grained visual polish may evolve within the permanent compact-density rules above.
