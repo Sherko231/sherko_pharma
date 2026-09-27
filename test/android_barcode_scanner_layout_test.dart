@@ -36,3 +36,38 @@ void main() {
     expect(window.bottom, lessThanOrEqualTo(preview.height));
   });
 }
+
+
+group('barcode presentation gate', () {
+  test('held barcode stays locked while it is still being observed', () {
+    final gate = BarcodePresentationGate();
+    final start = DateTime.utc(2026, 9, 27, 9);
+
+    gate.lock('A', start);
+    gate.observe(['A'], start.add(const Duration(milliseconds: 500)));
+    gate.releaseIfAbsent(start.add(const Duration(milliseconds: 1000)));
+
+    expect(gate.lockedCode, 'A');
+    expect(gate.nextCandidate(['A']), isNull);
+  });
+
+  test('barcode unlocks after it has been absent long enough', () {
+    final gate = BarcodePresentationGate();
+    final start = DateTime.utc(2026, 9, 27, 9);
+
+    gate.lock('A', start);
+    gate.releaseIfAbsent(start.add(const Duration(milliseconds: 700)));
+
+    expect(gate.lockedCode, isNull);
+    expect(gate.nextCandidate(['A']), 'A');
+  });
+
+  test('different barcode can be scanned while previous code is locked', () {
+    final gate = BarcodePresentationGate();
+    final start = DateTime.utc(2026, 9, 27, 9);
+
+    gate.lock('A', start);
+
+    expect(gate.nextCandidate(['A', 'B']), 'B');
+  });
+});
