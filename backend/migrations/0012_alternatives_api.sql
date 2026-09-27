@@ -9,7 +9,7 @@ create or replace function public.catalog_alternatives(
 returns table (
   relationship_group text,
   group_position integer,
-  relationship_confidence text,
+  normalization_status text,
   id uuid,
   name_en text,
   name_ar text,
@@ -93,10 +93,13 @@ begin
   -- Relationship groups depend on a trusted target across the full SP-025 ->
   -- SP-027 chain. An existing target that cannot be classified safely returns
   -- no rows instead of weakening the comparison rules.
-  if target_composition_status not in ('auto_verified', 'high_confidence')
+  if target_composition_status is null
+     or target_composition_status not in ('auto_verified', 'high_confidence')
      or target_ingredient_set_key is null
+     or target_strength_status is null
      or target_strength_status not in ('auto_verified', 'high_confidence')
      or target_ingredient_strength_set_key is null
+     or target_equivalence_status is null
      or target_equivalence_status not in ('auto_verified', 'high_confidence')
      or target_strict_equivalence_key is null
      or target_form_class_key is null
@@ -115,7 +118,7 @@ begin
           or e.status = 'high_confidence'
           then 'high_confidence'
         else 'auto_verified'
-      end::text as candidate_confidence,
+      end::text as candidate_normalization_status,
       p.id,
       p.name_en,
       p.name_ar,
@@ -244,7 +247,7 @@ begin
   select
     r.candidate_group,
     r.candidate_position::integer,
-    r.candidate_confidence,
+    r.candidate_normalization_status,
     r.id,
     r.name_en,
     r.name_ar,
