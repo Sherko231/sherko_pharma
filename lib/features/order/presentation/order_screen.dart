@@ -370,7 +370,7 @@ class _OrderLineCard extends ConsumerWidget {
 
     final compact = MediaQuery.sizeOf(context).width < 600;
     final controlConstraints = compact
-        ? const BoxConstraints.tightFor(width: 34, height: 34)
+        ? const BoxConstraints.tightFor(width: 36, height: 36)
         : null;
 
     return Card(
