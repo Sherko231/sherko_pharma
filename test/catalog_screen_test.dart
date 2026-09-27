@@ -101,7 +101,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('catalog-search-overlay')), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('cart-summary')));
+    await tester.tap(find.text('Sherko Pharma'));
     await tester.pump();
     expect(find.byKey(const Key('catalog-search-overlay')), findsNothing);
 
