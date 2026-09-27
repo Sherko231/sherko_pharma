@@ -6,8 +6,8 @@ Status: SP-025 introduces private ingredient identities, lexical aliases/spellin
 
 ## Verified baseline
 
-- The latest functional feature baseline is SP-013 merge `2f00898ff7cdeb5060c215c6997c62fe5791bd26` from PR #30; later documentation-only handoff commits do not change application behavior.
-- SP-000 through SP-013 and CI-001 are merged.
+- The latest merged baseline before SP-025 is SP-024 merge `1a26add321ddbf5637e01cf9ea3b746d8fca6494` from PR #61. SP-025 is developed separately on Issue #62 and is not a deployed-hosted baseline until explicitly applied.
+- SP-000 through SP-013, SP-015 through SP-024, CI-001, and OPS-001 are merged; SP-014 remains deferred.
 - Issue #29 is closed as completed and PR #30 is merged; post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
 - No open Issue or PR existed immediately before SP-012 was authorized.
 - The dedicated Sherko Pharma Supabase project is active on the Free plan.
