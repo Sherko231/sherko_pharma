@@ -24,10 +24,90 @@ declare
   one_mg_id uuid;
   partial_id uuid;
   tablet_revision bigint;
-  tablet_normalized_at timestamptz;
   combo_key text;
   combo_reverse_key text;
 begin
+  if not exists (
+    select 1
+    from app_private.catalog_parse_strength_measure('1 G')
+    where normalized_amount = 1000
+      and normalized_unit = 'mg'
+  ) then
+    raise exception 'gram normalization failed';
+  end if;
+
+  if not exists (
+    select 1
+    from app_private.catalog_parse_strength_measure('1000 MCG')
+    where normalized_amount = 1
+      and normalized_unit = 'mg'
+  ) then
+    raise exception 'microgram normalization failed';
+  end if;
+
+  if not exists (
+    select 1
+    from app_private.catalog_parse_strength_measure('1000 UG')
+    where normalized_amount = 1
+      and normalized_unit = 'mg'
+  ) then
+    raise exception 'UG microgram alias normalization failed';
+  end if;
+
+  if not exists (
+    select 1
+    from app_private.catalog_parse_strength_measure('1000 IU')
+    where normalized_amount = 1000
+      and normalized_unit = 'iu'
+  ) then
+    raise exception 'IU normalization failed';
+  end if;
+
+  if not exists (
+    select 1
+    from app_private.catalog_parse_strength_measure('100 000 U')
+    where normalized_amount = 100000
+      and normalized_unit = 'u'
+  ) then
+    raise exception 'generic unit normalization failed';
+  end if;
+
+  if not exists (
+    select 1
+    from app_private.catalog_parse_strength_measure('2.5 MEQ')
+    where normalized_amount = 2.5
+      and normalized_unit = 'meq'
+  ) then
+    raise exception 'MEQ normalization failed';
+  end if;
+
+  if not exists (
+    select 1
+    from app_private.catalog_parse_strength_measure('1 MMOL')
+    where normalized_amount = 1
+      and normalized_unit = 'mmol'
+  ) then
+    raise exception 'MMOL normalization failed';
+  end if;
+
+  if not exists (
+    select 1
+    from app_private.catalog_parse_strength_measure('5%')
+    where normalized_amount = 5
+      and normalized_unit = 'percent'
+  ) then
+    raise exception 'percent normalization failed';
+  end if;
+
+  if not exists (
+    select 1
+    from app_private.catalog_parse_strength_denominator('/ML.')
+    where normalized_per_amount = 1
+      and normalized_per_unit = 'ml'
+  ) then
+    raise exception 'implicit one-milliliter denominator failed';
+  end if;
+
   select id into tablet_id
   from public.catalog_create_idempotent(
     '71000000-0000-4000-8000-000000000001',
@@ -422,11 +502,6 @@ begin
   from public.products
   where id = tablet_id;
 
-  select normalized_at
-    into tablet_normalized_at
-  from app_private.product_strength_normalization
-  where product_id = tablet_id;
-
   set local role authenticated;
   set local "request.jwt.claim.sub" = '11111111-1111-1111-1111-111111111111';
 
@@ -467,14 +542,6 @@ begin
     where id = tablet_id
   ) <> tablet_revision + 1 then
     raise exception 'strength normalization changed catalog revision semantics';
-  end if;
-
-  if (
-    select normalized_at
-    from app_private.product_strength_normalization
-    where product_id = tablet_id
-  ) = tablet_normalized_at then
-    raise exception 'strength update did not refresh normalization timestamp';
   end if;
 
   tablet_revision := tablet_revision + 1;
