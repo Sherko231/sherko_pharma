@@ -382,13 +382,13 @@ begin
     into combo_key
   from app_private.product_strength_normalization
   where product_id = combo_id
-    and status = 'auto_verified';
+    and status = 'high_confidence';
 
   select ingredient_strength_set_key
     into combo_reverse_key
   from app_private.product_strength_normalization
   where product_id = combo_reverse_id
-    and status = 'auto_verified';
+    and status = 'high_confidence';
 
   if combo_key is null
      or combo_reverse_key is null
