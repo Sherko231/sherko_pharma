@@ -25,6 +25,16 @@ Slash syntax is context-sensitive: quantitative forms such as `250 MG/5 ML` are 
 
 Composition edits own dependency sequencing: the existing SP-025 composition trigger refreshes ingredient links and then SP-026 strength links. A separate strength-update trigger handles strength-only edits and deliberately skips combined composition+strength updates. Neither path changes the existing catalog revision/conflict rules beyond the normal product update itself.
 
+## Pharmaceutical equivalence boundary
+
+SP-027 adds one more private derived layer above SP-024 dosage-form references and SP-026 ingredient-strength normalization. It does not expose alternatives to the client. A product receives a strict pharmaceutical-equivalence key only when its composition/strength normalization is trusted and its dosage form can be conservatively classified into a compatible form class, route, and release class.
+
+Dosage-form classification is intentionally asymmetric. Explicit ophthalmic, otic, nasal, vaginal, rectal, inhalation, sublingual, modified-release, enteric/delayed-release, and other recognized forms can carry trusted route/release semantics. Common plain forms such as ordinary tablets, capsules, syrups, creams, gels, ointments, and suppositories may be high-confidence when the route is conventional but not explicitly written. Injection-like records remain non-strict when the source does not identify the specific parenteral route; generic or mixed-route labels remain review/unresolved.
+
+Strict equivalence therefore means equality of the SP-026 order-independent ingredient-strength set plus the reviewed dosage-form class, route class, and release class. Immediate-, extended-, and delayed-release products never share a strict key merely because ingredient and strength match. Likewise, ophthalmic, otic, nasal, vaginal, rectal, oral, inhaled, and other distinct routes remain separate. Upstream high-confidence state propagates and is never upgraded to auto-verified.
+
+Dependency sequencing remains explicit. Composition edits refresh SP-025, then SP-026, then SP-027. Strength-only edits refresh SP-026 and then SP-027. Dosage-form edits refresh SP-027 only after SP-024 reference resolution. Structural backfill changes no authoritative composition, strength, dosage-form text/reference, revision, or updated-at values.
+
 ## Components
 
 | Component | Responsibility | Decision status |
