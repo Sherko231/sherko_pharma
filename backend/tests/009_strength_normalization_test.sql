@@ -5,7 +5,7 @@ insert into app_private.owner_account (singleton, user_id)
 values (true, '11111111-1111-1111-1111-111111111111')
 on conflict (singleton) do update set user_id = excluded.user_id;
 
-do $
+do $strength_normalization_test$
 declare
   tablet_id uuid;
   liquid_id uuid;
@@ -612,6 +612,6 @@ begin
     raise exception 'strength snapshot did not follow combined update';
   end if;
 end
-$$;
+$strength_normalization_test$;
 
 rollback;
