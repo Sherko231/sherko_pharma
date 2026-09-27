@@ -102,7 +102,7 @@ void main() {
       find.byKey(const Key('catalog-search-field')),
       'aspirin',
     );
-    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pump(const Duration(milliseconds: 181));
     await tester.pumpAndSettle();
     expect(find.text('Old result'), findsOneWidget);
 

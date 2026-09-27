@@ -71,7 +71,7 @@ void main() {
       find.byKey(const Key('catalog-search-field')),
       'Aspirin',
     );
-    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pump(const Duration(milliseconds: 181));
     await tester.pumpAndSettle();
 
     final after = tester.getRect(find.byKey(const Key('cart-summary')));
@@ -97,7 +97,7 @@ void main() {
       find.byKey(const Key('catalog-search-field')),
       'Aspirin',
     );
-    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pump(const Duration(milliseconds: 181));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('catalog-search-overlay')), findsOneWidget);
 
@@ -139,7 +139,7 @@ void main() {
       find.byKey(const Key('catalog-search-field')),
       'أسبرين',
     );
-    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pump(const Duration(milliseconds: 181));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('catalog-search-overlay')), findsOneWidget);
@@ -193,7 +193,7 @@ void main() {
       find.byKey(const Key('catalog-search-field')),
       'missing',
     );
-    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pump(const Duration(milliseconds: 181));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('catalog-search-empty')), findsOneWidget);
@@ -216,7 +216,7 @@ void main() {
       find.byKey(const Key('catalog-search-field')),
       'failure',
     );
-    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pump(const Duration(milliseconds: 181));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('catalog-search-error')), findsOneWidget);
@@ -244,7 +244,7 @@ void main() {
       find.byKey(const Key('catalog-search-field')),
       'دواء',
     );
-    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pump(const Duration(milliseconds: 181));
     await tester.pumpAndSettle();
 
     expect(find.textContaining('اسم دواء عربي طويل'), findsOneWidget);
@@ -270,7 +270,7 @@ void main() {
       find.byKey(const Key('catalog-search-field')),
       'Aspirin',
     );
-    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pump(const Duration(milliseconds: 181));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(Key('catalog-result-${product.id}')));
@@ -310,7 +310,7 @@ void main() {
       find.byKey(const Key('catalog-search-field')),
       'Aspirin',
     );
-    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pump(const Duration(milliseconds: 181));
     await tester.pumpAndSettle();
 
     await tester.tap(
@@ -362,7 +362,7 @@ void main() {
       find.byKey(const Key('catalog-search-field')),
       'Aspirin',
     );
-    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pump(const Duration(milliseconds: 181));
     await tester.pumpAndSettle();
 
     await tester.tap(
@@ -411,7 +411,7 @@ void main() {
       find.byKey(const Key('catalog-search-field')),
       'Aspirin',
     );
-    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pump(const Duration(milliseconds: 181));
     await tester.pumpAndSettle();
 
     expect(find.text('1,000 SYP'), findsOneWidget);
@@ -454,7 +454,7 @@ void main() {
       find.byKey(const Key('catalog-search-field')),
       'Aspirin',
     );
-    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pump(const Duration(milliseconds: 181));
     await tester.pumpAndSettle();
 
     await tester.tap(
