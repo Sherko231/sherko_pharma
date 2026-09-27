@@ -137,6 +137,10 @@ class _AndroidBarcodeScannerPanelState
         _camera.stop();
         break;
       case AppLifecycleState.resumed:
+        final lockedCode = _presentationGate.lockedCode;
+        if (lockedCode != null) {
+          _presentationGate.observe([lockedCode], DateTime.now());
+        }
         _camera.start();
         break;
     }
