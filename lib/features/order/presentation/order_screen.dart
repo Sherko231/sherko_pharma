@@ -295,7 +295,7 @@ class _TotalText extends StatelessWidget {
           ),
     );
   }
-
+}
 
 class _CartLines extends StatelessWidget {
   const _CartLines({
