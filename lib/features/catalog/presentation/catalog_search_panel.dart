@@ -37,6 +37,7 @@ class _CatalogSearchPanelState extends ConsumerState<CatalogSearchPanel> {
     debugLabel: 'catalog-search-results',
   );
   final _layerLink = LayerLink();
+  final Object _tapRegionGroup = Object();
 
   @override
   void dispose() {
@@ -59,19 +60,15 @@ class _CatalogSearchPanelState extends ConsumerState<CatalogSearchPanel> {
           overlayChildBuilder: (overlayContext) {
             return Stack(
               children: [
-                Positioned.fill(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onTap: _dismissResults,
-                  ),
-                ),
                 CompositedTransformFollower(
                   link: _layerLink,
                   showWhenUnlinked: false,
                   targetAnchor: Alignment.bottomLeft,
                   followerAnchor: Alignment.topLeft,
                   offset: const Offset(0, 6),
-                  child: Material(
+                  child: TapRegion(
+                    groupId: _tapRegionGroup,
+                    child: Material(
                     key: const Key('catalog-search-overlay'),
                     elevation: 8,
                     shadowColor: Colors.black26,
@@ -101,9 +98,12 @@ class _CatalogSearchPanelState extends ConsumerState<CatalogSearchPanel> {
               ],
             );
           },
-          child: CompositedTransformTarget(
-            link: _layerLink,
-            child: Row(
+          child: TapRegion(
+            groupId: _tapRegionGroup,
+            onTapOutside: (_) => _dismissResults(),
+            child: CompositedTransformTarget(
+              link: _layerLink,
+              child: Row(
               key: const Key('catalog-search-panel'),
               children: [
                 Expanded(
@@ -190,7 +190,8 @@ class _CatalogSearchPanelState extends ConsumerState<CatalogSearchPanel> {
                   ),
                   icon: const Icon(Icons.add_rounded, size: 21),
                 ),
-              ],
+                ],
+              ),
             ),
           ),
         );
