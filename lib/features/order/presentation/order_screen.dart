@@ -288,26 +288,14 @@ class _TotalText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text.rich(
-      TextSpan(
-        children: [
-          TextSpan(
-            text: formatWholeAmount(amount),
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+    return Text(
+      '${formatWholeAmount(amount)} $currency',
+      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w700,
           ),
-          TextSpan(
-            text: ' $currency',
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-          ),
-        ],
-      ),
     );
   }
-}
+
 
 class _CartLines extends StatelessWidget {
   const _CartLines({
