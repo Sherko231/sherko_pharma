@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sherko_pharma/features/catalog/data/catalog_repository.dart';
 import 'package:sherko_pharma/features/catalog/data/supabase_catalog_repository.dart';
+import 'package:sherko_pharma/features/catalog/domain/catalog_alternative.dart';
 import 'package:sherko_pharma/features/catalog/domain/catalog_product.dart';
 import 'package:sherko_pharma/features/catalog/domain/catalog_product_input.dart';
 
@@ -52,6 +53,20 @@ Map<String, dynamic> rpcRow({
     'notes': null,
     'revision': 3,
     'updated_at': '2026-09-24T12:00:00Z',
+  };
+}
+
+Map<String, dynamic> alternativeRpcRow({
+  String id = '00000000-0000-0000-0000-000000000002',
+  String group = 'exact',
+  int groupPosition = 1,
+  String normalizationStatus = 'high_confidence',
+}) {
+  return {
+    ...rpcRow(id: id),
+    'relationship_group': group,
+    'group_position': groupPosition,
+    'normalization_status': normalizationStatus,
   };
 }
 
@@ -131,6 +146,90 @@ void main() {
     expect(rpc.functionName, 'catalog_get');
     expect(rpc.params, {'product_id': 'product-id'});
     expect(product.id, 'product-id');
+  });
+
+  test('alternatives maps typed groups and clamps limit to 25', () async {
+    final rpc = FakeRpcClient()
+      ..response = [
+        alternativeRpcRow(),
+        alternativeRpcRow(
+          id: '00000000-0000-0000-0000-000000000003',
+          group: 'same_ingredients_different_strength',
+          groupPosition: 2,
+          normalizationStatus: 'auto_verified',
+        ),
+        alternativeRpcRow(
+          id: '00000000-0000-0000-0000-000000000004',
+          group: 'same_ingredients_different_form',
+          groupPosition: 1,
+        ),
+      ];
+    final repository = SupabaseCatalogRepository(rpc);
+
+    final alternatives = await repository.alternatives(
+      'target-id',
+      limitPerGroup: 999,
+    );
+
+    expect(rpc.functionName, 'catalog_alternatives');
+    expect(rpc.params, {
+      'target_product_id': 'target-id',
+      'requested_limit_per_group': 25,
+    });
+    expect(
+      alternatives.map((item) => item.group),
+      [
+        CatalogAlternativeGroup.exact,
+        CatalogAlternativeGroup.sameIngredientsDifferentStrength,
+        CatalogAlternativeGroup.sameIngredientsDifferentForm,
+      ],
+    );
+    expect(alternatives[1].groupPosition, 2);
+    expect(
+      alternatives[1].normalizationStatus,
+      CatalogNormalizationStatus.autoVerified,
+    );
+    expect(alternatives.first.product.sellingAmount, 15000);
+  });
+
+  test('alternatives rejects malformed relationship metadata', () async {
+    final rpc = FakeRpcClient()
+      ..response = [
+        alternativeRpcRow(group: 'unsupported_group'),
+      ];
+    final repository = SupabaseCatalogRepository(rpc);
+
+    await expectLater(
+      repository.alternatives('target-id'),
+      throwsA(isA<CatalogResponseException>()),
+    );
+
+    rpc.response = [
+      alternativeRpcRow(normalizationStatus: 'needs_review'),
+    ];
+    await expectLater(
+      repository.alternatives('target-id'),
+      throwsA(isA<CatalogResponseException>()),
+    );
+
+    rpc.response = [
+      alternativeRpcRow(groupPosition: 0),
+    ];
+    await expectLater(
+      repository.alternatives('target-id'),
+      throwsA(isA<CatalogResponseException>()),
+    );
+  });
+
+  test('alternatives maps missing target RPC to not-found', () async {
+    final rpc = FakeRpcClient()
+      ..error = const CatalogRpcException(code: 'P0002');
+    final repository = SupabaseCatalogRepository(rpc);
+
+    await expectLater(
+      repository.alternatives('missing'),
+      throwsA(isA<CatalogNotFoundException>()),
+    );
   });
 
   test('detail distinguishes a missing product from malformed response', () async {
