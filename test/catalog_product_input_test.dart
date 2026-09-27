@@ -112,6 +112,40 @@ void main() {
     expect(data.validate()['currency'], isNotNull);
   });
 
+  test('reference fields reconcile spelling-equivalent canonical values', () {
+    const input = CatalogProductInput(
+      nameEn: 'A',
+      nameAr: '',
+      composition: '',
+      manufacturer: 'أفاميا',
+      strength: '',
+      dosageForm: 'اقراص',
+      packageDescription: '',
+      barcode: '',
+      barcode2: '',
+      sellingAmount: 100,
+      currency: 'SYP',
+      notes: '',
+    );
+
+    final product = testProduct(
+      nameEn: 'A',
+      nameAr: null,
+      composition: null,
+      manufacturer: 'افاميا',
+      strength: null,
+      dosageForm: 'أقراص',
+      packageDescription: null,
+      barcode: null,
+      barcode2: null,
+      sellingAmount: 100,
+      currency: 'SYP',
+      notes: null,
+    );
+
+    expect(input.matchesProduct(product), isTrue);
+  });
+
   test('barcode text preserves leading zeros and non-digit characters', () {
     const data = CatalogProductFormData(
       nameEn: 'A',

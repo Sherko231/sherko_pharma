@@ -79,6 +79,33 @@ void main() {
     expect(products.single.revision, 3);
   });
 
+  test('reference options use typed kind and bounded RPC', () async {
+    final rpc = FakeRpcClient()
+      ..response = [
+        {'id': 7, 'label': 'Asia Pharma'},
+        {'id': 8, 'label': 'Alpha Pharma'},
+      ];
+    final repository = SupabaseCatalogRepository(rpc);
+
+    final options = await repository.referenceOptions(
+      CatalogReferenceKind.manufacturer,
+      query: 'Asia',
+      limit: 999,
+    );
+
+    expect(rpc.functionName, 'catalog_reference_options');
+    expect(rpc.params, {
+      'reference_kind': 'manufacturer',
+      'search_text': 'Asia',
+      'requested_limit': 500,
+    });
+    expect(options.map((option) => option.id), [7, 8]);
+    expect(options.map((option) => option.label), [
+      'Asia Pharma',
+      'Alpha Pharma',
+    ]);
+  });
+
   test('barcode lookup preserves exact code and deduplicates identity', () async {
     final rpc = FakeRpcClient()
       ..response = [

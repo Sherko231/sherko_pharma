@@ -1,5 +1,6 @@
 import '../../../shared/formatting/whole_amount.dart';
 import 'catalog_product.dart';
+import 'catalog_reference_text.dart';
 
 class CatalogProductInput {
   const CatalogProductInput({
@@ -51,9 +52,9 @@ class CatalogProductInput {
     return _serverText(nameEn) == product.nameEn &&
         _serverText(nameAr) == product.nameAr &&
         _serverText(composition) == product.composition &&
-        _serverText(manufacturer) == product.manufacturer &&
+        normalizeCatalogReferenceText(manufacturer) == normalizeCatalogReferenceText(product.manufacturer) &&
         _serverText(strength) == product.strength &&
-        _serverText(dosageForm) == product.dosageForm &&
+        normalizeCatalogReferenceText(dosageForm) == normalizeCatalogReferenceText(product.dosageForm) &&
         _serverText(packageDescription) == product.packageDescription &&
         _serverText(barcode) == product.barcode &&
         _serverText(barcode2) == product.barcode2 &&
@@ -65,6 +66,7 @@ class CatalogProductInput {
   static String? _serverText(String value) {
     return value.trim().isEmpty ? null : value;
   }
+
 }
 
 class CatalogProductFormData {

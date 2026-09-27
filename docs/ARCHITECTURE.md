@@ -58,7 +58,8 @@ Organize code by feature: authentication, catalog, order, and scanning. Keep app
 - `products.id` is a generated UUID independent of source identifiers, names, barcodes and prices.
 - Corrected-source provenance uses a versioned dataset key, explicit source identifiers and a complete raw JSONB row. See [SOURCE_MAPPING.md](SOURCE_MAPPING.md).
 - Barcode columns are nullable text with non-unique indexes. Duplicated identifiers across distinct products remain valid stored state and later lookup ambiguity.
-- Selling amount is whole-unit `bigint` paired with explicit `SYP` or `USD`; zero is representable only for a source-import anomaly. SP-020 formats amounts with comma thousands separators at the UI/input boundary only; parsing strips those separators before producing the same integer domain value.
+- Selling amount is whole-unit `bigint` paired with the typed `app_private.catalog_currency` enum (`SYP` / `USD`); zero is representable only for a source-import anomaly. RPCs cast the enum label back to text so existing Flutter/domain payloads stay compatible. SP-020 formats amounts with comma thousands separators at the UI/input boundary only; parsing strips those separators before producing the same integer domain value.
+- SP-024 normalizes manufacturer and dosage form as private reference tables plus nullable product foreign keys. Canonical display strings remain on `products` as trigger-maintained compatibility/search caches, while alias tables preserve observed spellings. The product form loads owner-authorized reference options for autocomplete but can still submit a genuinely new label; the database atomically creates or reuses the normalized reference.
 - Each accepted database update increments `revision` exactly once. SP-004 must combine this with an atomic expected-revision predicate before exposing mutations.
 
 ## Catalog reads and automatic refresh

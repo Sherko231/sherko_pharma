@@ -1,8 +1,8 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-27
-Task record: SP-023 / Issue #58 upgrades manual catalog search to indexed multilingual fuzzy ranking. SP-022 / Issue #56 remains the Cart UX baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
-Status: SP-023 adds Unicode/Arabic normalization, multi-token prefix matching, typo tolerance, weighted ranking, exact typed-barcode priority and indexed candidate retrieval while preserving the existing RPC shape and owner-only boundary. Backend, barcode identity, captured-price and order semantics remain unchanged. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
+Task record: SP-024 / Issue #60 normalizes stable product reference domains while preserving complex pharmaceutical text. SP-023 / Issue #58 remains the intelligent-search baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
+Status: SP-024 structures manufacturer and dosage form as reference identities with aliases/FKs, makes currency a database enum, keeps RPC display fields compatible, and leaves composition/strength/package/name/barcodes/notes as text where profiling shows normalization would be unsafe or unhelpful. Backend, barcode identity, captured-price and order semantics remain unchanged. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
 
 ## Verified baseline
 
@@ -14,6 +14,19 @@ Status: SP-023 adds Unicode/Arabic normalization, multi-token prefix matching, t
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-024 product reference-data contract
+
+- Hosted profiling at task start: 23,750 products; 351 exact / 350 safe reference-key manufacturer values including one symbolic `-`; 280 exact / 272 normalized dosage-form values; 2,204 compositions; 3,825 strengths; 2,280 package descriptions.
+- Manufacturer and dosage form are dynamic reference entities, not PostgreSQL enums. Each has a stable bigint ID, canonical label, normalized unique key and alias table.
+- Canonical spelling is chosen from the most frequent observed source spelling for each safe normalized key; different normalized keys are never fuzzy-merged automatically.
+- Products retain canonical manufacturer/dosage-form display strings for RPC/search compatibility and also store nullable FKs. A trigger keeps the pair consistent on insert/update.
+- Existing source spellings remain recoverable through alias tables and the immutable source payload; no product rows are dropped.
+- Currency is the finite `app_private.catalog_currency` enum with `SYP` and `USD`, while current RPCs continue returning text labels.
+- Composition, strength, package description, names, notes and barcodes intentionally remain text. The dataset contains complex combinations/units/descriptions that are not safe to decompose automatically.
+- The product form uses reference-aware autocomplete options for manufacturer and dosage form. Existing canonical values are suggested, while a new typed value is allowed and atomically normalized/created by the server.
+- Reconciliation treats spelling-equivalent manufacturer/dosage-form values as the same saved reference so a lost response does not create a false conflict.
+- Current hosted verification preserves 23,750 products with zero missing/dangling manufacturer or dosage-form FKs.
 
 ## SP-023 intelligent search contract
 

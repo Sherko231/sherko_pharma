@@ -11,6 +11,7 @@ import '../data/catalog_repository.dart';
 import '../domain/catalog_product.dart';
 import '../domain/catalog_product_id.dart';
 import '../domain/catalog_product_input.dart';
+import '../domain/catalog_reference_text.dart';
 import '../../../shared/formatting/whole_amount.dart';
 import '../../../shared/presentation/whole_amount_text_input_formatter.dart';
 
@@ -49,8 +50,10 @@ class _CatalogProductFormScreenState
   late final TextEditingController _nameArController;
   late final TextEditingController _compositionController;
   late final TextEditingController _manufacturerController;
+  late final FocusNode _manufacturerFocusNode;
   late final TextEditingController _strengthController;
   late final TextEditingController _dosageFormController;
+  late final FocusNode _dosageFormFocusNode;
   late final TextEditingController _packageController;
   late final TextEditingController _barcodeController;
   late final TextEditingController _barcode2Controller;
@@ -77,6 +80,8 @@ class _CatalogProductFormScreenState
   String? _ownerId;
   String? _saveError;
   String? _draftError;
+  List<String> _manufacturerOptions = const [];
+  List<String> _dosageFormOptions = const [];
   Timer? _draftTimer;
   Future<void> _draftIo = Future<void>.value();
 
@@ -98,9 +103,11 @@ class _CatalogProductFormScreenState
         TextEditingController(text: _baseline.composition);
     _manufacturerController =
         TextEditingController(text: _baseline.manufacturer);
+    _manufacturerFocusNode = FocusNode();
     _strengthController = TextEditingController(text: _baseline.strength);
     _dosageFormController =
         TextEditingController(text: _baseline.dosageForm);
+    _dosageFormFocusNode = FocusNode();
     _packageController =
         TextEditingController(text: _baseline.packageDescription);
     _barcodeController = TextEditingController(text: _baseline.barcode);
@@ -110,6 +117,7 @@ class _CatalogProductFormScreenState
     _notesController = TextEditingController(text: _baseline.notes);
     _currency = _baseline.currency;
     unawaited(_restoreDraft());
+    unawaited(_loadReferenceOptions());
   }
 
   @override
@@ -119,8 +127,10 @@ class _CatalogProductFormScreenState
     _nameArController.dispose();
     _compositionController.dispose();
     _manufacturerController.dispose();
+    _manufacturerFocusNode.dispose();
     _strengthController.dispose();
     _dosageFormController.dispose();
+    _dosageFormFocusNode.dispose();
     _packageController.dispose();
     _barcodeController.dispose();
     _barcode2Controller.dispose();
@@ -280,20 +290,24 @@ class _CatalogProductFormScreenState
                     label: 'Composition / active ingredients',
                     maxLines: 2,
                   ),
-                  _field(
+                  _referenceField(
                     key: const Key('product-field-manufacturer'),
                     controller: _manufacturerController,
+                    focusNode: _manufacturerFocusNode,
                     label: 'Manufacturer / company',
+                    options: _manufacturerOptions,
                   ),
                   _field(
                     key: const Key('product-field-strength'),
                     controller: _strengthController,
                     label: 'Strength',
                   ),
-                  _field(
+                  _referenceField(
                     key: const Key('product-field-dosage-form'),
                     controller: _dosageFormController,
+                    focusNode: _dosageFormFocusNode,
                     label: 'Dosage form',
+                    options: _dosageFormOptions,
                   ),
                   _field(
                     key: const Key('product-field-package'),
@@ -409,6 +423,119 @@ class _CatalogProductFormScreenState
     );
   }
 
+  Widget _referenceField({
+    required Key key,
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    required String label,
+    required List<String> options,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: RawAutocomplete<String>(
+        textEditingController: controller,
+        focusNode: focusNode,
+        displayStringForOption: (option) => option,
+        optionsBuilder: (value) {
+          final query = normalizeCatalogReferenceText(value.text) ?? '';
+          final matches = query.isEmpty
+              ? options
+              : options
+                  .where(
+                    (option) =>
+                        (normalizeCatalogReferenceText(option) ?? '')
+                            .contains(query),
+                  )
+                  .toList(growable: false);
+          return matches.take(40);
+        },
+        onSelected: (_) => _formChanged(),
+        fieldViewBuilder: (
+          context,
+          fieldController,
+          fieldFocusNode,
+          onFieldSubmitted,
+        ) {
+          return TextField(
+            key: key,
+            controller: fieldController,
+            focusNode: fieldFocusNode,
+            enabled: _fieldsEnabled,
+            decoration: InputDecoration(
+              labelText: label,
+              helperText: _referenceHelperText(
+                fieldController.text,
+                options,
+              ),
+              border: const OutlineInputBorder(),
+            ),
+            onChanged: (_) => _formChanged(),
+            onSubmitted: (_) => onFieldSubmitted(),
+          );
+        },
+        optionsViewBuilder: (context, onSelected, shownOptions) {
+          final values = shownOptions.toList(growable: false);
+          if (values.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          return Align(
+            alignment: Alignment.topLeft,
+            child: Material(
+              elevation: 6,
+              borderRadius: BorderRadius.circular(8),
+              clipBehavior: Clip.antiAlias,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 520,
+                  maxHeight: 260,
+                ),
+                child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  itemCount: values.length,
+                  itemBuilder: (context, index) {
+                    final option = values[index];
+                    return InkWell(
+                      onTap: () => onSelected(option),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        child: Text(option),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  String _referenceHelperText(
+    String value,
+    List<String> options,
+  ) {
+    if (options.isEmpty) {
+      return 'Type a value';
+    }
+
+    final normalized = normalizeCatalogReferenceText(value);
+    if (normalized == null) {
+      return 'Choose an existing value or type a new one';
+    }
+
+    final exists = options.any(
+      (option) => normalizeCatalogReferenceText(option) == normalized,
+    );
+    return exists
+        ? 'Existing catalog value'
+        : 'New reference will be created on save';
+  }
+
   Widget _currencyField() {
     return InputDecorator(
       decoration: InputDecoration(
@@ -453,6 +580,32 @@ class _CatalogProductFormScreenState
       _saveError = null;
     });
     _scheduleDraftPersistence();
+  }
+
+  Future<void> _loadReferenceOptions() async {
+    try {
+      final repository = ref.read(catalogRepositoryProvider);
+      final manufacturers = await repository.referenceOptions(
+        CatalogReferenceKind.manufacturer,
+      );
+      final dosageForms = await repository.referenceOptions(
+        CatalogReferenceKind.dosageForm,
+      );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _manufacturerOptions = manufacturers
+            .map((option) => option.label)
+            .toList(growable: false);
+        _dosageFormOptions = dosageForms
+            .map((option) => option.label)
+            .toList(growable: false);
+      });
+    } catch (_) {
+      // Reference suggestions are progressive enhancement. The server still
+      // resolves and canonicalizes typed values atomically on save.
+    }
   }
 
   Future<void> _restoreDraft() async {

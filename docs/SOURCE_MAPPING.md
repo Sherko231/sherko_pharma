@@ -29,8 +29,8 @@ SP-005 must reject or explicitly account for a different fingerprint rather than
 | `Id` | `source_id` | Exact integer; also preserve raw text; never application identity |
 | `name` | `name_en` | Preserve text |
 | `tarkibah` | `composition` | Preserve text; canonical blank may become NULL |
-| `shakielSaidalaani` | `dosage_form` | Preserve text |
-| `maamaal` | `manufacturer` | Preserve text |
+| `shakielSaidalaani` | dosage-form reference + canonical `dosage_form` cache | Preserve exact raw text in `source_payload`; SP-024 maps spelling-equivalent values to one reference identity and stores the canonical display label on the product |
+| `maamaal` | manufacturer reference + canonical `manufacturer` cache | Preserve exact raw text in `source_payload`; SP-024 maps spelling-equivalent values to one reference identity and stores the canonical display label on the product |
 | `tarkiez` | `strength` | Preserve text; do not reinterpret units |
 | `shakielOboaa` | `package_description` | Preserve text |
 | `price` | `selling_amount` + `currency='SYP'` | Exact whole integer; no conversion/rounding; zero retained as anomaly |

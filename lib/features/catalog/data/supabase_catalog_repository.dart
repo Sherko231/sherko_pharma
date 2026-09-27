@@ -82,6 +82,39 @@ class SupabaseCatalogRepository implements CatalogRepository {
   }
 
   @override
+  Future<List<CatalogReferenceOption>> referenceOptions(
+    CatalogReferenceKind kind, {
+    String query = '',
+    int limit = 500,
+  }) async {
+    final boundedLimit = limit.clamp(1, 500);
+    try {
+      final response = await rpcClient.call(
+        'catalog_reference_options',
+        params: {
+          'reference_kind': kind.rpcValue,
+          'search_text': query,
+          'requested_limit': boundedLimit,
+        },
+      );
+
+      final rows = _rowsFromResponse(response);
+      return rows.map((row) {
+        final id = row['id'];
+        final label = row['label'];
+        if (id is! int || label is! String || label.isEmpty) {
+          throw const CatalogResponseException();
+        }
+        return CatalogReferenceOption(id: id, label: label);
+      }).toList(growable: false);
+    } on CatalogRepositoryException {
+      rethrow;
+    } catch (_) {
+      throw const CatalogRepositoryException();
+    }
+  }
+
+  @override
   Future<List<CatalogProduct>> lookupBarcode(String code) async {
     if (code.isEmpty) {
       return const [];
