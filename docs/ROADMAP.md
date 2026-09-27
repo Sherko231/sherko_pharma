@@ -1,9 +1,9 @@
 # Sherko Pharma — Implementation Roadmap
 
-Status: SP-000 through SP-013 and CI-001 are merged. The owner retired hosted CI in OPS-001 / Issue #42; CI-001 remains historical only. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 completed the initial-delivery roadmap; SP-016 through SP-025 are merged post-delivery refinements/normalization foundations. SP-026 / Issue #64 is the current owner-authorized strength-normalization task; SP-027 through SP-029 remain dependency-ordered planning entries and require separate owner authorization.
+Status: SP-000 through SP-013 and CI-001 are merged. The owner retired hosted CI in OPS-001 / Issue #42; CI-001 remains historical only. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 completed the initial-delivery roadmap; SP-016 through SP-026 are merged post-delivery refinements/normalization foundations. SP-027 / Issue #66 is the current owner-authorized pharmaceutical-equivalence task; SP-028 through SP-029 remain dependency-ordered planning entries and require separate owner authorization.
 
 Repository: https://github.com/Sherko231/sherko_pharma
-Inspected baseline for SP-026: `main` at `20782ce64cc72535502d9987a7ef636c9c8df2a9`.
+Inspected baseline for SP-027: `main` at `d92a4f9edb6d91222663159654c96aa11627bc83`.
 
 ## Starting point
 
@@ -102,7 +102,7 @@ SP-016 is tracked by Issue #44, SP-017 by Issue #46, SP-018 by Issue #48, SP-019
 | SP-028 | Add alternatives engine | SP-027 | Owner-authorized bounded API returns exact alternatives separately from same-ingredients/different-strength and same-ingredients/different-form groups; excludes unresolved normalization from strict substitution results |
 | SP-029 | Add alternatives UI | SP-028 | Product/Cart UI exposes clearly separated alternative groups with brand/company/price/strength/form and order-add action without implying equivalence beyond the server classification |
 
-SP-025 is merged via Issue #62 / PR #63. SP-026 is tracked by Issue #64 and is authorized by the owner's explicit 2026-09-27 “كمل” instruction. SP-027 through SP-029 remain planning only: this roadmap entry does not authorize their implementation, production deployment, or medical synonym/equivalence curation.
+SP-025 is merged via Issue #62 / PR #63 and SP-026 via Issue #64 / PR #65. SP-027 is tracked by Issue #66 and is authorized by the owner's explicit 2026-09-28 “كمل” instruction. SP-028 through SP-029 remain planning only: this roadmap entry does not authorize their implementation, production deployment, or broader medical synonym/therapeutic-equivalence curation.
 
 ## Explicitly deferred
 
