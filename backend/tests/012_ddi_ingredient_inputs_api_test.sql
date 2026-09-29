@@ -58,6 +58,22 @@ begin
   exception
     when insufficient_privilege then null;
   end;
+
+  begin
+    perform *
+    from app_private.product_ingredients;
+    raise exception 'owner client can directly read private product ingredient links';
+  exception
+    when insufficient_privilege then null;
+  end;
+
+  begin
+    perform *
+    from app_private.product_composition_normalization;
+    raise exception 'owner client can directly read private normalization summaries';
+  exception
+    when insufficient_privilege then null;
+  end;
 end
 $ddi_private_registry_owner$;
 
