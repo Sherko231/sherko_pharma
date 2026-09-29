@@ -257,6 +257,65 @@ void main() {
       }
     });
 
+    test('18-component product plus one drug gets complete cross-product coverage', () async {
+      final supplementIngredients = List<DdiIngredientIdentity>.generate(
+        18,
+        (index) => _ingredient(index + 1, 'SupplementI${index + 1}'),
+      );
+      final drugIngredient = _ingredient(19, 'DrugI19');
+      final gateway = _FakeGateway((items) async {
+        return _providerResult(items);
+      });
+      final engine = DdiAnalysisEngine(
+        ingredientRepository: _FakeIngredientRepository({
+          'supplement': _trusted('supplement', supplementIngredients),
+          'drug': _trusted('drug', [drugIngredient]),
+        }),
+        interactionGateway: gateway,
+      );
+
+      final result = await engine.analyzeProductIds(
+        const ['supplement', 'drug'],
+      );
+
+      expect(gateway.calls, hasLength(6));
+      expect(gateway.calls.every((batch) => batch.length <= 10), isTrue);
+      expect(result.providerBatchCount, 6);
+      expect(result.productPairs, hasLength(1));
+
+      final pair = result.productPairs.single;
+      expect(
+        {pair.productAId, pair.productBId},
+        {'supplement', 'drug'},
+      );
+      expect(pair.severity, InteractionSeverity.none);
+      expect(pair.ingredientInteractions, hasLength(18));
+
+      for (final supplementIngredient in supplementIngredients) {
+        final covered = gateway.calls.any(
+          (batch) =>
+              batch.contains(supplementIngredient.name) &&
+              batch.contains(drugIngredient.name),
+        );
+        expect(
+          covered,
+          isTrue,
+          reason:
+              'Missing cross-product coverage for '
+              '${supplementIngredient.name} / ${drugIngredient.name}',
+        );
+      }
+
+      expect(
+        pair.ingredientInteractions.every(
+          (interaction) =>
+              interaction.ingredientA.id == drugIngredient.id ||
+              interaction.ingredientB.id == drugIngredient.id,
+        ),
+        isTrue,
+      );
+    });
+
     test('keeps normalization and provider unresolved states distinct', () async {
       final repository = _FakeIngredientRepository({
         'review': _coverage(
