@@ -245,6 +245,7 @@ void main() {
     await pumpEventQueue();
 
     expect(gateway.calls, hasLength(1));
+    expect(gateway.calls.single.isCurrent?.call(), isTrue);
     expect(
       container.read(ddiCartControllerProvider).status,
       DdiCartStatus.loading,
@@ -258,6 +259,7 @@ void main() {
       DdiCartStatus.idle,
     );
     expect(container.read(ddiCartControllerProvider).productIds, isEmpty);
+    expect(gateway.calls.single.isCurrent?.call(), isFalse);
 
     gate.complete(_analysis(const ['p1', 'p2']));
     await pumpEventQueue();
@@ -320,6 +322,47 @@ void main() {
     expect(json.keys, isNot(contains('interactions')));
     expect(json.keys, isNot(contains('interaction_results')));
     expect(json['order_lines'], hasLength(2));
+  });
+
+  test('missing DDI runtime dependency is explicit only when analysis is needed', () async {
+    final auth = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner-a'),
+    );
+    final store = FakeAppSessionStore();
+    final container = ProviderContainer(
+      overrides: [
+        authGatewayProvider.overrideWithValue(auth),
+        appSessionStoreProvider.overrideWithValue(store),
+        ddiCartDebounceDurationProvider.overrideWithValue(Duration.zero),
+      ],
+    );
+    final subscription = container.listen<DdiCartState>(
+      ddiCartControllerProvider,
+      (previous, next) {},
+      fireImmediately: true,
+    );
+    addTearDown(() async {
+      subscription.close();
+      container.dispose();
+      await auth.dispose();
+    });
+
+    await pumpEventQueue();
+    final order = container.read(orderControllerProvider.notifier);
+
+    order.addProduct(testProduct(id: 'p1', sellingAmount: 1000));
+    await pumpEventQueue();
+    expect(
+      container.read(ddiCartControllerProvider).status,
+      DdiCartStatus.idle,
+    );
+
+    order.addProduct(testProduct(id: 'p2', sellingAmount: 2000));
+    await pumpEventQueue();
+    expect(
+      container.read(ddiCartControllerProvider).status,
+      DdiCartStatus.unavailable,
+    );
   });
 
   test('DDI failure preserves Cart and retry can reach ready', () async {
