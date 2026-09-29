@@ -1,6 +1,6 @@
 # Sherko Pharma — Product Requirements
 
-Status: Initial product scope agreed with the owner. SP-030 defines the informational DDI contract; SP-031 exposes trusted ingredient inputs, SP-032 implements the typed provider client, SP-033 implements the product/ingredient batching and aggregation engine, and SP-034 wires automatic non-blocking analysis to the authenticated/restored Cart lifecycle. Severity visualization and interaction-detail UI remain downstream work.
+Status: Initial product scope agreed with the owner. SP-030 defines the informational DDI contract; SP-031 exposes trusted ingredient inputs, SP-032 implements the typed provider client, SP-033 implements product/ingredient batching and aggregation, SP-034 wires automatic non-blocking analysis to the authenticated/restored Cart lifecycle, and SP-035 visualizes severity/incomplete coverage in Cart. Interaction evidence/source detail UI remains downstream work.
 Repository: `sherko_pharma`
 Updated: 2026-09-29
 
@@ -25,6 +25,7 @@ The primary `Cart` workspace combines product acquisition and order calculation.
 - Prefer an inline workflow over a separate full-screen destination when actions belong to the same primary task, as with search/scanning and cart management.
 - Display every whole-unit monetary amount with comma thousands grouping using Western digits, for example `245000` as `245,000` and `1250000` as `1,250,000`. Formatting is presentation/input normalization only: stored and calculated monetary values remain exact integers and currency rules do not change.
 - Preserve readable Arabic product data within compact layouts; truncate secondary metadata before hiding the product identity, price, quantity or primary actions.
+- When DDI state is ready, Cart rows may use a subtle severity tint but must also show an icon/text badge. Highest row severity follows `major > moderate > minor > unknown > none`. `unknown`, `none`, local unresolved normalization, provider-unresolved inputs and provider failures must remain visually distinct and must never be presented as a generic green/safe state.
 
 ## Platforms and language
 

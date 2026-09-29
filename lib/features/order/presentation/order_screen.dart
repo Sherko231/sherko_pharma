@@ -7,6 +7,9 @@ import '../../../shared/formatting/whole_amount.dart';
 import '../../catalog/application/scoped_catalog_refresh_controller.dart';
 import '../../catalog/presentation/catalog_search_panel.dart';
 import '../../catalog/presentation/catalog_text.dart';
+import '../../interactions/application/ddi_cart_controller.dart';
+import '../../interactions/domain/interaction_check_models.dart';
+import '../../interactions/presentation/ddi_cart_presentation.dart';
 import '../../scanning/presentation/android_barcode_scanner_screen.dart';
 import '../application/order_controller.dart';
 import '../domain/order_model.dart';
@@ -131,7 +134,7 @@ class _AcquisitionPane extends StatelessWidget {
   }
 }
 
-class _CartPane extends StatelessWidget {
+class _CartPane extends ConsumerWidget {
   const _CartPane({
     required this.order,
   });
@@ -139,13 +142,34 @@ class _CartPane extends StatelessWidget {
   final OrderState order;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ddi = ref.watch(ddiCartControllerProvider);
+    final analysis = ddi.analysis;
+    final presentation =
+        ddi.status == DdiCartStatus.ready && analysis != null
+            ? buildDdiCartPresentation(analysis)
+            : null;
+    final distinctProductCount = order.lines
+        .map((line) => line.productId)
+        .toSet()
+        .length;
+
     return Column(
       children: [
         _CartSummaryBar(order: order),
+        if (distinctProductCount >= 2) ...[
+          const SizedBox(height: 4),
+          _DdiCartStatusBar(
+            ddi: ddi,
+            presentation: presentation,
+          ),
+        ],
         const SizedBox(height: 4),
         Expanded(
-          child: _CartLines(order: order),
+          child: _CartLines(
+            order: order,
+            ddi: presentation,
+          ),
         ),
       ],
     );
@@ -300,9 +324,11 @@ class _TotalText extends StatelessWidget {
 class _CartLines extends StatelessWidget {
   const _CartLines({
     required this.order,
+    this.ddi,
   });
 
   final OrderState order;
+  final DdiCartPresentation? ddi;
 
   @override
   Widget build(BuildContext context) {
@@ -325,11 +351,455 @@ class _CartLines extends StatelessWidget {
           color: Theme.of(context).colorScheme.outlineVariant,
         ),
         itemBuilder: (context, index) {
-          return _OrderLineRow(line: order.lines[index]);
+          final line = order.lines[index];
+          return _OrderLineRow(
+            line: line,
+            ddi: ddi?.rows[line.productId],
+          );
         },
       ),
     );
   }
+}
+
+class _DdiCartStatusBar extends ConsumerWidget {
+  const _DdiCartStatusBar({
+    required this.ddi,
+    required this.presentation,
+  });
+
+  final DdiCartState ddi;
+  final DdiCartPresentation? presentation;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Material(
+      key: const Key('ddi-cart-status'),
+      color: Theme.of(context).colorScheme.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(9),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        child: switch (ddi.status) {
+          DdiCartStatus.loading => const _DdiStatusMessage(
+              key: Key('ddi-status-loading'),
+              icon: SizedBox(
+                width: 14,
+                height: 14,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              message: 'Checking interactions…',
+            ),
+          DdiCartStatus.error => _DdiStatusMessage(
+              key: const Key('ddi-status-error'),
+              icon: Icon(
+                Icons.cloud_off_rounded,
+                size: 17,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              message: _ddiFailureMessage(ddi),
+              action: TextButton(
+                key: const Key('ddi-retry'),
+                onPressed: () => ref
+                    .read(ddiCartControllerProvider.notifier)
+                    .retry(),
+                child: const Text('Retry'),
+              ),
+            ),
+          DdiCartStatus.unavailable => _DdiStatusMessage(
+              key: const Key('ddi-status-unavailable'),
+              icon: Icon(
+                Icons.info_outline_rounded,
+                size: 17,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              message: 'Interaction checking unavailable.',
+            ),
+          DdiCartStatus.ready => _DdiReadySummary(
+              presentation: presentation,
+            ),
+          DdiCartStatus.idle => _DdiStatusMessage(
+              key: const Key('ddi-status-idle'),
+              icon: Icon(
+                Icons.hourglass_empty_rounded,
+                size: 17,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              message: 'Interaction check pending.',
+            ),
+        },
+      ),
+    );
+  }
+}
+
+class _DdiStatusMessage extends StatelessWidget {
+  const _DdiStatusMessage({
+    super.key,
+    required this.icon,
+    required this.message,
+    this.action,
+  });
+
+  final Widget icon;
+  final String message;
+  final Widget? action;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        icon,
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            message,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+          ),
+        ),
+        if (action != null) ...[
+          const SizedBox(width: 6),
+          action!,
+        ],
+      ],
+    );
+  }
+}
+
+class _DdiReadySummary extends StatelessWidget {
+  const _DdiReadySummary({
+    required this.presentation,
+  });
+
+  final DdiCartPresentation? presentation;
+
+  @override
+  Widget build(BuildContext context) {
+    final resolved = presentation;
+    if (resolved == null) {
+      return _DdiStatusMessage(
+        key: const Key('ddi-status-ready-empty'),
+        icon: Icon(
+          Icons.info_outline_rounded,
+          size: 17,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+        message: 'Interaction results are not available for this Cart.',
+      );
+    }
+
+    final tokens = <Widget>[];
+    for (final severity in InteractionSeverity.values) {
+      final count = resolved.pairCount(severity);
+      if (count == 0) {
+        continue;
+      }
+      final style = _ddiSeverityStyle(context, severity);
+      tokens.add(
+        _DdiSummaryToken(
+          key: Key('ddi-summary-${severity.name}'),
+          icon: style.icon,
+          label: '$count ${_ddiSummaryLabel(severity)}',
+          foreground: style.foreground,
+          background: style.background,
+        ),
+      );
+    }
+    if (resolved.incompleteProductCount > 0) {
+      tokens.add(
+        _DdiSummaryToken(
+          key: const Key('ddi-summary-incomplete'),
+          icon: Icons.warning_amber_rounded,
+          label:
+              '${resolved.incompleteProductCount} incomplete',
+          foreground: Theme.of(context).colorScheme.onSurfaceVariant,
+          background: Theme.of(context).colorScheme.surfaceContainerHigh,
+        ),
+      );
+    }
+
+    if (tokens.isEmpty) {
+      return _DdiStatusMessage(
+        key: const Key('ddi-status-ready-no-pairs'),
+        icon: Icon(
+          Icons.info_outline_rounded,
+          size: 17,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+        message: 'No interaction pair results were returned.',
+      );
+    }
+
+    return Row(
+      key: const Key('ddi-status-ready'),
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.medication_outlined,
+          size: 17,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+        const SizedBox(width: 6),
+        Text(
+          'DDI',
+          style: Theme.of(context).textTheme.labelMedium,
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (var index = 0; index < tokens.length; index++) ...[
+                  if (index > 0) const SizedBox(width: 5),
+                  tokens[index],
+                ],
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DdiSummaryToken extends StatelessWidget {
+  const _DdiSummaryToken({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.foreground,
+    required this.background,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color foreground;
+  final Color background;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14, color: foreground),
+            const SizedBox(width: 3),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: foreground,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DdiRowBadges extends StatelessWidget {
+  const _DdiRowBadges({
+    required this.productId,
+    required this.presentation,
+  });
+
+  final String productId;
+  final DdiProductRowPresentation presentation;
+
+  @override
+  Widget build(BuildContext context) {
+    final badges = <Widget>[];
+    final severity = presentation.severity;
+    if (severity != null) {
+      final style = _ddiSeverityStyle(context, severity);
+      final pairSuffix = presentation.pairCount > 1
+          ? ' · ${presentation.pairCount} pairs'
+          : '';
+      badges.add(
+        _DdiRowBadge(
+          key: Key('ddi-row-severity-$productId'),
+          icon: style.icon,
+          label: '${_ddiRowLabel(severity)}$pairSuffix',
+          foreground: style.foreground,
+          background: style.badgeBackground,
+        ),
+      );
+    }
+
+    final coverageLabel = _ddiCoverageLabel(presentation);
+    if (coverageLabel != null) {
+      badges.add(
+        _DdiRowBadge(
+          key: Key('ddi-row-coverage-$productId'),
+          icon: Icons.warning_amber_rounded,
+          label: coverageLabel,
+          foreground: Theme.of(context).colorScheme.onSurfaceVariant,
+          background: Theme.of(context).colorScheme.surfaceContainerHighest,
+        ),
+      );
+    }
+
+    if (badges.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Wrap(
+      spacing: 5,
+      runSpacing: 4,
+      children: badges,
+    );
+  }
+}
+
+class _DdiRowBadge extends StatelessWidget {
+  const _DdiRowBadge({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.foreground,
+    required this.background,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color foreground;
+  final Color background;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14, color: foreground),
+            const SizedBox(width: 3),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: foreground,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DdiSeverityStyle {
+  const _DdiSeverityStyle({
+    required this.icon,
+    required this.foreground,
+    required this.background,
+    required this.badgeBackground,
+  });
+
+  final IconData icon;
+  final Color foreground;
+  final Color background;
+  final Color badgeBackground;
+}
+
+_DdiSeverityStyle _ddiSeverityStyle(
+  BuildContext context,
+  InteractionSeverity severity,
+) {
+  final scheme = Theme.of(context).colorScheme;
+  return switch (severity) {
+    InteractionSeverity.major => _DdiSeverityStyle(
+        icon: Icons.error_outline_rounded,
+        foreground: scheme.onErrorContainer,
+        background: scheme.errorContainer.withValues(alpha: 0.62),
+        badgeBackground: scheme.errorContainer,
+      ),
+    InteractionSeverity.moderate => _DdiSeverityStyle(
+        icon: Icons.warning_amber_rounded,
+        foreground: Colors.orange.shade900,
+        background: Colors.orange.withValues(alpha: 0.12),
+        badgeBackground: Colors.orange.withValues(alpha: 0.18),
+      ),
+    InteractionSeverity.minor => _DdiSeverityStyle(
+        icon: Icons.info_outline_rounded,
+        foreground: Colors.amber.shade900,
+        background: Colors.amber.withValues(alpha: 0.14),
+        badgeBackground: Colors.amber.withValues(alpha: 0.20),
+      ),
+    InteractionSeverity.unknown => _DdiSeverityStyle(
+        icon: Icons.help_outline_rounded,
+        foreground: scheme.onSurfaceVariant,
+        background: scheme.surfaceContainerHigh,
+        badgeBackground: scheme.surfaceContainerHighest,
+      ),
+    InteractionSeverity.none => _DdiSeverityStyle(
+        icon: Icons.remove_circle_outline_rounded,
+        foreground: scheme.onSurfaceVariant,
+        background: Colors.transparent,
+        badgeBackground: scheme.surfaceContainerHigh,
+      ),
+  };
+}
+
+String _ddiRowLabel(InteractionSeverity severity) {
+  return switch (severity) {
+    InteractionSeverity.major => 'Major',
+    InteractionSeverity.moderate => 'Moderate',
+    InteractionSeverity.minor => 'Minor',
+    InteractionSeverity.unknown => 'Unknown',
+    InteractionSeverity.none => 'No interaction found',
+  };
+}
+
+String _ddiSummaryLabel(InteractionSeverity severity) {
+  return switch (severity) {
+    InteractionSeverity.major => 'major',
+    InteractionSeverity.moderate => 'moderate',
+    InteractionSeverity.minor => 'minor',
+    InteractionSeverity.unknown => 'unknown',
+    InteractionSeverity.none => 'none',
+  };
+}
+
+String? _ddiCoverageLabel(DdiProductRowPresentation presentation) {
+  if (!presentation.localCoverageComplete) {
+    return 'Unchecked';
+  }
+  if (presentation.providerUnresolved) {
+    return 'Provider unresolved';
+  }
+  if (presentation.pairCount == 0) {
+    return 'No pair result';
+  }
+  return null;
+}
+
+String _ddiFailureMessage(DdiCartState ddi) {
+  if (ddi.failureKind == DdiCartFailureKind.rateLimited) {
+    final retryAfter = ddi.retryAfter;
+    if (retryAfter != null && retryAfter > Duration.zero) {
+      return 'Interaction check rate-limited. Retry after '
+          '${retryAfter.inSeconds}s.';
+    }
+    return 'Interaction check rate-limited.';
+  }
+  return 'Interaction check failed. Cart is unchanged.';
 }
 
 class _EmptyCart extends StatelessWidget {
@@ -372,9 +842,11 @@ class _EmptyCart extends StatelessWidget {
 class _OrderLineRow extends ConsumerWidget {
   const _OrderLineRow({
     required this.line,
+    this.ddi,
   });
 
   final OrderLine line;
+  final DdiProductRowPresentation? ddi;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -391,12 +863,20 @@ class _OrderLineRow extends ConsumerWidget {
         ? pending
         : null;
 
-    return Padding(
+    final ddiStyle = ddi?.severity == null
+        ? null
+        : _ddiSeverityStyle(context, ddi!.severity!);
+
+    return DecoratedBox(
       key: Key('order-line-${line.productId}'),
-      padding: const EdgeInsets.fromLTRB(10, 8, 6, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+      decoration: BoxDecoration(
+        color: ddiStyle?.background,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 8, 6, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -469,6 +949,13 @@ class _OrderLineRow extends ConsumerWidget {
               ),
             ],
           ),
+          if (ddi != null) ...[
+            const SizedBox(height: 5),
+            _DdiRowBadges(
+              productId: line.productId,
+              presentation: ddi!,
+            ),
+          ],
           if (latest != null) ...[
             const SizedBox(height: 6),
             _PriceChangeNotice(
@@ -494,7 +981,7 @@ class _OrderLineRow extends ConsumerWidget {
               },
             ),
           ],
-        ],
+        ),
       ),
     );
   }
