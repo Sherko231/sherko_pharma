@@ -126,7 +126,7 @@ class SupabaseDdiIngredientRepository implements DdiIngredientRepository {
       'resolved_component_count',
     );
 
-    final orderedIngredients = <({int componentIndex, DdiIngredientIdentity ingredient})>[];
+    final orderedIngredients = <MapEntry<int, DdiIngredientIdentity>>[];
     for (final row in rows) {
       if (_requiredInt(row, 'request_position') != requestPosition ||
           _requiredBool(row, 'product_exists') != productExists ||
@@ -142,9 +142,9 @@ class SupabaseDdiIngredientRepository implements DdiIngredientRepository {
 
       if (coverageStatus == DdiIngredientCoverageStatus.trusted) {
         orderedIngredients.add(
-          (
-            componentIndex: _requiredInt(row, 'component_index'),
-            ingredient: DdiIngredientIdentity(
+          MapEntry(
+            _requiredInt(row, 'component_index'),
+            DdiIngredientIdentity(
               id: _requiredInt(row, 'ingredient_id'),
               name: _requiredString(row, 'ingredient_name'),
               normalizedName: _requiredString(
@@ -163,11 +163,10 @@ class SupabaseDdiIngredientRepository implements DdiIngredientRepository {
     }
 
     orderedIngredients.sort(
-      (left, right) =>
-          left.componentIndex.compareTo(right.componentIndex),
+      (left, right) => left.key.compareTo(right.key),
     );
     final ingredients = orderedIngredients
-        .map((entry) => entry.ingredient)
+        .map((entry) => entry.value)
         .toList(growable: false);
 
     if (coverageStatus == DdiIngredientCoverageStatus.trusted &&
