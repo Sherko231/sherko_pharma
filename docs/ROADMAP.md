@@ -1,9 +1,9 @@
 # Sherko Pharma — Implementation Roadmap
 
-Status: SP-000 through SP-013 and CI-001 are merged. The owner retired hosted CI in OPS-001 / Issue #42; CI-001 remains historical only. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 completed the initial-delivery roadmap; SP-016 through SP-037 are merged. Follow-up Issues #88 and #92 fixed owner-reported Cart compile/mobile-layout regressions. Issue #94 is the current owner-authorized live-DDI provider-query alias fix.
+Status: SP-000 through SP-013 and CI-001 are merged. The owner retired hosted CI in OPS-001 / Issue #42; CI-001 remains historical only. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 completed the initial-delivery roadmap; SP-016 through SP-037 are merged. Follow-up Issues #88, #92 and #94 fixed owner-reported DDI compile/layout/provider-query regressions. Issue #96 is the current owner-authorized row-presentation and 18-component coverage regression task.
 
 Repository: https://github.com/Sherko231/sherko_pharma
-Current inspected baseline for Issue #94: `main` at `8250a81d6c7c5f153f5a503eeb6deb1869c8ad99` after merged follow-up PR #93.
+Current inspected baseline for Issue #96: `main` at `e556f20ce5b2d213b152fe97e0218e50e5a226e0` after merged Issue #94 / PR #95.
 
 ## Starting point
 
