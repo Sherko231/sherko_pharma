@@ -1,7 +1,7 @@
 # Sherko Pharma — Architecture
 
-Updated: 2026-09-29
-Status: Product boundaries are agreed; SP-036 is merged. SP-037 hardens the complete DDI flow with exact provider pair-set/summary validation, Cart-adjacent provider disclaimer/backlink, stricter HTTP(S)-only link launching, synthetic cross-layer acceptance coverage, and explicit deployment/licensing gates. No production migration or external deployment is introduced. Windows external-reader integration remains deferred. See `DEVELOPMENT_STATUS.md`.
+Updated: 2026-09-30
+Status: SP-030–SP-037 are merged. Issue #98 adds and deploys a private Interaction Checker provider-mapping layer, provider-ID deduplication, explicit ambiguous/unmapped coverage, and product-component overrides for context-dependent source tokens. Production DDI schema is deployed through migration 0014. Windows external-reader integration remains deferred. See `DEVELOPMENT_STATUS.md`.
 
 ## Current decision
 
@@ -163,6 +163,18 @@ Every relevant owner/session/product-set change increments the DDI generation an
 A successful analysis becomes `ready` only for the exact current generation. Failures produce retryable `error` state with a typed failure category; rate-limit failures also retain `Retry-After` when available. The Cart/order remains unchanged on every DDI failure. `retry()` reruns only when the same owner/session/product set is still current. Superseded work is discarded without surfacing an error.
 
 DDI results are never written into `AppSessionSnapshot`. Same-owner Cart restoration therefore starts a new controller analysis after session restoration rather than restoring a prior warning/result. SP-033 may still satisfy identical provider batches from its bounded one-hour in-memory cache inside the current process; no medication or interaction history is persisted.
+
+## Interaction Checker provider-identity mapping (Issue #98)
+
+The SP-025 ingredient registry remains the authoritative internal identity model. Issue #98 adds a separate private provider mapping keyed by internal ingredient ID, plus a private product-component override for source tokens whose meaning depends on product context. A mapping is explicitly `mapped`, `ambiguous`, or `unmapped`; mapped rows retain the provider substance ID/name/kind, mapping method, confidence, catalog-fetch timestamp and review note. Normal client roles cannot read either mapping table directly.
+
+Provider reconciliation consumes an admin-supplied `/api/v1/substances` snapshot without persisting the wholesale provider catalog. It applies unique exact matches, provider-supplied parenthetical aliases, conservative terminal salt/base normalization, reviewed lexical synonyms, and reviewed vitamin/mineral/herbal context rules. Ambiguous identities are never forced. In the current catalog, global `K` remains ambiguous while product-component overrides map ADAVIT-SILVER to `vitamin-k` and ASIA-TONIC/RUBAVIT-G to `potassium`. `PP`/Vitamin B3 remains ambiguous because the provider exposes drug niacin but no separate nicotinamide/niacinamide identity.
+
+`catalog_ddi_ingredients` exposes only the effective provider mapping state for trusted components, preferring a reviewed product-component override over the global ingredient mapping. The Flutter repository keeps this typed. The analysis engine sends stable provider substance IDs when mapped, skips ambiguous/unmapped components into explicit provider-mapping gaps, and continues checking the mapped subset. Distinct internal salts/forms that resolve to the same provider substance are coalesced into one provider query while product-specific internal ingredient identities are retained for detail presentation.
+
+Production reconciliation on 2026-09-30 used 637 provider substances and classified all 2,358 internal ingredient identities: 467 mapped, 3 ambiguous and 1,888 unmapped, plus 6 K component overrides. Among 17,029 locally trusted products, 10,834 (63.62%) are fully provider-mapped and 12,769 (74.98%) have at least one mapped component.
+
+The provider documentation still advertises 60 requests/minute/IP, but the live provider returned HTTP 429 stating an effective 10 requests/minute/IP during production verification. The engine therefore uses the observed stricter 10/minute local default while preserving Retry-After handling. This can be revisited only after a fresh provider-contract check.
 
 ## Cart DDI analysis and batching engine (SP-033)
 
