@@ -31,6 +31,17 @@ final ddiExternalLinkLauncherProvider =
   (ref) => const UrlLauncherDdiExternalLinkLauncher(),
 );
 
+final Uri ddiProviderHomepage =
+    Uri.parse('https://interaction-checker.com');
+
+Uri ddiProviderAttributionUri(InteractionAttribution attribution) {
+  final supplied = attribution.url;
+  if (supplied != null && isDdiExternalHttpUri(supplied)) {
+    return supplied;
+  }
+  return ddiProviderHomepage;
+}
+
 class DdiInteractionDetailPresentation {
   const DdiInteractionDetailPresentation({
     required this.focusProductId,
@@ -513,7 +524,7 @@ class _ProviderNoticeSection extends ConsumerWidget {
         attribution.text?.trim().isNotEmpty == true
             ? attribution.text!.trim()
             : 'Interaction Checker';
-    final providerUrl = attribution.url;
+    final providerUrl = ddiProviderAttributionUri(attribution);
 
     return Material(
       color: Theme.of(context).colorScheme.surfaceContainerLow,
@@ -563,21 +574,19 @@ class _ProviderNoticeSection extends ConsumerWidget {
                     ),
               ),
             ],
-            if (providerUrl != null && isDdiExternalHttpUri(providerUrl)) ...[
-              const SizedBox(height: 4),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  onPressed: () => openDdiExternalLink(
-                    context,
-                    ref,
-                    providerUrl,
-                  ),
-                  icon: const Icon(Icons.open_in_new_rounded, size: 16),
-                  label: const Text('Interaction Checker'),
+            const SizedBox(height: 4),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () => openDdiExternalLink(
+                  context,
+                  ref,
+                  providerUrl,
                 ),
+                icon: const Icon(Icons.open_in_new_rounded, size: 16),
+                label: const Text('Interaction Checker'),
               ),
-            ],
+            ),
           ],
         ),
       ),
