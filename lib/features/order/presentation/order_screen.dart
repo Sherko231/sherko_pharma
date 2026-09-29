@@ -603,9 +603,7 @@ class _DdiCartProviderNotice extends ConsumerWidget {
         attribution.text?.trim().isNotEmpty == true
             ? attribution.text!.trim()
             : 'Interaction Checker';
-    final providerUrl = attribution.url;
-    final canOpenProvider =
-        providerUrl != null && isDdiExternalHttpUri(providerUrl);
+    final providerUrl = ddiProviderAttributionUri(attribution);
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -634,29 +632,20 @@ class _DdiCartProviderNotice extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 5),
-            if (canOpenProvider)
-              TextButton(
-                key: const Key('ddi-cart-provider-link'),
-                onPressed: () => openDdiExternalLink(
-                  context,
-                  ref,
-                  providerUrl!,
-                ),
-                style: TextButton.styleFrom(
-                  visualDensity: VisualDensity.compact,
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  minimumSize: const Size(0, 30),
-                ),
-                child: Text(attributionText),
-              )
-            else
-              Padding(
-                padding: const EdgeInsets.only(top: 5),
-                child: Text(
-                  attributionText,
-                  style: Theme.of(context).textTheme.labelSmall,
-                ),
+            TextButton(
+              key: const Key('ddi-cart-provider-link'),
+              onPressed: () => openDdiExternalLink(
+                context,
+                ref,
+                providerUrl,
               ),
+              style: TextButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                minimumSize: const Size(0, 30),
+              ),
+              child: Text(attributionText),
+            ),
           ],
         ),
       ),
