@@ -430,6 +430,8 @@ begin
       ('melatonine', 'melatonin', 'provider_alias', 98, 'Source spelling correction.'),
       ('guaiphenesin', 'guaifenesin', 'provider_alias', 98, 'Established spelling synonym.'),
       ('phenoxymethylpenicillin', 'penicillin-v', 'provider_alias', 100, 'Phenoxymethylpenicillin is penicillin V.'),
+      ('phenoxymethylpenicillin potassium', 'penicillin-v', 'provider_alias', 100, 'Phenoxymethylpenicillin potassium is penicillin V potassium.'),
+      ('aminophylline', 'theophylline', 'provider_alias', 95, 'Aminophylline is the theophylline-ethylenediamine complex; provider DDI identity uses theophylline.'),
       ('miconazol', 'miconazole', 'provider_alias', 98, 'Source spelling correction.'),
       ('miconazol nitrate', 'miconazole', 'provider_alias', 98, 'Source spelling plus salt normalization.'),
       ('sodium valproate', 'valproic-acid', 'provider_alias', 95, 'Valproate active-moiety provider mapping.')
@@ -469,6 +471,8 @@ begin
       ('b12', 'vitamin-b12', 100, 'Vitamin B12 abbreviation in vitamin formulations.'),
       ('vit b12', 'vitamin-b12', 100, 'Vitamin B12 abbreviation.'),
       ('vitamin b12', 'vitamin-b12', 100, 'Provider vitamin/mineral category.'),
+      ('cyanocobalamin', 'vitamin-b12', 98, 'Provider groups B12 forms under Vitamin B12.'),
+      ('methylcobalamin', 'vitamin-b12', 98, 'Provider groups B12 forms under Vitamin B12.'),
       ('d2', 'vitamin-d', 98, 'Vitamin D2 maps to provider Vitamin D category.'),
       ('d3', 'vitamin-d', 98, 'Vitamin D3 maps to provider Vitamin D category.'),
       ('vit d', 'vitamin-d', 98, 'Vitamin D abbreviation.'),
@@ -476,9 +480,14 @@ begin
       ('vitamin d3', 'vitamin-d', 98, 'Vitamin D3 maps to provider Vitamin D category.'),
       ('vitamin d3 cholecalciferol', 'vitamin-d', 98, 'Cholecalciferol maps to provider Vitamin D category.'),
       ('vitamin d2 ergocalciferol', 'vitamin-d', 98, 'Ergocalciferol maps to provider Vitamin D category.'),
+      ('cholecalciferol', 'vitamin-d', 98, 'Provider groups cholecalciferol under Vitamin D.'),
+      ('ergocalciferol', 'vitamin-d', 98, 'Provider groups ergocalciferol under Vitamin D.'),
       ('e', 'vitamin-e', 98, 'All current E-token uses are vitamin-formulation context.'),
       ('vit e', 'vitamin-e', 100, 'Vitamin E abbreviation.'),
       ('vitamin e', 'vitamin-e', 100, 'Provider vitamin/mineral category.'),
+      ('tocopherol', 'vitamin-e', 95, 'Provider groups tocopherol under Vitamin E.'),
+      ('vit k', 'vitamin-k', 100, 'Explicit Vitamin K abbreviation.'),
+      ('vitamin k', 'vitamin-k', 100, 'Provider vitamin/mineral category.'),
       ('ca', 'calcium', 98, 'Calcium mineral abbreviation.'),
       ('calcium salts', 'calcium', 98, 'Provider calcium mineral category.'),
       ('calcium carbonate', 'calcium', 98, 'Provider calcium mineral category.'),
@@ -587,7 +596,7 @@ begin
     updated_at = pg_catalog.now()
   from app_private.catalog_ingredients i
   where m.ingredient_id = i.id
-    and i.normalized_name = 'pp'
+    and i.normalized_name in ('pp', 'vit b3', 'vitamin b3')
     and m.mapping_method <> 'manual';
 
   -- Product-component K overrides. The current source catalog uses the same
