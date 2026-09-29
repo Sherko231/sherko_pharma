@@ -1,19 +1,33 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-29
-Task record: SP-035 / Issue #77 visualizes the merged SP-034 DDI lifecycle/results in the existing Cart. SP-034 / Issue #76 / PR #84 is merged. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
-Status: SP-035 adds pure pair/row presentation aggregation, compact Cart-level lifecycle/severity summary, per-row highest-severity tint plus icon/text, explicit incomplete/provider-unresolved states, and Retry/unavailable feedback. Order/scanner/search/price/session behavior remains unchanged. Evidence/source detail UI, production migration, and deployment remain downstream. SP-014 remains deferred.
+Task record: SP-036 / Issue #78 adds the reusable evidence/source detail sheet over merged SP-035 Cart severity UI. SP-035 / Issue #77 / PR #85 is merged. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
+Status: SP-036 makes current severity badges open every affected product pair, retained causal ingredient pairs, provider evidence/source/effective dates, provider/detail links, deduplicated disclaimer/attribution notices and data dates. Link launching is injectable/non-destructive, and `url_launcher` 6.3.2 is promoted to a direct pinned dependency without changing its locked version. Order/DDI persistence and provider-request semantics remain unchanged. Production migration/deployment and public/commercial DDI release remain outside this task. SP-014 remains deferred.
 
 ## Verified baseline
 
-- The latest merged repository baseline before SP-035 is SP-034 merge `285287ac2c0eb80396fd0cc5746210b8d648d9cd` from PR #84. Hosted Supabase remains deployed through SP-024 only; SP-025 through SP-028 and SP-031 migration 0013 are not applied by these repository tasks.
-- SP-000 through SP-013, SP-015 through SP-034, CI-001, and OPS-001 are merged before this task; SP-014 remains deferred.
+- The latest merged repository baseline before SP-036 is SP-035 merge `fa55cda1de0021676eb3864f135b052606727af5` from PR #85. Hosted Supabase remains deployed through SP-024 only; SP-025 through SP-028 and SP-031 migration 0013 are not applied by these repository tasks.
+- SP-000 through SP-013, SP-015 through SP-035, CI-001, and OPS-001 are merged before this task; SP-014 remains deferred.
 - Issue #29 is closed as completed and PR #30 is merged; post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
 - No open Issue or PR existed immediately before SP-012 was authorized.
 - The dedicated Sherko Pharma Supabase project is active on the Free plan.
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-036 DDI evidence/source detail sheet
+
+- SP-036 is tracked by Issue #78 from SP-035 merge `fa55cda1de0021676eb3864f135b052606727af5`.
+- A current SP-035 row severity badge is tappable only when its ready analysis contains at least one product-pair result. Opening the sheet does not trigger a new provider/backend request.
+- `buildDdiInteractionDetailPresentation()` resolves current Cart display names and returns every current product pair involving the selected row product, ordered by the existing DDI severity rank.
+- Combination-product causes remain separate `DdiIngredientInteraction` entries. The sheet shows each causal ingredient pair, its provider severity label, every retained evidence entry, label section, matched term/kind, source name/type/effective date, and source/provider interaction link.
+- Evidence-free `unknown` explicitly says no label evidence was returned. Evidence-free `none` retains the provider's no-clinically-significant-interaction semantics. Neither state invents evidence or a general safety claim.
+- Identical provider notices from overlapping batches are deduplicated before presentation. The sheet keeps the provider disclaimer, attribution text/backlink, optional license text and provider label-export/generated dates with displayed results.
+- External links accept only HTTP(S). `DdiExternalLinkLauncher` isolates platform opening from widgets/tests; the production implementation uses `url_launcher` in external-application mode. Failure leaves the sheet and Cart intact and shows feedback.
+- `url_launcher` 6.3.2 was already locked transitively and is compatible with the pinned Flutter/Dart baseline; SP-036 changes only its dependency classification to direct-main in the lockfile.
+- Focused `ddi_interaction_detail_presentation_test.dart` covers current Cart name resolution, all focus-product pairs, combination ingredient separation and provider-notice deduplication. `ddi_interaction_detail_sheet_test.dart` covers evidence/source/effective-date rendering, disclaimer/attribution, source/provider link dispatch, launch failure, unknown/none no-evidence behavior, dismissal and unchanged Cart totals.
+- Provider API/terms were re-checked on 2026-09-29. Attribution/backlink + disclaimer requirements remain, and current terms still prohibit building/selling the output as a clinical decision-support product. No public/commercial DDI release is authorized by SP-036.
+- No production Supabase call, live Interaction Checker request, migration, deployment, DDI persistence/history, treatment recommendation, dosing advice or substitution behavior is part of SP-036.
 
 ## SP-035 Cart DDI severity visualization
 
