@@ -94,7 +94,10 @@ class DdiAnalysisEngine implements DdiAnalysisGateway {
     final providerBuild = _buildProviderInputs(products);
     final providerNodes =
         providerBuild.nodes.values.toList(growable: false)
-          ..sort((left, right) => left.query.compareTo(right.query));
+          ..sort(
+            (left, right) =>
+                left.queryKey.compareTo(right.queryKey),
+          );
     final mappingGaps = providerBuild.gaps.values
         .map((gap) => gap.toModel())
         .toList(growable: false)
