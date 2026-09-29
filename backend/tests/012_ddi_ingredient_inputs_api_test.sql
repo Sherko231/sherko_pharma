@@ -61,108 +61,101 @@ begin
 end
 $ddi_private_registry_owner$;
 
+perform public.catalog_create_idempotent(
+  '74000000-0000-4000-8000-000000000001',
+  'SP031 Single',
+  null,
+  'SP031ACTIVEA',
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  1000,
+  'SYP',
+  null
+);
+
+perform public.catalog_create_idempotent(
+  '74000000-0000-4000-8000-000000000002',
+  'SP031 Combo',
+  null,
+  'SP031ACTIVEA + SP031ACTIVEB',
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  2000,
+  'SYP',
+  null
+);
+
+perform public.catalog_create_idempotent(
+  '74000000-0000-4000-8000-000000000003',
+  'SP031 Needs Review',
+  null,
+  'SP031 REVIEW (SP031 ALIAS)',
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  3000,
+  'SYP',
+  null
+);
+
+perform public.catalog_create_idempotent(
+  '74000000-0000-4000-8000-000000000004',
+  'SP031 Unresolved',
+  null,
+  '+ SP031ACTIVEA',
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  4000,
+  'SYP',
+  null
+);
+
+perform public.catalog_create_idempotent(
+  '74000000-0000-4000-8000-000000000005',
+  'SP031 Canonical',
+  null,
+  'SP031CANONICAL',
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  5000,
+  'SYP',
+  null
+);
+
 reset role;
 
-do $ddi_fixture_setup$
+do $ddi_verified_alias_setup$
 declare
   canonical_ingredient_id bigint;
 begin
-  set local role authenticated;
-  set local "request.jwt.claim.sub" =
-    '11111111-1111-1111-1111-111111111111';
-
-  perform *
-  from public.catalog_create_idempotent(
-    '74000000-0000-4000-8000-000000000001',
-    'SP031 Single',
-    null,
-    'SP031ACTIVEA',
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000,
-    'SYP',
-    null
-  );
-
-  perform *
-  from public.catalog_create_idempotent(
-    '74000000-0000-4000-8000-000000000002',
-    'SP031 Combo',
-    null,
-    'SP031ACTIVEA + SP031ACTIVEB',
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    2000,
-    'SYP',
-    null
-  );
-
-  perform *
-  from public.catalog_create_idempotent(
-    '74000000-0000-4000-8000-000000000003',
-    'SP031 Needs Review',
-    null,
-    'SP031 REVIEW (SP031 ALIAS)',
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    3000,
-    'SYP',
-    null
-  );
-
-  perform *
-  from public.catalog_create_idempotent(
-    '74000000-0000-4000-8000-000000000004',
-    'SP031 Unresolved',
-    null,
-    '+ SP031ACTIVEA',
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    4000,
-    'SYP',
-    null
-  );
-
-  perform *
-  from public.catalog_create_idempotent(
-    '74000000-0000-4000-8000-000000000005',
-    'SP031 Canonical',
-    null,
-    'SP031CANONICAL',
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    5000,
-    'SYP',
-    null
-  );
-
-  reset role;
-
   select i.id
     into canonical_ingredient_id
   from app_private.catalog_ingredients i
   where i.normalized_name =
     app_private.catalog_search_normalize('SP031CANONICAL');
+
+  if canonical_ingredient_id is null then
+    raise exception 'canonical fixture ingredient was not created';
+  end if;
 
   insert into app_private.catalog_ingredient_aliases(
     normalized_alias,
@@ -176,35 +169,28 @@ begin
     'verified_synonym',
     'SP031 VERIFIED SYNONYM'
   );
-
-  set local role authenticated;
-  set local "request.jwt.claim.sub" =
-    '11111111-1111-1111-1111-111111111111';
-
-  perform *
-  from public.catalog_create_idempotent(
-    '74000000-0000-4000-8000-000000000006',
-    'SP031 Verified Synonym',
-    null,
-    'SP031 VERIFIED SYNONYM',
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    6000,
-    'SYP',
-    null
-  );
-
-  reset role;
 end
-$ddi_fixture_setup$;
+$ddi_verified_alias_setup$;
 
 set local role authenticated;
 set local "request.jwt.claim.sub" =
   '11111111-1111-1111-1111-111111111111';
+
+perform public.catalog_create_idempotent(
+  '74000000-0000-4000-8000-000000000006',
+  'SP031 Verified Synonym',
+  null,
+  'SP031 VERIFIED SYNONYM',
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  6000,
+  'SYP',
+  null
+);
 
 do $ddi_ingredient_inputs$
 declare
@@ -235,11 +221,7 @@ begin
   if (
     select string_agg(normalized_ingredient_name, '|' order by component_index)
     from public.catalog_ddi_ingredients(array[combo_id])
-  ) <> (
-    app_private.catalog_search_normalize('SP031ACTIVEA') ||
-    '|' ||
-    app_private.catalog_search_normalize('SP031ACTIVEB')
-  ) then
+  ) <> 'sp031activea|sp031activeb' then
     raise exception 'trusted combination ingredient ordering is not deterministic';
   end if;
 
@@ -249,8 +231,7 @@ begin
     where coverage_status = 'trusted'
       and normalization_status = 'high_confidence'
       and ingredient_name = 'SP031CANONICAL'
-      and normalized_ingredient_name =
-        app_private.catalog_search_normalize('SP031CANONICAL')
+      and normalized_ingredient_name = 'sp031canonical'
   ) then
     raise exception 'high-confidence verified synonym was not exposed as trusted';
   end if;
