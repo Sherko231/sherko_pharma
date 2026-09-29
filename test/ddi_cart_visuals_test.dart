@@ -288,6 +288,58 @@ void main() {
     expect(container.read(orderControllerProvider).totalSyp, 3000);
   });
 
+  testWidgets('long provider notice stays readable on phone width', (
+    tester,
+  ) async {
+    final gateway = _Gateway(
+      (productIds, isCurrent) async => _analysis(
+        products: [
+          _trustedProduct('a', 1),
+          _trustedProduct('b', 2),
+        ],
+        pairs: const [
+          DdiProductPairInteraction(
+            productAId: 'a',
+            productBId: 'b',
+            severity: InteractionSeverity.moderate,
+            ingredientInteractions: [],
+          ),
+        ],
+        providerNotices: [
+          DdiProviderNotice(
+            data: const InteractionCheckData(),
+            disclaimer:
+                'Not medical advice. Severity reflects the provider data '
+                'and must be interpreted with the supplied evidence.',
+            attribution: InteractionAttribution(
+              text:
+                  'Data from Interaction Checker (https://interaction-checker.com), '
+                  'based on provider-supplied interaction evidence.',
+              url: Uri.parse('https://interaction-checker.com'),
+              license: 'Free with attribution',
+            ),
+          ),
+        ],
+      ),
+    );
+    final container = await pumpDdiCart(tester, gateway: gateway);
+
+    addProducts(container, ['a', 'b']);
+    await tester.pumpAndSettle();
+
+    final disclaimer = find.byKey(
+      const Key('ddi-cart-provider-disclaimer-0'),
+    );
+    final link = find.byKey(
+      const Key('ddi-cart-provider-link-0'),
+    );
+
+    expect(disclaimer, findsOneWidget);
+    expect(link, findsOneWidget);
+    expect(tester.getSize(disclaimer).width, greaterThan(250));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('unavailable DDI is explicit and never presented as none', (
     tester,
   ) async {
@@ -343,12 +395,13 @@ DdiAnalysisResult _analysis({
   required List<DdiProductIngredientInput> products,
   List<DdiProductPairInteraction> pairs = const [],
   List<DdiProviderUnresolvedIngredient> providerUnresolved = const [],
+  List<DdiProviderNotice> providerNotices = const [],
 }) {
   return DdiAnalysisResult(
     products: products,
     providerUnresolved: providerUnresolved,
     productPairs: pairs,
-    providerNotices: const [],
+    providerNotices: providerNotices,
     uniqueIngredientCount: products.length,
     providerBatchCount: pairs.isEmpty ? 0 : 1,
   );
