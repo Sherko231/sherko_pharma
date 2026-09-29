@@ -65,7 +65,7 @@ class SupabaseDdiIngredientRepository implements DdiIngredientRepository {
         params: {'requested_product_ids': requested},
       );
     } catch (_) {
-      throw const DdiIngredientRepositoryException();
+      throw const DdiIngredientTransportException();
     }
 
     if (response is! List) {
@@ -203,6 +203,11 @@ class SupabaseDdiIngredientRepository implements DdiIngredientRepository {
 
 sealed class DdiIngredientRepositoryException implements Exception {
   const DdiIngredientRepositoryException();
+}
+
+class DdiIngredientTransportException
+    extends DdiIngredientRepositoryException {
+  const DdiIngredientTransportException();
 }
 
 class DdiIngredientRequestException
