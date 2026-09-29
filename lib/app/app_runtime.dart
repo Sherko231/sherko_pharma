@@ -6,6 +6,7 @@ import '../features/auth/data/supabase_auth_gateway.dart';
 import '../features/catalog/data/catalog_draft_store.dart';
 import '../features/catalog/data/catalog_repository.dart';
 import '../features/catalog/data/supabase_catalog_repository.dart';
+import '../features/interactions/data/ddi_ingredient_repository.dart';
 import '../features/session/data/app_session_store.dart';
 
 class AppRuntimeConfig {
@@ -57,6 +58,7 @@ class AppRuntime {
     this.catalogRepository,
     this.catalogDraftStore,
     this.appSessionStore,
+    this.ddiIngredientRepository,
   })  : status = AppRuntimeStatus.configured,
         problems = const [];
 
@@ -65,7 +67,8 @@ class AppRuntime {
         authGateway = null,
         catalogRepository = null,
         catalogDraftStore = null,
-        appSessionStore = null;
+        appSessionStore = null,
+        ddiIngredientRepository = null;
 
   const AppRuntime.initializationFailed()
       : status = AppRuntimeStatus.initializationFailed,
@@ -73,6 +76,7 @@ class AppRuntime {
         catalogRepository = null,
         catalogDraftStore = null,
         appSessionStore = null,
+        ddiIngredientRepository = null,
         problems = const [
           'Supabase or secure session storage could not be initialized.',
         ];
@@ -82,6 +86,7 @@ class AppRuntime {
   final CatalogRepository? catalogRepository;
   final CatalogDraftStore? catalogDraftStore;
   final AppSessionStore? appSessionStore;
+  final DdiIngredientRepository? ddiIngredientRepository;
   final List<String> problems;
 
   static Future<AppRuntime> initialize({
@@ -127,6 +132,8 @@ class AppRuntime {
         catalogRepository: SupabaseCatalogRepository.fromClient(client),
         catalogDraftStore: draftStore,
         appSessionStore: appSessionStore,
+        ddiIngredientRepository:
+            SupabaseDdiIngredientRepository.fromClient(client),
       );
     } catch (_) {
       return const AppRuntime.initializationFailed();
