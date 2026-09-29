@@ -1,6 +1,6 @@
 # Sherko Pharma — Interaction Flows
 
-Status: Core interaction and session rules confirmed. SP-029 alternatives UI is merged. SP-030 defines the future informational DDI interaction contract; DDI UI behavior below is planned for downstream Issues #73–#79 and is not implemented by SP-030. Initial UI labels are in English; Arabic explanations in the planning conversation describe their meaning.
+Status: Core interaction and session rules confirmed. SP-029 alternatives UI is merged. SP-030 defines the informational DDI interaction contract and SP-034 now wires automatic non-blocking DDI analysis to the authenticated/restored Cart lifecycle. The severity and detail presentation rules below remain planned for SP-035–SP-036. Initial UI labels are in English; Arabic explanations in the planning conversation describe their meaning.
 
 Use `PRODUCT.md` for scope, `DATA_MODEL.md` for data rules, and `ARCHITECTURE.md` for persistence and connectivity boundaries.
 
@@ -30,9 +30,9 @@ Use `PRODUCT.md` for scope, `DATA_MODEL.md` for data rules, and `ARCHITECTURE.md
 - Keep the sheet open after a successful Add so several candidates can be added deliberately. Do not auto-select, rank, or bulk-add alternatives.
 - Alternatives results are transient. Do not persist them in the session snapshot or create an offline alternatives cache.
 
-## Review drug-interaction evidence in Cart (planned after SP-030)
+## Review drug-interaction evidence in Cart
 
-When downstream DDI tasks are implemented, the interaction workflow remains part of the existing Cart rather than creating a separate primary destination.
+SP-034 implements the lifecycle/analysis trigger rules in this section without rendering DDI status yet. SP-035–SP-036 will expose the existing state/results inside the Cart rather than creating a separate primary destination.
 
 - Adding a distinct product by scan or search updates the Cart immediately under the existing order rules; external DDI checking is asynchronous and must not delay a successful add/increment.
 - The DDI subject is the distinct product set in the Cart. Quantity-only changes do not trigger a new pair identity.
