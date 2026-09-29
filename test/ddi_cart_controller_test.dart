@@ -34,7 +34,13 @@ ProviderContainer ddiContainer({
       ddiCartDebounceDurationProvider.overrideWithValue(debounce),
     ],
   );
+  final subscription = container.listen<DdiCartState>(
+    ddiCartControllerProvider,
+    (previous, next) {},
+    fireImmediately: true,
+  );
   addTearDown(() async {
+    subscription.close();
     container.dispose();
     await auth.dispose();
   });
@@ -295,12 +301,25 @@ void main() {
     );
     expect(container.read(orderControllerProvider).lines, isEmpty);
 
+    auth.emitIdentity(const AuthIdentity(userId: 'owner-b'));
+    await pumpEventQueue();
+
     gate.complete(_analysis(const ['p1', 'p2']));
     await pumpEventQueue();
 
     final ddi = container.read(ddiCartControllerProvider);
+    expect(container.read(appSessionControllerProvider).ownerId, 'owner-b');
     expect(ddi.status, DdiCartStatus.idle);
     expect(ddi.analysis, isNull);
+  });
+
+  test('session persistence schema contains no DDI result state', () {
+    final json = _savedTwoProductCart('owner-a').toJson();
+
+    expect(json.keys, isNot(contains('ddi')));
+    expect(json.keys, isNot(contains('interactions')));
+    expect(json.keys, isNot(contains('interaction_results')));
+    expect(json['order_lines'], hasLength(2));
   });
 
   test('DDI failure preserves Cart and retry can reach ready', () async {
