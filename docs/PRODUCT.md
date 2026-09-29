@@ -1,6 +1,6 @@
 # Sherko Pharma — Product Requirements
 
-Status: Initial product scope agreed with the owner. SP-030 defines the planned informational DDI contract; the DDI API/client/UI are not implemented by this task.
+Status: Initial product scope agreed with the owner. SP-030 defines the informational DDI contract; SP-031 exposes trusted ingredient inputs and SP-032 implements the typed provider client. Cart aggregation/scanner integration and DDI UI remain downstream work.
 Repository: `sherko_pharma`
 Updated: 2026-09-29
 
@@ -96,7 +96,7 @@ These observations do not establish that all supplied codes are valid or corresp
 
 ## Drug-interaction information contract (SP-030)
 
-The planned drug-drug interaction (DDI) feature is an informational evidence surface over the active Cart. SP-030 defines its product/safety contract only; downstream Issues #73–#79 own implementation.
+The planned drug-drug interaction (DDI) feature is an informational evidence surface over the active Cart. SP-030 defines its product/safety contract; SP-031 and SP-032 now provide the trusted ingredient-input and typed provider-client foundations. Issues #75–#79 still own Cart aggregation, lifecycle integration, visualization, detail presentation, and final hardening.
 
 - The analysis subject is the set of distinct products currently present in the Cart, whether they were added by Android barcode scan or manual search. Quantity changes do not create a different interaction pair and must not be interpreted as dose information.
 - Syrian/local brand names are not sent as trusted clinical identities. Downstream work must bridge each product through the existing conservative SP-025 normalized ingredient identities; unresolved or review-only ingredient mappings remain visibly unchecked rather than guessed.

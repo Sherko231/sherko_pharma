@@ -1,19 +1,34 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-29
-Task record: SP-031 / Issue #73 exposes trusted SP-025 ingredient identities through one bounded owner-authorized DDI input RPC from the merged SP-030 baseline. SP-030 / Issue #72 / PR #80 is merged. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
-Status: SP-031 adds migration 0013 plus focused backend regression coverage. The RPC accepts explicit product IDs only, hard-limits the request to 50 IDs, deduplicates repeated IDs, returns trusted ingredient rows only for complete `auto_verified`/`high_confidence` normalization, and exposes explicit review/unresolved/missing coverage without leaking untrusted ingredient identities. No Interaction Checker HTTP call, Flutter DDI client/controller/UI, production migration, or external deployment is introduced. SP-014 remains deferred.
+Task record: SP-032 / Issue #74 adds the typed Interaction Checker REST client from the merged SP-031 baseline. SP-031 / Issue #73 / PR #81 is merged. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
+Status: SP-032 adds typed provider/domain models, an injectable POST `/checks` client, explicit request bounds, timeout/transport/429/API/malformed/unsupported-response failures, and focused fixture tests. `http` 1.6.0 is now a direct dependency without changing its locked version. The client is not wired into Cart/scanner state and no production/backend migration or external deployment is performed. SP-014 remains deferred.
 
 ## Verified baseline
 
-- The latest merged repository baseline before SP-031 is SP-030 merge `50eda1567418b100f0561d604b40e85e2fa95d0a` from PR #80. Hosted Supabase remains deployed through SP-024 only; SP-025 through SP-028 and the new SP-031 migration are not applied by these repository tasks.
-- SP-000 through SP-013, SP-015 through SP-030, CI-001, and OPS-001 are merged before this task; SP-014 remains deferred.
+- The latest merged repository baseline before SP-032 is SP-031 merge `dbc0da03d4292c84255084beaf4f967ad2b898a1` from PR #81. Hosted Supabase remains deployed through SP-024 only; SP-025 through SP-028 and SP-031 migration 0013 are not applied by these repository tasks.
+- SP-000 through SP-013, SP-015 through SP-031, CI-001, and OPS-001 are merged before this task; SP-014 remains deferred.
 - Issue #29 is closed as completed and PR #30 is merged; post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
 - No open Issue or PR existed immediately before SP-012 was authorized.
 - The dedicated Sherko Pharma Supabase project is active on the Free plan.
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-032 Interaction Checker client contract
+
+- SP-032 is tracked by Issue #74 from SP-031 merge `dbc0da03d4292c84255084beaf4f967ad2b898a1`.
+- `http` 1.6.0 is declared as a direct runtime dependency; the same version was already locked transitively, so the lockfile version/checksum remain unchanged apart from direct-dependency classification.
+- `InteractionCheckerClient` uses the versioned `/api/v1/checks` POST endpoint, an injectable base URI and injectable `http.Client`, with a configurable positive timeout defaulting to 10 seconds.
+- Local requests are rejected before network use unless they contain 2–10 nonblank item strings of at most 80 characters. The client does not add authentication or Sherko Pharma/Supabase metadata.
+- Typed models preserve resolved query/matchedOn values, unresolved suggestions, pair endpoints, the five pair severities, evidence/source metadata, data dates, disclaimer and attribution.
+- Evidence severity is intentionally narrower than pair severity and accepts only the OpenAPI-documented `major|moderate|minor|none`; an `unknown` evidence value fails explicitly rather than being invented as valid.
+- Additive optional response fields are ignored. Missing/malformed required success fields produce a malformed-response failure, and unsupported required enum values produce an explicit unsupported-response-value failure.
+- HTTP 429 produces a rate-limit failure carrying a valid numeric `Retry-After` duration plus documented provider code/message when available. Other non-2xx responses produce typed API failures. Timeout and transport failure are distinct. No automatic retry is performed.
+- The layer logs/persists neither medication queries nor complete provider payloads and preserves successful provider disclaimer/attribution for later UI use.
+- Focused test `test/interaction_checker_client_test.dart` uses `package:http/testing.dart` only; it does not call the live provider. Coverage includes POST request shape, typed evidence/source parsing, all pair severities, unresolved suggestions, local bounds, 429/no retry, provider error metadata, malformed/missing fields, unsupported severities, timeout vs transport, and additive unknown fields.
+- The provider API/OpenAPI/terms were re-checked on 2026-09-29. Current docs still state no key, 60 requests/minute/IP, 2–10 check items, one-hour cacheability, versioned additive fields and required attribution/disclaimer behavior. Current terms remain unsuitable for selling/presenting the output as a clinical decision-support product.
+- No SP-031 RPC consumption, Cart aggregation/batching, scanner integration, severity UI, source navigation, backend/production migration, or external deployment is part of this task.
 
 ## SP-031 trusted DDI ingredient-input contract
 
