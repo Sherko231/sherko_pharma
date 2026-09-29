@@ -151,7 +151,7 @@ void main() {
     expect(detail.notices, hasLength(1));
     expect(detail.notices.single.disclaimer, 'Not medical advice.');
     expect(
-      detail.notices.single.attribution.url.toString(),
+      detail.notices.single.attribution.url?.toString(),
       'https://interaction-checker.com',
     );
   });
