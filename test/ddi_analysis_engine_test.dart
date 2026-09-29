@@ -440,6 +440,85 @@ void main() {
       expect(gateway.calls, hasLength(3));
     });
 
+    test('rejects success response that omits a resolved provider pair', () async {
+      final gateway = _FakeGateway((items) async {
+        final complete = _providerResult(items);
+        return _copyResult(
+          complete,
+          pairs: complete.pairs.take(2).toList(growable: false),
+        );
+      });
+      final engine = DdiAnalysisEngine(
+        ingredientRepository: _FakeIngredientRepository({
+          'p1': _trusted('p1', [_ingredient(1, 'Alpha')]),
+          'p2': _trusted('p2', [_ingredient(2, 'Beta')]),
+          'p3': _trusted('p3', [_ingredient(3, 'Gamma')]),
+        }),
+        interactionGateway: gateway,
+      );
+
+      await expectLater(
+        engine.analyzeProductIds(const ['p1', 'p2', 'p3']),
+        throwsA(isA<DdiAnalysisMappingException>()),
+      );
+    });
+
+    test('rejects duplicate pair substituted for another resolved pair', () async {
+      final gateway = _FakeGateway((items) async {
+        final complete = _providerResult(items);
+        return _copyResult(
+          complete,
+          pairs: [
+            complete.pairs[0],
+            complete.pairs[0],
+            complete.pairs[2],
+          ],
+        );
+      });
+      final engine = DdiAnalysisEngine(
+        ingredientRepository: _FakeIngredientRepository({
+          'p1': _trusted('p1', [_ingredient(1, 'Alpha')]),
+          'p2': _trusted('p2', [_ingredient(2, 'Beta')]),
+          'p3': _trusted('p3', [_ingredient(3, 'Gamma')]),
+        }),
+        interactionGateway: gateway,
+      );
+
+      await expectLater(
+        engine.analyzeProductIds(const ['p1', 'p2', 'p3']),
+        throwsA(isA<DdiAnalysisMappingException>()),
+      );
+    });
+
+    test('rejects provider summary that contradicts returned pair severities', () async {
+      final gateway = _FakeGateway((items) async {
+        final complete = _providerResult(
+          items,
+          severities: {
+            _queryPairKey('Alpha', 'Beta'):
+                InteractionSeverity.major,
+          },
+        );
+        final summary = Map<InteractionSeverity, int>.from(
+          complete.summary,
+        );
+        summary[InteractionSeverity.major] = 0;
+        return _copyResult(complete, summary: summary);
+      });
+      final engine = DdiAnalysisEngine(
+        ingredientRepository: _FakeIngredientRepository({
+          'p1': _trusted('p1', [_ingredient(1, 'Alpha')]),
+          'p2': _trusted('p2', [_ingredient(2, 'Beta')]),
+        }),
+        interactionGateway: gateway,
+      );
+
+      await expectLater(
+        engine.analyzeProductIds(const ['p1', 'p2']),
+        throwsA(isA<DdiAnalysisMappingException>()),
+      );
+    });
+
     test('chunks more than 50 product IDs for the bounded ingredient RPC', () async {
       final products = <String, DdiProductIngredientInput>{};
       for (var index = 1; index <= 51; index++) {
@@ -633,6 +712,22 @@ InteractionCheckResult _providerResult(
       url: Uri.parse('https://interaction-checker.com'),
       license: 'Free with attribution',
     ),
+  );
+}
+
+InteractionCheckResult _copyResult(
+  InteractionCheckResult source, {
+  List<InteractionPair>? pairs,
+  Map<InteractionSeverity, int>? summary,
+}) {
+  return InteractionCheckResult(
+    items: source.items,
+    unresolved: source.unresolved,
+    pairs: pairs ?? source.pairs,
+    summary: summary ?? source.summary,
+    data: source.data,
+    disclaimer: source.disclaimer,
+    attribution: source.attribution,
   );
 }
 
