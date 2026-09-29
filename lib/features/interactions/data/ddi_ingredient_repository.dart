@@ -18,8 +18,8 @@ class SupabaseDdiIngredientRpcClient implements DdiIngredientRpcClient {
   Future<dynamic> call(
     String functionName, {
     required Map<String, dynamic> params,
-  }) {
-    return client.rpc(functionName, params: params);
+  }) async {
+    return await client.rpc(functionName, params: params);
   }
 }
 
@@ -92,7 +92,11 @@ class SupabaseDdiIngredientRepository implements DdiIngredientRepository {
       if (productRows == null || productRows.isEmpty) {
         throw const DdiIngredientResponseException();
       }
-      results.add(_parseProductRows(productId, productRows));
+      final parsed = _parseProductRows(productId, productRows);
+      if (parsed.requestPosition != index + 1) {
+        throw const DdiIngredientResponseException();
+      }
+      results.add(parsed);
     }
 
     if (grouped.keys.any((id) => !requested.contains(id))) {
@@ -171,6 +175,15 @@ class SupabaseDdiIngredientRepository implements DdiIngredientRepository {
       throw const DdiIngredientResponseException();
     }
 
+    _validateCoverage(
+      coverageStatus: coverageStatus,
+      productExists: productExists,
+      normalizationStatus: normalizationStatus,
+      componentCount: componentCount,
+      resolvedComponentCount: resolvedComponentCount,
+      ingredientCount: ingredients.length,
+    );
+
     return DdiProductIngredientInput(
       productId: productId,
       requestPosition: requestPosition,
@@ -220,6 +233,47 @@ class DdiIngredientRequestException
 class DdiIngredientResponseException
     extends DdiIngredientRepositoryException {
   const DdiIngredientResponseException();
+}
+
+void _validateCoverage({
+  required DdiIngredientCoverageStatus coverageStatus,
+  required bool productExists,
+  required String? normalizationStatus,
+  required int? componentCount,
+  required int? resolvedComponentCount,
+  required int ingredientCount,
+}) {
+  switch (coverageStatus) {
+    case DdiIngredientCoverageStatus.trusted:
+      if (!productExists ||
+          (normalizationStatus != 'auto_verified' &&
+              normalizationStatus != 'high_confidence') ||
+          componentCount == null ||
+          componentCount < 1 ||
+          resolvedComponentCount != componentCount ||
+          ingredientCount != componentCount) {
+        throw const DdiIngredientResponseException();
+      }
+    case DdiIngredientCoverageStatus.needsReview:
+      if (!productExists ||
+          normalizationStatus != 'needs_review' ||
+          ingredientCount != 0) {
+        throw const DdiIngredientResponseException();
+      }
+    case DdiIngredientCoverageStatus.unresolved:
+      if (!productExists ||
+          (normalizationStatus != null &&
+              normalizationStatus != 'unresolved') ||
+          ingredientCount != 0) {
+        throw const DdiIngredientResponseException();
+      }
+    case DdiIngredientCoverageStatus.missing:
+      if (productExists ||
+          normalizationStatus != null ||
+          ingredientCount != 0) {
+        throw const DdiIngredientResponseException();
+      }
+  }
 }
 
 DdiIngredientCoverageStatus _parseCoverageStatus(String value) {
