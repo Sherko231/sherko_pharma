@@ -71,6 +71,60 @@ void main() {
       expect(result.providerNotices, hasLength(1));
     });
 
+    test('uses aspirin provider alias while preserving internal ingredient identity', () async {
+      final repository = _FakeIngredientRepository({
+        'aspirin-product': _trusted(
+          'aspirin-product',
+          [_ingredient(20, 'ACETYLSALICYLIC ACID')],
+        ),
+        'clopidogrel-product': _trusted(
+          'clopidogrel-product',
+          [_ingredient(516, 'CLOPIDOGREL')],
+        ),
+      });
+      final gateway = _FakeGateway((items) async {
+        expect(items, ['aspirin', 'CLOPIDOGREL']);
+        expect(items, isNot(contains('ACETYLSALICYLIC ACID')));
+        return _providerResult(
+          items,
+          severities: {
+            _queryPairKey('aspirin', 'CLOPIDOGREL'):
+                InteractionSeverity.moderate,
+          },
+        );
+      });
+      final engine = DdiAnalysisEngine(
+        ingredientRepository: repository,
+        interactionGateway: gateway,
+      );
+
+      final result = await engine.analyzeProductIds(
+        const ['aspirin-product', 'clopidogrel-product'],
+      );
+
+      expect(gateway.calls, hasLength(1));
+      expect(result.productPairs, hasLength(1));
+      final pair = result.productPairs.single;
+      expect(pair.severity, InteractionSeverity.moderate);
+      expect(pair.ingredientInteractions, hasLength(1));
+      expect(
+        pair.ingredientInteractions.single.ingredientA.name,
+        'ACETYLSALICYLIC ACID',
+      );
+      expect(
+        pair.ingredientInteractions.single.ingredientB.name,
+        'CLOPIDOGREL',
+      );
+      expect(
+        pair.ingredientInteractions.single.ingredientA.id,
+        20,
+      );
+      expect(
+        pair.ingredientInteractions.single.ingredientB.id,
+        516,
+      );
+    });
+
     test('combination product excludes same-product-only pairs and aggregates severity', () async {
       final repository = _FakeIngredientRepository({
         'p1': _trusted(
