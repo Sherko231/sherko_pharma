@@ -563,6 +563,47 @@ begin
   where m.ingredient_id = i.id
     and m.mapping_method <> 'manual';
 
+  -- Known local identities with no standalone substance in the current
+  -- provider snapshot stay explicitly unmapped instead of being forced onto
+  -- a clinically different provider substance.
+  update app_private.interaction_checker_ingredient_mappings m
+  set
+    note = case
+      when i.normalized_name in ('a', 'vit a', 'vitamin a')
+        then 'Known Vitamin A context; current provider snapshot has no standalone Vitamin A substance.'
+      when i.normalized_name in ('c', 'vit c', 'vitamin c', 'ascorbic acid')
+        then 'Known Vitamin C/ascorbic acid context; current provider snapshot has no standalone Vitamin C substance.'
+      when i.normalized_name in ('thiamine', 'vit b1')
+        then 'Known Vitamin B1/thiamine context; current provider snapshot has no standalone Vitamin B1 substance.'
+      when i.normalized_name in ('vit b2', 'riboflavin')
+        then 'Known Vitamin B2/riboflavin context; current provider snapshot has no standalone Vitamin B2 substance.'
+      when i.normalized_name in ('b6', 'vit b6', 'vitamin b6', 'pyridoxine')
+        then 'Known Vitamin B6 context; current provider snapshot has no standalone Vitamin B6 substance.'
+      when i.normalized_name in ('cu', 'copper')
+        then 'Known copper mineral context; current provider snapshot has no standalone copper substance.'
+      when i.normalized_name in ('mn', 'manganese')
+        then 'Known manganese mineral context; current provider snapshot has no standalone manganese substance.'
+      when i.normalized_name in ('p', 'phosphorus', 'phosphate')
+        then 'Known phosphorus/phosphate context; current provider snapshot has no standalone phosphorus/phosphate substance.'
+      else m.note
+    end,
+    provider_catalog_fetched_at = catalog_fetched_at,
+    updated_at = pg_catalog.now()
+  from app_private.catalog_ingredients i
+  where m.ingredient_id = i.id
+    and m.status = 'unmapped'
+    and i.normalized_name in (
+      'a', 'vit a', 'vitamin a',
+      'c', 'vit c', 'vitamin c', 'ascorbic acid',
+      'thiamine', 'vit b1',
+      'vit b2', 'riboflavin',
+      'b6', 'vit b6', 'vitamin b6', 'pyridoxine',
+      'cu', 'copper',
+      'mn', 'manganese',
+      'p', 'phosphorus', 'phosphate'
+    )
+    and m.mapping_method <> 'manual';
+
   -- Explicitly preserve ambiguous high-use abbreviations instead of forcing
   -- them into a provider identity.
   update app_private.interaction_checker_ingredient_mappings m
