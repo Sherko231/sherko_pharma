@@ -1,7 +1,7 @@
 # Sherko Pharma — Architecture
 
 Updated: 2026-09-29
-Status: Product boundaries are agreed; SP-035 is merged. SP-036 adds the reusable DDI detail-presentation/sheet boundary, direct external source/provider links through a testable launcher, and visible provider disclaimer/attribution while preserving the informational-only contract. No production migration or external deployment is introduced. Windows external-reader integration remains deferred. See `DEVELOPMENT_STATUS.md`.
+Status: Product boundaries are agreed; SP-036 is merged. SP-037 hardens the complete DDI flow with exact provider pair-set/summary validation, Cart-adjacent provider disclaimer/backlink, stricter HTTP(S)-only link launching, synthetic cross-layer acceptance coverage, and explicit deployment/licensing gates. No production migration or external deployment is introduced. Windows external-reader integration remains deferred. See `DEVELOPMENT_STATUS.md`.
 
 ## Current decision
 
@@ -113,6 +113,18 @@ The provider contract was re-checked on 2026-09-29 against:
 - https://interaction-checker.com/api
 - https://interaction-checker.com/api/v1/openapi.json
 - https://interaction-checker.com/terms
+
+## DDI integration hardening and acceptance boundary (SP-037)
+
+SP-037 treats the provider's successful `/checks` response as an integrity boundary rather than trusting HTTP 2xx alone. After every submitted query is accounted for as resolved or unresolved, the engine derives the exact set of unordered pairs that must exist among resolved provider substances and requires the returned pair multiset to match exactly. A missing pair, duplicate pair substituted for another pair, unexpected pair, or contradictory reported summary count fails as `DdiAnalysisMappingException`; incomplete success output is never converted into `none` or a partial ready result.
+
+The existing SP-033 cross-batch algorithm remains unchanged: trusted ingredients are stable-ID deduplicated, groups of at most five are pairwise-unioned to keep every provider request at ten or fewer items, and overlapping evidence is deduplicated before product aggregation. The stronger per-batch response check therefore composes with the existing >10-item completeness proof instead of replacing it.
+
+SP-037 also keeps the provider's legal/source notice adjacent to Cart-level ready output. `DdiCartPresentation` retains deduplicated disclaimer/attribution metadata, and the Cart summary renders the provider-supplied disclaimer plus backlink whenever that HTTP(S) URL is available. The SP-036 detail sheet continues to show the richer notice/data-date view. External links share one injectable launcher; both the widget boundary and production launcher reject non-HTTP(S) URIs.
+
+The synthetic acceptance regression crosses the real client application layers without live services: barcode/order input, a fake trusted ingredient repository, the real SP-033 engine, a fake provider, SP-034 lifecycle, SP-035 Cart visualization, and SP-036 detail presentation. It verifies that provider queries contain only canonical ingredient names, same-product-only ingredient interactions do not become product-pair warnings, combination-product causal pairs remain separate, attribution/disclaimer stay visible, and quantity-only changes do not cause another provider request.
+
+Repository acceptance is not production activation. The hosted environment is still documented as deployed through SP-024 only; SP-025–SP-028 and SP-031 migration 0013 remain undeployed by SP-037. No live Interaction Checker request, production Supabase write/migration, release artifact, or owner Android/Windows DDI acceptance is claimed. Current September 2026 provider terms still require attribution/disclaimer and do not authorize building/selling the output as a clinical decision-support product; a compatible permission/license/source is a separate public/commercial release gate.
 
 ## DDI evidence/detail presentation (SP-036)
 
