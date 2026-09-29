@@ -490,6 +490,48 @@ void main() {
       );
     });
 
+    test('rejects distinct ingredient queries resolving to one provider substance', () async {
+      final gateway = _FakeGateway((items) async {
+        final complete = _providerResult(items);
+        return InteractionCheckResult(
+          items: [
+            ResolvedInteractionItem(
+              substance: _substance('Shared'),
+              query: 'Alpha',
+            ),
+            ResolvedInteractionItem(
+              substance: _substance('Shared'),
+              query: 'Beta',
+            ),
+          ],
+          unresolved: const [],
+          pairs: const [],
+          summary: const {
+            InteractionSeverity.major: 0,
+            InteractionSeverity.moderate: 0,
+            InteractionSeverity.minor: 0,
+            InteractionSeverity.none: 0,
+            InteractionSeverity.unknown: 0,
+          },
+          data: complete.data,
+          disclaimer: complete.disclaimer,
+          attribution: complete.attribution,
+        );
+      });
+      final engine = DdiAnalysisEngine(
+        ingredientRepository: _FakeIngredientRepository({
+          'p1': _trusted('p1', [_ingredient(1, 'Alpha')]),
+          'p2': _trusted('p2', [_ingredient(2, 'Beta')]),
+        }),
+        interactionGateway: gateway,
+      );
+
+      await expectLater(
+        engine.analyzeProductIds(const ['p1', 'p2']),
+        throwsA(isA<DdiAnalysisMappingException>()),
+      );
+    });
+
     test('rejects provider summary that contradicts returned pair severities', () async {
       final gateway = _FakeGateway((items) async {
         final complete = _providerResult(
