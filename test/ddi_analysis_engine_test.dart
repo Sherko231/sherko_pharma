@@ -10,6 +10,31 @@ import 'package:sherko_pharma/features/interactions/domain/interaction_check_mod
 
 void main() {
   group('DdiAnalysisEngine', () {
+    test('does not call provider for same-product-only ingredients', () async {
+      final gateway = _FakeGateway((items) async {
+        return _providerResult(items);
+      });
+      final engine = DdiAnalysisEngine(
+        ingredientRepository: _FakeIngredientRepository({
+          'p1': _trusted(
+            'p1',
+            [
+              _ingredient(1, 'Alpha'),
+              _ingredient(2, 'Beta'),
+            ],
+          ),
+        }),
+        interactionGateway: gateway,
+      );
+
+      final result = await engine.analyzeProductIds(const ['p1']);
+
+      expect(result.uniqueIngredientCount, 2);
+      expect(result.providerBatchCount, 0);
+      expect(result.productPairs, isEmpty);
+      expect(gateway.calls, isEmpty);
+    });
+
     test('maps one ingredient interaction back to the product pair', () async {
       final repository = _FakeIngredientRepository({
         'p1': _trusted('p1', [_ingredient(1, 'Alpha')]),
