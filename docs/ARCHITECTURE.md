@@ -1,7 +1,7 @@
 # Sherko Pharma — Architecture
 
-Updated: 2026-09-27
-Status: Product boundaries are agreed; the hosted schema, owner-only catalog API, authentication boundary, controlled 23,750-row source import, search/detail, create/edit, persistent drafts, manual order calculator, account-scoped page/order persistence, scoped refresh/price-change handling, and Android camera scanning are in place. Windows external-reader integration is deferred for later owner re-authorization. See `DEVELOPMENT_STATUS.md`.
+Updated: 2026-09-29
+Status: Product boundaries are agreed; SP-029 is merged. SP-030 defines the planned external DDI evidence boundary without implementing an API client, schema, controller, or UI. Windows external-reader integration remains deferred. See `DEVELOPMENT_STATUS.md`.
 
 ## Current decision
 
@@ -55,6 +55,36 @@ Candidate rows show the product/brand identity, manufacturer/company, current re
 
 Alternatives remain in-memory transient UI data. A failed relationship query or candidate revalidation leaves the Cart unchanged and exposes retry/error feedback. The client asks for at most 10 candidates per group in the sheet, while the repository still clamps any caller request to the SP-028 server maximum of 25.
 
+## External DDI evidence boundary (SP-030)
+
+SP-030 establishes a future informational DDI boundary around Interaction Checker; it does not implement that boundary. The external source is versioned at `https://interaction-checker.com/api/v1` and currently documents a no-key REST API, a 60 requests/minute/IP limit, 2–10 inputs per `/checks` request, one-hour cacheability, and `Retry-After` on rate limiting. These are provider-controlled constraints and must be re-checked before downstream implementation or release.
+
+The repository-owned catalog remains the identity source. A Cart product is first resolved through the existing private SP-025 ingredient normalization model. Only trusted ingredient identities may become external DDI queries. Raw Syrian brand names, fuzzy guesses, `needs_review`, and `unresolved` normalization are not promoted into clinical identities. SP-031 will expose a bounded owner-authorized product-to-ingredient read rather than exposing the private ingredient registry or reparsing composition in Flutter.
+
+The external service is an evidence source, not an authority over Cart state. Downstream controllers may derive transient product-pair interaction state from ingredient-level results, but they must not mutate products, product revisions, barcodes, order lines, quantities, captured integer prices/currencies, totals, edit drafts, alternatives, or session ownership. Quantity is deliberately outside the DDI identity model because the provider result is not a dose- or patient-specific assessment.
+
+Severity remains provider/label semantics:
+- `major`: boxed-warning/contraindication/avoid wording.
+- `moderate`: monitoring, dose-adjustment, or dose-spacing wording.
+- `minor`: a label mention without an avoid/change instruction.
+- `none`: an explicit source statement of no clinically significant interaction, not a universal safety assertion.
+- `unknown`: neither available label mentions the other item, which is incomplete evidence rather than a safe result.
+
+Ingredient-level evidence must be traceable back to the affected Cart product pair. For combination products, every trusted ingredient participates in cross-product checking; same-product-only ingredient pairs do not create Cart product-vs-product warnings. Downstream batching must preserve complete pair coverage despite the provider's 10-input request cap and must deduplicate evidence deterministically.
+
+DDI state is transient and online-derived. It must not be written into the existing local order/session snapshot or become medication-history storage. A restored Cart is rechecked online. Bounded in-memory caching/coalescing may be introduced later only to respect provider limits and prevent duplicate work; stale responses must be generation-guarded so a removed product, New Order, session replacement, or sign-out cannot receive an obsolete warning.
+
+The outbound request boundary is privacy-sensitive even though it carries no Sherko Pharma credential: the external provider receives the ingredient queries being checked and its terms say requests are logged briefly for operation/abuse prevention. Downstream code must not send account identifiers, patient identity, barcodes, prices, notes, Supabase tokens, or unrelated catalog fields, and must avoid logging complete medication/provider payloads locally.
+
+Any presented result must keep the provider disclaimer and backlink/attribution, plus source/effective-date context when available. Provider failure, unresolved ingredients, rate limiting, malformed responses, and `unknown` evidence are distinct from `none`; no failure path may synthesize a "safe" or "no interaction" result.
+
+Interaction Checker's September 2026 terms describe the service as informational, disclaim completeness/accuracy, allow the public API under the same terms, and prohibit using it to build or sell a clinical decision-support product or redistributing the dataset as a whole. This architecture therefore makes no commercial/public-release permission claim. Any release that exposes this DDI feature outside the current owner-development context requires a fresh terms review and compatible permission, or a replacement data source/license.
+
+Authoritative external references for the boundary:
+- https://interaction-checker.com/api
+- https://interaction-checker.com/api/v1/openapi.json
+- https://interaction-checker.com/terms
+
 ## Components
 
 | Component | Responsibility | Decision status |
@@ -68,6 +98,7 @@ Alternatives remain in-memory transient UI data. A failed relationship query or 
 | Local app session store | Save the active cart/order snapshot and active unsaved edit draft without copying the catalog; retain the legacy destination field only for v1 compatibility | SP-009 keeps product drafts account-scoped; SP-011 adds a separate versioned account-scoped snapshot in the same secure key-value boundary; SP-021 always restores the visible workspace to Cart |
 | Android camera adapter | Produce deliberate barcode scan events | Confirmed; package to verify |
 | Windows reader adapter | Produce scan events from the owner's external reader | Deferred future task; re-authorize after hardware/input mode selection |
+| External DDI provider | Return informational label-derived interaction evidence for trusted ingredient queries | Contract defined by SP-030; client/engine/UI deferred to SP-032–SP-036 |
 
 Package versions are pinned in `pubspec.yaml`/`pubspec.lock` after compatibility verification against Flutter 3.38.7 / Dart 3.10.7. SP-006 uses `supabase_flutter` 2.17.2 and `flutter_secure_storage` 11.2.0; Android minimum SDK is 23 because of the secure-storage requirement.
 
