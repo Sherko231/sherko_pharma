@@ -1,9 +1,9 @@
 # Sherko Pharma — Implementation Roadmap
 
-Status: SP-000 through SP-013 and CI-001 are merged. The owner retired hosted CI in OPS-001 / Issue #42; CI-001 remains historical only. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 completed the initial-delivery roadmap; SP-016 through SP-037 are merged. Follow-up Issues #88, #92 and #94 fixed owner-reported DDI compile/layout/provider-query regressions. Issue #96 is the current owner-authorized row-presentation and 18-component coverage regression task.
+Status: SP-000 through SP-013 and CI-001 are merged. The owner retired hosted CI in OPS-001 / Issue #42; CI-001 remains historical only. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 completed the initial-delivery roadmap; SP-016 through SP-037 and follow-up Issue #96 / PR #97 are merged. Issue #98 is the current owner-authorized comprehensive Interaction Checker provider-mapping and production-deployment task.
 
 Repository: https://github.com/Sherko231/sherko_pharma
-Current inspected baseline for Issue #96: `main` at `e556f20ce5b2d213b152fe97e0218e50e5a226e0` after merged Issue #94 / PR #95.
+Current inspected baseline for Issue #98: `main` at `549f26da0742f9bfa6ab64efa1d76054e70660ae` after merged Issue #96 / PR #97.
 
 ## Starting point
 
@@ -103,6 +103,10 @@ SP-016 is tracked by Issue #44, SP-017 by Issue #46, SP-018 by Issue #48, SP-019
 | SP-029 | Add alternatives UI | SP-028 | Product/Cart UI exposes clearly separated alternative groups with brand/company/price/strength/form and order-add action without implying equivalence beyond the server classification |
 
 SP-025 is merged via Issue #62 / PR #63, SP-026 via Issue #64 / PR #65, SP-027 via Issue #66 / PR #67, SP-028 via Issue #68 / PR #69, and SP-029 via Issue #70 / PR #71 at merge `c8919074247b950005ac9835779b2f7afdd62094`. None of these repository tasks deploys migrations 0009–0012 to production or authorizes broader medical synonym/therapeutic-equivalence curation.
+
+## Issue #98 — Comprehensive Interaction Checker provider mapping
+
+Owner-authorized on 2026-09-30. Add a private provider-identity mapping layer plus context-sensitive product-component overrides, reconcile Sherko Pharma's trusted ingredient identities against the current Interaction Checker substance catalog, send stable provider substance IDs when mapped, keep ambiguous/unmapped provider coverage explicit, and deploy the reviewed mapping schema/data to production. Production acceptance requires mapping and trusted-product coverage counts. Provider catalog staging must not remain persisted.
 
 ## Phase 7 — Informational drug-interaction evidence
 
