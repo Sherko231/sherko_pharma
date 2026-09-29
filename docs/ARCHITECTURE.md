@@ -1,7 +1,7 @@
 # Sherko Pharma — Architecture
 
 Updated: 2026-09-29
-Status: Product boundaries are agreed; SP-032 is merged. SP-033 adds the pure DDI ingredient-resolution, complete batching, rate/cache/coalescing, stale-work guard, and product-pair aggregation engine. It is not wired into Cart/scanner lifecycle state; no severity UI, production migration, or external deployment is introduced. Windows external-reader integration remains deferred. See `DEVELOPMENT_STATUS.md`.
+Status: Product boundaries are agreed; SP-033 is merged. SP-034 wires the DDI engine into authenticated/restored Cart lifecycle state using a dedicated Riverpod controller. Distinct product-set changes are analyzed asynchronously with debounce and stale-generation invalidation; quantity-only changes do not retrigger analysis. No severity UI, production migration, or external deployment is introduced. Windows external-reader integration remains deferred. See `DEVELOPMENT_STATUS.md`.
 
 ## Current decision
 
@@ -114,6 +114,20 @@ The provider contract was re-checked on 2026-09-29 against:
 - https://interaction-checker.com/api/v1/openapi.json
 - https://interaction-checker.com/terms
 
+## Cart DDI lifecycle wiring (SP-034)
+
+SP-034 keeps DDI lifecycle state separate from `OrderState`, session persistence, captured price/currency, catalog refresh, and scanner state. `DdiCartController` observes only three identity boundaries: authenticated owner, restored-session readiness/owner, and the ordered distinct Cart product-ID set. Quantity, price, revision, and display-name updates therefore do not invalidate or restart DDI analysis.
+
+The production runtime injects `SupabaseDdiIngredientRepository` from the same authenticated Supabase client already used by the catalog. The Interaction Checker client and SP-033 analysis engine are created through Riverpod providers so tests can replace the complete analysis gateway without networking. A runtime that intentionally omits the ingredient repository produces an explicit `unavailable` DDI state only when at least two products would require analysis.
+
+The active Cart shell creates a listener for the DDI controller but renders no SP-035 visuals yet. Once the authenticated same-owner session is ready, fewer than two distinct products produce `idle`; two or more produce `loading` and a 120 ms debounce. Rapid additions inside that window replace the pending generation so only the latest product set starts analysis. Existing scanner/search/Alternatives add paths remain unchanged and never await DDI work.
+
+Every relevant owner/session/product-set change increments the DDI generation and cancels a pending debounce. The controller passes SP-033 an `isCurrent` predicate tied to that generation, authenticated owner, ready session, and exact current product IDs. New Order/empty Cart, removal, sign-out, account replacement, or a newer distinct product set therefore invalidates older work. A late completion is ignored and cannot restore a result for obsolete Cart contents.
+
+A successful analysis becomes `ready` only for the exact current generation. Failures produce retryable `error` state with a typed failure category; rate-limit failures also retain `Retry-After` when available. The Cart/order remains unchanged on every DDI failure. `retry()` reruns only when the same owner/session/product set is still current. Superseded work is discarded without surfacing an error.
+
+DDI results are never written into `AppSessionSnapshot`. Same-owner Cart restoration therefore starts a new controller analysis after session restoration rather than restoring a prior warning/result. SP-033 may still satisfy identical provider batches from its bounded one-hour in-memory cache inside the current process; no medication or interaction history is persisted.
+
 ## Cart DDI analysis and batching engine (SP-033)
 
 SP-033 joins the SP-031 trusted ingredient-input boundary to the SP-032 provider client without observing or mutating Riverpod Cart state. `SupabaseDdiIngredientRepository` maps `catalog_ddi_ingredients(uuid[])` rows into typed product coverage and canonical ingredient identities; raw RPC maps stay inside the data adapter. The analysis engine accepts only product IDs, so quantity, price, barcode, product display name, account/session identity, and raw composition never become provider inputs.
@@ -147,7 +161,7 @@ No production migration or deployment occurs in SP-033. The hosted environment s
 | Local app session store | Save the active cart/order snapshot and active unsaved edit draft without copying the catalog; retain the legacy destination field only for v1 compatibility | SP-009 keeps product drafts account-scoped; SP-011 adds a separate versioned account-scoped snapshot in the same secure key-value boundary; SP-021 always restores the visible workspace to Cart |
 | Android camera adapter | Produce deliberate barcode scan events | Confirmed; package to verify |
 | Windows reader adapter | Produce scan events from the owner's external reader | Deferred future task; re-authorize after hardware/input mode selection |
-| External DDI provider | Return informational label-derived interaction evidence for trusted ingredient queries | SP-032 implements the typed HTTP client; SP-033 implements batching/aggregation; Cart lifecycle/UI remain SP-034–SP-036 |
+| External DDI provider | Return informational label-derived interaction evidence for trusted ingredient queries | SP-032 implements the typed HTTP client; SP-033 implements batching/aggregation; SP-034 wires Cart lifecycle; severity/detail UI remain SP-035–SP-036 |
 
 Package versions are pinned in `pubspec.yaml`/`pubspec.lock` after compatibility verification against Flutter 3.38.7 / Dart 3.10.7. SP-006 uses `supabase_flutter` 2.17.2 and `flutter_secure_storage` 11.2.0; Android minimum SDK is 23 because of the secure-storage requirement.
 
