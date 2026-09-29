@@ -478,7 +478,6 @@ class _EvidenceEntry extends ConsumerWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
-                  key: const Key('ddi-detail-source-link'),
                   onPressed: () => _openLink(
                     context,
                     ref,
@@ -566,7 +565,6 @@ class _ProviderNoticeSection extends ConsumerWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
-                  key: const Key('ddi-detail-provider-link'),
                   onPressed: () => _openLink(
                     context,
                     ref,
