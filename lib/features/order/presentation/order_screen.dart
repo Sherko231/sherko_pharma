@@ -640,7 +640,7 @@ class _DdiCartProviderNotice extends ConsumerWidget {
                 onPressed: () => openDdiExternalLink(
                   context,
                   ref,
-                  providerUrl,
+                  providerUrl!,
                 ),
                 style: TextButton.styleFrom(
                   visualDensity: VisualDensity.compact,
