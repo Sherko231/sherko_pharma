@@ -317,9 +317,16 @@ class DdiAnalysisEngine implements DdiAnalysisGateway {
         );
       }
       providerResolution[node.identity.id] = _ProviderResolution.resolved;
-      byProviderSubstance
-          .putIfAbsent(item.substance.id, () => [])
-          .add(node);
+      final mappedSubstances = byProviderSubstance.putIfAbsent(
+        item.substance.id,
+        () => [],
+      );
+      if (mappedSubstances.isNotEmpty) {
+        throw const DdiAnalysisMappingException(
+          'Distinct ingredient queries resolved to the same provider substance.',
+        );
+      }
+      mappedSubstances.add(node);
     }
 
     for (final item in result.unresolved) {
