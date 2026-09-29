@@ -254,12 +254,14 @@ void _validateCoverage({
           ingredientCount != componentCount) {
         throw const DdiIngredientResponseException();
       }
+      break;
     case DdiIngredientCoverageStatus.needsReview:
       if (!productExists ||
           normalizationStatus != 'needs_review' ||
           ingredientCount != 0) {
         throw const DdiIngredientResponseException();
       }
+      break;
     case DdiIngredientCoverageStatus.unresolved:
       if (!productExists ||
           (normalizationStatus != null &&
@@ -267,12 +269,14 @@ void _validateCoverage({
           ingredientCount != 0) {
         throw const DdiIngredientResponseException();
       }
+      break;
     case DdiIngredientCoverageStatus.missing:
       if (productExists ||
           normalizationStatus != null ||
           ingredientCount != 0) {
         throw const DdiIngredientResponseException();
       }
+      break;
   }
 }
 
