@@ -1,6 +1,6 @@
 # Sherko Pharma — Interaction Flows
 
-Status: Core interaction and session rules confirmed. SP-029 alternatives UI is merged. SP-030 defines the informational DDI interaction contract, SP-034 wires automatic non-blocking analysis to the authenticated/restored Cart lifecycle, SP-035 renders Cart-level/row severity and incomplete coverage, and SP-036 adds the evidence/source/attribution detail sheet. End-to-end acceptance/release hardening remains SP-037. Initial UI labels are in English; Arabic explanations in the planning conversation describe their meaning.
+Status: Core interaction and session rules confirmed. SP-029 alternatives UI is merged. SP-030 through SP-037 now implement and harden the repository-side informational DDI flow through lifecycle, severity/coverage, evidence/source details, response-integrity checks and adjacent provider notice. Production activation, owner device acceptance and public/commercial provider permission remain separate gates. Initial UI labels are in English; Arabic explanations in the planning conversation describe their meaning.
 
 Use `PRODUCT.md` for scope, `DATA_MODEL.md` for data rules, and `ARCHITECTURE.md` for persistence and connectivity boundaries.
 
@@ -32,7 +32,7 @@ Use `PRODUCT.md` for scope, `DATA_MODEL.md` for data rules, and `ARCHITECTURE.md
 
 ## Review drug-interaction evidence in Cart
 
-SP-034 implements the lifecycle/analysis trigger rules. SP-035 renders lifecycle status, pair-severity summary, highest row severity and incomplete coverage inside the Cart. SP-036 makes the current severity badge open the reusable evidence/source detail sheet without creating a separate primary destination.
+SP-034 implements the lifecycle/analysis trigger rules. SP-035 renders lifecycle status, pair-severity summary, highest row severity and incomplete coverage inside the Cart. SP-036 makes the current severity badge open the reusable evidence/source detail sheet. SP-037 requires complete internally consistent provider pair output before publishing ready state and keeps the supplied disclaimer/backlink adjacent to Cart-level ready results.
 
 - Adding a distinct product by scan or search updates the Cart immediately under the existing order rules; external DDI checking is asynchronous and must not delay a successful add/increment.
 - The DDI subject is the distinct product set in the Cart. Quantity-only changes do not trigger a new pair identity.
