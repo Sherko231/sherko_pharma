@@ -26,6 +26,7 @@ class DdiProductRowPresentation {
     required this.pairCount,
     required this.localCoverage,
     required this.providerUnresolved,
+    required this.providerMappingIncomplete,
     this.severity,
   });
 
@@ -34,12 +35,16 @@ class DdiProductRowPresentation {
   final int pairCount;
   final DdiIngredientCoverageStatus localCoverage;
   final bool providerUnresolved;
+  final bool providerMappingIncomplete;
 
   bool get localCoverageComplete =>
       localCoverage == DdiIngredientCoverageStatus.trusted;
 
   bool get incompleteCoverage =>
-      !localCoverageComplete || providerUnresolved || pairCount == 0;
+      !localCoverageComplete ||
+      providerMappingIncomplete ||
+      providerUnresolved ||
+      pairCount == 0;
 }
 
 DdiCartPresentation buildDdiCartPresentation(
@@ -51,6 +56,10 @@ DdiCartPresentation buildDdiCartPresentation(
   final providerUnresolvedProducts = <String>{
     for (final unresolved in analysis.providerUnresolved)
       ...unresolved.productIds,
+  };
+  final providerMappingGapProducts = <String>{
+    for (final gap in analysis.providerMappingGaps)
+      ...gap.productIds,
   };
   final pairCounts = <InteractionSeverity, int>{
     for (final severity in InteractionSeverity.values) severity: 0,
@@ -82,6 +91,8 @@ DdiCartPresentation buildDdiCartPresentation(
       pairCount: pairCountByProduct[productId] ?? 0,
       localCoverage: entry.value.coverageStatus,
       providerUnresolved: providerUnresolvedProducts.contains(productId),
+      providerMappingIncomplete:
+          providerMappingGapProducts.contains(productId),
     );
     rows[productId] = row;
     if (row.incompleteCoverage) {
