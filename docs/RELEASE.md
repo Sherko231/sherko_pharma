@@ -99,6 +99,20 @@ For an owner-controlled delivery:
 - Authentication sessions are stored through platform secure storage. A lost/cleared session requires sign-in again.
 - No release procedure should modify production catalog rows merely to prove that a client build starts.
 
+## DDI deployment and distribution gate
+
+The repository contains the SP-030–SP-037 DDI implementation, but that does not by itself activate the feature in the hosted environment or authorize distribution of the provider output.
+
+Before enabling DDI for a hosted/release candidate:
+
+1. Separately authorize and deploy the required repository backend migrations. The current documented hosted baseline is through SP-024; SP-025–SP-028 and SP-031 migration `0013_ddi_ingredient_inputs_api.sql` are not deployed by SP-037.
+2. Verify the deployed owner-only DDI ingredient RPC and normalization coverage using non-destructive acceptance checks. Do not use service-role credentials in the app.
+3. Build/run the configured Android and Windows candidate and have the owner verify Cart severity states, incomplete/failure states, detail evidence, disclaimer/attribution and browser-link behavior. Repository synthetic tests are not real-device acceptance.
+4. Re-check the external provider terms for the intended release. As of the 2026-09-29 re-check, Interaction Checker requires its disclaimer and backlink with displayed output and its September 2026 terms prohibit using the API/output to build or sell a clinical decision-support product.
+5. Do not distribute a public/commercial DDI-enabled artifact unless compatible permission/license has been obtained or the provider has been replaced with a source whose terms permit the intended use. Do not silently scrape the website or ship an unlicensed copied dataset as a fallback.
+
+The DDI path sends only trusted normalized ingredient query names to the external provider. Product brand names, barcodes, prices, account/session identity and raw composition are not intended provider inputs, and interaction results are not persisted as medication history.
+
 ## Before public/commercial distribution
 
 Do not call an artifact publicly production-ready until all of the following are true for that exact revision/artifact:
