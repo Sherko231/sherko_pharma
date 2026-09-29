@@ -97,6 +97,98 @@ void main() {
       expect(result[2].ingredients, isEmpty);
     });
 
+    test('parses mapped and unmapped provider identities', () async {
+      final repository = SupabaseDdiIngredientRepository(
+        _FakeRpcClient([
+          {
+            'request_position': 1,
+            'product_id': 'p1',
+            'product_exists': true,
+            'coverage_status': 'trusted',
+            'normalization_status': 'auto_verified',
+            'component_count': 2,
+            'resolved_component_count': 2,
+            'component_index': 1,
+            'ingredient_id': 10,
+            'ingredient_name': 'Diclofenac sodium',
+            'normalized_ingredient_name': 'diclofenac sodium',
+            'provider_mapping_status': 'mapped',
+            'provider_substance_id': 'diclofenac',
+            'provider_substance_name': 'Diclofenac',
+            'provider_substance_kind': 'drug',
+            'provider_mapping_method': 'salt_base',
+          },
+          {
+            'request_position': 1,
+            'product_id': 'p1',
+            'product_exists': true,
+            'coverage_status': 'trusted',
+            'normalization_status': 'auto_verified',
+            'component_count': 2,
+            'resolved_component_count': 2,
+            'component_index': 2,
+            'ingredient_id': 20,
+            'ingredient_name': 'Unknown supplement',
+            'normalized_ingredient_name': 'unknown supplement',
+            'provider_mapping_status': 'unmapped',
+            'provider_substance_id': null,
+            'provider_substance_name': null,
+            'provider_substance_kind': null,
+            'provider_mapping_method': 'none',
+          },
+        ]),
+      );
+
+      final result = await repository.resolveProducts(const ['p1']);
+      final mapped = result.single.ingredients[0];
+      final unmapped = result.single.ingredients[1];
+
+      expect(
+        mapped.providerMappingStatus,
+        DdiProviderMappingStatus.mapped,
+      );
+      expect(mapped.providerSubstanceId, 'diclofenac');
+      expect(mapped.providerSubstanceName, 'Diclofenac');
+      expect(mapped.providerSubstanceKind, 'drug');
+      expect(mapped.providerMappingMethod, 'salt_base');
+
+      expect(
+        unmapped.providerMappingStatus,
+        DdiProviderMappingStatus.unmapped,
+      );
+      expect(unmapped.providerSubstanceId, isNull);
+    });
+
+    test('rejects mapped provider rows without a complete identity', () async {
+      final repository = SupabaseDdiIngredientRepository(
+        _FakeRpcClient([
+          {
+            'request_position': 1,
+            'product_id': 'p1',
+            'product_exists': true,
+            'coverage_status': 'trusted',
+            'normalization_status': 'auto_verified',
+            'component_count': 1,
+            'resolved_component_count': 1,
+            'component_index': 1,
+            'ingredient_id': 10,
+            'ingredient_name': 'Alpha',
+            'normalized_ingredient_name': 'alpha',
+            'provider_mapping_status': 'mapped',
+            'provider_substance_id': null,
+            'provider_substance_name': 'Alpha',
+            'provider_substance_kind': 'drug',
+            'provider_mapping_method': 'exact',
+          },
+        ]),
+      );
+
+      await expectLater(
+        repository.resolveProducts(const ['p1']),
+        throwsA(isA<DdiIngredientResponseException>()),
+      );
+    });
+
     test('rejects blank and over-bound requests before RPC use', () async {
       final rpc = _FakeRpcClient(const []);
       final repository = SupabaseDdiIngredientRepository(rpc);
