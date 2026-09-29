@@ -362,7 +362,7 @@ class _CartLines extends StatelessWidget {
   }
 }
 
-class _DdiCartStatusBar extends StatelessWidget {
+class _DdiCartStatusBar extends ConsumerWidget {
   const _DdiCartStatusBar({
     required this.ddi,
     required this.presentation,
@@ -372,7 +372,7 @@ class _DdiCartStatusBar extends StatelessWidget {
   final DdiCartPresentation? presentation;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Material(
       key: const Key('ddi-cart-status'),
       color: Theme.of(context).colorScheme.surfaceContainerLow,
@@ -399,8 +399,9 @@ class _DdiCartStatusBar extends StatelessWidget {
               message: _ddiFailureMessage(ddi),
               action: TextButton(
                 key: const Key('ddi-retry'),
-                onPressed: () => context
-                    .findAncestorWidgetOfExactType<ProviderScope>(),
+                onPressed: () => ref
+                    .read(ddiCartControllerProvider.notifier)
+                    .retry(),
                 child: const Text('Retry'),
               ),
             ),
@@ -501,7 +502,7 @@ class _DdiReadySummary extends StatelessWidget {
         _DdiSummaryToken(
           key: Key('ddi-summary-${severity.name}'),
           icon: style.icon,
-          label: '$count ${_ddiSummaryLabel(severity, count)}',
+          label: '$count ${_ddiSummaryLabel(severity)}',
           foreground: style.foreground,
           background: style.background,
         ),
@@ -766,17 +767,13 @@ String _ddiRowLabel(InteractionSeverity severity) {
   };
 }
 
-String _ddiSummaryLabel(
-  InteractionSeverity severity,
-  int count,
-) {
+String _ddiSummaryLabel(InteractionSeverity severity) {
   return switch (severity) {
-    InteractionSeverity.major => count == 1 ? 'major' : 'major',
-    InteractionSeverity.moderate =>
-      count == 1 ? 'moderate' : 'moderate',
-    InteractionSeverity.minor => count == 1 ? 'minor' : 'minor',
-    InteractionSeverity.unknown => count == 1 ? 'unknown' : 'unknown',
-    InteractionSeverity.none => count == 1 ? 'none' : 'none',
+    InteractionSeverity.major => 'major',
+    InteractionSeverity.moderate => 'moderate',
+    InteractionSeverity.minor => 'minor',
+    InteractionSeverity.unknown => 'unknown',
+    InteractionSeverity.none => 'none',
   };
 }
 
