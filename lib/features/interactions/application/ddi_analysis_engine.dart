@@ -350,6 +350,8 @@ class DdiAnalysisEngine implements DdiAnalysisGateway {
       );
     }
 
+    _validateProviderPairSet(result);
+
     for (final pair in result.pairs) {
       final localA = byProviderSubstance[pair.a.id];
       final localB = byProviderSubstance[pair.b.id];
@@ -377,6 +379,44 @@ class DdiAnalysisEngine implements DdiAnalysisGateway {
           );
           accumulator.addPair(pair);
         }
+      }
+    }
+  }
+
+  void _validateProviderPairSet(InteractionCheckResult result) {
+    final expectedPairs = <String, int>{};
+    for (var left = 0; left < result.items.length; left++) {
+      for (var right = left + 1; right < result.items.length; right++) {
+        final key = _providerPairKey(
+          result.items[left].substance.id,
+          result.items[right].substance.id,
+        );
+        expectedPairs[key] = (expectedPairs[key] ?? 0) + 1;
+      }
+    }
+
+    final actualPairs = <String, int>{};
+    final actualSeverityCounts = <InteractionSeverity, int>{
+      for (final severity in InteractionSeverity.values) severity: 0,
+    };
+    for (final pair in result.pairs) {
+      final key = _providerPairKey(pair.a.id, pair.b.id);
+      actualPairs[key] = (actualPairs[key] ?? 0) + 1;
+      actualSeverityCounts[pair.severity] =
+          (actualSeverityCounts[pair.severity] ?? 0) + 1;
+    }
+
+    if (!_sameCountMap(expectedPairs, actualPairs)) {
+      throw const DdiAnalysisMappingException(
+        'Provider response did not return exactly every resolved pair.',
+      );
+    }
+
+    for (final entry in result.summary.entries) {
+      if ((actualSeverityCounts[entry.key] ?? 0) != entry.value) {
+        throw const DdiAnalysisMappingException(
+          'Provider summary contradicted returned pair severities.',
+        );
       }
     }
   }
@@ -718,6 +758,24 @@ class _CachedBatch {
 
   final InteractionCheckResult result;
   final DateTime expiresAt;
+}
+
+String _providerPairKey(String left, String right) {
+  return left.compareTo(right) <= 0
+      ? '$left\u0000$right'
+      : '$right\u0000$left';
+}
+
+bool _sameCountMap(Map<String, int> left, Map<String, int> right) {
+  if (left.length != right.length) {
+    return false;
+  }
+  for (final entry in left.entries) {
+    if (right[entry.key] != entry.value) {
+      return false;
+    }
+  }
+  return true;
 }
 
 String _ingredientPairKey(int left, int right) {
