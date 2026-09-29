@@ -175,7 +175,7 @@ void main() {
         throwsA(isA<InteractionCheckerInvalidRequestException>()),
       );
       await expectLater(
-        api.checkInteractions(['lisinopril', 'x' * 81]),
+        api.checkInteractions(['lisinopril', List.filled(81, 'x').join()]),
         throwsA(isA<InteractionCheckerInvalidRequestException>()),
       );
       await expectLater(
