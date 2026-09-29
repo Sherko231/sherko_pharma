@@ -1,6 +1,6 @@
 # Sherko Pharma — Interaction Flows
 
-Status: Core interaction and session rules confirmed. SP-022 refines the single Cart into a POS-style workspace with persistent cart context, transient search results, a unified search/scan command surface, and adaptive supporting-pane layout. Initial UI labels are in English; Arabic explanations in the planning conversation describe their meaning.
+Status: Core interaction and session rules confirmed. SP-029 alternatives UI is merged. SP-030 defines the future informational DDI interaction contract; DDI UI behavior below is planned for downstream Issues #73–#79 and is not implemented by SP-030. Initial UI labels are in English; Arabic explanations in the planning conversation describe their meaning.
 
 Use `PRODUCT.md` for scope, `DATA_MODEL.md` for data rules, and `ARCHITECTURE.md` for persistence and connectivity boundaries.
 
@@ -29,6 +29,24 @@ Use `PRODUCT.md` for scope, `DATA_MODEL.md` for data rules, and `ARCHITECTURE.md
 - A valid refreshed product uses the existing order controller. New candidates are added, existing candidates increment quantity, invalid current prices are rejected, and arithmetic overflow leaves the Cart unchanged.
 - Keep the sheet open after a successful Add so several candidates can be added deliberately. Do not auto-select, rank, or bulk-add alternatives.
 - Alternatives results are transient. Do not persist them in the session snapshot or create an offline alternatives cache.
+
+## Review drug-interaction evidence in Cart (planned after SP-030)
+
+When downstream DDI tasks are implemented, the interaction workflow remains part of the existing Cart rather than creating a separate primary destination.
+
+- Adding a distinct product by scan or search updates the Cart immediately under the existing order rules; external DDI checking is asynchronous and must not delay a successful add/increment.
+- The DDI subject is the distinct product set in the Cart. Quantity-only changes do not trigger a new pair identity.
+- Products are mapped to trusted normalized ingredients first. An unresolved/review-only product remains visibly unchecked/partially covered; the UI must not guess from a Syrian brand name.
+- Affected product rows may receive severity highlighting and a badge/icon, but color is never the only signal. A row with several product-pair interactions uses its highest current severity as the row-level visual state while keeping access to all pair details.
+- Severity wording follows provider label semantics. `none` is an explicit source statement, not a universal safety claim; `unknown` is missing label evidence and must not look equivalent to `none` or "safe".
+- Tapping an interaction indicator opens a reusable detail sheet/modal over Cart. It identifies the affected product pair, the ingredient-level pair(s) responsible for the aggregate result, severity, evidence section/text, source name/type, effective date when available, and the source link.
+- Combination-product evidence stays grouped by ingredient pair/source so the UI does not flatten multiple causes into a stronger or different claim.
+- Keep Interaction Checker attribution/backlink and the provider-supplied disclaimer with displayed results. The detail surface must not convert evidence into treatment, substitution, stop/start, dosage, or patient-specific recommendations.
+- Loading, partial coverage, rate limit, timeout/provider failure, malformed response, and stale analysis are explicit. None is represented as "no interaction".
+- DDI failure is non-destructive: scanner/search, quantities, captured prices/currencies, totals, alternatives, New Order, and product editing continue under their existing rules.
+- Removing a product, confirming New Order, replacing/restoring a session, or signing out invalidates obsolete result generations. A late response must not reintroduce a warning for a product set that is no longer current.
+- Interaction results are not persisted in the order/session snapshot. Restoring a Cart rechecks it online when the feature is available.
+- If the provider terms no longer permit the intended use at implementation/release time, do not silently fall back to scraping or an unlicensed data copy; keep the DDI feature unavailable until a compatible source/permission is selected.
 
 ## Start a new customer order
 
