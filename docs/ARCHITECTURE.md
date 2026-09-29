@@ -1,7 +1,7 @@
 # Sherko Pharma — Architecture
 
 Updated: 2026-09-29
-Status: Product boundaries are agreed; SP-030 is merged. SP-031 adds the bounded owner-only product-to-trusted-ingredient query required by the planned DDI pipeline. No external DDI HTTP client, Cart analysis engine, severity UI, production migration, or external deployment is introduced. Windows external-reader integration remains deferred. See `DEVELOPMENT_STATUS.md`.
+Status: Product boundaries are agreed; SP-031 is merged. SP-032 adds the typed Interaction Checker REST transport/parser boundary. It is not wired into the Cart; no DDI batching/aggregation controller, severity UI, production migration, or external deployment is introduced. Windows external-reader integration remains deferred. See `DEVELOPMENT_STATUS.md`.
 
 ## Current decision
 
@@ -97,6 +97,23 @@ The operation does not return raw composition components, alias spellings, the f
 
 SP-031 is a read-only repository boundary. It does not modify products or normalization state and therefore does not change catalog revision, barcode identity, alternatives, order quantity, captured integer price/currency, totals, session persistence, or draft behavior. Migration 0013 depends on the repository SP-025 normalization migration and is not deployed to the hosted project by this task.
 
+## Interaction Checker client boundary (SP-032)
+
+SP-032 implements a typed, injectable client for the versioned `https://interaction-checker.com/api/v1/checks` POST endpoint. The base URI is centralized/injectable and the client accepts an injected `package:http` `Client`, allowing deterministic fixture tests without live provider calls. `http` 1.6.0 is declared directly while preserving the version already present in the lockfile.
+
+The request surface is deliberately narrow: 2–10 nonblank item strings, each no more than 80 characters, serialized only as `{"items":[...]}`. The client adds no API key, Supabase token, account identifier, barcode, price, note, patient information, or other catalog metadata. Input whitespace is trimmed before the request; higher-level ingredient selection/deduplication/batching remains outside this task.
+
+Successful responses are parsed into typed resolved items, unresolved items and suggestions, substance identities, pair severities, evidence, evidence sections/match kinds, source metadata/effective dates, summary counts, provider data dates, disclaimer, and attribution. Pair severity supports exactly `major|moderate|minor|none|unknown`. Evidence severity intentionally supports only `major|moderate|minor|none`, matching the current OpenAPI contract; `unknown` evidence is not invented. Required malformed fields and unsupported required enum values fail visibly, while additive unknown optional fields are ignored.
+
+The HTTP boundary has a configurable positive timeout (10 seconds by default) and deterministic failure classes for local request validation, timeout, transport failure, HTTP 429, other non-2xx provider errors, malformed success payloads, and unsupported response values. A numeric `Retry-After` header is exposed as a duration when valid. Provider error code/message are retained when the error body matches the documented shape. The client never automatically retries; batching, coalescing, rate scheduling, caching, and stale-generation handling belong to SP-033/SP-034.
+
+The client owns and closes only an internally-created HTTP client. An injected client remains caller-owned. No provider response or medication list is logged or persisted by this layer, and successful disclaimer/attribution values are preserved for later UI presentation.
+
+The provider contract was re-checked on 2026-09-29 against:
+- https://interaction-checker.com/api
+- https://interaction-checker.com/api/v1/openapi.json
+- https://interaction-checker.com/terms
+
 ## Components
 
 | Component | Responsibility | Decision status |
@@ -110,7 +127,7 @@ SP-031 is a read-only repository boundary. It does not modify products or normal
 | Local app session store | Save the active cart/order snapshot and active unsaved edit draft without copying the catalog; retain the legacy destination field only for v1 compatibility | SP-009 keeps product drafts account-scoped; SP-011 adds a separate versioned account-scoped snapshot in the same secure key-value boundary; SP-021 always restores the visible workspace to Cart |
 | Android camera adapter | Produce deliberate barcode scan events | Confirmed; package to verify |
 | Windows reader adapter | Produce scan events from the owner's external reader | Deferred future task; re-authorize after hardware/input mode selection |
-| External DDI provider | Return informational label-derived interaction evidence for trusted ingredient queries | Contract defined by SP-030; client/engine/UI deferred to SP-032–SP-036 |
+| External DDI provider | Return informational label-derived interaction evidence for trusted ingredient queries | SP-032 implements the typed HTTP client; batching/Cart integration/UI remain SP-033–SP-036 |
 
 Package versions are pinned in `pubspec.yaml`/`pubspec.lock` after compatibility verification against Flutter 3.38.7 / Dart 3.10.7. SP-006 uses `supabase_flutter` 2.17.2 and `flutter_secure_storage` 11.2.0; Android minimum SDK is 23 because of the secure-storage requirement.
 
