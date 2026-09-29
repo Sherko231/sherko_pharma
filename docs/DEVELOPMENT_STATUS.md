@@ -1,13 +1,14 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-29
-Task record: SP-037 / Issue #79 hardens and accepts the repository-side SP-030–SP-036 DDI integration from SP-036 merge `0358df317aab246dcd5d3d8a8c9b7cf5aa17a68f`. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
-Status: SP-037 validates exact provider pair completeness and summary consistency, keeps disclaimer/backlink adjacent to Cart results, hardens HTTP(S)-only link launching, and adds a synthetic cross-layer acceptance regression covering barcode/order → trusted ingredients → real batching/aggregation → lifecycle → Cart severity → detail evidence. No production migration/deployment, live provider call, or public/commercial DDI release authorization is introduced. Owner Android/Windows DDI acceptance remains external. SP-014 remains deferred.
+Latest completed feature task: SP-037 / Issue #79 / PR #87, merged at `805a96202960d92219bcb3926c42e50c6f523f1a`. Follow-up Issue #88 / PR #89 fixed the owner-reported Cart compile error and merged at `a86ea668a0e8bcf85d80e83f72beec3b6c2a17d6`. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
+Status: SP-030–SP-037 repository-side DDI work is merged. SP-037 validates exact provider pair completeness and summary consistency, keeps disclaimer/backlink adjacent to Cart results, hardens HTTP(S)-only link launching, and adds a synthetic cross-layer acceptance regression covering barcode/order → trusted ingredients → real batching/aggregation → lifecycle → Cart severity → detail evidence. The post-merge syntax fix changes no DDI or Cart behavior. No next repository feature task is currently authorized. No production migration/deployment, live provider call, or public/commercial DDI release authorization is introduced. Owner Android/Windows DDI acceptance remains external. SP-014 remains deferred.
 
 ## Verified baseline
 
-- The latest merged repository baseline before SP-037 is SP-036 merge `0358df317aab246dcd5d3d8a8c9b7cf5aa17a68f` from PR #86. Hosted Supabase remains deployed through SP-024 only; SP-025 through SP-028 and SP-031 migration 0013 are not applied by these repository tasks.
-- SP-000 through SP-013, SP-015 through SP-036, CI-001, and OPS-001 are merged before this task; SP-014 remains deferred.
+- Current `main` is `a86ea668a0e8bcf85d80e83f72beec3b6c2a17d6`, the merge result of follow-up PR #89 after SP-037. Hosted Supabase remains deployed through SP-024 only; SP-025 through SP-028 and SP-031 migration 0013 are not applied by these repository tasks.
+- SP-000 through SP-013, SP-015 through SP-037, CI-001, and OPS-001 are merged; SP-014 remains deferred.
+- Issue #88 / PR #89 is a syntax-only Cart-row closure fix for the owner-reported Android debug compile error. It adds the missing outer `children` list delimiter and does not change DDI, order, scanner, price, quantity, persistence, backend, dependency, or production behavior.
 - Issue #29 is closed as completed and PR #30 is merged; post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
 - No open Issue or PR existed immediately before SP-012 was authorized.
 - The dedicated Sherko Pharma Supabase project is active on the Free plan.
