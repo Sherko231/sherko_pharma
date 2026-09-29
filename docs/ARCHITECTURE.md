@@ -138,7 +138,7 @@ Provider notices from overlapping SP-033 batches are deduplicated by data dates 
 
 External source, provider and interaction-detail links are restricted to `http`/`https`. `url_launcher` 6.3.2 is promoted from the existing lockfile's transitive dependency to a direct pinned dependency and opens links in the platform browser. Link opening is hidden behind `DdiExternalLinkLauncher` so tests never open the real browser; launch failure leaves the sheet open and surfaces non-destructive feedback.
 
-The provider API/terms were re-checked on 2026-09-29. The API still requires a link back wherever results are shown and keeping the disclaimer with displayed output. The current September 2026 terms still prohibit presenting or selling the output as a clinical decision-support product, so SP-036 does not authorize public/commercial DDI release; SP-037 must re-check the permission/source boundary before release.
+The provider API/terms were re-checked on 2026-09-29 during SP-036 and again during SP-037. The API still calls for a link back wherever results are shown and keeping the disclaimer with displayed output. Current September 2026 terms still prohibit presenting or selling the output as a clinical decision-support product, so repository completion does not authorize public/commercial DDI release.
 
 ## Cart DDI severity presentation (SP-035)
 
