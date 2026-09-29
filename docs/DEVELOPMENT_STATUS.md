@@ -1,12 +1,12 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-30
-Latest completed feature task: SP-037 / Issue #79 / PR #87, merged at `805a96202960d92219bcb3926c42e50c6f523f1a`. Follow-up Issue #88 / PR #89 fixed the Cart compile error; Issue #92 / PR #93 fixed the narrow-phone provider-notice overflow; Issue #94 / PR #95 added the aspirin provider-query alias and merged at `e556f20ce5b2d213b152fe97e0218e50e5a226e0`. Issue #96 is the current owner-authorized DDI row-presentation and 18-component coverage regression fix. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
-Status: SP-030–SP-037 repository-side DDI work is merged. SP-037 validates exact provider pair completeness and summary consistency, keeps disclaimer/backlink adjacent to Cart results, hardens HTTP(S)-only link launching, and adds a synthetic cross-layer acceptance regression covering barcode/order → trusted ingredients → real batching/aggregation → lifecycle → Cart severity → detail evidence. The post-merge syntax fix changes no DDI or Cart behavior. No next repository feature task is currently authorized. No production migration/deployment, live provider call, or public/commercial DDI release authorization is introduced. Owner Android/Windows DDI acceptance remains external. SP-014 remains deferred.
+Latest completed feature task: SP-037 / Issue #79 / PR #87. Follow-up Issues #88, #92, #94 and #96 fixed live DDI compile/layout/provider-query/presentation regressions; Issue #96 / PR #97 merged at `549f26da0742f9bfa6ab64efa1d76054e70660ae`. Issue #98 is the current owner-authorized comprehensive Interaction Checker provider-mapping task and includes explicit production deployment authorization. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
+Status: SP-030–SP-037 and live regression fixes through Issue #96 are merged. Issue #98 adds provider-ID mapping and partial-coverage handling and has deployed production migration 0014 plus the initial reviewed reconciliation. Production currently has 467 mapped, 3 ambiguous and 1,888 unmapped internal ingredient identities with 6 product-component overrides; 63.62% of locally trusted products are fully provider-mapped and 74.98% have at least one mapped component. Public/commercial DDI release permission is still not claimed. Owner Android/Windows acceptance remains external. SP-014 remains deferred.
 
 ## Verified baseline
 
-- Current inspected `main` before Issue #96 is `e556f20ce5b2d213b152fe97e0218e50e5a226e0`, the merge result of Issue #94 / PR #95. The owner authorized production DDI backend activation through SP-031 migration 0013 outside the repository feature tasks; current real-device testing is exercising the live provider path.
+- Current inspected `main` before Issue #98 is `549f26da0742f9bfa6ab64efa1d76054e70660ae`, the merge result of Issue #96 / PR #97. Production DDI backend is now deployed through migration 0014. The temporary admin-only PostgreSQL `http` extension used to retrieve one provider snapshot for reconciliation was removed after population.
 - SP-000 through SP-013, SP-015 through SP-037, CI-001, and OPS-001 are merged; SP-014 remains deferred.
 - Issue #88 / PR #89 is a syntax-only Cart-row closure fix for the owner-reported Android debug compile error. It adds the missing outer `children` list delimiter and does not change DDI, order, scanner, price, quantity, persistence, backend, dependency, or production behavior.
 - Issue #29 is closed as completed and PR #30 is merged; post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
@@ -15,6 +15,20 @@ Status: SP-030–SP-037 repository-side DDI work is merged. SP-037 validates exa
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## Issue #98 comprehensive Interaction Checker provider mapping
+
+- Owner production authorization was explicit on 2026-09-30.
+- Migration `0014_interaction_checker_provider_mapping.sql` adds private global provider mappings, private product-component overrides, a private deterministic reconciliation function and provider-mapping fields on the bounded owner-only `catalog_ddi_ingredients` RPC.
+- Reconciliation never rewrites SP-025 internal ingredient identities. It consumes an admin-supplied provider catalog snapshot, persists only Sherko-to-provider mapping decisions, and leaves no wholesale provider catalog table behind.
+- Reviewed methods are unique exact, provider alias, conservative salt/base normalization and contextual mapping. Ambiguous/unmapped identities remain explicit.
+- The current 637-substance provider snapshot classified all 2,358 internal identities as 467 mapped, 3 ambiguous and 1,888 unmapped. Six current `K` occurrences use product-component overrides: ADAVIT-SILVER -> `vitamin-k`; ASIA-TONIC/RUBAVIT-G -> `potassium`.
+- `PP` and `VIT.B3` remain ambiguous rather than being forced to provider drug `niacin`; their local Vitamin B3 meaning is preserved in mapping notes.
+- ASIA-TONIC yields 9 mapped provider components and 9 explicit mapping gaps. A live 10-item provider check using aspirin plus those 9 mapped substances returned HTTP 200 with all ten inputs resolved.
+- Trusted-product mapping coverage after reconciliation: 17,029 trusted products; 10,834 fully mapped (63.62%); 1,935 partially mapped; 4,260 with no mapped component; 12,769 (74.98%) have at least one mapped component.
+- Flutter uses stable provider IDs when present, deduplicates multiple internal salts/forms onto one provider query while retaining product-specific internal ingredient names for details, skips ambiguous/unmapped components into explicit mapping gaps, and continues checking the mapped subset.
+- Provider documentation still advertises 60 requests/minute/IP, but a live 2026-09-30 response reported an effective 10/minute/IP limit. Runtime local throttling is therefore 10/minute by default; Retry-After remains authoritative.
+- Backend migration/regression SQL executed successfully against production inside a rollback before deployment. The production migration and reconciliation were then applied, and the temporary PostgreSQL `http` extension was removed.
 
 ## Issue #96 normal none rows and 18-component coverage
 
@@ -45,7 +59,7 @@ Status: SP-030–SP-037 repository-side DDI work is merged. SP-037 validates exa
 - Existing focused regressions across SP-032–SP-036 continue to cover all five severities, local/provider unresolved coverage, >10 ingredient complete batching, Retry-After/rate limiting, timeout/transport/API/malformed failures, rapid additions, removal/New Order/sign-out stale protection, same-owner restoration, no DDI session persistence, source links and detail-sheet dismissal.
 - Repository code/search review found no medication-list/provider-payload logging path in the DDI implementation. DDI output remains in-memory/transient and absent from `AppSessionSnapshot`.
 - Provider API/OpenAPI/terms were re-checked on 2026-09-29. The documented 2–10 input contract, every-resolved-pair output, 60 requests/minute/IP, one-hour cacheability, attribution/backlink and disclaimer requirements remain. Current terms still prohibit building/selling the output as a clinical decision-support product.
-- Hosted Supabase remains deployed through SP-024 only. SP-025–SP-028 and SP-031 migration 0013 are not deployed or authorized for production by SP-037.
+- SP-037 itself did not deploy later migrations; subsequent owner-authorized production work has since deployed the DDI backend through migration 0014.
 - No live Interaction Checker request, production Supabase call, production migration/deployment, release artifact, paid provider action or real Android/Windows DDI acceptance is claimed by this repository task.
 
 ## SP-036 DDI evidence/source detail sheet
@@ -106,7 +120,7 @@ Status: SP-030–SP-037 repository-side DDI work is merged. SP-037 validates exa
 - Product-pair severity is `major > moderate > minor > unknown > none`; every unique causal ingredient interaction and its evidence/source/link data remains available under the aggregate.
 - Provider data dates, disclaimer and attribution are retained as deduplicated notices for downstream UI.
 - Successful batch results use a bounded in-memory cache only: one-hour TTL and 128 entries by default. Identical in-flight batches are coalesced. No DDI result/history is persisted.
-- Provider attempts are serialized inside the engine and locally throttled to 60 per rolling minute by default. A 429 with a valid positive `Retry-After` retries once; a second 429 or absent/non-positive delay propagates. No other automatic retry is introduced.
+- Provider attempts are serialized inside the engine and locally throttled to 10 per rolling minute by default after the stricter live limit observed on 2026-09-30. A 429 with a valid positive `Retry-After` retries once; a second 429 or absent/non-positive delay propagates. No other automatic retry is introduced.
 - An optional `isCurrent` predicate is checked around asynchronous boundaries. When false, `DdiAnalysisSupersededException` stops later work and prevents stale result publication. SP-034 will wire this mechanism to real Cart/New Order/session/auth generations.
 - Focused tests cover typed RPC mapping/isolation of untrusted identities, combination/shared ingredients, same-product exclusion, 11-ingredient complete pair coverage, duplicate suppression, severity aggregation including `unknown`, provider-unresolved separation, in-flight coalescing, cache reuse/bounds, Retry-After behavior, local throttling, stale work, and >50-product RPC chunking.
 - No live Interaction Checker request, production Supabase call, backend migration, deployment, Riverpod Cart wiring or UI is part of SP-033.
