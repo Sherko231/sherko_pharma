@@ -1,7 +1,7 @@
 # Sherko Pharma — Architecture
 
 Updated: 2026-09-29
-Status: Product boundaries are agreed; SP-031 is merged. SP-032 adds the typed Interaction Checker REST transport/parser boundary. It is not wired into the Cart; no DDI batching/aggregation controller, severity UI, production migration, or external deployment is introduced. Windows external-reader integration remains deferred. See `DEVELOPMENT_STATUS.md`.
+Status: Product boundaries are agreed; SP-032 is merged. SP-033 adds the pure DDI ingredient-resolution, complete batching, rate/cache/coalescing, stale-work guard, and product-pair aggregation engine. It is not wired into Cart/scanner lifecycle state; no severity UI, production migration, or external deployment is introduced. Windows external-reader integration remains deferred. See `DEVELOPMENT_STATUS.md`.
 
 ## Current decision
 
@@ -114,6 +114,26 @@ The provider contract was re-checked on 2026-09-29 against:
 - https://interaction-checker.com/api/v1/openapi.json
 - https://interaction-checker.com/terms
 
+## Cart DDI analysis and batching engine (SP-033)
+
+SP-033 joins the SP-031 trusted ingredient-input boundary to the SP-032 provider client without observing or mutating Riverpod Cart state. `SupabaseDdiIngredientRepository` maps `catalog_ddi_ingredients(uuid[])` rows into typed product coverage and canonical ingredient identities; raw RPC maps stay inside the data adapter. The analysis engine accepts only product IDs, so quantity, price, barcode, product display name, account/session identity, and raw composition never become provider inputs.
+
+Product IDs are deduplicated and resolved through SP-031 in chunks of at most 50. Only `trusted` product coverage contributes ingredients. Ingredient identity is deduplicated by stable SP-025 ingredient ID while retaining every owning product ID. Canonical ingredient display names are the provider query strings; review/unresolved/missing product coverage stays explicit and is never converted into a guessed query.
+
+Interaction Checker accepts at most ten items per check. For up to ten unique ingredients, SP-033 emits one batch. Above ten, ingredients are ordered deterministically by stable ID, partitioned into groups of at most five, and every pairwise union of groups is checked. Because each union contains at most ten items, every unique ingredient pair appears together in at least one request. Same-group pairs can appear in multiple unions, so ingredient interactions and evidence are deduplicated before product aggregation.
+
+Provider resolution is tracked separately from SP-031 normalization. Every submitted query must appear exactly once in that batch as resolved or provider-unresolved; an omitted/unexpected query or inconsistent resolution across overlapping batches is treated as a mapping failure, not as `none`. Provider suggestions are retained without automatic selection.
+
+Provider pair endpoints are mapped through the resolved batch items back to stable local ingredient identities, then to all cross-product owners. Ingredient pairs that exist only within one product never create a product-vs-product warning. A product pair retains every unique causal ingredient pair and aggregates severity using `major > moderate > minor > unknown > none`; therefore incomplete `unknown` evidence outranks an explicit `none` but never outranks a documented minor/moderate/major result.
+
+The engine preserves provider evidence, source metadata, interaction/detail links, data dates, disclaimer, and attribution for downstream presentation. It does not persist DDI state. Successful provider batches use a bounded in-memory LRU-style cache (128 entries by default) with a one-hour TTL matching the provider's documented cacheability, and identical in-flight batches are coalesced.
+
+Provider calls are serialized inside one engine instance and self-throttled to at most 60 attempts per rolling minute by default. A 429 with a valid positive `Retry-After` delays and retries that batch once; a second 429 or missing/non-positive retry delay propagates. The engine does not retry other failures. This local limiter reduces application-originated pressure but cannot guarantee the provider's IP-wide quota when other processes share the same public IP.
+
+SP-033 accepts an optional `isCurrent` predicate and checks it around every asynchronous boundary. If the owning Cart/session generation becomes stale, it throws `DdiAnalysisSupersededException` and stops scheduling later batches. An already completed provider response may remain in the bounded ingredient-set cache because it is not Cart-specific, but stale analysis is never returned to the caller. SP-034 owns wiring this predicate to actual Cart/New Order/sign-out/session generations and owns deciding when analysis runs.
+
+No production migration or deployment occurs in SP-033. The hosted environment still requires the repository SP-025–SP-028 and SP-031 migration chain before this analysis path can function against production data.
+
 ## Components
 
 | Component | Responsibility | Decision status |
@@ -127,7 +147,7 @@ The provider contract was re-checked on 2026-09-29 against:
 | Local app session store | Save the active cart/order snapshot and active unsaved edit draft without copying the catalog; retain the legacy destination field only for v1 compatibility | SP-009 keeps product drafts account-scoped; SP-011 adds a separate versioned account-scoped snapshot in the same secure key-value boundary; SP-021 always restores the visible workspace to Cart |
 | Android camera adapter | Produce deliberate barcode scan events | Confirmed; package to verify |
 | Windows reader adapter | Produce scan events from the owner's external reader | Deferred future task; re-authorize after hardware/input mode selection |
-| External DDI provider | Return informational label-derived interaction evidence for trusted ingredient queries | SP-032 implements the typed HTTP client; batching/Cart integration/UI remain SP-033–SP-036 |
+| External DDI provider | Return informational label-derived interaction evidence for trusted ingredient queries | SP-032 implements the typed HTTP client; SP-033 implements batching/aggregation; Cart lifecycle/UI remain SP-034–SP-036 |
 
 Package versions are pinned in `pubspec.yaml`/`pubspec.lock` after compatibility verification against Flutter 3.38.7 / Dart 3.10.7. SP-006 uses `supabase_flutter` 2.17.2 and `flutter_secure_storage` 11.2.0; Android minimum SDK is 23 because of the secure-storage requirement.
 
