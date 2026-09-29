@@ -164,12 +164,12 @@ class DdiCartController extends Notifier<DdiCartState> {
     }
 
     final productIds = productSet.ids;
-    if (gateway == null) {
-      return DdiCartState.unavailable(productIds: productIds);
-    }
-
     if (productIds.length < 2) {
       return DdiCartState.idle(productIds: productIds);
+    }
+
+    if (gateway == null) {
+      return DdiCartState.unavailable(productIds: productIds);
     }
 
     _debounce = Timer(debounceDuration, () {
