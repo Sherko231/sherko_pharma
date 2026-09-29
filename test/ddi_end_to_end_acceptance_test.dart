@@ -144,17 +144,17 @@ void main() {
       );
       expect(find.text('Moderate'), findsNWidgets(2));
       expect(
-        find.byKey(const Key('ddi-cart-provider-disclaimer')),
+        find.byKey(const Key('ddi-cart-provider-disclaimer-0')),
         findsOneWidget,
       );
       expect(find.text('Not medical advice.'), findsOneWidget);
       expect(
-        find.byKey(const Key('ddi-cart-provider-link')),
+        find.byKey(const Key('ddi-cart-provider-link-0')),
         findsOneWidget,
       );
 
       await tester.tap(
-        find.byKey(const Key('ddi-cart-provider-link')),
+        find.byKey(const Key('ddi-cart-provider-link-0')),
       );
       await tester.pump();
       expect(
