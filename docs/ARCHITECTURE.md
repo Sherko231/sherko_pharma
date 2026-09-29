@@ -1,7 +1,7 @@
 # Sherko Pharma — Architecture
 
 Updated: 2026-09-29
-Status: Product boundaries are agreed; SP-029 is merged. SP-030 defines the planned external DDI evidence boundary without implementing an API client, schema, controller, or UI. Windows external-reader integration remains deferred. See `DEVELOPMENT_STATUS.md`.
+Status: Product boundaries are agreed; SP-030 is merged. SP-031 adds the bounded owner-only product-to-trusted-ingredient query required by the planned DDI pipeline. No external DDI HTTP client, Cart analysis engine, severity UI, production migration, or external deployment is introduced. Windows external-reader integration remains deferred. See `DEVELOPMENT_STATUS.md`.
 
 ## Current decision
 
@@ -59,7 +59,7 @@ Alternatives remain in-memory transient UI data. A failed relationship query or 
 
 SP-030 establishes a future informational DDI boundary around Interaction Checker; it does not implement that boundary. The external source is versioned at `https://interaction-checker.com/api/v1` and currently documents a no-key REST API, a 60 requests/minute/IP limit, 2–10 inputs per `/checks` request, one-hour cacheability, and `Retry-After` on rate limiting. These are provider-controlled constraints and must be re-checked before downstream implementation or release.
 
-The repository-owned catalog remains the identity source. A Cart product is first resolved through the existing private SP-025 ingredient normalization model. Only trusted ingredient identities may become external DDI queries. Raw Syrian brand names, fuzzy guesses, `needs_review`, and `unresolved` normalization are not promoted into clinical identities. SP-031 will expose a bounded owner-authorized product-to-ingredient read rather than exposing the private ingredient registry or reparsing composition in Flutter.
+The repository-owned catalog remains the identity source. A Cart product is first resolved through the existing private SP-025 ingredient normalization model. Only trusted ingredient identities may become external DDI queries. Raw Syrian brand names, fuzzy guesses, `needs_review`, and `unresolved` normalization are not promoted into clinical identities. SP-031 exposes this bridge through one bounded owner-authorized product-to-ingredient read rather than exposing the private ingredient registry or reparsing composition in Flutter.
 
 The external service is an evidence source, not an authority over Cart state. Downstream controllers may derive transient product-pair interaction state from ingredient-level results, but they must not mutate products, product revisions, barcodes, order lines, quantities, captured integer prices/currencies, totals, edit drafts, alternatives, or session ownership. Quantity is deliberately outside the DDI identity model because the provider result is not a dose- or patient-specific assessment.
 
@@ -84,6 +84,18 @@ Authoritative external references for the boundary:
 - https://interaction-checker.com/api
 - https://interaction-checker.com/api/v1/openapi.json
 - https://interaction-checker.com/terms
+
+## Trusted DDI ingredient-input query boundary (SP-031)
+
+SP-031 adds `public.catalog_ddi_ingredients(uuid[])` as the only client-facing server operation in this task. The RPC accepts explicit product UUIDs only, requires `app_private.require_owner()`, rejects null IDs, returns no rows for an empty request, and hard-limits each call to 50 requested product IDs. Duplicate IDs are deduplicated by their first request position so downstream result mapping is deterministic.
+
+The RPC exposes product-scoped DDI input coverage rather than the private ingredient registry. For each requested product it returns explicit `trusted`, `needs_review`, `unresolved`, or `missing` coverage plus the underlying SP-025 normalization status/counts. A product is `trusted` only when its SP-025 status is `auto_verified` or `high_confidence`, it has a non-null ingredient-set key, every parsed component resolved, and the complete expected set of product-ingredient links exists.
+
+Only trusted products expose ingredient identity fields. Their rows include component order, stable private ingredient ID, canonical ingredient display name, and canonical normalized ingredient name. `needs_review`, `unresolved`, structurally incomplete, and missing products return an explicit coverage row with null ingredient identity fields. This prevents downstream code from turning review-only raw composition text or Syrian brand labels into guessed external drug queries.
+
+The operation does not return raw composition components, alias spellings, the full ingredient registry, prices, barcodes, notes, revisions, patient/account data, or any external-provider result. Normal authenticated clients retain no direct access to `app_private.catalog_ingredients`, `app_private.product_ingredients`, or `app_private.product_composition_normalization`. The hard request bound and required product IDs prevent the RPC from becoming an unrestricted registry-enumeration endpoint.
+
+SP-031 is a read-only repository boundary. It does not modify products or normalization state and therefore does not change catalog revision, barcode identity, alternatives, order quantity, captured integer price/currency, totals, session persistence, or draft behavior. Migration 0013 depends on the repository SP-025 normalization migration and is not deployed to the hosted project by this task.
 
 ## Components
 
