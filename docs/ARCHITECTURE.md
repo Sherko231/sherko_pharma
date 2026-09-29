@@ -1,7 +1,7 @@
 # Sherko Pharma — Architecture
 
 Updated: 2026-09-29
-Status: Product boundaries are agreed; SP-033 is merged. SP-034 wires the DDI engine into authenticated/restored Cart lifecycle state using a dedicated Riverpod controller. Distinct product-set changes are analyzed asynchronously with debounce and stale-generation invalidation; quantity-only changes do not retrigger analysis. No severity UI, production migration, or external deployment is introduced. Windows external-reader integration remains deferred. See `DEVELOPMENT_STATUS.md`.
+Status: Product boundaries are agreed; SP-034 is merged. SP-035 maps ready DDI results into Cart presentation state and renders lifecycle/severity/incomplete-coverage feedback without changing order or persistence semantics. Interaction evidence/source details remain SP-036. No production migration or external deployment is introduced. Windows external-reader integration remains deferred. See `DEVELOPMENT_STATUS.md`.
 
 ## Current decision
 
@@ -114,6 +114,16 @@ The provider contract was re-checked on 2026-09-29 against:
 - https://interaction-checker.com/api/v1/openapi.json
 - https://interaction-checker.com/terms
 
+## Cart DDI severity presentation (SP-035)
+
+SP-035 keeps provider/domain meaning separate from widget styling through a pure `DdiCartPresentation` mapper. The mapper counts product-pair severities once per pair, derives each product row's highest active severity, retains the number of product pairs affecting that row, and independently tracks incomplete coverage from local normalization gaps, provider-unresolved ingredients, or the absence of an explicit pair result.
+
+The Cart watches SP-034 `DdiCartState`. Only the current `ready` analysis is mapped into row visuals; `loading`, `error`, `unavailable`, or `idle` never reuse a prior ready presentation. With two or more distinct products, one compact DDI status strip sits below the existing item/total summary. Loading says interaction checking is in progress; failure leaves the Cart usable and exposes the existing SP-034 Retry action; unavailable never masquerades as no interaction.
+
+Ready rows preserve the existing flat order layout, price, quantity, remove and price-change controls. `major` uses error/red emphasis, `moderate` orange, `minor` amber, while `unknown` and `none` use neutral styling. Color is never the only signal: every known row severity has an icon/text badge. `none` is labeled "No interaction found" rather than "safe"; `unknown` remains a question state. Local untrusted normalization is labeled "Unchecked", provider resolution gaps remain explicit, and a missing explicit pair result is treated as incomplete rather than synthesized as `none`.
+
+The Cart summary counts product-pair results separately for `major|moderate|minor|unknown|none` and adds a separate incomplete-product count. This summary is informational only and does not alter ordering, totals, scanning, product addition, substitution, dosing or treatment behavior. SP-036 remains responsible for evidence text, source links, attribution/disclaimer rendering and the reusable interaction detail sheet.
+
 ## Cart DDI lifecycle wiring (SP-034)
 
 SP-034 keeps DDI lifecycle state separate from `OrderState`, session persistence, captured price/currency, catalog refresh, and scanner state. `DdiCartController` observes only three identity boundaries: authenticated owner, restored-session readiness/owner, and the ordered distinct Cart product-ID set. Quantity, price, revision, and display-name updates therefore do not invalidate or restart DDI analysis.
@@ -161,7 +171,7 @@ No production migration or deployment occurs in SP-033. The hosted environment s
 | Local app session store | Save the active cart/order snapshot and active unsaved edit draft without copying the catalog; retain the legacy destination field only for v1 compatibility | SP-009 keeps product drafts account-scoped; SP-011 adds a separate versioned account-scoped snapshot in the same secure key-value boundary; SP-021 always restores the visible workspace to Cart |
 | Android camera adapter | Produce deliberate barcode scan events | Confirmed; package to verify |
 | Windows reader adapter | Produce scan events from the owner's external reader | Deferred future task; re-authorize after hardware/input mode selection |
-| External DDI provider | Return informational label-derived interaction evidence for trusted ingredient queries | SP-032 implements the typed HTTP client; SP-033 implements batching/aggregation; SP-034 wires Cart lifecycle; severity/detail UI remain SP-035–SP-036 |
+| External DDI provider | Return informational label-derived interaction evidence for trusted ingredient queries | SP-032 implements the typed HTTP client; SP-033 implements batching/aggregation; SP-034 wires Cart lifecycle; SP-035 renders severity/coverage; detail/evidence UI remains SP-036 |
 
 Package versions are pinned in `pubspec.yaml`/`pubspec.lock` after compatibility verification against Flutter 3.38.7 / Dart 3.10.7. SP-006 uses `supabase_flutter` 2.17.2 and `flutter_secure_storage` 11.2.0; Android minimum SDK is 23 because of the secure-storage requirement.
 
