@@ -149,11 +149,6 @@ class DdiCartController extends Notifier<DdiCartState> {
     final productSet = ref.watch(
       orderControllerProvider.select(_selectProductSet),
     );
-    final gateway = ref.watch(ddiAnalysisGatewayProvider);
-    final debounceDuration = ref.watch(
-      ddiCartDebounceDurationProvider,
-    );
-
     final generation = ++_generation;
     _debounce?.cancel();
 
@@ -168,9 +163,13 @@ class DdiCartController extends Notifier<DdiCartState> {
       return DdiCartState.idle(productIds: productIds);
     }
 
+    final gateway = ref.watch(ddiAnalysisGatewayProvider);
     if (gateway == null) {
       return DdiCartState.unavailable(productIds: productIds);
     }
+    final debounceDuration = ref.watch(
+      ddiCartDebounceDurationProvider,
+    );
 
     _debounce = Timer(debounceDuration, () {
       unawaited(
