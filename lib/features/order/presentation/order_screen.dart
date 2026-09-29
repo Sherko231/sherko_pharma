@@ -8,8 +8,10 @@ import '../../catalog/application/scoped_catalog_refresh_controller.dart';
 import '../../catalog/presentation/catalog_search_panel.dart';
 import '../../catalog/presentation/catalog_text.dart';
 import '../../interactions/application/ddi_cart_controller.dart';
+import '../../interactions/domain/ddi_analysis_models.dart';
 import '../../interactions/domain/interaction_check_models.dart';
 import '../../interactions/presentation/ddi_cart_presentation.dart';
+import '../../interactions/presentation/ddi_interaction_detail_sheet.dart';
 import '../../scanning/presentation/android_barcode_scanner_screen.dart';
 import '../application/order_controller.dart';
 import '../domain/order_model.dart';
@@ -169,6 +171,7 @@ class _CartPane extends ConsumerWidget {
           child: _CartLines(
             order: order,
             ddi: presentation,
+            ddiAnalysis: analysis,
           ),
         ),
       ],
@@ -325,10 +328,12 @@ class _CartLines extends StatelessWidget {
   const _CartLines({
     required this.order,
     this.ddi,
+    this.ddiAnalysis,
   });
 
   final OrderState order;
   final DdiCartPresentation? ddi;
+  final DdiAnalysisResult? ddiAnalysis;
 
   @override
   Widget build(BuildContext context) {
@@ -354,7 +359,9 @@ class _CartLines extends StatelessWidget {
           final line = order.lines[index];
           return _OrderLineRow(
             line: line,
+            orderLines: order.lines,
             ddi: ddi?.rows[line.productId],
+            ddiAnalysis: ddiAnalysis,
           );
         },
       ),
@@ -611,11 +618,15 @@ class _DdiSummaryToken extends StatelessWidget {
 class _DdiRowBadges extends StatelessWidget {
   const _DdiRowBadges({
     required this.productId,
+    required this.orderLines,
     required this.presentation,
+    this.analysis,
   });
 
   final String productId;
+  final List<OrderLine> orderLines;
   final DdiProductRowPresentation presentation;
+  final DdiAnalysisResult? analysis;
 
   @override
   Widget build(BuildContext context) {
@@ -626,6 +637,9 @@ class _DdiRowBadges extends StatelessWidget {
       final pairSuffix = presentation.pairCount > 1
           ? ' · ${presentation.pairCount} pairs'
           : '';
+      final currentAnalysis = analysis;
+      final canOpenDetails =
+          currentAnalysis != null && presentation.pairCount > 0;
       badges.add(
         _DdiRowBadge(
           key: Key('ddi-row-severity-$productId'),
@@ -633,6 +647,21 @@ class _DdiRowBadges extends StatelessWidget {
           label: '${_ddiRowLabel(severity)}$pairSuffix',
           foreground: style.foreground,
           background: style.badgeBackground,
+          tooltip: canOpenDetails ? 'View interaction details' : null,
+          onTap: canOpenDetails
+              ? () {
+                  final detail =
+                      buildDdiInteractionDetailPresentation(
+                    analysis: currentAnalysis,
+                    orderLines: orderLines,
+                    focusProductId: productId,
+                  );
+                  showDdiInteractionDetailSheet(
+                    context: context,
+                    presentation: detail,
+                  );
+                }
+              : null,
         ),
       );
     }
@@ -669,38 +698,64 @@ class _DdiRowBadge extends StatelessWidget {
     required this.label,
     required this.foreground,
     required this.background,
+    this.tooltip,
+    this.onTap,
   });
 
   final IconData icon;
   final String label;
   final Color foreground;
   final Color background;
+  final String? tooltip;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(7),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14, color: foreground),
+    final content = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: foreground),
+          const SizedBox(width: 3),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: foreground,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          if (onTap != null) ...[
             const SizedBox(width: 3),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: foreground,
-                    fontWeight: FontWeight.w600,
-                  ),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 14,
+              color: foreground,
             ),
           ],
-        ),
+        ],
       ),
     );
+
+    final badge = Material(
+      color: background,
+      borderRadius: BorderRadius.circular(7),
+      child: onTap == null
+          ? content
+          : InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(7),
+              child: content,
+            ),
+    );
+
+    final message = tooltip;
+    return message == null
+        ? badge
+        : Tooltip(
+            message: message,
+            child: badge,
+          );
   }
 }
 
@@ -842,11 +897,15 @@ class _EmptyCart extends StatelessWidget {
 class _OrderLineRow extends ConsumerWidget {
   const _OrderLineRow({
     required this.line,
+    required this.orderLines,
     this.ddi,
+    this.ddiAnalysis,
   });
 
   final OrderLine line;
+  final List<OrderLine> orderLines;
   final DdiProductRowPresentation? ddi;
+  final DdiAnalysisResult? ddiAnalysis;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -953,7 +1012,9 @@ class _OrderLineRow extends ConsumerWidget {
             const SizedBox(height: 5),
             _DdiRowBadges(
               productId: line.productId,
+              orderLines: orderLines,
               presentation: ddi!,
+              analysis: ddiAnalysis,
             ),
           ],
           if (latest != null) ...[
