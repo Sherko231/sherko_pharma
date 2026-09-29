@@ -1,6 +1,6 @@
 # Sherko Pharma — Product Requirements
 
-Status: Initial product scope agreed with the owner. SP-030 defines the informational DDI contract; SP-031 exposes trusted ingredient inputs, SP-032 implements the typed provider client, and SP-033 implements the pure product/ingredient batching and aggregation engine. Cart/scanner lifecycle wiring and DDI UI remain downstream work.
+Status: Initial product scope agreed with the owner. SP-030 defines the informational DDI contract; SP-031 exposes trusted ingredient inputs, SP-032 implements the typed provider client, SP-033 implements the product/ingredient batching and aggregation engine, and SP-034 wires automatic non-blocking analysis to the authenticated/restored Cart lifecycle. Severity visualization and interaction-detail UI remain downstream work.
 Repository: `sherko_pharma`
 Updated: 2026-09-29
 
@@ -96,7 +96,7 @@ These observations do not establish that all supplied codes are valid or corresp
 
 ## Drug-interaction information contract (SP-030)
 
-The planned drug-drug interaction (DDI) feature is an informational evidence surface over the active Cart. SP-030 defines its product/safety contract; SP-031 and SP-032 provide the trusted ingredient-input and typed provider-client foundations; SP-033 now provides deterministic ingredient batching, provider-resolution tracking, and product-pair aggregation. Issues #76–#79 still own Cart/scanner lifecycle integration, visualization, detail presentation, and final hardening.
+The drug-drug interaction (DDI) feature is an informational evidence surface over the active Cart. SP-030 defines its product/safety contract; SP-031 and SP-032 provide the trusted ingredient-input and typed provider-client foundations; SP-033 provides deterministic ingredient batching and product-pair aggregation; SP-034 now keeps a separate Riverpod DDI lifecycle state synchronized to the authenticated/restored distinct Cart product set. Issues #77–#79 still own severity visualization, detail presentation, and final hardening.
 
 - The analysis subject is the set of distinct products currently present in the Cart, whether they were added by Android barcode scan or manual search. Quantity changes do not create a different interaction pair and must not be interpreted as dose information.
 - Syrian/local brand names are not sent as trusted clinical identities. Downstream work must bridge each product through the existing conservative SP-025 normalized ingredient identities; unresolved or review-only ingredient mappings remain visibly unchecked rather than guessed.

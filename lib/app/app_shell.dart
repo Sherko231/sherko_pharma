@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../features/catalog/application/scoped_catalog_refresh_controller.dart';
+import '../features/interactions/application/ddi_cart_controller.dart';
 import '../features/order/presentation/order_screen.dart';
 import '../features/session/application/app_session_controller.dart';
 
@@ -75,6 +76,10 @@ class _SessionAwareCart extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(appSessionControllerProvider);
     final refresh = ref.watch(scopedCatalogRefreshControllerProvider);
+    ref.listen<DdiCartState>(
+      ddiCartControllerProvider,
+      (previous, next) {},
+    );
 
     return Column(
       children: [

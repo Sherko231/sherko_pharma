@@ -1,19 +1,35 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-29
-Task record: SP-033 / Issue #75 builds the pure Cart DDI analysis/batching engine from merged SP-031 ingredient inputs and SP-032 provider transport. SP-032 / Issue #74 / PR #82 is merged. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
-Status: SP-033 adds a typed ingredient RPC adapter plus deterministic ingredient deduplication/ownership mapping, complete <=10/>10 provider batching, product-pair aggregation, explicit provider-unresolved state, bounded one-hour in-memory batch caching, in-flight coalescing, local 60/minute throttling, one valid Retry-After retry, and a generic stale-generation guard. It is not wired into Riverpod Cart/scanner lifecycle state and adds no UI, production migration, or deployment. SP-014 remains deferred.
+Task record: SP-034 / Issue #76 wires the merged SP-033 DDI engine into authenticated/restored Cart lifecycle state. SP-033 / Issue #75 / PR #83 is merged. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
+Status: SP-034 adds a dedicated Riverpod DDI Cart controller, production injection of the SP-031 ingredient repository, automatic distinct-product-set analysis with 120 ms debounce, quantity-only suppression, retryable typed failure state, and owner/session/product-generation invalidation. Scanner/search/order mutation paths remain non-blocking and unchanged. No DDI severity/detail UI, production migration, or deployment is introduced. SP-014 remains deferred.
 
 ## Verified baseline
 
-- The latest merged repository baseline before SP-033 is SP-032 merge `017f9a2c0cb3e958e2ad201cccb4277c0a482f04` from PR #82. Hosted Supabase remains deployed through SP-024 only; SP-025 through SP-028 and SP-031 migration 0013 are not applied by these repository tasks.
-- SP-000 through SP-013, SP-015 through SP-032, CI-001, and OPS-001 are merged before this task; SP-014 remains deferred.
+- The latest merged repository baseline before SP-034 is SP-033 merge `43d81ea419e0faaa66ac8d451779d31716920a4e` from PR #83. Hosted Supabase remains deployed through SP-024 only; SP-025 through SP-028 and SP-031 migration 0013 are not applied by these repository tasks.
+- SP-000 through SP-013, SP-015 through SP-033, CI-001, and OPS-001 are merged before this task; SP-014 remains deferred.
 - Issue #29 is closed as completed and PR #30 is merged; post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
 - No open Issue or PR existed immediately before SP-012 was authorized.
 - The dedicated Sherko Pharma Supabase project is active on the Free plan.
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-034 automatic Cart DDI lifecycle contract
+
+- SP-034 is tracked by Issue #76 from SP-033 merge `43d81ea419e0faaa66ac8d451779d31716920a4e`.
+- Production `AppRuntime.initialize()` now creates `SupabaseDdiIngredientRepository` from the authenticated Supabase client and `AppBootstrap` injects it into the DDI provider boundary. Test/manual `AppRuntime.configured` callers may omit it, yielding an explicit unavailable DDI state only when analysis would otherwise be required.
+- `DdiCartController` owns DDI lifecycle state separately from `OrderState`: `idle|loading|ready|error|unavailable`. It never changes Cart lines, quantities, prices, totals, session snapshots, search state, scanner state or alternatives.
+- The controller tracks authenticated owner, restored session owner/readiness, and the ordered distinct Cart product-ID list. Quantity/revision/price/display changes with the same product IDs do not rebuild/recheck DDI.
+- A distinct set with two or more products enters `loading` and starts analysis after a 120 ms debounce. Rapid additions replace the pending generation so only the latest set is started when they occur inside the debounce window.
+- Scanner, manual search and Alternatives continue to call only the existing order mutation path. The Cart mutation completes without awaiting DDI provider work; DDI observation happens after the product set changes.
+- Each relevant lifecycle change increments a DDI generation and cancels any pending debounce. SP-033 receives an `isCurrent` predicate tied to generation + authenticated owner + ready session + exact product IDs.
+- Removal, New Order/empty Cart, sign-out, account replacement and newer product sets therefore invalidate older work. Superseded results are discarded and cannot publish into the new/signed-out state.
+- Same-owner session restoration triggers analysis only after `AppSessionStatus.ready`. DDI result state is not serialized in `AppSessionSnapshot`; restoration starts from Cart product IDs rather than stored DDI output.
+- Failures are non-destructive and retryable. State preserves a typed category for ingredient-data, timeout, transport, rate-limit, provider, malformed-response, mapping or unknown failures; rate-limit state also preserves provider Retry-After when available. No medication query/payload is stored in the failure state.
+- `retry()` runs only if the owner/session and exact product IDs still match the failed state.
+- Focused `ddi_cart_controller_test.dart` covers same-owner restoration, quantity-only/re-add suppression, rapid-set debounce, removal, New Order stale invalidation, sign-out/account replacement, retryable failure, scanner non-blocking behavior, Retry-After preservation and the unchanged session serialization boundary.
+- No live Interaction Checker request, production Supabase call, UI severity rendering, interaction detail UI, migration or deployment is part of SP-034.
 
 ## SP-033 Cart DDI analysis/batching contract
 

@@ -1,9 +1,9 @@
 # Sherko Pharma — Implementation Roadmap
 
-Status: SP-000 through SP-013 and CI-001 are merged. The owner retired hosted CI in OPS-001 / Issue #42; CI-001 remains historical only. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 completed the initial-delivery roadmap; SP-016 through SP-032 are merged. SP-033 / Issue #75 is the current owner-authorized DDI analysis/batching task; SP-034 through SP-037 remain planned downstream work.
+Status: SP-000 through SP-013 and CI-001 are merged. The owner retired hosted CI in OPS-001 / Issue #42; CI-001 remains historical only. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 completed the initial-delivery roadmap; SP-016 through SP-033 are merged. SP-034 / Issue #76 is the current owner-authorized DDI Cart lifecycle task; SP-035 through SP-037 remain planned downstream work.
 
 Repository: https://github.com/Sherko231/sherko_pharma
-Inspected baseline for SP-033: `main` at `017f9a2c0cb3e958e2ad201cccb4277c0a482f04`.
+Inspected baseline for SP-034: `main` at `43d81ea419e0faaa66ac8d451779d31716920a4e`.
 
 ## Starting point
 
@@ -117,7 +117,7 @@ SP-025 is merged via Issue #62 / PR #63, SP-026 via Issue #64 / PR #65, SP-027 v
 | SP-036 | Add interaction detail sheet with evidence, sources, and attribution | SP-035 | Reusable detail surface shows product pair, causal ingredient pairs, evidence/source/effective date/link, attribution and disclaimer without treatment recommendations |
 | SP-037 | Harden and accept the full Interaction Checker DDI integration | SP-030–SP-036 | End-to-end regression/real-device acceptance covers combinations, >10 ingredients, rapid scans, failure/rate-limit/stale/session cases and documents the current provider/release constraints |
 
-SP-030 merged through Issue #72 / PR #80 at `50eda1567418b100f0561d604b40e85e2fa95d0a`. SP-031 merged through Issue #73 / PR #81 at `dbc0da03d4292c84255084beaf4f967ad2b898a1`. SP-032 merged through Issue #74 / PR #82 at `017f9a2c0cb3e958e2ad201cccb4277c0a482f04`. SP-033 is tracked by Issue #75 and was explicitly authorized by the owner on 2026-09-29. SP-034 through SP-037 remain planned dependency-ordered Issues #76 through #79 and are not authorized to start merely because they exist. Interaction Checker is an external provider: its API/terms must be re-checked during implementation and before release. The September 2026 terms prohibit using the service to build or sell a clinical decision-support product, so no commercial/public DDI release is authorized without compatible permission or a replacement source/license.
+SP-030 merged through Issue #72 / PR #80 at `50eda1567418b100f0561d604b40e85e2fa95d0a`. SP-031 merged through Issue #73 / PR #81 at `dbc0da03d4292c84255084beaf4f967ad2b898a1`. SP-032 merged through Issue #74 / PR #82 at `017f9a2c0cb3e958e2ad201cccb4277c0a482f04`. SP-033 merged through Issue #75 / PR #83 at `43d81ea419e0faaa66ac8d451779d31716920a4e`. SP-034 is tracked by Issue #76 and was explicitly authorized by the owner on 2026-09-29. SP-035 through SP-037 remain planned dependency-ordered Issues #77 through #79 and are not authorized to start merely because they exist. Interaction Checker is an external provider: its API/terms must be re-checked during implementation and before release. The September 2026 terms prohibit using the service to build or sell a clinical decision-support product, so no commercial/public DDI release is authorized without compatible permission or a replacement source/license.
 
 ## Explicitly deferred
 
