@@ -1,19 +1,34 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-29
-Task record: SP-036 / Issue #78 adds the reusable evidence/source detail sheet over merged SP-035 Cart severity UI. SP-035 / Issue #77 / PR #85 is merged. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
-Status: SP-036 makes current severity badges open every affected product pair, retained causal ingredient pairs, provider evidence/source/effective dates, provider/detail links, deduplicated disclaimer/attribution notices and data dates. Link launching is injectable/non-destructive, and `url_launcher` 6.3.2 is promoted to a direct pinned dependency without changing its locked version. Order/DDI persistence and provider-request semantics remain unchanged. Production migration/deployment and public/commercial DDI release remain outside this task. SP-014 remains deferred.
+Task record: SP-037 / Issue #79 hardens and accepts the repository-side SP-030–SP-036 DDI integration from SP-036 merge `0358df317aab246dcd5d3d8a8c9b7cf5aa17a68f`. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
+Status: SP-037 validates exact provider pair completeness and summary consistency, keeps disclaimer/backlink adjacent to Cart results, hardens HTTP(S)-only link launching, and adds a synthetic cross-layer acceptance regression covering barcode/order → trusted ingredients → real batching/aggregation → lifecycle → Cart severity → detail evidence. No production migration/deployment, live provider call, or public/commercial DDI release authorization is introduced. Owner Android/Windows DDI acceptance remains external. SP-014 remains deferred.
 
 ## Verified baseline
 
-- The latest merged repository baseline before SP-036 is SP-035 merge `fa55cda1de0021676eb3864f135b052606727af5` from PR #85. Hosted Supabase remains deployed through SP-024 only; SP-025 through SP-028 and SP-031 migration 0013 are not applied by these repository tasks.
-- SP-000 through SP-013, SP-015 through SP-035, CI-001, and OPS-001 are merged before this task; SP-014 remains deferred.
+- The latest merged repository baseline before SP-037 is SP-036 merge `0358df317aab246dcd5d3d8a8c9b7cf5aa17a68f` from PR #86. Hosted Supabase remains deployed through SP-024 only; SP-025 through SP-028 and SP-031 migration 0013 are not applied by these repository tasks.
+- SP-000 through SP-013, SP-015 through SP-036, CI-001, and OPS-001 are merged before this task; SP-014 remains deferred.
 - Issue #29 is closed as completed and PR #30 is merged; post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
 - No open Issue or PR existed immediately before SP-012 was authorized.
 - The dedicated Sherko Pharma Supabase project is active on the Free plan.
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-037 DDI hardening and repository acceptance
+
+- SP-037 is tracked by Issue #79 from SP-036 merge `0358df317aab246dcd5d3d8a8c9b7cf5aa17a68f`.
+- Every successful provider batch now has an exact resolved-pair integrity check. The expected unordered pair multiset is derived from resolved returned items and must equal the returned pair multiset; missing, duplicate-substituted or unexpected pairs fail explicitly.
+- Provider summary entries are checked against the returned pair severities. A contradictory summary is a mapping failure rather than a user-visible ready result.
+- Existing SP-033 batching/rate/cache/coalescing/stale behavior remains intact, including complete 11+ ingredient coverage and the 10-item provider cap.
+- Cart-ready presentation now carries deduplicated provider legal notices and displays the supplied disclaimer plus provider backlink adjacent to severity output, not only inside the SP-036 detail sheet. Missing/non-HTTP attribution URLs fall back to the provider's official HTTPS homepage.
+- The shared external-link helper and production `url_launcher` adapter both reject non-HTTP(S) URIs; launch failure remains non-destructive.
+- Synthetic end-to-end acceptance uses the real order/scanner/DDI engine/controller/Cart/detail layers with fake ingredient/provider/link boundaries. It verifies exact leading-zero barcode capture, canonical ingredient-only provider queries, exclusion of local brand/barcode/price/account data, combination-product causal-pair mapping, same-product-only exclusion, Cart disclaimer/backlink, detail evidence, unchanged totals and quantity-only no-recheck behavior.
+- Existing focused regressions across SP-032–SP-036 continue to cover all five severities, local/provider unresolved coverage, >10 ingredient complete batching, Retry-After/rate limiting, timeout/transport/API/malformed failures, rapid additions, removal/New Order/sign-out stale protection, same-owner restoration, no DDI session persistence, source links and detail-sheet dismissal.
+- Repository code/search review found no medication-list/provider-payload logging path in the DDI implementation. DDI output remains in-memory/transient and absent from `AppSessionSnapshot`.
+- Provider API/OpenAPI/terms were re-checked on 2026-09-29. The documented 2–10 input contract, every-resolved-pair output, 60 requests/minute/IP, one-hour cacheability, attribution/backlink and disclaimer requirements remain. Current terms still prohibit building/selling the output as a clinical decision-support product.
+- Hosted Supabase remains deployed through SP-024 only. SP-025–SP-028 and SP-031 migration 0013 are not deployed or authorized for production by SP-037.
+- No live Interaction Checker request, production Supabase call, production migration/deployment, release artifact, paid provider action or real Android/Windows DDI acceptance is claimed by this repository task.
 
 ## SP-036 DDI evidence/source detail sheet
 

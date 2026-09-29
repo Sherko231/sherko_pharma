@@ -71,6 +71,29 @@ void addProducts(
 }
 
 void main() {
+  test('provider attribution falls back to the official HTTPS homepage', () {
+    expect(
+      ddiProviderAttributionUri(const InteractionAttribution()).toString(),
+      'https://interaction-checker.com',
+    );
+    expect(
+      ddiProviderAttributionUri(
+        InteractionAttribution(
+          url: Uri.parse('mailto:example@example.com'),
+        ),
+      ).toString(),
+      'https://interaction-checker.com',
+    );
+    expect(
+      ddiProviderAttributionUri(
+        InteractionAttribution(
+          url: Uri.parse('https://interaction-checker.com/api'),
+        ),
+      ).toString(),
+      'https://interaction-checker.com/api',
+    );
+  });
+
   testWidgets(
     'severity badge opens evidence source attribution and disclaimer details',
     (tester) async {

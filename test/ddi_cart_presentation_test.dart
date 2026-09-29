@@ -166,6 +166,47 @@ void main() {
     expect(presentation.incompleteProductCount, 1);
   });
 
+  test('provider notices are deduplicated for adjacent Cart attribution', () {
+    final notice = _notice();
+    final presentation = buildDdiCartPresentation(
+      _analysis(
+        products: [
+          _product('a'),
+          _product('b'),
+        ],
+        pairs: const [
+          DdiProductPairInteraction(
+            productAId: 'a',
+            productBId: 'b',
+            severity: InteractionSeverity.none,
+            ingredientInteractions: [],
+          ),
+        ],
+        providerNotices: [
+          notice,
+          notice,
+          DdiProviderNotice(
+            data: InteractionCheckData(
+              labelExportDate: DateTime(2026, 9, 4),
+            ),
+            disclaimer: notice.disclaimer,
+            attribution: notice.attribution,
+          ),
+        ],
+      ),
+    );
+
+    expect(presentation.providerNotices, hasLength(1));
+    expect(
+      presentation.providerNotices.single.disclaimer,
+      'Not medical advice.',
+    );
+    expect(
+      presentation.providerNotices.single.attribution.url?.toString(),
+      'https://interaction-checker.com',
+    );
+  });
+
   test('trusted product with no explicit pair result stays incomplete', () {
     final presentation = buildDdiCartPresentation(
       _analysis(
@@ -187,14 +228,30 @@ DdiAnalysisResult _analysis({
   required List<DdiProductIngredientInput> products,
   List<DdiProductPairInteraction> pairs = const [],
   List<DdiProviderUnresolvedIngredient> providerUnresolved = const [],
+  List<DdiProviderNotice> providerNotices = const [],
 }) {
   return DdiAnalysisResult(
     products: products,
     providerUnresolved: providerUnresolved,
     productPairs: pairs,
-    providerNotices: const [],
+    providerNotices: providerNotices,
     uniqueIngredientCount: 0,
     providerBatchCount: 0,
+  );
+}
+
+DdiProviderNotice _notice() {
+  return DdiProviderNotice(
+    data: InteractionCheckData(
+      labelExportDate: DateTime.utc(2026, 9, 3),
+      generatedAt: DateTime.utc(2026, 9, 7),
+    ),
+    disclaimer: 'Not medical advice.',
+    attribution: InteractionAttribution(
+      text: 'Interaction Checker',
+      url: Uri.parse('https://interaction-checker.com'),
+      license: 'Free with attribution',
+    ),
   );
 }
 

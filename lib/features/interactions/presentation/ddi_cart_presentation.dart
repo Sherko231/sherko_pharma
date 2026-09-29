@@ -6,11 +6,13 @@ class DdiCartPresentation {
     required this.rows,
     required this.pairCounts,
     required this.incompleteProductCount,
+    required this.providerNotices,
   });
 
   final Map<String, DdiProductRowPresentation> rows;
   final Map<InteractionSeverity, int> pairCounts;
   final int incompleteProductCount;
+  final List<DdiProviderNotice> providerNotices;
 
   int pairCount(InteractionSeverity severity) => pairCounts[severity] ?? 0;
 
@@ -91,5 +93,27 @@ DdiCartPresentation buildDdiCartPresentation(
     rows: Map.unmodifiable(rows),
     pairCounts: Map.unmodifiable(pairCounts),
     incompleteProductCount: incompleteProductCount,
+    providerNotices: List.unmodifiable(
+      _deduplicateCartProviderNotices(analysis.providerNotices),
+    ),
   );
+}
+
+List<DdiProviderNotice> _deduplicateCartProviderNotices(
+  List<DdiProviderNotice> notices,
+) {
+  final seen = <String>{};
+  final result = <DdiProviderNotice>[];
+  for (final notice in notices) {
+    final key = [
+      notice.disclaimer,
+      notice.attribution.text ?? '',
+      notice.attribution.url?.toString() ?? '',
+      notice.attribution.license ?? '',
+    ].join('\u0000');
+    if (seen.add(key)) {
+      result.add(notice);
+    }
+  }
+  return result;
 }

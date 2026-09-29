@@ -16,6 +16,9 @@ class UrlLauncherDdiExternalLinkLauncher
 
   @override
   Future<bool> open(Uri uri) {
+    if (!isDdiExternalHttpUri(uri)) {
+      return Future<bool>.value(false);
+    }
     return launchUrl(
       uri,
       mode: LaunchMode.externalApplication,
@@ -27,6 +30,17 @@ final ddiExternalLinkLauncherProvider =
     Provider<DdiExternalLinkLauncher>(
   (ref) => const UrlLauncherDdiExternalLinkLauncher(),
 );
+
+final Uri ddiProviderHomepage =
+    Uri.parse('https://interaction-checker.com');
+
+Uri ddiProviderAttributionUri(InteractionAttribution attribution) {
+  final supplied = attribution.url;
+  if (supplied != null && isDdiExternalHttpUri(supplied)) {
+    return supplied;
+  }
+  return ddiProviderHomepage;
+}
 
 class DdiInteractionDetailPresentation {
   const DdiInteractionDetailPresentation({
@@ -392,7 +406,7 @@ class _IngredientInteractionSection extends ConsumerWidget {
                   evidence: interaction.evidence[index],
                 ),
               ],
-            if (_isHttpUri(link)) ...[
+            if (isDdiExternalHttpUri(link)) ...[
               const SizedBox(height: 6),
               Align(
                 alignment: Alignment.centerLeft,
@@ -402,7 +416,7 @@ class _IngredientInteractionSection extends ConsumerWidget {
                     '${interaction.ingredientA.id}-'
                     '${interaction.ingredientB.id}',
                   ),
-                  onPressed: () => _openLink(
+                  onPressed: () => openDdiExternalLink(
                     context,
                     ref,
                     link,
@@ -473,12 +487,12 @@ class _EvidenceEntry extends ConsumerWidget {
                         Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
-            if (_isHttpUri(source.url)) ...[
+            if (isDdiExternalHttpUri(source.url)) ...[
               const SizedBox(height: 3),
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
-                  onPressed: () => _openLink(
+                  onPressed: () => openDdiExternalLink(
                     context,
                     ref,
                     source.url,
@@ -510,7 +524,7 @@ class _ProviderNoticeSection extends ConsumerWidget {
         attribution.text?.trim().isNotEmpty == true
             ? attribution.text!.trim()
             : 'Interaction Checker';
-    final providerUrl = attribution.url;
+    final providerUrl = ddiProviderAttributionUri(attribution);
 
     return Material(
       color: Theme.of(context).colorScheme.surfaceContainerLow,
@@ -560,21 +574,19 @@ class _ProviderNoticeSection extends ConsumerWidget {
                     ),
               ),
             ],
-            if (providerUrl != null && _isHttpUri(providerUrl)) ...[
-              const SizedBox(height: 4),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  onPressed: () => _openLink(
-                    context,
-                    ref,
-                    providerUrl,
-                  ),
-                  icon: const Icon(Icons.open_in_new_rounded, size: 16),
-                  label: const Text('Interaction Checker'),
+            const SizedBox(height: 4),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () => openDdiExternalLink(
+                  context,
+                  ref,
+                  providerUrl,
                 ),
+                icon: const Icon(Icons.open_in_new_rounded, size: 16),
+                label: const Text('Interaction Checker'),
               ),
-            ],
+            ),
           ],
         ),
       ),
@@ -752,16 +764,16 @@ String _formatDate(DateTime value) {
   return '$year-$month-$day';
 }
 
-bool _isHttpUri(Uri uri) {
+bool isDdiExternalHttpUri(Uri uri) {
   return uri.scheme == 'https' || uri.scheme == 'http';
 }
 
-Future<void> _openLink(
+Future<void> openDdiExternalLink(
   BuildContext context,
   WidgetRef ref,
   Uri uri,
 ) async {
-  if (!_isHttpUri(uri)) {
+  if (!isDdiExternalHttpUri(uri)) {
     _showLinkFailure(context);
     return;
   }

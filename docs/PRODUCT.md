@@ -1,6 +1,6 @@
 # Sherko Pharma — Product Requirements
 
-Status: Initial product scope agreed with the owner. SP-030 defines the informational DDI contract; SP-031 exposes trusted ingredient inputs, SP-032 implements the typed provider client, SP-033 implements product/ingredient batching and aggregation, SP-034 wires automatic non-blocking analysis to the authenticated/restored Cart lifecycle, SP-035 visualizes severity/incomplete coverage in Cart, and SP-036 exposes the provider evidence/source detail sheet. End-to-end/release hardening remains downstream work.
+Status: Initial product scope agreed with the owner. SP-030 through SP-037 implement the repository-side informational DDI contract from trusted ingredient inputs through transport, batching, lifecycle, Cart visualization, evidence/source details, and final integrity/privacy/release hardening. Production DDI activation, owner device acceptance, and compatible public/commercial provider permission remain separate external/deployment gates.
 Repository: `sherko_pharma`
 Updated: 2026-09-29
 
@@ -98,7 +98,7 @@ These observations do not establish that all supplied codes are valid or corresp
 
 ## Drug-interaction information contract (SP-030)
 
-The drug-drug interaction (DDI) feature is an informational evidence surface over the active Cart. SP-030 defines its product/safety contract; SP-031 and SP-032 provide the trusted ingredient-input and typed provider-client foundations; SP-033 provides deterministic ingredient batching and product-pair aggregation; SP-034 now keeps a separate Riverpod DDI lifecycle state synchronized to the authenticated/restored distinct Cart product set. Issues #77–#79 still own severity visualization, detail presentation, and final hardening.
+The drug-drug interaction (DDI) feature is an informational evidence surface over the active Cart. SP-030 through SP-037 implement its repository-side flow: trusted normalized ingredient inputs, typed provider transport, deterministic complete batching/product-pair aggregation, stale-safe Cart lifecycle, severity/incomplete-coverage presentation, evidence/source details, and final response-integrity/privacy/release hardening. This implementation state does not mean the hosted DDI migrations are deployed or that public/commercial DDI distribution is licensed.
 
 - The analysis subject is the set of distinct products currently present in the Cart, whether they were added by Android barcode scan or manual search. Quantity changes do not create a different interaction pair and must not be interpreted as dose information.
 - Syrian/local brand names are not sent as trusted clinical identities. Downstream work must bridge each product through the existing conservative SP-025 normalized ingredient identities; unresolved or review-only ingredient mappings remain visibly unchecked rather than guessed.
@@ -167,7 +167,7 @@ The separate administration application will eventually replace in-app catalog e
 17. Back/navigation from a changed product form offers save, discard, or stay. Failed or unconfirmed saves do not silently lose the form input or navigate away.
 18. Closing and reopening restores the active unfinished edit as an unsaved draft for the same authenticated owner, without automatically modifying the server. Confirmed save or explicit discard removes the corresponding draft.
 19. Signing out hides protected session content while retaining it locally. Signing back in as the same owner restores the order/draft; signed-out or different-account states cannot view them. Exact search text and scroll restoration are not required.
-20. When the downstream DDI feature is implemented, interaction results are informational and source-backed; `unknown`, provider failure, unresolved ingredients, or stale analysis never display as a safe/no-interaction conclusion.
+20. DDI interaction results are informational and source-backed; `unknown`, provider failure, unresolved ingredients, stale analysis, incomplete provider pair output, or contradictory provider summaries never display as a safe/no-interaction conclusion.
 21. DDI analysis never changes Cart membership, quantities, captured price/currency, totals, or catalog data, and it does not persist medication/interaction history.
 22. Any displayed external DDI result keeps the provider attribution/link and disclaimer, and commercial/public release remains blocked until the provider terms/permission are compatible with that distribution model.
 
