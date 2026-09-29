@@ -5,7 +5,11 @@ import 'package:http/http.dart' as http;
 
 import '../domain/interaction_check_models.dart';
 
-class InteractionCheckerClient {
+abstract interface class InteractionCheckGateway {
+  Future<InteractionCheckResult> checkInteractions(List<String> items);
+}
+
+class InteractionCheckerClient implements InteractionCheckGateway {
   InteractionCheckerClient({
     http.Client? httpClient,
     Uri? baseUri,

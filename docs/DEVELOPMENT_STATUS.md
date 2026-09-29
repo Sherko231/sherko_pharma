@@ -1,19 +1,38 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-29
-Task record: SP-032 / Issue #74 adds the typed Interaction Checker REST client from the merged SP-031 baseline. SP-031 / Issue #73 / PR #81 is merged. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
-Status: SP-032 adds typed provider/domain models, an injectable POST `/checks` client, explicit request bounds, timeout/transport/429/API/malformed/unsupported-response failures, and focused fixture tests. `http` 1.6.0 is now a direct dependency without changing its locked version. The client is not wired into Cart/scanner state and no production/backend migration or external deployment is performed. SP-014 remains deferred.
+Task record: SP-033 / Issue #75 builds the pure Cart DDI analysis/batching engine from merged SP-031 ingredient inputs and SP-032 provider transport. SP-032 / Issue #74 / PR #82 is merged. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
+Status: SP-033 adds a typed ingredient RPC adapter plus deterministic ingredient deduplication/ownership mapping, complete <=10/>10 provider batching, product-pair aggregation, explicit provider-unresolved state, bounded one-hour in-memory batch caching, in-flight coalescing, local 60/minute throttling, one valid Retry-After retry, and a generic stale-generation guard. It is not wired into Riverpod Cart/scanner lifecycle state and adds no UI, production migration, or deployment. SP-014 remains deferred.
 
 ## Verified baseline
 
-- The latest merged repository baseline before SP-032 is SP-031 merge `dbc0da03d4292c84255084beaf4f967ad2b898a1` from PR #81. Hosted Supabase remains deployed through SP-024 only; SP-025 through SP-028 and SP-031 migration 0013 are not applied by these repository tasks.
-- SP-000 through SP-013, SP-015 through SP-031, CI-001, and OPS-001 are merged before this task; SP-014 remains deferred.
+- The latest merged repository baseline before SP-033 is SP-032 merge `017f9a2c0cb3e958e2ad201cccb4277c0a482f04` from PR #82. Hosted Supabase remains deployed through SP-024 only; SP-025 through SP-028 and SP-031 migration 0013 are not applied by these repository tasks.
+- SP-000 through SP-013, SP-015 through SP-032, CI-001, and OPS-001 are merged before this task; SP-014 remains deferred.
 - Issue #29 is closed as completed and PR #30 is merged; post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
 - No open Issue or PR existed immediately before SP-012 was authorized.
 - The dedicated Sherko Pharma Supabase project is active on the Free plan.
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-033 Cart DDI analysis/batching contract
+
+- SP-033 is tracked by Issue #75 from SP-032 merge `017f9a2c0cb3e958e2ad201cccb4277c0a482f04`.
+- `SupabaseDdiIngredientRepository` is the typed Flutter adapter for SP-031 `catalog_ddi_ingredients(uuid[])`; raw RPC response maps do not escape the data layer. It preserves `trusted|needs_review|unresolved|missing` coverage and exposes ingredient identities only for trusted rows.
+- Analysis accepts product IDs only and chunks ingredient-resolution reads to the 50-ID SP-031 bound. Quantity, price/currency, barcode, account/session identity and raw composition are outside the engine input.
+- Stable ingredient IDs deduplicate shared ingredients while retaining every owning product. Provider query strings use canonical ingredient names and are validated against the SP-032 80-character input bound.
+- For <=10 unique ingredients the engine emits one provider batch. For >10 it partitions deterministic stable-ID order into groups <=5 and emits every pairwise group union. Each request remains <=10 and every unique ingredient pair co-occurs in at least one batch.
+- Overlapping batches can repeat same-group pairs. Ingredient interactions and evidence are deduplicated before mapping to product pairs.
+- Provider-resolved items are mapped back through the exact submitted query. Every query in each batch must appear once as resolved or provider-unresolved; unexpected/omitted/contradictory resolution fails explicitly instead of synthesizing `none`.
+- Provider-unresolved ingredients retain suggestions without auto-selection and remain separate from SP-031 normalization review/unresolved/missing states.
+- If fewer than two distinct trusted products are represented by the ingredient graph, no provider request is made. Same-product-only ingredient pairs do not create product-vs-product output. Shared ingredients map interactions to all distinct owning product combinations.
+- Product-pair severity is `major > moderate > minor > unknown > none`; every unique causal ingredient interaction and its evidence/source/link data remains available under the aggregate.
+- Provider data dates, disclaimer and attribution are retained as deduplicated notices for downstream UI.
+- Successful batch results use a bounded in-memory cache only: one-hour TTL and 128 entries by default. Identical in-flight batches are coalesced. No DDI result/history is persisted.
+- Provider attempts are serialized inside the engine and locally throttled to 60 per rolling minute by default. A 429 with a valid positive `Retry-After` retries once; a second 429 or absent/non-positive delay propagates. No other automatic retry is introduced.
+- An optional `isCurrent` predicate is checked around asynchronous boundaries. When false, `DdiAnalysisSupersededException` stops later work and prevents stale result publication. SP-034 will wire this mechanism to real Cart/New Order/session/auth generations.
+- Focused tests cover typed RPC mapping/isolation of untrusted identities, combination/shared ingredients, same-product exclusion, 11-ingredient complete pair coverage, duplicate suppression, severity aggregation including `unknown`, provider-unresolved separation, in-flight coalescing, cache reuse/bounds, Retry-After behavior, local throttling, stale work, and >50-product RPC chunking.
+- No live Interaction Checker request, production Supabase call, backend migration, deployment, Riverpod Cart wiring or UI is part of SP-033.
 
 ## SP-032 Interaction Checker client contract
 
