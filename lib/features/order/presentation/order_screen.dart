@@ -580,6 +580,7 @@ class _DdiReadySummary extends ConsumerWidget {
           const SizedBox(height: 4),
           _DdiCartProviderNotice(
             key: Key('ddi-cart-provider-notice-$index'),
+            noticeIndex: index,
             notice: resolved.providerNotices[index],
           ),
         ],
@@ -591,9 +592,11 @@ class _DdiReadySummary extends ConsumerWidget {
 class _DdiCartProviderNotice extends ConsumerWidget {
   const _DdiCartProviderNotice({
     super.key,
+    required this.noticeIndex,
     required this.notice,
   });
 
+  final int noticeIndex;
   final DdiProviderNotice notice;
 
   @override
@@ -624,7 +627,7 @@ class _DdiCartProviderNotice extends ConsumerWidget {
             Expanded(
               child: Text(
                 notice.disclaimer,
-                key: const Key('ddi-cart-provider-disclaimer'),
+                key: Key('ddi-cart-provider-disclaimer-$noticeIndex'),
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color:
                           Theme.of(context).colorScheme.onSurfaceVariant,
@@ -633,7 +636,7 @@ class _DdiCartProviderNotice extends ConsumerWidget {
             ),
             const SizedBox(width: 5),
             TextButton(
-              key: const Key('ddi-cart-provider-link'),
+              key: Key('ddi-cart-provider-link-$noticeIndex'),
               onPressed: () => openDdiExternalLink(
                 context,
                 ref,
