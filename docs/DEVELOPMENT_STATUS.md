@@ -1,12 +1,12 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-29
-Latest completed feature task: SP-037 / Issue #79 / PR #87, merged at `805a96202960d92219bcb3926c42e50c6f523f1a`. Follow-up Issue #88 / PR #89 fixed the owner-reported Cart compile error and merged at `a86ea668a0e8bcf85d80e83f72beec3b6c2a17d6`. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
+Latest completed feature task: SP-037 / Issue #79 / PR #87, merged at `805a96202960d92219bcb3926c42e50c6f523f1a`. Follow-up Issue #88 / PR #89 fixed the Cart compile error; Issue #92 / PR #93 fixed the narrow-phone provider-notice overflow and merged at `8250a81d6c7c5f153f5a503eeb6deb1869c8ad99`. Issue #94 is the current owner-authorized live-DDI provider-query alias fix. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
 Status: SP-030–SP-037 repository-side DDI work is merged. SP-037 validates exact provider pair completeness and summary consistency, keeps disclaimer/backlink adjacent to Cart results, hardens HTTP(S)-only link launching, and adds a synthetic cross-layer acceptance regression covering barcode/order → trusted ingredients → real batching/aggregation → lifecycle → Cart severity → detail evidence. The post-merge syntax fix changes no DDI or Cart behavior. No next repository feature task is currently authorized. No production migration/deployment, live provider call, or public/commercial DDI release authorization is introduced. Owner Android/Windows DDI acceptance remains external. SP-014 remains deferred.
 
 ## Verified baseline
 
-- Current `main` is `a86ea668a0e8bcf85d80e83f72beec3b6c2a17d6`, the merge result of follow-up PR #89 after SP-037. Hosted Supabase remains deployed through SP-024 only; SP-025 through SP-028 and SP-031 migration 0013 are not applied by these repository tasks.
+- Current inspected `main` before Issue #94 is `8250a81d6c7c5f153f5a503eeb6deb1869c8ad99`, the merge result of follow-up PR #93 after SP-037. The owner later authorized production DDI backend activation through SP-031 migration 0013 outside the repository feature tasks; current real-device testing is exercising the live provider path.
 - SP-000 through SP-013, SP-015 through SP-037, CI-001, and OPS-001 are merged; SP-014 remains deferred.
 - Issue #88 / PR #89 is a syntax-only Cart-row closure fix for the owner-reported Android debug compile error. It adds the missing outer `children` list delimiter and does not change DDI, order, scanner, price, quantity, persistence, backend, dependency, or production behavior.
 - Issue #29 is closed as completed and PR #30 is merged; post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
@@ -15,6 +15,15 @@ Status: SP-030–SP-037 repository-side DDI work is merged. SP-037 validates exa
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## Issue #94 Interaction Checker aspirin query alias
+
+- Live owner testing showed ASIAPIRIN-81 is trusted internally as ingredient ID 20 / `ACETYLSALICYLIC ACID`, while Interaction Checker returned that exact query as provider-unresolved.
+- Interaction Checker currently indexes the substance as `Aspirin`; its public API accepts names, brands and aliases.
+- Issue #94 adds a provider-specific query resolver that maps normalized internal `acetylsalicylic acid` to provider query `aspirin` before batching, cache keys and HTTP transport.
+- The internal SP-025 ingredient ID/name, product ownership and product-pair mapping remain unchanged. No brand-name guessing, fuzzy provider aliasing, database write or normalization mutation is introduced.
+- All ingredients without an explicit reviewed provider alias keep the existing canonical-name query.
+- A focused fake-provider engine regression proves `aspirin` is sent while the returned causal ingredients remain internal `ACETYLSALICYLIC ACID` and `CLOPIDOGREL`.
 
 ## SP-037 DDI hardening and repository acceptance
 

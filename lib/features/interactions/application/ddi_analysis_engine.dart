@@ -3,6 +3,7 @@ import 'dart:collection';
 
 import '../data/ddi_ingredient_repository.dart';
 import '../data/interaction_checker_client.dart';
+import '../data/interaction_checker_query_resolver.dart';
 import '../domain/ddi_analysis_models.dart';
 import '../domain/interaction_check_models.dart';
 
@@ -24,9 +25,12 @@ class DdiAnalysisEngine implements DdiAnalysisGateway {
     this.cacheTtl = const Duration(hours: 1),
     this.maxRequestsPerWindow = 60,
     this.rateWindow = const Duration(minutes: 1),
+    DdiProviderQueryResolver? providerQueryResolver,
     DdiNow? now,
     DdiSleep? sleep,
-  })  : _now = now ?? _utcNow,
+  })  : _providerQueryResolver =
+            providerQueryResolver ?? resolveInteractionCheckerQuery,
+        _now = now ?? _utcNow,
         _sleep = sleep ?? _defaultSleep {
     if (cacheMaxEntries < 1) {
       throw ArgumentError.value(
@@ -64,6 +68,7 @@ class DdiAnalysisEngine implements DdiAnalysisGateway {
   final Duration cacheTtl;
   final int maxRequestsPerWindow;
   final Duration rateWindow;
+  final DdiProviderQueryResolver _providerQueryResolver;
   final DdiNow _now;
   final DdiSleep _sleep;
 
@@ -224,16 +229,19 @@ class DdiAnalysisEngine implements DdiAnalysisGateway {
         if (existing == null) {
           nodes[ingredient.id] = _IngredientNode(
             identity: ingredient,
+            query: _providerQueryResolver(ingredient),
             productIds: {product.productId},
           );
           continue;
         }
 
+        final providerQuery = _providerQueryResolver(ingredient);
         if (existing.identity.name != ingredient.name ||
             existing.identity.normalizedName !=
-                ingredient.normalizedName) {
+                ingredient.normalizedName ||
+            existing.query != providerQuery) {
           throw const DdiAnalysisMappingException(
-            'A stable ingredient ID mapped to inconsistent names.',
+            'A stable ingredient ID mapped to inconsistent names or provider query.',
           );
         }
         existing.productIds.add(product.productId);
@@ -641,13 +649,13 @@ enum _ProviderResolution {
 class _IngredientNode {
   _IngredientNode({
     required this.identity,
+    required this.query,
     required this.productIds,
   });
 
   final DdiIngredientIdentity identity;
+  final String query;
   final Set<String> productIds;
-
-  String get query => identity.name.trim();
 }
 
 class _IngredientPairAccumulator {
