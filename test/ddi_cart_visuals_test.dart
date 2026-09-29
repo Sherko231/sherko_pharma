@@ -156,7 +156,7 @@ void main() {
     expect(container.read(orderControllerProvider).totalSyp, 4000);
   });
 
-  testWidgets('unknown and none stay explicit neutral wording', (
+  testWidgets('unknown stays explicit while none row stays visually normal', (
     tester,
   ) async {
     final gateway = _Gateway(
@@ -188,9 +188,16 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Unknown'), findsNWidgets(2));
-    expect(find.text('No interaction found'), findsOneWidget);
+    expect(find.text('No interaction found'), findsNothing);
+    expect(find.byKey(const Key('ddi-row-severity-c')), findsNothing);
     expect(find.byKey(const Key('ddi-summary-unknown')), findsOneWidget);
     expect(find.byKey(const Key('ddi-summary-none')), findsOneWidget);
+
+    final noneRow = tester.widget<DecoratedBox>(
+      find.byKey(const Key('order-line-c')),
+    );
+    final noneDecoration = noneRow.decoration as BoxDecoration;
+    expect(noneDecoration.color, isNull);
     expect(find.textContaining('Safe'), findsNothing);
   });
 
@@ -284,7 +291,8 @@ void main() {
 
     expect(attempt, 2);
     expect(find.byKey(const Key('ddi-status-ready')), findsOneWidget);
-    expect(find.text('No interaction found'), findsNWidgets(2));
+    expect(find.text('No interaction found'), findsNothing);
+    expect(find.byKey(const Key('ddi-summary-none')), findsOneWidget);
     expect(container.read(orderControllerProvider).totalSyp, 3000);
   });
 
