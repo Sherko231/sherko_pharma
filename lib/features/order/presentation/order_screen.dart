@@ -615,27 +615,33 @@ class _DdiCartProviderNotice extends ConsumerWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(7, 4, 5, 4),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              Icons.info_outline_rounded,
-              size: 15,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(width: 5),
-            Expanded(
-              child: Text(
-                notice.disclaimer,
-                key: Key('ddi-cart-provider-disclaimer-$noticeIndex'),
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color:
-                          Theme.of(context).colorScheme.onSurfaceVariant,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final stacked = constraints.maxWidth < 560;
+            final disclaimer = Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  size: 15,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 5),
+                Expanded(
+                  child: Text(
+                    notice.disclaimer,
+                    key: Key(
+                      'ddi-cart-provider-disclaimer-$noticeIndex',
                     ),
-              ),
-            ),
-            const SizedBox(width: 5),
-            TextButton(
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color:
+                              Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                ),
+              ],
+            );
+            final providerLink = TextButton(
               key: Key('ddi-cart-provider-link-$noticeIndex'),
               onPressed: () => openDdiExternalLink(
                 context,
@@ -647,9 +653,38 @@ class _DdiCartProviderNotice extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 5),
                 minimumSize: const Size(0, 30),
               ),
-              child: Text(attributionText),
-            ),
-          ],
+              child: Text(
+                attributionText,
+                textAlign: TextAlign.left,
+              ),
+            );
+
+            if (stacked) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  disclaimer,
+                  const SizedBox(height: 2),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: providerLink,
+                  ),
+                ],
+              );
+            }
+
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: disclaimer),
+                const SizedBox(width: 8),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 260),
+                  child: providerLink,
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
