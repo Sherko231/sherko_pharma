@@ -750,7 +750,7 @@ class _DdiRowBadges extends StatelessWidget {
   Widget build(BuildContext context) {
     final badges = <Widget>[];
     final severity = presentation.severity;
-    if (severity != null) {
+    if (severity != null && severity != InteractionSeverity.none) {
       final style = _ddiSeverityStyle(context, severity);
       final pairSuffix = presentation.pairCount > 1
           ? ' · ${presentation.pairCount} pairs'
@@ -1040,9 +1040,13 @@ class _OrderLineRow extends ConsumerWidget {
         ? pending
         : null;
 
-    final ddiStyle = ddi?.severity == null
+    final severity = ddi?.severity;
+    final ddiStyle = severity == null || severity == InteractionSeverity.none
         ? null
-        : _ddiSeverityStyle(context, ddi!.severity!);
+        : _ddiSeverityStyle(context, severity);
+    final showDdiBadges = ddi != null &&
+        (severity != null && severity != InteractionSeverity.none ||
+            _ddiCoverageLabel(ddi!) != null);
 
     return DecoratedBox(
       key: Key('order-line-${line.productId}'),
@@ -1126,7 +1130,7 @@ class _OrderLineRow extends ConsumerWidget {
               ),
             ],
           ),
-          if (ddi != null) ...[
+          if (showDdiBadges) ...[
             const SizedBox(height: 5),
             _DdiRowBadges(
               productId: line.productId,
