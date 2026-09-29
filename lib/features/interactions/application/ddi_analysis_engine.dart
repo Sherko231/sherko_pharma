@@ -241,7 +241,7 @@ class DdiAnalysisEngine implements DdiAnalysisGateway {
                 ingredient.normalizedName ||
             existing.query != providerQuery) {
           throw const DdiAnalysisMappingException(
-            'A stable ingredient ID mapped to inconsistent names.',
+            'A stable ingredient ID mapped to inconsistent names or provider query.',
           );
         }
         existing.productIds.add(product.productId);
