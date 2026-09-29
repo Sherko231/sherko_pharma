@@ -16,6 +16,9 @@ class UrlLauncherDdiExternalLinkLauncher
 
   @override
   Future<bool> open(Uri uri) {
+    if (!isDdiExternalHttpUri(uri)) {
+      return Future<bool>.value(false);
+    }
     return launchUrl(
       uri,
       mode: LaunchMode.externalApplication,
@@ -392,7 +395,7 @@ class _IngredientInteractionSection extends ConsumerWidget {
                   evidence: interaction.evidence[index],
                 ),
               ],
-            if (_isHttpUri(link)) ...[
+            if (isDdiExternalHttpUri(link)) ...[
               const SizedBox(height: 6),
               Align(
                 alignment: Alignment.centerLeft,
@@ -402,7 +405,7 @@ class _IngredientInteractionSection extends ConsumerWidget {
                     '${interaction.ingredientA.id}-'
                     '${interaction.ingredientB.id}',
                   ),
-                  onPressed: () => _openLink(
+                  onPressed: () => openDdiExternalLink(
                     context,
                     ref,
                     link,
@@ -473,12 +476,12 @@ class _EvidenceEntry extends ConsumerWidget {
                         Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
-            if (_isHttpUri(source.url)) ...[
+            if (isDdiExternalHttpUri(source.url)) ...[
               const SizedBox(height: 3),
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
-                  onPressed: () => _openLink(
+                  onPressed: () => openDdiExternalLink(
                     context,
                     ref,
                     source.url,
@@ -560,12 +563,12 @@ class _ProviderNoticeSection extends ConsumerWidget {
                     ),
               ),
             ],
-            if (providerUrl != null && _isHttpUri(providerUrl)) ...[
+            if (providerUrl != null && isDdiExternalHttpUri(providerUrl)) ...[
               const SizedBox(height: 4),
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
-                  onPressed: () => _openLink(
+                  onPressed: () => openDdiExternalLink(
                     context,
                     ref,
                     providerUrl,
@@ -752,16 +755,16 @@ String _formatDate(DateTime value) {
   return '$year-$month-$day';
 }
 
-bool _isHttpUri(Uri uri) {
+bool isDdiExternalHttpUri(Uri uri) {
   return uri.scheme == 'https' || uri.scheme == 'http';
 }
 
-Future<void> _openLink(
+Future<void> openDdiExternalLink(
   BuildContext context,
   WidgetRef ref,
   Uri uri,
 ) async {
-  if (!_isHttpUri(uri)) {
+  if (!isDdiExternalHttpUri(uri)) {
     _showLinkFailure(context);
     return;
   }
