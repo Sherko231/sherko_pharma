@@ -23,7 +23,7 @@ class DdiAnalysisEngine implements DdiAnalysisGateway {
     required this.interactionGateway,
     this.cacheMaxEntries = 128,
     this.cacheTtl = const Duration(hours: 1),
-    this.maxRequestsPerWindow = 60,
+    this.maxRequestsPerWindow = 10,
     this.rateWindow = const Duration(minutes: 1),
     DdiProviderQueryResolver? providerQueryResolver,
     DdiNow? now,
@@ -91,31 +91,43 @@ class DdiAnalysisEngine implements DdiAnalysisGateway {
     );
     _ensureCurrent(isCurrent);
 
-    final ingredientNodes = _buildIngredientNodes(products);
-    final ingredients = ingredientNodes.values.toList(growable: false)
-      ..sort((left, right) => left.identity.id.compareTo(right.identity.id));
+    final providerBuild = _buildProviderInputs(products);
+    final providerNodes =
+        providerBuild.nodes.values.toList(growable: false)
+          ..sort((left, right) => left.query.compareTo(right.query));
+    final mappingGaps = providerBuild.gaps.values
+        .map((gap) => gap.toModel())
+        .toList(growable: false)
+      ..sort((left, right) {
+        final ingredient =
+            left.ingredient.id.compareTo(right.ingredient.id);
+        return ingredient != 0
+            ? ingredient
+            : left.status.name.compareTo(right.status.name);
+      });
 
     final representedProducts = <String>{
-      for (final node in ingredients) ...node.productIds,
+      for (final node in providerNodes) ...node.productIds,
     };
-    if (ingredients.length < 2 || representedProducts.length < 2) {
+    if (providerNodes.length < 2 || representedProducts.length < 2) {
       return DdiAnalysisResult(
         products: List.unmodifiable(products),
         providerUnresolved: const [],
+        providerMappingGaps: List.unmodifiable(mappingGaps),
         productPairs: const [],
         providerNotices: const [],
-        uniqueIngredientCount: ingredients.length,
+        uniqueIngredientCount: providerNodes.length,
         providerBatchCount: 0,
       );
     }
 
-    _validateProviderQueries(ingredients);
+    _validateProviderQueries(providerNodes);
 
-    final batches = _buildProviderBatches(ingredients);
-    final ingredientPairs = <String, _IngredientPairAccumulator>{};
+    final batches = _buildProviderBatches(providerNodes);
+    final providerPairs = <String, _ProviderPairAccumulator>{};
     final providerUnresolved =
-        <int, _ProviderUnresolvedAccumulator>{};
-    final providerResolution = <int, _ProviderResolution>{};
+        <String, _ProviderUnresolvedAccumulator>{};
+    final providerResolution = <String, _ProviderResolution>{};
     final notices = <String, DdiProviderNotice>{};
 
     for (final batch in batches) {
@@ -128,7 +140,7 @@ class DdiAnalysisEngine implements DdiAnalysisGateway {
       _consumeBatch(
         batch: batch,
         result: result,
-        ingredientPairs: ingredientPairs,
+        providerPairs: providerPairs,
         providerUnresolved: providerUnresolved,
         providerResolution: providerResolution,
       );
@@ -143,13 +155,10 @@ class DdiAnalysisEngine implements DdiAnalysisGateway {
 
     _ensureCurrent(isCurrent);
 
-    final productPairs = _buildProductPairs(
-      ingredientPairs,
-      ingredientNodes,
-    );
+    final productPairs = _buildProductPairs(providerPairs);
 
     final unresolved = providerUnresolved.values
-        .map((value) => value.toModel())
+        .expand((value) => value.toModels())
         .toList(growable: false)
       ..sort(
         (left, right) => left.ingredient.id.compareTo(right.ingredient.id),
@@ -158,9 +167,10 @@ class DdiAnalysisEngine implements DdiAnalysisGateway {
     return DdiAnalysisResult(
       products: List.unmodifiable(products),
       providerUnresolved: List.unmodifiable(unresolved),
+      providerMappingGaps: List.unmodifiable(mappingGaps),
       productPairs: List.unmodifiable(productPairs),
       providerNotices: List.unmodifiable(notices.values),
-      uniqueIngredientCount: ingredients.length,
+      uniqueIngredientCount: providerNodes.length,
       providerBatchCount: batches.length,
     );
   }
@@ -214,10 +224,11 @@ class DdiAnalysisEngine implements DdiAnalysisGateway {
     return results;
   }
 
-  Map<int, _IngredientNode> _buildIngredientNodes(
+  _ProviderInputBuild _buildProviderInputs(
     List<DdiProductIngredientInput> products,
   ) {
-    final nodes = <int, _IngredientNode>{};
+    final nodes = <String, _ProviderIngredientNode>{};
+    final gaps = <String, _ProviderMappingGapAccumulator>{};
 
     for (final product in products) {
       if (!product.isTrusted) {
@@ -225,59 +236,68 @@ class DdiAnalysisEngine implements DdiAnalysisGateway {
       }
 
       for (final ingredient in product.ingredients) {
-        final existing = nodes[ingredient.id];
-        if (existing == null) {
-          nodes[ingredient.id] = _IngredientNode(
-            identity: ingredient,
-            query: _providerQueryResolver(ingredient),
-            productIds: {product.productId},
-          );
+        if (ingredient.providerMappingStatus !=
+            DdiProviderMappingStatus.mapped) {
+          final gapKey =
+              '${ingredient.id}:${ingredient.providerMappingStatus.name}';
+          gaps
+              .putIfAbsent(
+                gapKey,
+                () => _ProviderMappingGapAccumulator(
+                  ingredient,
+                  ingredient.providerMappingStatus,
+                ),
+              )
+              .productIds
+              .add(product.productId);
           continue;
         }
 
-        final providerQuery = _providerQueryResolver(ingredient);
-        if (existing.identity.name != ingredient.name ||
-            existing.identity.normalizedName !=
-                ingredient.normalizedName ||
-            existing.query != providerQuery) {
-          throw const DdiAnalysisMappingException(
-            'A stable ingredient ID mapped to inconsistent names or provider query.',
-          );
-        }
-        existing.productIds.add(product.productId);
+        final mappedProviderId =
+            ingredient.providerSubstanceId?.trim();
+        final query = mappedProviderId != null &&
+                mappedProviderId.isNotEmpty
+            ? mappedProviderId
+            : _providerQueryResolver(ingredient);
+        final queryKey = _providerQueryKey(query);
+
+        final node = nodes.putIfAbsent(
+          queryKey,
+          () => _ProviderIngredientNode(
+            query: query,
+            queryKey: queryKey,
+          ),
+        );
+        node.addOccurrence(product.productId, ingredient);
       }
     }
 
-    return nodes;
+    return _ProviderInputBuild(nodes: nodes, gaps: gaps);
   }
 
-  void _validateProviderQueries(List<_IngredientNode> ingredients) {
-    final queries = <String>{};
-    for (final node in ingredients) {
+  void _validateProviderQueries(
+    List<_ProviderIngredientNode> providerNodes,
+  ) {
+    for (final node in providerNodes) {
       final query = node.query;
       if (query.isEmpty || query.length > 80) {
         throw DdiAnalysisInvalidIngredientException(
-          ingredientId: node.identity.id,
+          ingredientId: node.firstIdentity.id,
           message:
-              'Trusted ingredient name is outside provider input bounds.',
-        );
-      }
-      if (!queries.add(query)) {
-        throw const DdiAnalysisMappingException(
-          'Two stable ingredient IDs share the same provider query.',
+              'Mapped provider query is outside provider input bounds.',
         );
       }
     }
   }
 
-  List<List<_IngredientNode>> _buildProviderBatches(
-    List<_IngredientNode> ingredients,
+  List<List<_ProviderIngredientNode>> _buildProviderBatches(
+    List<_ProviderIngredientNode> ingredients,
   ) {
     if (ingredients.length <= 10) {
       return [List.unmodifiable(ingredients)];
     }
 
-    final groups = <List<_IngredientNode>>[];
+    final groups = <List<_ProviderIngredientNode>>[];
     for (var offset = 0; offset < ingredients.length; offset += 5) {
       final end = (offset + 5 < ingredients.length)
           ? offset + 5
@@ -287,7 +307,7 @@ class DdiAnalysisEngine implements DdiAnalysisGateway {
       );
     }
 
-    final batches = <List<_IngredientNode>>[];
+    final batches = <List<_ProviderIngredientNode>>[];
     for (var left = 0; left < groups.length; left++) {
       for (var right = left + 1; right < groups.length; right++) {
         batches.add(
@@ -299,61 +319,61 @@ class DdiAnalysisEngine implements DdiAnalysisGateway {
   }
 
   void _consumeBatch({
-    required List<_IngredientNode> batch,
+    required List<_ProviderIngredientNode> batch,
     required InteractionCheckResult result,
-    required Map<String, _IngredientPairAccumulator> ingredientPairs,
-    required Map<int, _ProviderUnresolvedAccumulator> providerUnresolved,
-    required Map<int, _ProviderResolution> providerResolution,
+    required Map<String, _ProviderPairAccumulator> providerPairs,
+    required Map<String, _ProviderUnresolvedAccumulator>
+        providerUnresolved,
+    required Map<String, _ProviderResolution> providerResolution,
   }) {
-    final byQuery = <String, _IngredientNode>{
-      for (final node in batch) node.query: node,
+    final byQuery = <String, _ProviderIngredientNode>{
+      for (final node in batch) node.queryKey: node,
     };
     final seenQueries = <String>{};
-    final byProviderSubstance = <String, List<_IngredientNode>>{};
+    final byProviderSubstance = <String, _ProviderIngredientNode>{};
 
     for (final item in result.items) {
-      final node = byQuery[item.query.trim()];
-      if (node == null || !seenQueries.add(node.query)) {
+      final itemQueryKey = _providerQueryKey(item.query);
+      final node = byQuery[itemQueryKey];
+      if (node == null || !seenQueries.add(node.queryKey)) {
         throw const DdiAnalysisMappingException(
           'Provider resolved an unexpected or duplicate query.',
         );
       }
-      if (providerResolution[node.identity.id] ==
+      if (providerResolution[node.queryKey] ==
           _ProviderResolution.unresolved) {
         throw const DdiAnalysisMappingException(
           'Provider resolution changed across overlapping batches.',
         );
       }
-      providerResolution[node.identity.id] = _ProviderResolution.resolved;
-      final mappedSubstances = byProviderSubstance.putIfAbsent(
-        item.substance.id,
-        () => [],
-      );
-      if (mappedSubstances.isNotEmpty) {
+      providerResolution[node.queryKey] = _ProviderResolution.resolved;
+
+      if (byProviderSubstance.containsKey(item.substance.id)) {
         throw const DdiAnalysisMappingException(
-          'Distinct ingredient queries resolved to the same provider substance.',
+          'Distinct provider queries resolved to the same substance.',
         );
       }
-      mappedSubstances.add(node);
+      byProviderSubstance[item.substance.id] = node;
     }
 
     for (final item in result.unresolved) {
-      final node = byQuery[item.query.trim()];
-      if (node == null || !seenQueries.add(node.query)) {
+      final itemQueryKey = _providerQueryKey(item.query);
+      final node = byQuery[itemQueryKey];
+      if (node == null || !seenQueries.add(node.queryKey)) {
         throw const DdiAnalysisMappingException(
           'Provider returned an unexpected or duplicate unresolved query.',
         );
       }
-      if (providerResolution[node.identity.id] ==
+      if (providerResolution[node.queryKey] ==
           _ProviderResolution.resolved) {
         throw const DdiAnalysisMappingException(
           'Provider resolution changed across overlapping batches.',
         );
       }
-      providerResolution[node.identity.id] = _ProviderResolution.unresolved;
+      providerResolution[node.queryKey] = _ProviderResolution.unresolved;
 
       final accumulator = providerUnresolved.putIfAbsent(
-        node.identity.id,
+        node.queryKey,
         () => _ProviderUnresolvedAccumulator(node),
       );
       accumulator.addSuggestions(item.suggestions);
@@ -368,33 +388,27 @@ class DdiAnalysisEngine implements DdiAnalysisGateway {
     _validateProviderPairSet(result);
 
     for (final pair in result.pairs) {
-      final localA = byProviderSubstance[pair.a.id];
-      final localB = byProviderSubstance[pair.b.id];
-      if (localA == null || localB == null) {
+      final nodeA = byProviderSubstance[pair.a.id];
+      final nodeB = byProviderSubstance[pair.b.id];
+      if (nodeA == null || nodeB == null) {
         throw const DdiAnalysisMappingException(
           'Provider pair could not be mapped to submitted ingredients.',
         );
       }
 
-      for (final nodeA in localA) {
-        for (final nodeB in localB) {
-          if (nodeA.identity.id == nodeB.identity.id) {
-            continue;
-          }
-          final key = _ingredientPairKey(
-            nodeA.identity.id,
-            nodeB.identity.id,
-          );
-          final accumulator = ingredientPairs.putIfAbsent(
-            key,
-            () => _IngredientPairAccumulator(
-              nodeA.identity.id < nodeB.identity.id ? nodeA : nodeB,
-              nodeA.identity.id < nodeB.identity.id ? nodeB : nodeA,
-            ),
-          );
-          accumulator.addPair(pair);
-        }
-      }
+      final key = _providerPairKey(nodeA.queryKey, nodeB.queryKey);
+      final accumulator = providerPairs.putIfAbsent(
+        key,
+        () => _ProviderPairAccumulator(
+          nodeA.queryKey.compareTo(nodeB.queryKey) <= 0
+              ? nodeA
+              : nodeB,
+          nodeA.queryKey.compareTo(nodeB.queryKey) <= 0
+              ? nodeB
+              : nodeA,
+        ),
+      );
+      accumulator.addPair(pair);
     }
   }
 
@@ -437,37 +451,46 @@ class DdiAnalysisEngine implements DdiAnalysisGateway {
   }
 
   List<DdiProductPairInteraction> _buildProductPairs(
-    Map<String, _IngredientPairAccumulator> ingredientPairs,
-    Map<int, _IngredientNode> ingredientNodes,
+    Map<String, _ProviderPairAccumulator> providerPairs,
   ) {
     final productPairs = <String, _ProductPairAccumulator>{};
 
-    final sortedIngredientPairs = ingredientPairs.values.toList()
-      ..sort(
-        (left, right) =>
-            left.sortKey.compareTo(right.sortKey),
-      );
+    final sortedProviderPairs = providerPairs.values.toList()
+      ..sort((left, right) => left.sortKey.compareTo(right.sortKey));
 
-    for (final ingredientPair in sortedIngredientPairs) {
-      final interaction = ingredientPair.toModel();
-      final ownersA = ingredientNodes[interaction.ingredientA.id]!.productIds;
-      final ownersB = ingredientNodes[interaction.ingredientB.id]!.productIds;
-
-      for (final productA in ownersA) {
-        for (final productB in ownersB) {
+    for (final providerPair in sortedProviderPairs) {
+      for (final productA in providerPair.a.productIds) {
+        for (final productB in providerPair.b.productIds) {
           if (productA == productB) {
             continue;
           }
-          final orderedA =
-              productA.compareTo(productB) <= 0 ? productA : productB;
-          final orderedB =
-              productA.compareTo(productB) <= 0 ? productB : productA;
-          final key = '$orderedA\u0000$orderedB';
-          final accumulator = productPairs.putIfAbsent(
-            key,
-            () => _ProductPairAccumulator(orderedA, orderedB),
-          );
-          accumulator.addInteraction(interaction);
+
+          final localA =
+              providerPair.a.identitiesByProduct[productA] ?? const [];
+          final localB =
+              providerPair.b.identitiesByProduct[productB] ?? const [];
+          for (final ingredientA in localA) {
+            for (final ingredientB in localB) {
+              if (ingredientA.id == ingredientB.id) {
+                continue;
+              }
+
+              final orderedA = productA.compareTo(productB) <= 0
+                  ? productA
+                  : productB;
+              final orderedB = productA.compareTo(productB) <= 0
+                  ? productB
+                  : productA;
+              final key = '$orderedA\u0000$orderedB';
+              final accumulator = productPairs.putIfAbsent(
+                key,
+                () => _ProductPairAccumulator(orderedA, orderedB),
+              );
+              accumulator.addInteraction(
+                providerPair.toModel(ingredientA, ingredientB),
+              );
+            }
+          }
         }
       }
     }
@@ -646,23 +669,50 @@ enum _ProviderResolution {
   unresolved,
 }
 
-class _IngredientNode {
-  _IngredientNode({
-    required this.identity,
-    required this.query,
-    required this.productIds,
+class _ProviderInputBuild {
+  const _ProviderInputBuild({
+    required this.nodes,
+    required this.gaps,
   });
 
-  final DdiIngredientIdentity identity;
-  final String query;
-  final Set<String> productIds;
+  final Map<String, _ProviderIngredientNode> nodes;
+  final Map<String, _ProviderMappingGapAccumulator> gaps;
 }
 
-class _IngredientPairAccumulator {
-  _IngredientPairAccumulator(this.a, this.b);
+class _ProviderIngredientNode {
+  _ProviderIngredientNode({
+    required this.query,
+    required this.queryKey,
+  });
 
-  final _IngredientNode a;
-  final _IngredientNode b;
+  final String query;
+  final String queryKey;
+  final Map<String, List<DdiIngredientIdentity>> identitiesByProduct = {};
+
+  Iterable<String> get productIds => identitiesByProduct.keys;
+
+  DdiIngredientIdentity get firstIdentity =>
+      identitiesByProduct.values.first.first;
+
+  void addOccurrence(
+    String productId,
+    DdiIngredientIdentity ingredient,
+  ) {
+    final identities = identitiesByProduct.putIfAbsent(
+      productId,
+      () => [],
+    );
+    if (!identities.any((item) => item.id == ingredient.id)) {
+      identities.add(ingredient);
+    }
+  }
+}
+
+class _ProviderPairAccumulator {
+  _ProviderPairAccumulator(this.a, this.b);
+
+  final _ProviderIngredientNode a;
+  final _ProviderIngredientNode b;
   InteractionSeverity? _severity;
   String? _severityLabel;
   Uri? _interactionUrl;
@@ -670,9 +720,7 @@ class _IngredientPairAccumulator {
   final LinkedHashMap<String, InteractionEvidence> _evidence =
       LinkedHashMap();
 
-  String get sortKey =>
-      '${a.identity.id.toString().padLeft(20, '0')}:'
-      '${b.identity.id.toString().padLeft(20, '0')}';
+  String get sortKey => '${a.queryKey}\u0000${b.queryKey}';
 
   void addPair(InteractionPair pair) {
     final currentSeverity = _severity;
@@ -690,10 +738,13 @@ class _IngredientPairAccumulator {
     }
   }
 
-  DdiIngredientInteraction toModel() {
+  DdiIngredientInteraction toModel(
+    DdiIngredientIdentity ingredientA,
+    DdiIngredientIdentity ingredientB,
+  ) {
     return DdiIngredientInteraction(
-      ingredientA: a.identity,
-      ingredientB: b.identity,
+      ingredientA: ingredientA,
+      ingredientB: ingredientB,
       severity: _severity!,
       severityLabel: _severityLabel!,
       evidence: List.unmodifiable(_evidence.values),
@@ -745,7 +796,7 @@ class _ProductPairAccumulator {
 class _ProviderUnresolvedAccumulator {
   _ProviderUnresolvedAccumulator(this.node);
 
-  final _IngredientNode node;
+  final _ProviderIngredientNode node;
   final Map<String, InteractionSubstance> _suggestions = {};
 
   void addSuggestions(List<InteractionSubstance> suggestions) {
@@ -754,13 +805,52 @@ class _ProviderUnresolvedAccumulator {
     }
   }
 
-  DdiProviderUnresolvedIngredient toModel() {
-    final productIds = node.productIds.toList(growable: false)..sort();
-    return DdiProviderUnresolvedIngredient(
-      ingredient: node.identity,
-      query: node.query,
-      productIds: List.unmodifiable(productIds),
-      suggestions: List.unmodifiable(_suggestions.values),
+  List<DdiProviderUnresolvedIngredient> toModels() {
+    final byIngredient =
+        <int, ({DdiIngredientIdentity ingredient, Set<String> products})>{};
+
+    for (final entry in node.identitiesByProduct.entries) {
+      for (final ingredient in entry.value) {
+        final existing = byIngredient[ingredient.id];
+        if (existing == null) {
+          byIngredient[ingredient.id] = (
+            ingredient: ingredient,
+            products: {entry.key},
+          );
+        } else {
+          existing.products.add(entry.key);
+        }
+      }
+    }
+
+    return byIngredient.values.map((entry) {
+      final productIds = entry.products.toList(growable: false)..sort();
+      return DdiProviderUnresolvedIngredient(
+        ingredient: entry.ingredient,
+        query: node.query,
+        productIds: List.unmodifiable(productIds),
+        suggestions: List.unmodifiable(_suggestions.values),
+      );
+    }).toList(growable: false);
+  }
+}
+
+class _ProviderMappingGapAccumulator {
+  _ProviderMappingGapAccumulator(
+    this.ingredient,
+    this.status,
+  );
+
+  final DdiIngredientIdentity ingredient;
+  final DdiProviderMappingStatus status;
+  final Set<String> productIds = {};
+
+  DdiProviderMappingGap toModel() {
+    final products = productIds.toList(growable: false)..sort();
+    return DdiProviderMappingGap(
+      ingredient: ingredient,
+      status: status,
+      productIds: List.unmodifiable(products),
     );
   }
 }
@@ -792,6 +882,8 @@ bool _sameCountMap(Map<String, int> left, Map<String, int> right) {
   }
   return true;
 }
+
+String _providerQueryKey(String query) => query.trim().toLowerCase();
 
 String _ingredientPairKey(int left, int right) {
   final low = left < right ? left : right;
