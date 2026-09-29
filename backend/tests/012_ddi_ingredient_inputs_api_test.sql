@@ -61,7 +61,7 @@ begin
 end
 $ddi_private_registry_owner$;
 
-perform public.catalog_create_idempotent(
+select id from public.catalog_create_idempotent(
   '74000000-0000-4000-8000-000000000001',
   'SP031 Single',
   null,
@@ -77,7 +77,7 @@ perform public.catalog_create_idempotent(
   null
 );
 
-perform public.catalog_create_idempotent(
+select id from public.catalog_create_idempotent(
   '74000000-0000-4000-8000-000000000002',
   'SP031 Combo',
   null,
@@ -93,7 +93,7 @@ perform public.catalog_create_idempotent(
   null
 );
 
-perform public.catalog_create_idempotent(
+select id from public.catalog_create_idempotent(
   '74000000-0000-4000-8000-000000000003',
   'SP031 Needs Review',
   null,
@@ -109,7 +109,7 @@ perform public.catalog_create_idempotent(
   null
 );
 
-perform public.catalog_create_idempotent(
+select id from public.catalog_create_idempotent(
   '74000000-0000-4000-8000-000000000004',
   'SP031 Unresolved',
   null,
@@ -125,7 +125,7 @@ perform public.catalog_create_idempotent(
   null
 );
 
-perform public.catalog_create_idempotent(
+select id from public.catalog_create_idempotent(
   '74000000-0000-4000-8000-000000000005',
   'SP031 Canonical',
   null,
@@ -176,7 +176,7 @@ set local role authenticated;
 set local "request.jwt.claim.sub" =
   '11111111-1111-1111-1111-111111111111';
 
-perform public.catalog_create_idempotent(
+select id from public.catalog_create_idempotent(
   '74000000-0000-4000-8000-000000000006',
   'SP031 Verified Synonym',
   null,
