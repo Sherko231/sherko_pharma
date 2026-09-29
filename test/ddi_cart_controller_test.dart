@@ -9,6 +9,7 @@ import 'package:sherko_pharma/features/interactions/application/ddi_analysis_eng
 import 'package:sherko_pharma/features/interactions/application/ddi_cart_controller.dart';
 import 'package:sherko_pharma/features/interactions/data/interaction_checker_client.dart';
 import 'package:sherko_pharma/features/interactions/domain/ddi_analysis_models.dart';
+import 'package:sherko_pharma/features/navigation/application/app_navigation_controller.dart';
 import 'package:sherko_pharma/features/order/application/order_controller.dart';
 import 'package:sherko_pharma/features/order/domain/order_model.dart';
 import 'package:sherko_pharma/features/scanning/application/barcode_scan_controller.dart';
