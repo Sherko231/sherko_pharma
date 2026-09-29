@@ -1,19 +1,33 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-29
-Task record: SP-034 / Issue #76 wires the merged SP-033 DDI engine into authenticated/restored Cart lifecycle state. SP-033 / Issue #75 / PR #83 is merged. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
-Status: SP-034 adds a dedicated Riverpod DDI Cart controller, production injection of the SP-031 ingredient repository, automatic distinct-product-set analysis with 120 ms debounce, quantity-only suppression, retryable typed failure state, and owner/session/product-generation invalidation. Scanner/search/order mutation paths remain non-blocking and unchanged. No DDI severity/detail UI, production migration, or deployment is introduced. SP-014 remains deferred.
+Task record: SP-035 / Issue #77 visualizes the merged SP-034 DDI lifecycle/results in the existing Cart. SP-034 / Issue #76 / PR #84 is merged. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
+Status: SP-035 adds pure pair/row presentation aggregation, compact Cart-level lifecycle/severity summary, per-row highest-severity tint plus icon/text, explicit incomplete/provider-unresolved states, and Retry/unavailable feedback. Order/scanner/search/price/session behavior remains unchanged. Evidence/source detail UI, production migration, and deployment remain downstream. SP-014 remains deferred.
 
 ## Verified baseline
 
-- The latest merged repository baseline before SP-034 is SP-033 merge `43d81ea419e0faaa66ac8d451779d31716920a4e` from PR #83. Hosted Supabase remains deployed through SP-024 only; SP-025 through SP-028 and SP-031 migration 0013 are not applied by these repository tasks.
-- SP-000 through SP-013, SP-015 through SP-033, CI-001, and OPS-001 are merged before this task; SP-014 remains deferred.
+- The latest merged repository baseline before SP-035 is SP-034 merge `285287ac2c0eb80396fd0cc5746210b8d648d9cd` from PR #84. Hosted Supabase remains deployed through SP-024 only; SP-025 through SP-028 and SP-031 migration 0013 are not applied by these repository tasks.
+- SP-000 through SP-013, SP-015 through SP-034, CI-001, and OPS-001 are merged before this task; SP-014 remains deferred.
 - Issue #29 is closed as completed and PR #30 is merged; post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
 - No open Issue or PR existed immediately before SP-012 was authorized.
 - The dedicated Sherko Pharma Supabase project is active on the Free plan.
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-035 Cart DDI severity visualization
+
+- SP-035 is tracked by Issue #77 from SP-034 merge `285287ac2c0eb80396fd0cc5746210b8d648d9cd`.
+- `buildDdiCartPresentation()` converts one ready `DdiAnalysisResult` into immutable row and summary presentation data. Product-pair counts remain pair-based rather than double-counting both rows.
+- Each row receives its highest known product-pair severity under the existing `major > moderate > minor > unknown > none` ordering plus the count of relevant product pairs.
+- Coverage is independent from severity. A row remains incomplete when local coverage is not trusted, when the provider left one of its ingredients unresolved, or when no explicit product-pair result exists. Known severity and incomplete coverage can therefore appear together.
+- Cart row styling uses error/red for major, orange for moderate, amber for minor, and neutral styling for unknown/none. Every severity includes icon + text; color is never the sole cue.
+- `none` renders as "No interaction found" and `unknown` as "Unknown"; neither is rendered as a green/safe state. Local coverage gaps render as "Unchecked"; provider gaps render as "Provider unresolved".
+- With at least two distinct products the Cart shows one compact DDI strip below the existing order totals. Ready state shows nonzero pair counts by severity plus an independent incomplete count. Loading replaces prior row visuals with "Checking interactions…".
+- SP-034 error state renders a non-destructive failure message and Retry action; rate-limit state may include its retained Retry-After seconds. Missing runtime wiring renders "Interaction checking unavailable." and never looks like `none`.
+- Quantity changes keep existing row severity because the distinct product set/result identity is unchanged. Price/quantity/remove/New Order controls and captured SYP/USD totals remain the existing order implementation.
+- Focused `ddi_cart_presentation_test.dart` covers highest-severity aggregation, pair counts, all five severity buckets, local unresolved coverage, provider-unresolved alongside known severity, and absent explicit pair results. `ddi_cart_visuals_test.dart` covers loading->ready, major highlighting, multi-pair labels, unknown/none wording, incomplete coverage, failure+Retry, quantity usability and unavailable state.
+- No evidence quote/source link, attribution/disclaimer surface, interaction-detail sheet, production Supabase call, migration or deployment is part of SP-035.
 
 ## SP-034 automatic Cart DDI lifecycle contract
 
