@@ -9,7 +9,15 @@ import '../domain/interaction_check_models.dart';
 typedef DdiNow = DateTime Function();
 typedef DdiSleep = Future<void> Function(Duration duration);
 
-class DdiAnalysisEngine {
+abstract interface class DdiAnalysisGateway {
+  @override
+  Future<DdiAnalysisResult> analyzeProductIds(
+    List<String> productIds, {
+    bool Function()? isCurrent,
+  });
+}
+
+class DdiAnalysisEngine implements DdiAnalysisGateway {
   DdiAnalysisEngine({
     required this.ingredientRepository,
     required this.interactionGateway,
