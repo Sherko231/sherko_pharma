@@ -357,6 +357,64 @@ void main() {
       expect(gateway.calls, hasLength(1));
     });
 
+    test('unknown outranks none without becoming a safe result', () async {
+      final repository = _FakeIngredientRepository({
+        'p1': _trusted(
+          'p1',
+          [
+            _ingredient(1, 'Alpha'),
+            _ingredient(2, 'Beta'),
+          ],
+        ),
+        'p2': _trusted('p2', [_ingredient(3, 'Gamma')]),
+      });
+      final gateway = _FakeGateway((items) async {
+        return _providerResult(
+          items,
+          severities: {
+            _queryPairKey('Alpha', 'Gamma'):
+                InteractionSeverity.none,
+            _queryPairKey('Beta', 'Gamma'):
+                InteractionSeverity.unknown,
+          },
+        );
+      });
+      final engine = DdiAnalysisEngine(
+        ingredientRepository: repository,
+        interactionGateway: gateway,
+      );
+
+      final result = await engine.analyzeProductIds(
+        const ['p1', 'p2'],
+      );
+
+      expect(result.productPairs.single.severity, InteractionSeverity.unknown);
+      expect(result.productPairs.single.ingredientInteractions, hasLength(2));
+    });
+
+    test('bounded cache evicts the least-recent successful batch', () async {
+      final gateway = _FakeGateway((items) async {
+        return _providerResult(items);
+      });
+      final repository = _FakeIngredientRepository({
+        'p1': _trusted('p1', [_ingredient(1, 'Alpha')]),
+        'p2': _trusted('p2', [_ingredient(2, 'Beta')]),
+        'p3': _trusted('p3', [_ingredient(3, 'Gamma')]),
+        'p4': _trusted('p4', [_ingredient(4, 'Delta')]),
+      });
+      final engine = DdiAnalysisEngine(
+        ingredientRepository: repository,
+        interactionGateway: gateway,
+        cacheMaxEntries: 1,
+      );
+
+      await engine.analyzeProductIds(const ['p1', 'p2']);
+      await engine.analyzeProductIds(const ['p3', 'p4']);
+      await engine.analyzeProductIds(const ['p1', 'p2']);
+
+      expect(gateway.calls, hasLength(3));
+    });
+
     test('chunks more than 50 product IDs for the bounded ingredient RPC', () async {
       final products = <String, DdiProductIngredientInput>{};
       for (var index = 1; index <= 51; index++) {
