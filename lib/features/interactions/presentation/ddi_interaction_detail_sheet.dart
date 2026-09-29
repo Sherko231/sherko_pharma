@@ -226,6 +226,7 @@ class _DdiInteractionDetailSheet extends ConsumerWidget {
                         index++) ...[
                       if (index > 0) const SizedBox(height: 10),
                       _ProviderNoticeSection(
+                        key: Key('ddi-detail-provider-notice-$index'),
                         notice: presentation.notices[index],
                       ),
                     ],
@@ -240,7 +241,7 @@ class _DdiInteractionDetailSheet extends ConsumerWidget {
   }
 }
 
-class _ProductPairSection extends ConsumerWidget {
+class _ProductPairSection extends StatelessWidget {
   const _ProductPairSection({
     required this.pair,
   });
@@ -248,7 +249,7 @@ class _ProductPairSection extends ConsumerWidget {
   final DdiDetailProductPair pair;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final style = _detailSeverityStyle(context, pair.severity);
 
     return Material(
@@ -383,6 +384,11 @@ class _IngredientInteractionSection extends ConsumerWidget {
                   index++) ...[
                 if (index > 0) const SizedBox(height: 8),
                 _EvidenceEntry(
+                  key: Key(
+                    'ddi-detail-evidence-entry-'
+                    '${interaction.ingredientA.id}-'
+                    '${interaction.ingredientB.id}-$index',
+                  ),
                   evidence: interaction.evidence[index],
                 ),
               ],
@@ -415,6 +421,7 @@ class _IngredientInteractionSection extends ConsumerWidget {
 
 class _EvidenceEntry extends ConsumerWidget {
   const _EvidenceEntry({
+    super.key,
     required this.evidence,
   });
 
@@ -439,11 +446,6 @@ class _EvidenceEntry extends ConsumerWidget {
             const SizedBox(height: 4),
             SelectableText(
               evidence.quote,
-              key: Key(
-                'ddi-detail-evidence-'
-                '${evidence.from}-${evidence.about}-'
-                '${evidence.matchedTerm}',
-              ),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 6),
@@ -476,11 +478,7 @@ class _EvidenceEntry extends ConsumerWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
-                  key: Key(
-                    'ddi-detail-source-link-'
-                    '${evidence.from}-${evidence.about}-'
-                    '${evidence.matchedTerm}',
-                  ),
+                  key: const Key('ddi-detail-source-link'),
                   onPressed: () => _openLink(
                     context,
                     ref,
@@ -500,6 +498,7 @@ class _EvidenceEntry extends ConsumerWidget {
 
 class _ProviderNoticeSection extends ConsumerWidget {
   const _ProviderNoticeSection({
+    super.key,
     required this.notice,
   });
 
@@ -515,7 +514,6 @@ class _ProviderNoticeSection extends ConsumerWidget {
     final providerUrl = attribution.url;
 
     return Material(
-      key: const Key('ddi-detail-provider-notice'),
       color: Theme.of(context).colorScheme.surfaceContainerLow,
       borderRadius: BorderRadius.circular(9),
       child: Padding(
@@ -530,13 +528,11 @@ class _ProviderNoticeSection extends ConsumerWidget {
             const SizedBox(height: 5),
             Text(
               notice.disclaimer,
-              key: const Key('ddi-detail-disclaimer'),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 6),
             Text(
               attributionText,
-              key: const Key('ddi-detail-attribution'),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             if (attribution.license?.trim().isNotEmpty == true) ...[
