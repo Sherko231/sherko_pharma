@@ -1,8 +1,8 @@
 # Sherko Pharma — Product Requirements
 
-Status: Initial product scope agreed with the owner; implementation details remain to be specified.
+Status: Initial product scope agreed with the owner. SP-030 defines the planned informational DDI contract; the DDI API/client/UI are not implemented by this task.
 Repository: `sherko_pharma`
-Updated: 2026-09-27
+Updated: 2026-09-29
 
 ## Purpose and users
 
@@ -94,6 +94,33 @@ These observations do not establish that all supplied codes are valid or corresp
 - Adding quantity to an existing line preserves that line's captured price until the owner explicitly updates it. A new customer order uses current server prices.
 - Do not add inventory deduction, checkout records, or sales history to this scope.
 
+## Drug-interaction information contract (SP-030)
+
+The planned drug-drug interaction (DDI) feature is an informational evidence surface over the active Cart. SP-030 defines its product/safety contract only; downstream Issues #73–#79 own implementation.
+
+- The analysis subject is the set of distinct products currently present in the Cart, whether they were added by Android barcode scan or manual search. Quantity changes do not create a different interaction pair and must not be interpreted as dose information.
+- Syrian/local brand names are not sent as trusted clinical identities. Downstream work must bridge each product through the existing conservative SP-025 normalized ingredient identities; unresolved or review-only ingredient mappings remain visibly unchecked rather than guessed.
+- Multi-ingredient products are checked through all trusted active-ingredient identities, then ingredient-level evidence is mapped back to the affected Cart product pair. Interactions among ingredients that belong only to the same single product are not a product-vs-product Cart warning.
+- Interaction Checker severity is label-derived evidence classification, not a patient-specific risk score:
+  - `major`: label wording includes a boxed warning, contraindication, or an instruction to avoid the combination.
+  - `moderate`: label wording calls for monitoring, dose adjustment, or dose spacing.
+  - `minor`: the other medicine/class is mentioned without an avoid/change instruction.
+  - `none`: the source explicitly reports no clinically significant interaction; this is not a universal safety statement.
+  - `unknown`: neither available label mentions the other item; this is missing evidence, not proof of safety.
+- No result may be worded as "safe to take", "approved together", or an equivalent clinical conclusion. The feature must not diagnose, prescribe, recommend stopping/starting therapy, select a substitute, or infer patient-specific suitability.
+- When results are shown, preserve the provider-supplied evidence/source context, effective date when available, attribution/link to Interaction Checker, and the supplied disclaimer. Source links should let the owner inspect the underlying DailyMed/FDA/NIH evidence when provided.
+- DDI loading, provider failure, rate limiting, unresolved ingredients, malformed responses, and stale results are explicit states. None of those states may be collapsed into "no interaction".
+- External DDI analysis is non-destructive. Provider failure or a flagged interaction never changes Cart membership, quantities, captured prices/currencies, totals, product data, or scanner success semantics.
+- DDI results are transient. Do not add medication-history or interaction-history persistence to the existing account-scoped session snapshot. A restored Cart is re-evaluated online when the downstream feature exists.
+- The external provider receives the ingredient queries needed for a check. This is a third-party network disclosure; do not send patient identity, account credentials, prices, barcodes, notes, or unrelated catalog fields.
+- Interaction Checker currently documents a public `/api/v1` API with no key, 60 requests/minute/IP, 2–10 items per `/checks` request, one-hour cacheability, and `Retry-After` on HTTP 429. Those are external constraints to re-check at implementation/release time, not guarantees controlled by Sherko Pharma.
+- Current Interaction Checker terms (last updated September 2026) state that the service is informational, may be changed/withdrawn, requires the disclaimer and backlink when output is shown, and may not be used to build or sell a clinical decision-support product or redistribute the dataset as a whole. Sherko Pharma must not claim commercial/public DDI-release permission from this integration. Before any public/commercial release containing it, obtain compatible permission or replace the source with one whose license permits the intended distribution model.
+
+Provider references for this contract:
+- https://interaction-checker.com/api
+- https://interaction-checker.com/api/v1/openapi.json
+- https://interaction-checker.com/terms
+
 ## Session continuity
 
 - Save the active session and restore it after closing and reopening the application.
@@ -138,6 +165,9 @@ The separate administration application will eventually replace in-app catalog e
 17. Back/navigation from a changed product form offers save, discard, or stay. Failed or unconfirmed saves do not silently lose the form input or navigate away.
 18. Closing and reopening restores the active unfinished edit as an unsaved draft for the same authenticated owner, without automatically modifying the server. Confirmed save or explicit discard removes the corresponding draft.
 19. Signing out hides protected session content while retaining it locally. Signing back in as the same owner restores the order/draft; signed-out or different-account states cannot view them. Exact search text and scroll restoration are not required.
+20. When the downstream DDI feature is implemented, interaction results are informational and source-backed; `unknown`, provider failure, unresolved ingredients, or stale analysis never display as a safe/no-interaction conclusion.
+21. DDI analysis never changes Cart membership, quantities, captured price/currency, totals, or catalog data, and it does not persist medication/interaction history.
+22. Any displayed external DDI result keeps the provider attribution/link and disclaimer, and commercial/public release remains blocked until the provider terms/permission are compatible with that distribution model.
 
 ## Implementation questions still to resolve
 

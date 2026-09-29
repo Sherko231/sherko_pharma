@@ -1,19 +1,35 @@
 # Sherko Pharma — Development Status
 
-Updated: 2026-09-28
-Task record: SP-029 / Issue #70 adds the visible Product/Cart alternatives workflow over the SP-028 bounded relationship API. SP-028 / Issue #68 remains the server alternatives-engine baseline. OPS-001 / Issue #42 retires hosted GitHub Actions and mandatory CI gates.
-Status: SP-029 exposes the three SP-028 relationship groups from Cart search results and Product Detail through one reusable compact sheet. Candidate rows show brand/company/price/strength/form, include a non-clinical-classification notice, and re-read the candidate before Add-to-cart so captured price/currency and order semantics remain unchanged. SP-014 remains deferred. Current verification policy is owner-local after pull; hosted CI is retired.
+Updated: 2026-09-29
+Task record: SP-030 / Issue #72 defines the future Interaction Checker DDI product, safety, privacy, provider, and release contract from the merged SP-029 baseline. SP-029 / Issue #70 / PR #71 is merged. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
+Status: SP-030 is documentation/contract work only: no DDI API client, backend RPC, controller, UI, dependency, external deployment, or production migration is introduced. The contract requires trusted SP-025 ingredient identities, label-derived severity semantics, explicit unknown/unresolved/failure states, transient non-destructive results, source/disclaimer/attribution, a narrow third-party disclosure boundary, and a commercial/public-release constraint under the provider's September 2026 terms. SP-014 remains deferred.
 
 ## Verified baseline
 
-- The latest merged repository baseline before SP-029 is SP-028 merge `24acccc4a892344bed605b1e93808b1c73803d08` from PR #69. Hosted Supabase remains deployed through SP-024 only; SP-025, SP-026, SP-027, and SP-028 migrations are not applied by these repository tasks.
-- SP-000 through SP-013, SP-015 through SP-028, CI-001, and OPS-001 are merged before this task; SP-014 remains deferred.
+- The latest merged repository baseline before SP-030 is SP-029 merge `c8919074247b950005ac9835779b2f7afdd62094` from PR #71. Hosted Supabase remains deployed through SP-024 only; SP-025, SP-026, SP-027, and SP-028 migrations are not applied by these repository tasks.
+- SP-000 through SP-013, SP-015 through SP-029, CI-001, and OPS-001 are merged before this task; SP-014 remains deferred.
 - Issue #29 is closed as completed and PR #30 is merged; post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
 - No open Issue or PR existed immediately before SP-012 was authorized.
 - The dedicated Sherko Pharma Supabase project is active on the Free plan.
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-030 DDI product/safety contract
+
+- SP-030 is tracked by Issue #72 from the merged SP-029 baseline `c8919074247b950005ac9835779b2f7afdd62094`.
+- The future DDI surface is informational label-derived evidence over distinct products in the active Cart; quantity is not dose information and does not change pair identity.
+- Product identity is bridged through the existing conservative SP-025 ingredient normalization layer. Syrian/local brand names, fuzzy guesses, `needs_review`, and `unresolved` mappings are never silently promoted into external drug identities.
+- Provider severity is preserved as `major`, `moderate`, `minor`, `none`, or `unknown`. `none` is only an explicit source statement of no clinically significant interaction; `unknown` means neither available label mentions the other and is not proof of safety.
+- Downstream result presentation must retain evidence/source context, source effective date when available, Interaction Checker attribution/backlink, and the provider-supplied disclaimer. No result is converted into prescribing, treatment, substitution, stop/start, dosage, or patient-specific advice.
+- Provider/network failure, 429/rate limiting, malformed responses, unresolved ingredients, partial coverage, and stale results remain explicit and cannot be represented as no interaction.
+- External DDI checking is non-destructive and transient: it cannot mutate catalog/order/session/draft/alternative state and does not create medication-history or interaction-history persistence. Session restoration rechecks the current Cart online.
+- The third-party request carries only the ingredient queries necessary for the check. It must not carry account identity, patient identity, barcodes, prices, notes, Supabase credentials/tokens, or unrelated catalog data.
+- The provider currently documents no API key, 60 requests/minute/IP, 2–10 inputs per `/checks`, one-hour cacheability, and `Retry-After` on 429. These provider-controlled facts must be re-checked in downstream implementation/release tasks.
+- Interaction Checker's terms were re-checked on 2026-09-29 and are marked last updated September 2026. They describe the tool as informational, disclaim completeness/accuracy, require disclaimer/backlink with shown API output, and prohibit using the API to build or sell a clinical decision-support product or redistribute the dataset as a whole.
+- Therefore SP-030 makes no commercial/public-release permission claim. Before such a release, obtain compatible provider permission or replace the DDI source/license.
+- External references: https://interaction-checker.com/api, https://interaction-checker.com/api/v1/openapi.json, https://interaction-checker.com/terms.
+- Planned implementation remains split across Issues #73–#79 (SP-031–SP-037); those Issues are not authorized to start merely because they exist.
 
 ## SP-029 alternatives-UI contract
 

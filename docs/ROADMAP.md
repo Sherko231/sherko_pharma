@@ -1,9 +1,9 @@
 # Sherko Pharma — Implementation Roadmap
 
-Status: SP-000 through SP-013 and CI-001 are merged. The owner retired hosted CI in OPS-001 / Issue #42; CI-001 remains historical only. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 completed the initial-delivery roadmap; SP-016 through SP-028 are merged post-delivery refinements/normalization foundations. SP-029 / Issue #70 is the current owner-authorized alternatives-UI task.
+Status: SP-000 through SP-013 and CI-001 are merged. The owner retired hosted CI in OPS-001 / Issue #42; CI-001 remains historical only. The owner deferred SP-014 on 2026-09-26 for later re-authorization. SP-015 completed the initial-delivery roadmap; SP-016 through SP-029 are merged post-delivery refinements/normalization/alternatives work. SP-030 / Issue #72 is the current owner-authorized DDI contract task; SP-031 through SP-037 are planned downstream Issues and are not authorized to start by this roadmap alone.
 
 Repository: https://github.com/Sherko231/sherko_pharma
-Inspected baseline for SP-029: `main` at `24acccc4a892344bed605b1e93808b1c73803d08`.
+Inspected baseline for SP-030: `main` at `c8919074247b950005ac9835779b2f7afdd62094`.
 
 ## Starting point
 
@@ -15,7 +15,7 @@ Read `DEVELOPMENT_STATUS.md` for evidence and limitations. Refresh live state be
 
 ## Execution contract
 
-- Task IDs below are planning identifiers, not GitHub Issue numbers. SP-000 is tracked in [Issue #1](https://github.com/Sherko231/sherko_pharma/issues/1); SP-001 is tracked in [Issue #3](https://github.com/Sherko231/sherko_pharma/issues/3); later feature tasks do not yet have Issues.
+- Task IDs below are planning identifiers mapped to GitHub Issues where noted. A roadmap entry or downstream Issue is not authorization to begin it; use the owner's current explicit instruction and the active approved Issue.
 - Work on one owner-approved, bounded Issue at a time, with explicit acceptance criteria, a dedicated branch, and a PR.
 - Split a task into smaller Issues if its implementation cannot remain focused. Preserve the dependency order; a roadmap is not authorization to start every task.
 - `QUALITY.md` lists optional local verification only; hosted CI is retired and is not a merge requirement.
@@ -102,14 +102,29 @@ SP-016 is tracked by Issue #44, SP-017 by Issue #46, SP-018 by Issue #48, SP-019
 | SP-028 | Add alternatives engine | SP-027 | Owner-authorized bounded API returns exact alternatives separately from same-ingredients/different-strength and same-ingredients/different-form groups; excludes unresolved normalization from strict substitution results |
 | SP-029 | Add alternatives UI | SP-028 | Product/Cart UI exposes clearly separated alternative groups with brand/company/price/strength/form and order-add action without implying equivalence beyond the server classification |
 
-SP-025 is merged via Issue #62 / PR #63, SP-026 via Issue #64 / PR #65, SP-027 via Issue #66 / PR #67 and SP-028 via Issue #68 / PR #69. SP-029 is tracked by Issue #70 and is authorized by the owner's explicit 2026-09-28 “كمل” instruction. This UI task does not authorize production deployment of migrations 0009–0012 or broader medical synonym/therapeutic-equivalence curation.
+SP-025 is merged via Issue #62 / PR #63, SP-026 via Issue #64 / PR #65, SP-027 via Issue #66 / PR #67, SP-028 via Issue #68 / PR #69, and SP-029 via Issue #70 / PR #71 at merge `c8919074247b950005ac9835779b2f7afdd62094`. None of these repository tasks deploys migrations 0009–0012 to production or authorizes broader medical synonym/therapeutic-equivalence curation.
+
+## Phase 7 — Informational drug-interaction evidence
+
+| ID | Task | Depends on | Completion evidence |
+| --- | --- | --- | --- |
+| SP-030 | Define the Interaction Checker DDI product and safety contract | SP-029 | Product/architecture/UX contract defines trusted-ingredient identity, severity semantics, transient/non-destructive behavior, privacy boundary, attribution/disclaimer/source requirements, provider limits, and release/licensing constraint without implementation |
+| SP-031 | Expose trusted product ingredient inputs for DDI analysis | SP-030 | Bounded owner-authorized product-to-ingredient query exposes only trusted SP-025 identities/coverage state; private registry remains inaccessible; unresolved mappings are explicit |
+| SP-032 | Add a typed Interaction Checker REST client | SP-030 | Injectable typed API client handles documented result/evidence/source fields, `major|moderate|minor|none|unknown`, unresolved items, timeout/error/malformed/429 states, and provider attribution/disclaimer without secrets |
+| SP-033 | Build the Cart DDI analysis and batching engine | SP-031, SP-032 | Trusted ingredient queries aggregate back to product pairs; same-product-only pairs are excluded; >10 unique ingredients receive complete pair coverage; rate/coalescing/cache/stale-generation behavior is tested |
+| SP-034 | Wire automatic DDI analysis into the Cart and scanner lifecycle | SP-033 | Distinct product-set changes trigger non-blocking analysis; quantity-only changes do not; failures do not break scanning/order; stale responses cannot repaint removed/reset/signed-out state |
+| SP-035 | Visualize DDI severity directly in the Cart | SP-034 | Affected rows and Cart summary communicate severity with color plus accessible icon/text; `unknown`/partial/failure states never appear safe; order semantics remain unchanged |
+| SP-036 | Add interaction detail sheet with evidence, sources, and attribution | SP-035 | Reusable detail surface shows product pair, causal ingredient pairs, evidence/source/effective date/link, attribution and disclaimer without treatment recommendations |
+| SP-037 | Harden and accept the full Interaction Checker DDI integration | SP-030–SP-036 | End-to-end regression/real-device acceptance covers combinations, >10 ingredients, rapid scans, failure/rate-limit/stale/session cases and documents the current provider/release constraints |
+
+SP-030 is tracked by Issue #72 and was explicitly authorized by the owner on 2026-09-29. SP-031 through SP-037 are tracked by Issues #73 through #79 as planned dependency-ordered work; their existence does not authorize starting multiple Issues at once. Interaction Checker is an external provider: its API/terms must be re-checked during implementation and before release. The September 2026 terms prohibit using the service to build or sell a clinical decision-support product, so no commercial/public DDI release is authorized without compatible permission or a replacement source/license.
 
 ## Explicitly deferred
 
-SP-014 Windows external-reader integration is deferred from the current initial delivery but remains planned for later owner re-authorization. Inventory, completed-sale history, fractional-package selling, fractional currency amounts, exchange rates/conversion, full Arabic UI localization, user-facing backup/export, a separate administration application, licensing, offline catalog operation, and queued offline catalog writes remain outside the current initial-delivery plan.
+SP-014 Windows external-reader integration is deferred from the current initial delivery but remains planned for later owner re-authorization. Patient-specific DDI risk scoring, treatment recommendations, automatic dose changes, interaction-driven substitution, and persistent medication/interaction history are outside SP-030–SP-037. Inventory, completed-sale history, fractional-package selling, fractional currency amounts, exchange rates/conversion, full Arabic UI localization, user-facing backup/export, a separate administration application, licensing, offline catalog operation, and queued offline catalog writes remain outside the current initial-delivery plan.
 
 ## Current task and next handoff
 
 SP-000 merged via PR #2 at `5d1d9b94c1faa31bcc7667f44c4ee60bb6dc399b`. SP-001 merged via PR #4 at `05f2da264ba881648dbdf5eb560948a16ca150b7` with protected-main CI verified before and after merge.
 
-SP-007 merged via PR #18 at `efd87540435624dcd8af52495f6675a1ff2cdb1f`. SP-008 merged via PR #20 at `e5fc0e9860628190e1cf0e78bcc8b67a62cea8b4`. SP-009 merged via PR #22 at `41bcc69edae80a8e8337d6920231e504d81a9e1a`. SP-010 merged via PR #24 at `7f9d6282a16fb30e4c61e3baf7300550c3b6f0e5` with post-merge CI verified. SP-011 merged via PR #26 at `594ad8b3958f64fa274c2debdf542364e589f6aa`; post-merge CI run `36150363815` passed. SP-012 merged via PR #28 at `334d61444f56d193897e713a6bd2b44deff7d975`; post-merge CI run `36235010740` passed. SP-013 merged via PR #30 at `2f00898ff7cdeb5060c215c6997c62fe5791bd26`; post-merge CI run `36250531971` passed after the owner accepted the real Android camera behavior on 2026-09-26. The owner deferred SP-014 on 2026-09-26; it does not block SP-015. SP-015 was tracked by Issue #38 as the final initial-delivery task. On 2026-09-27 the owner explicitly authorized SP-016 / Issue #44 through SP-024 / Issue #60 to refine Android scanner responsiveness, continuous multi-scan workflow, compact layout, scan feedback, amount presentation, the unified Cart workflow and a research-backed professional Cart UX/UI redesign. No other post-SP-015 feature task is automatically authorized. See [development status](DEVELOPMENT_STATUS.md) and [delivery acceptance](DELIVERY_ACCEPTANCE.md) for evidence.
+SP-007 merged via PR #18 at `efd87540435624dcd8af52495f6675a1ff2cdb1f`. SP-008 merged via PR #20 at `e5fc0e9860628190e1cf0e78bcc8b67a62cea8b4`. SP-009 merged via PR #22 at `41bcc69edae80a8e8337d6920231e504d81a9e1a`. SP-010 merged via PR #24 at `7f9d6282a16fb30e4c61e3baf7300550c3b6f0e5` with post-merge CI verified. SP-011 merged via PR #26 at `594ad8b3958f64fa274c2debdf542364e589f6aa`; post-merge CI run `36150363815` passed. SP-012 merged via PR #28 at `334d61444f56d193897e713a6bd2b44deff7d975`; post-merge CI run `36235010740` passed. SP-013 merged via PR #30 at `2f00898ff7cdeb5060c215c6997c62fe5791bd26`; post-merge CI run `36250531971` passed after the owner accepted the real Android camera behavior on 2026-09-26. The owner deferred SP-014 on 2026-09-26; it does not block SP-015. SP-015 was tracked by Issue #38 as the final initial-delivery task. SP-016 through SP-029 are merged, with SP-029 merged through PR #71 at `c8919074247b950005ac9835779b2f7afdd62094`. The owner explicitly authorized SP-030 / Issue #72 on 2026-09-29; SP-031–SP-037 remain planned downstream Issues and are not automatically authorized. See [development status](DEVELOPMENT_STATUS.md) and [delivery acceptance](DELIVERY_ACCEPTANCE.md) for evidence.
