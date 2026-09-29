@@ -652,7 +652,7 @@ class _DdiRowBadges extends StatelessWidget {
               ? () {
                   final detail =
                       buildDdiInteractionDetailPresentation(
-                    analysis: currentAnalysis,
+                    analysis: currentAnalysis!,
                     orderLines: orderLines,
                     focusProductId: productId,
                   );
