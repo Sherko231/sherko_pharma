@@ -1,7 +1,7 @@
 # Sherko Pharma — Architecture
 
 Updated: 2026-09-29
-Status: Product boundaries are agreed; SP-034 is merged. SP-035 maps ready DDI results into Cart presentation state and renders lifecycle/severity/incomplete-coverage feedback without changing order or persistence semantics. Interaction evidence/source details remain SP-036. No production migration or external deployment is introduced. Windows external-reader integration remains deferred. See `DEVELOPMENT_STATUS.md`.
+Status: Product boundaries are agreed; SP-035 is merged. SP-036 adds the reusable DDI detail-presentation/sheet boundary, direct external source/provider links through a testable launcher, and visible provider disclaimer/attribution while preserving the informational-only contract. No production migration or external deployment is introduced. Windows external-reader integration remains deferred. See `DEVELOPMENT_STATUS.md`.
 
 ## Current decision
 
@@ -114,6 +114,20 @@ The provider contract was re-checked on 2026-09-29 against:
 - https://interaction-checker.com/api/v1/openapi.json
 - https://interaction-checker.com/terms
 
+## DDI evidence/detail presentation (SP-036)
+
+SP-036 opens details only from a severity badge backed by the current SP-035 ready analysis. The sheet receives an immutable presentation snapshot built from that analysis plus the current Cart display names; opening, scrolling, linking, or dismissing the sheet does not change Cart/order/DDI state and does not trigger another provider request.
+
+The detail mapper filters every current product-pair result involving the selected row product and orders those pairs by the existing severity rank. It preserves every SP-033 causal `DdiIngredientInteraction` rather than flattening combination-product causes. Each ingredient pair keeps its provider severity label, evidence entries, matched term/kind, source metadata, interaction URL and provider detail page.
+
+Evidence is rendered entry-by-entry with the provider section label and evidence text plus source name/type/effective date. Evidence-free `unknown` and `none` states remain explicit and do not synthesize explanation text. Product names come from the current Order lines; provider evidence is not used to rename local products.
+
+Provider notices from overlapping SP-033 batches are deduplicated by data dates + disclaimer + attribution metadata before rendering. The sheet keeps the provider-supplied disclaimer and attribution/backlink alongside the displayed output and may show label-export/generated dates. SP-036 does not write provider output to session/order persistence.
+
+External source, provider and interaction-detail links are restricted to `http`/`https`. `url_launcher` 6.3.2 is promoted from the existing lockfile's transitive dependency to a direct pinned dependency and opens links in the platform browser. Link opening is hidden behind `DdiExternalLinkLauncher` so tests never open the real browser; launch failure leaves the sheet open and surfaces non-destructive feedback.
+
+The provider API/terms were re-checked on 2026-09-29. The API still requires a link back wherever results are shown and keeping the disclaimer with displayed output. The current September 2026 terms still prohibit presenting or selling the output as a clinical decision-support product, so SP-036 does not authorize public/commercial DDI release; SP-037 must re-check the permission/source boundary before release.
+
 ## Cart DDI severity presentation (SP-035)
 
 SP-035 keeps provider/domain meaning separate from widget styling through a pure `DdiCartPresentation` mapper. The mapper counts product-pair severities once per pair, derives each product row's highest active severity, retains the number of product pairs affecting that row, and independently tracks incomplete coverage from local normalization gaps, provider-unresolved ingredients, or the absence of an explicit pair result.
@@ -171,7 +185,7 @@ No production migration or deployment occurs in SP-033. The hosted environment s
 | Local app session store | Save the active cart/order snapshot and active unsaved edit draft without copying the catalog; retain the legacy destination field only for v1 compatibility | SP-009 keeps product drafts account-scoped; SP-011 adds a separate versioned account-scoped snapshot in the same secure key-value boundary; SP-021 always restores the visible workspace to Cart |
 | Android camera adapter | Produce deliberate barcode scan events | Confirmed; package to verify |
 | Windows reader adapter | Produce scan events from the owner's external reader | Deferred future task; re-authorize after hardware/input mode selection |
-| External DDI provider | Return informational label-derived interaction evidence for trusted ingredient queries | SP-032 implements the typed HTTP client; SP-033 implements batching/aggregation; SP-034 wires Cart lifecycle; SP-035 renders severity/coverage; detail/evidence UI remains SP-036 |
+| External DDI provider | Return informational label-derived interaction evidence for trusted ingredient queries | SP-032 implements the typed HTTP client; SP-033 implements batching/aggregation; SP-034 wires Cart lifecycle; SP-035 renders severity/coverage; SP-036 renders evidence/source/attribution details |
 
 Package versions are pinned in `pubspec.yaml`/`pubspec.lock` after compatibility verification against Flutter 3.38.7 / Dart 3.10.7. SP-006 uses `supabase_flutter` 2.17.2 and `flutter_secure_storage` 11.2.0; Android minimum SDK is 23 because of the secure-storage requirement.
 
