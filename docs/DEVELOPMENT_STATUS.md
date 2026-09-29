@@ -1,19 +1,32 @@
 # Sherko Pharma — Development Status
 
 Updated: 2026-09-29
-Task record: SP-030 / Issue #72 defines the future Interaction Checker DDI product, safety, privacy, provider, and release contract from the merged SP-029 baseline. SP-029 / Issue #70 / PR #71 is merged. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
-Status: SP-030 is documentation/contract work only: no DDI API client, backend RPC, controller, UI, dependency, external deployment, or production migration is introduced. The contract requires trusted SP-025 ingredient identities, label-derived severity semantics, explicit unknown/unresolved/failure states, transient non-destructive results, source/disclaimer/attribution, a narrow third-party disclosure boundary, and a commercial/public-release constraint under the provider's September 2026 terms. SP-014 remains deferred.
+Task record: SP-031 / Issue #73 exposes trusted SP-025 ingredient identities through one bounded owner-authorized DDI input RPC from the merged SP-030 baseline. SP-030 / Issue #72 / PR #80 is merged. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
+Status: SP-031 adds migration 0013 plus focused backend regression coverage. The RPC accepts explicit product IDs only, hard-limits the request to 50 IDs, deduplicates repeated IDs, returns trusted ingredient rows only for complete `auto_verified`/`high_confidence` normalization, and exposes explicit review/unresolved/missing coverage without leaking untrusted ingredient identities. No Interaction Checker HTTP call, Flutter DDI client/controller/UI, production migration, or external deployment is introduced. SP-014 remains deferred.
 
 ## Verified baseline
 
-- The latest merged repository baseline before SP-030 is SP-029 merge `c8919074247b950005ac9835779b2f7afdd62094` from PR #71. Hosted Supabase remains deployed through SP-024 only; SP-025, SP-026, SP-027, and SP-028 migrations are not applied by these repository tasks.
-- SP-000 through SP-013, SP-015 through SP-029, CI-001, and OPS-001 are merged before this task; SP-014 remains deferred.
+- The latest merged repository baseline before SP-031 is SP-030 merge `50eda1567418b100f0561d604b40e85e2fa95d0a` from PR #80. Hosted Supabase remains deployed through SP-024 only; SP-025 through SP-028 and the new SP-031 migration are not applied by these repository tasks.
+- SP-000 through SP-013, SP-015 through SP-030, CI-001, and OPS-001 are merged before this task; SP-014 remains deferred.
 - Issue #29 is closed as completed and PR #30 is merged; post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
 - No open Issue or PR existed immediately before SP-012 was authorized.
 - The dedicated Sherko Pharma Supabase project is active on the Free plan.
 - Hosted migrations `sp003_product_schema`, `sp004_owner_catalog_api`, and `sp008_idempotent_catalog_create` are deployed.
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
+
+## SP-031 trusted DDI ingredient-input contract
+
+- SP-031 is tracked by Issue #73 from SP-030 merge `50eda1567418b100f0561d604b40e85e2fa95d0a`.
+- Migration `0013_ddi_ingredient_inputs_api.sql` adds `public.catalog_ddi_ingredients(uuid[])`; this task does not deploy it to the hosted environment.
+- The RPC requires the existing owner authorization check. Anonymous callers have no EXECUTE privilege, authenticated non-owners are denied, and the owner still has no normal direct-table access to the private ingredient registry.
+- Requests must contain explicit product UUIDs, reject null arrays/IDs, return no rows for an empty array, and are hard-limited to 50 input positions. Duplicate product IDs are collapsed to their first request position.
+- Coverage is explicit: `trusted`, `needs_review`, `unresolved`, or `missing`. A trusted result requires an SP-025 `auto_verified` or `high_confidence` summary, non-null set key, full component resolution, and a complete product-ingredient link count.
+- Trusted products return every component in deterministic component order with stable ingredient ID, canonical display name, and canonical normalized ingredient name.
+- Review/unresolved/missing or structurally incomplete products return no ingredient identity fields, preventing downstream guessing from raw composition or brand text.
+- The RPC does not expose raw composition components, alias spellings, unrestricted registry enumeration, prices, barcodes, revisions, notes, patient/account data, or external DDI results.
+- Focused test `012_ddi_ingredient_inputs_api_test.sql` covers owner/non-owner privileges, private-registry isolation, auto-verified and high-confidence trusted inputs, multi-ingredient ordering, review/unresolved/missing states, duplicate IDs, empty/null inputs, null IDs, and the hard request cap.
+- Local SQL execution was not available in the agent environment: there was no Supabase CLI, PostgreSQL client, or Docker, and the container could not resolve GitHub. The SQL regression was therefore added and separately reviewed but not executed in this session.
 
 ## SP-030 DDI product/safety contract
 
