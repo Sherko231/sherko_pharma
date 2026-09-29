@@ -1,6 +1,6 @@
 # Sherko Pharma — Interaction Flows
 
-Status: Core interaction and session rules confirmed. SP-029 alternatives UI is merged. SP-030 defines the informational DDI interaction contract, SP-034 wires automatic non-blocking analysis to the authenticated/restored Cart lifecycle, and SP-035 renders Cart-level/row severity and incomplete-coverage state. Interaction evidence/source details remain planned for SP-036. Initial UI labels are in English; Arabic explanations in the planning conversation describe their meaning.
+Status: Core interaction and session rules confirmed. SP-029 alternatives UI is merged. SP-030 defines the informational DDI interaction contract, SP-034 wires automatic non-blocking analysis to the authenticated/restored Cart lifecycle, SP-035 renders Cart-level/row severity and incomplete coverage, and SP-036 adds the evidence/source/attribution detail sheet. End-to-end acceptance/release hardening remains SP-037. Initial UI labels are in English; Arabic explanations in the planning conversation describe their meaning.
 
 Use `PRODUCT.md` for scope, `DATA_MODEL.md` for data rules, and `ARCHITECTURE.md` for persistence and connectivity boundaries.
 
@@ -32,16 +32,16 @@ Use `PRODUCT.md` for scope, `DATA_MODEL.md` for data rules, and `ARCHITECTURE.md
 
 ## Review drug-interaction evidence in Cart
 
-SP-034 implements the lifecycle/analysis trigger rules. SP-035 now renders lifecycle status, pair-severity summary, highest row severity and incomplete coverage inside the Cart; SP-036 will add the reusable evidence/source detail surface without creating a separate primary destination.
+SP-034 implements the lifecycle/analysis trigger rules. SP-035 renders lifecycle status, pair-severity summary, highest row severity and incomplete coverage inside the Cart. SP-036 makes the current severity badge open the reusable evidence/source detail sheet without creating a separate primary destination.
 
 - Adding a distinct product by scan or search updates the Cart immediately under the existing order rules; external DDI checking is asynchronous and must not delay a successful add/increment.
 - The DDI subject is the distinct product set in the Cart. Quantity-only changes do not trigger a new pair identity.
 - Products are mapped to trusted normalized ingredients first. An unresolved/review-only product remains visibly unchecked/partially covered; the UI must not guess from a Syrian brand name.
-- Affected product rows use severity highlighting plus an icon/text badge; color is never the only signal. A row with several product-pair interactions uses its highest current severity as the row-level visual state and shows the pair count. Detail access remains SP-036.
+- Affected product rows use severity highlighting plus an icon/text badge; color is never the only signal. A row with several product-pair interactions uses its highest current severity as the row-level visual state and shows the pair count. Tapping that current severity badge opens all product-pair details involving the row.
 - Severity wording follows provider label semantics. `none` is an explicit source statement, not a universal safety claim; `unknown` is missing label evidence and must not look equivalent to `none` or "safe".
-- Tapping an interaction indicator opens a reusable detail sheet/modal over Cart. It identifies the affected product pair, the ingredient-level pair(s) responsible for the aggregate result, severity, evidence section/text, source name/type, effective date when available, and the source link.
+- Tapping a current severity indicator opens a reusable modal bottom sheet over Cart. It identifies every affected product pair involving that row, the ingredient-level pair(s) responsible for each aggregate result, severity, evidence section/text, matched term/kind, source name/type, effective date when available, and HTTP(S) source/provider links. Opening the sheet does not issue a new DDI request.
 - Combination-product evidence stays grouped by ingredient pair/source so the UI does not flatten multiple causes into a stronger or different claim.
-- Keep Interaction Checker attribution/backlink and the provider-supplied disclaimer with displayed results. The detail surface must not convert evidence into treatment, substitution, stop/start, dosage, or patient-specific recommendations.
+- Keep Interaction Checker attribution/backlink and the provider-supplied disclaimer with displayed results. Identical notices from overlapping batches are shown once. Link-launch failure leaves the sheet open and the Cart unchanged. The detail surface does not convert evidence into treatment, substitution, stop/start, dosage, or patient-specific recommendations.
 - Loading replaces any prior row severity with `Checking interactions…`. Partial/unresolved coverage remains separately visible as incomplete/unchecked. Rate-limit, timeout/provider failure, malformed response, and unavailable runtime state are explicit and non-destructive with Retry where supported. `none` is represented neutrally as `No interaction found`, not as a general safety claim.
 - DDI failure is non-destructive: scanner/search, quantities, captured prices/currencies, totals, alternatives, New Order, and product editing continue under their existing rules.
 - Removing a product, confirming New Order, replacing/restoring a session, or signing out invalidates obsolete result generations. A late response must not reintroduce a warning for a product set that is no longer current.
