@@ -1125,7 +1125,8 @@ class _OrderLineRow extends ConsumerWidget {
               },
             ),
           ],
-        ],
+          ],
+        ),
       ),
     );
   }
