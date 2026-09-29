@@ -25,7 +25,7 @@ Status: SP-033 adds a typed ingredient RPC adapter plus deterministic ingredient
 - Overlapping batches can repeat same-group pairs. Ingredient interactions and evidence are deduplicated before mapping to product pairs.
 - Provider-resolved items are mapped back through the exact submitted query. Every query in each batch must appear once as resolved or provider-unresolved; unexpected/omitted/contradictory resolution fails explicitly instead of synthesizing `none`.
 - Provider-unresolved ingredients retain suggestions without auto-selection and remain separate from SP-031 normalization review/unresolved/missing states.
-- Same-product-only ingredient pairs do not create product-vs-product output. Shared ingredients map interactions to all distinct owning product combinations.
+- If fewer than two distinct trusted products are represented by the ingredient graph, no provider request is made. Same-product-only ingredient pairs do not create product-vs-product output. Shared ingredients map interactions to all distinct owning product combinations.
 - Product-pair severity is `major > moderate > minor > unknown > none`; every unique causal ingredient interaction and its evidence/source/link data remains available under the aggregate.
 - Provider data dates, disclaimer and attribution are retained as deduplicated notices for downstream UI.
 - Successful batch results use a bounded in-memory cache only: one-hour TTL and 128 entries by default. Identical in-flight batches are coalesced. No DDI result/history is persisted.
