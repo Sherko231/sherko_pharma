@@ -82,7 +82,10 @@ class DdiAnalysisEngine {
     final ingredients = ingredientNodes.values.toList(growable: false)
       ..sort((left, right) => left.identity.id.compareTo(right.identity.id));
 
-    if (ingredients.length < 2) {
+    final representedProducts = <String>{
+      for (final node in ingredients) ...node.productIds,
+    };
+    if (ingredients.length < 2 || representedProducts.length < 2) {
       return DdiAnalysisResult(
         products: List.unmodifiable(products),
         providerUnresolved: const [],
