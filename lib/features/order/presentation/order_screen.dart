@@ -476,7 +476,7 @@ class _DdiStatusMessage extends StatelessWidget {
   }
 }
 
-class _DdiReadySummary extends StatelessWidget {
+class _DdiReadySummary extends ConsumerWidget {
   const _DdiReadySummary({
     required this.presentation,
   });
@@ -484,7 +484,7 @@ class _DdiReadySummary extends StatelessWidget {
   final DdiCartPresentation? presentation;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final resolved = presentation;
     if (resolved == null) {
       return _DdiStatusMessage(
@@ -520,55 +520,146 @@ class _DdiReadySummary extends StatelessWidget {
         _DdiSummaryToken(
           key: const Key('ddi-summary-incomplete'),
           icon: Icons.warning_amber_rounded,
-          label:
-              '${resolved.incompleteProductCount} incomplete',
+          label: '${resolved.incompleteProductCount} incomplete',
           foreground: Theme.of(context).colorScheme.onSurfaceVariant,
           background: Theme.of(context).colorScheme.surfaceContainerHigh,
         ),
       );
     }
 
-    if (tokens.isEmpty) {
-      return _DdiStatusMessage(
-        key: const Key('ddi-status-ready-no-pairs'),
-        icon: Icon(
-          Icons.info_outline_rounded,
-          size: 17,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
-        message: 'No interaction pair results were returned.',
-      );
-    }
-
-    return Row(
-      key: const Key('ddi-status-ready'),
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Icon(
-          Icons.medication_outlined,
-          size: 17,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
-        const SizedBox(width: 6),
-        Text(
-          'DDI',
-          style: Theme.of(context).textTheme.labelMedium,
-        ),
-        const SizedBox(width: 6),
-        Expanded(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                for (var index = 0; index < tokens.length; index++) ...[
-                  if (index > 0) const SizedBox(width: 5),
-                  tokens[index],
-                ],
-              ],
+    final summary = tokens.isEmpty
+        ? _DdiStatusMessage(
+            key: const Key('ddi-status-ready-no-pairs'),
+            icon: Icon(
+              Icons.info_outline_rounded,
+              size: 17,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
+            message: 'No interaction pair results were returned.',
+          )
+        : Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.medication_outlined,
+                size: 17,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'DDI',
+                style: Theme.of(context).textTheme.labelMedium,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      for (var index = 0;
+                          index < tokens.length;
+                          index++) ...[
+                        if (index > 0) const SizedBox(width: 5),
+                        tokens[index],
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+
+    return Column(
+      key: const Key('ddi-status-ready'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        summary,
+        for (var index = 0;
+            index < resolved.providerNotices.length;
+            index++) ...[
+          const SizedBox(height: 4),
+          _DdiCartProviderNotice(
+            key: Key('ddi-cart-provider-notice-$index'),
+            notice: resolved.providerNotices[index],
           ),
-        ),
+        ],
       ],
+    );
+  }
+}
+
+class _DdiCartProviderNotice extends ConsumerWidget {
+  const _DdiCartProviderNotice({
+    super.key,
+    required this.notice,
+  });
+
+  final DdiProviderNotice notice;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final attribution = notice.attribution;
+    final attributionText =
+        attribution.text?.trim().isNotEmpty == true
+            ? attribution.text!.trim()
+            : 'Interaction Checker';
+    final providerUrl = attribution.url;
+    final canOpenProvider =
+        providerUrl != null && isDdiExternalHttpUri(providerUrl);
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(7, 4, 5, 4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              Icons.info_outline_rounded,
+              size: 15,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 5),
+            Expanded(
+              child: Text(
+                notice.disclaimer,
+                key: const Key('ddi-cart-provider-disclaimer'),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color:
+                          Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ),
+            const SizedBox(width: 5),
+            if (canOpenProvider)
+              TextButton(
+                key: const Key('ddi-cart-provider-link'),
+                onPressed: () => openDdiExternalLink(
+                  context,
+                  ref,
+                  providerUrl,
+                ),
+                style: TextButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  minimumSize: const Size(0, 30),
+                ),
+                child: Text(attributionText),
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.only(top: 5),
+                child: Text(
+                  attributionText,
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }
