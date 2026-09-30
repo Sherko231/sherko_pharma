@@ -1,6 +1,6 @@
 # Sherko Pharma — Product Requirements
 
-Status: Initial product scope agreed with the owner. SP-030 through SP-037 implement the informational DDI contract from trusted ingredient inputs through transport, batching, lifecycle, Cart visualization, evidence/source details, and integrity/privacy/release hardening. Issue #98 adds reviewed Interaction Checker provider-identity mapping and production deployment through migration 0014. Owner device acceptance and compatible public/commercial provider permission remain separate gates.
+Status: Initial product scope agreed with the owner. SP-030 through SP-037 implement the informational DDI contract from trusted ingredient inputs through transport, batching, lifecycle, Cart visualization, evidence/source details, and integrity/privacy/release hardening. Issue #98 adds reviewed Interaction Checker provider-identity mapping and production deployment through migration 0016. Owner device acceptance and compatible public/commercial provider permission remain separate gates.
 Repository: `sherko_pharma`
 Updated: 2026-09-29
 
