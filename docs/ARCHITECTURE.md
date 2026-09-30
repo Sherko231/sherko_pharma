@@ -17,6 +17,14 @@ SP-025 adds a private derived normalization layer beside the authoritative `prod
 
 This boundary is deliberately conservative. Automatic parsing recognizes only explicit `+` composition separation and deterministic lexical normalization. Ambiguous syntax and semantic synonym candidates remain reviewable/unresolved. Strength pairing, route/release equivalence, direct-alternative classification, and alternatives API/UI are implemented as separate downstream layers so medication substitution is never inferred from composition text alone.
 
+## Scientific canonicalization boundary
+
+SP-038 establishes that SP-025 ingredient identities are lexical identities, not scientific canonical identities. Production profiling found 2,427 observed raw component strings collapsing to 2,358 SP-025 identities, with scientific-cleanup candidates spanning spelling, abbreviations, embedded strength/presentation text, salt/base relationships, grouped syntax, botanicals/supplements, and ambiguous short tokens.
+
+A separate scientific identity layer must therefore sit above SP-025. It preserves raw composition, existing SP-025 IDs/aliases/component order, and provider-specific mappings while adding reviewed scientific identity/provenance. Fuzzy similarity may create review candidates but cannot approve synonymy. Salt/ester/hydrate and parent/base relationships are explicit, not silent collapses. ATC is classification metadata rather than identity evidence.
+
+The full production audit, status model, reference hierarchy, and downstream SP-039–SP-044 boundaries are defined in [COMPOSITION_CANONICALIZATION.md](COMPOSITION_CANONICALIZATION.md). SP-038 itself is read-only and does not authorize a production backfill.
+
 ## Strength normalization boundary
 
 SP-026 extends the SP-025 derived pharmaceutical model without changing the authoritative `products.strength` text. It parses supported numeric/unit expressions into exact canonical measures, links them to trusted ingredient components only when component counts and syntax align, and creates an order-independent ingredient-strength set key for later equivalence work.
