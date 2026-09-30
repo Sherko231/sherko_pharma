@@ -347,3 +347,88 @@ select
   count(*) filter (where upper(raw_component)='PP') as pp_rows,
   count(*) filter (where upper(raw_component)='MG') as mg_rows
 from app_private.product_ingredients;
+
+
+-- 9. Show why SP-025 lexical auto-verification is not scientific verification.
+with orthographic_pairs as (
+  select a.id as a_id,b.id as b_id
+  from app_private.catalog_ingredients a
+  join app_private.catalog_ingredients b
+    on b.id>a.id
+   and left(a.normalized_name,3)=left(b.normalized_name,3)
+   and abs(length(a.normalized_name)-length(b.normalized_name))<=2
+   and length(a.normalized_name)>=5
+   and length(b.normalized_name)>=5
+  where similarity(a.normalized_name,b.normalized_name)>=0.85
+),
+orthographic_ids as (
+  select a_id as id from orthographic_pairs
+  union
+  select b_id as id from orthographic_pairs
+),
+f as (
+  select
+    pi.product_id,
+    n.status,
+    (pi.raw_component ~ '[[:lower:]][[:upper:]]') as camel_case,
+    (
+      pi.raw_component ~* (
+        '(^|[^[:alnum:]])(' ||
+        'vit[.]?[[:space:]]*[a-z0-9]+|vitamin[[:space:]]+[a-z0-9]+|' ||
+        'nh4cl|nacl|kcl|hcl|hbr' ||
+        ')([^[:alnum:]]|$)'
+      )
+    ) as abbrev_formula,
+    (pi.ingredient_id in (select id from orthographic_ids)) as orthographic_candidate,
+    (
+      pi.raw_component ~* (
+        '(^|[^[:alnum:]])(' ||
+        'extract|root|leaf|leaves|seed|oil|herb|flower|bark|fruit|' ||
+        'ginseng|ginkgo|echinacea|valerian|senna|aloe|garlic|ginger|' ||
+        'turmeric|curcumin|silymarin|thistle|palmetto|cranberry|' ||
+        'peppermint|chamomile|vitamin|multivitamin|mineral|omega[- ]?3|' ||
+        'fish[[:space:]]+oil|coenzyme|probiotic|lactobacillus|' ||
+        'bifidobacterium|collagen|glucosamine|chondroitin' ||
+        ')([^[:alnum:]]|$)'
+      )
+      or pi.raw_component ~* '(^|[^[:alnum:]])vit[.]?[[:space:]]*[a-z0-9]+([^[:alnum:]]|$)'
+    ) as supplement_botanical,
+    (pi.normalized_component ~ '^(k|p|pp|mg)$') as ambiguous_short,
+    (
+      pi.raw_component ~* (
+        '(^|[^[:alnum:]])(' ||
+        'hcl|hbr|hydrochloride|hydrobromide|sodium|potassium|calcium|' ||
+        'acetate|succinate|tartrate|citrate|maleate|fumarate|mesylate|besylate|' ||
+        'phosphate|sulfate|sulphate|nitrate|oxalate|lactate|gluconate|' ||
+        'pamoate|palmitate|propionate|valerate|hemifumarate|tosylate' ||
+        ')([^[:alnum:]]|$)'
+      )
+    ) as salt_ester
+  from app_private.product_ingredients pi
+  join app_private.product_composition_normalization n on n.product_id=pi.product_id
+),
+per_product as (
+  select
+    product_id,
+    status,
+    bool_or(camel_case) as camel_case,
+    bool_or(abbrev_formula) as abbrev_formula,
+    bool_or(orthographic_candidate) as orthographic_candidate,
+    bool_or(supplement_botanical) as supplement_botanical,
+    bool_or(ambiguous_short) as ambiguous_short,
+    bool_or(salt_ester) as salt_ester
+  from f
+  group by product_id,status
+)
+select
+  count(*) filter (where status='auto_verified' and camel_case) as auto_verified_with_camelcase,
+  count(*) filter (where status='auto_verified' and abbrev_formula) as auto_verified_with_abbrev_formula,
+  count(*) filter (where status='auto_verified' and orthographic_candidate) as auto_verified_with_orthographic_candidate,
+  count(*) filter (where status='auto_verified' and supplement_botanical) as auto_verified_with_supplement_botanical,
+  count(*) filter (where status='auto_verified' and ambiguous_short) as auto_verified_with_ambiguous_short,
+  count(*) filter (where status='auto_verified' and salt_ester) as auto_verified_with_salt_ester,
+  count(*) filter (
+    where status='auto_verified'
+      and (camel_case or abbrev_formula or orthographic_candidate or supplement_botanical or ambiguous_short)
+  ) as auto_verified_with_any_scientific_attention_flag
+from per_product;
