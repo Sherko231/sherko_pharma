@@ -1,7 +1,7 @@
 # Sherko Pharma — Architecture
 
 Updated: 2026-09-30
-Status: SP-030–SP-037 are merged. Issue #98 adds and deploys a private Interaction Checker provider-mapping layer, provider-ID deduplication, explicit ambiguous/unmapped coverage, and product-component overrides for context-dependent source tokens. Production DDI schema is deployed through migration 0014. Windows external-reader integration remains deferred. See `DEVELOPMENT_STATUS.md`.
+Status: SP-030–SP-037 are merged. Issue #98 adds and deploys a private Interaction Checker provider-mapping layer, provider-ID deduplication, explicit ambiguous/unmapped coverage, and product-component overrides for context-dependent source tokens. Production DDI schema is deployed through migration 0016. Windows external-reader integration remains deferred. See `DEVELOPMENT_STATUS.md`.
 
 ## Current decision
 
@@ -124,7 +124,7 @@ SP-037 also keeps the provider's legal/source notice adjacent to Cart-level read
 
 The synthetic acceptance regression crosses the real client application layers without live services: barcode/order input, a fake trusted ingredient repository, the real SP-033 engine, a fake provider, SP-034 lifecycle, SP-035 Cart visualization, and SP-036 detail presentation. It verifies that provider queries contain only trusted ingredient-derived names (canonical names or an explicit reviewed provider alias), same-product-only ingredient interactions do not become product-pair warnings, combination-product causal pairs remain separate, attribution/disclaimer stay visible, and quantity-only changes do not cause another provider request.
 
-SP-037 itself did not authorize or perform production activation. Subsequent owner-authorized work deployed the DDI backend through migration 0014 and performed bounded live provider verification for Issue #98. Owner Android/Windows acceptance remains external. Current September 2026 provider terms still require attribution/disclaimer and do not authorize building/selling the output as a clinical decision-support product; a compatible permission/license/source remains a separate public/commercial release gate.
+SP-037 itself did not authorize or perform production activation. Subsequent owner-authorized work deployed the DDI backend through migration 0016 and performed bounded live provider verification for Issue #98. Owner Android/Windows acceptance remains external. Current September 2026 provider terms still require attribution/disclaimer and do not authorize building/selling the output as a clinical decision-support product; a compatible permission/license/source remains a separate public/commercial release gate.
 
 ## DDI evidence/detail presentation (SP-036)
 
@@ -172,7 +172,7 @@ Provider reconciliation consumes an admin-supplied `/api/v1/substances` snapshot
 
 `catalog_ddi_ingredients` exposes only the effective provider mapping state for trusted components, preferring a reviewed product-component override over the global ingredient mapping. The Flutter repository keeps this typed. The analysis engine sends stable provider substance IDs when mapped, skips ambiguous/unmapped components into explicit provider-mapping gaps, and continues checking the mapped subset. Distinct internal salts/forms that resolve to the same provider substance are coalesced into one provider query while product-specific internal ingredient identities are retained for detail presentation.
 
-Production reconciliation on 2026-09-30 used 637 provider substances and classified all 2,358 internal ingredient identities: 467 mapped, 3 ambiguous and 1,888 unmapped, plus 6 K component overrides. Among 17,029 locally trusted products, 10,834 (63.62%) are fully provider-mapped and 12,769 (74.98%) have at least one mapped component.
+Production reconciliation on 2026-09-30 used 637 provider substances and, after reviewed exclusions, classified all 2,358 internal ingredient identities as 465 mapped, 3 ambiguous and 1,890 unmapped, plus 6 K component overrides. Among 17,029 locally trusted products, 10,834 (63.62%) are fully provider-mapped and 12,764 (74.95%) have at least one mapped component. Migrations 0015–0016 add reviewed exclusion handling so narrower internal identities such as glucosamine cannot be remapped to the broader provider entity `Glucosamine and chondroitin` during future reconciliations.
 
 The provider documentation still advertises 60 requests/minute/IP, but the live provider returned HTTP 429 stating an effective 10 requests/minute/IP during production verification. The engine therefore uses the observed stricter 10/minute local default while preserving Retry-After handling. This can be revisited only after a fresh provider-contract check.
 
