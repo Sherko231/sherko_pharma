@@ -16,6 +16,18 @@ Status: SP-030–SP-037, live regression fixes through Issue #96, and Issue #98 
 - The approved corrected source catalog was imported and verified at exactly 23,750 imported rows, 23,750 distinct source IDs, and zero remaining manual rows.
 - Import anomaly counts remain consistent with the approved source: 423 zero-price rows, 8,260 blank primary barcodes, and 22,495 blank secondary barcodes.
 
+## SP-038 scientific composition audit and canonicalization contract
+
+- Issue #100 runs from branch-start `bb1f9411408658a095f0c1dc2dab98dfc3d20760` on `sp038/composition-quality-audit`.
+- Production access for this task is read-only. No migration, DDL, DML, provider call, source-field rewrite, or production canonicalization backfill is part of SP-038.
+- The current catalog has 23,750 products; 17,840 have nonblank composition. SP-025 derives 25,840 component rows, 2,427 observed raw component strings, and 2,358 lexical ingredient identities.
+- SP-025 status is 17,029 `auto_verified`, 0 `high_confidence`, 799 `needs_review`, and 5,922 `unresolved`. The 5,910 blank-composition products account for nearly all unresolved rows; all 12 nonblank unresolved products contain an empty `+` segment.
+- The audit sizes deterministic scientific-cleanup/review classes without accepting mappings: 64 multi-spelling lexical alias keys; 26 orthographic candidate pairs involving 49 identities; 332 camelCase strings; 631 embedded-strength strings; 179 denominator/presentation strings; 219 salt/ester-marker strings; 212 abbreviation/formula strings; 288 supplement/botanical strings; four ambiguous short normalized tokens; nine unbalanced-grouping strings; and five grouped-`+` products. Categories overlap.
+- 526 products contain embedded strength in composition. Only 88 also have a separate nonblank `products.strength`; 438 do not. SP-042 must derive metadata without silently replacing the source strength field.
+- SP-038 defines a separate reviewed scientific identity layer above SP-025, with WHO INN as the preferred name authority when applicable and GSRS/UNII, RxNorm, PubChem, and ATC used in bounded supporting roles.
+- Full evidence and rules are in [COMPOSITION_CANONICALIZATION.md](COMPOSITION_CANONICALIZATION.md); reproducible aggregate-only queries are in `backend/audits/sp038_composition_quality_audit.sql`.
+- SP-039–SP-043 remain non-backfill tasks. SP-044 is the first task allowed to mutate production derived canonicalization state and requires fresh explicit owner authorization immediately before that write.
+
 ## Issue #98 comprehensive Interaction Checker provider mapping
 
 - Owner production authorization was explicit on 2026-09-30.

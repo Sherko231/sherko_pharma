@@ -36,6 +36,7 @@ Authentication, catalog search/detail, product create/edit, persistent product d
 | [Architecture](docs/ARCHITECTURE.md) | Technical boundaries and decisions |
 | [Local verification](docs/QUALITY.md) | Optional local checks, owner testing, and production-sensitive safeguards |
 | [Data rules](docs/DATA_MODEL.md) | Fields, validation, barcodes, prices, and currencies |
+| [Scientific composition canonicalization](docs/COMPOSITION_CANONICALIZATION.md) | SP-038 production audit baseline, scientific identity contract, reference hierarchy, and downstream curation boundaries |
 | [Source mapping](docs/SOURCE_MAPPING.md) | Corrected CSV fingerprint, complete 25-column mapping, and anomaly policy |
 | [Controlled import](docs/IMPORT.md) | Dry-run, fingerprint enforcement, idempotent import, and deployment safety |
 | [Auth acceptance](docs/AUTH_ACCEPTANCE.md) | Secret-safe real Windows/Android sign-in and session-restoration checklist |
