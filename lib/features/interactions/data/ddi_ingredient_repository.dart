@@ -141,6 +141,45 @@ class SupabaseDdiIngredientRepository implements DdiIngredientRepository {
       }
 
       if (coverageStatus == DdiIngredientCoverageStatus.trusted) {
+        final providerStatusValue = _optionalString(
+          row,
+          'provider_mapping_status',
+        );
+        final providerStatus = providerStatusValue == null
+            ? DdiProviderMappingStatus.mapped
+            : _parseProviderMappingStatus(providerStatusValue);
+        final providerSubstanceId = _optionalString(
+          row,
+          'provider_substance_id',
+        );
+        final providerSubstanceName = _optionalString(
+          row,
+          'provider_substance_name',
+        );
+        final providerSubstanceKind = _optionalString(
+          row,
+          'provider_substance_kind',
+        );
+        final providerMappingMethod = _optionalString(
+          row,
+          'provider_mapping_method',
+        );
+
+        if (providerStatusValue != null) {
+          if (providerStatus == DdiProviderMappingStatus.mapped) {
+            if (providerSubstanceId == null ||
+                providerSubstanceName == null ||
+                providerSubstanceKind == null ||
+                providerMappingMethod == null) {
+              throw const DdiIngredientResponseException();
+            }
+          } else if (providerSubstanceId != null ||
+              providerSubstanceName != null ||
+              providerSubstanceKind != null) {
+            throw const DdiIngredientResponseException();
+          }
+        }
+
         orderedIngredients.add(
           MapEntry(
             _requiredInt(row, 'component_index'),
@@ -151,13 +190,23 @@ class SupabaseDdiIngredientRepository implements DdiIngredientRepository {
                 row,
                 'normalized_ingredient_name',
               ),
+              providerMappingStatus: providerStatus,
+              providerSubstanceId: providerSubstanceId,
+              providerSubstanceName: providerSubstanceName,
+              providerSubstanceKind: providerSubstanceKind,
+              providerMappingMethod: providerMappingMethod,
             ),
           ),
         );
       } else if (row['ingredient_id'] != null ||
           row['ingredient_name'] != null ||
           row['normalized_ingredient_name'] != null ||
-          row['component_index'] != null) {
+          row['component_index'] != null ||
+          row['provider_mapping_status'] != null ||
+          row['provider_substance_id'] != null ||
+          row['provider_substance_name'] != null ||
+          row['provider_substance_kind'] != null ||
+          row['provider_mapping_method'] != null) {
         throw const DdiIngredientResponseException();
       }
     }
@@ -277,6 +326,17 @@ void _validateCoverage({
       }
       break;
   }
+}
+
+DdiProviderMappingStatus _parseProviderMappingStatus(
+  String value,
+) {
+  return switch (value) {
+    'mapped' => DdiProviderMappingStatus.mapped,
+    'ambiguous' => DdiProviderMappingStatus.ambiguous,
+    'unmapped' => DdiProviderMappingStatus.unmapped,
+    _ => throw const DdiIngredientResponseException(),
+  };
 }
 
 DdiIngredientCoverageStatus _parseCoverageStatus(String value) {

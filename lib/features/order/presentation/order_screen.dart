@@ -954,6 +954,9 @@ String? _ddiCoverageLabel(DdiProductRowPresentation presentation) {
   if (!presentation.localCoverageComplete) {
     return 'Unchecked';
   }
+  if (presentation.providerMappingIncomplete) {
+    return 'Provider mapping incomplete';
+  }
   if (presentation.providerUnresolved) {
     return 'Provider unresolved';
   }

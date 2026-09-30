@@ -166,6 +166,49 @@ void main() {
     expect(presentation.incompleteProductCount, 1);
   });
 
+  test('provider mapping gaps keep affected rows incomplete', () {
+    final presentation = buildDdiCartPresentation(
+      _analysis(
+        products: [
+          _product('a'),
+          _product('b'),
+        ],
+        pairs: const [
+          DdiProductPairInteraction(
+            productAId: 'a',
+            productBId: 'b',
+            severity: InteractionSeverity.none,
+            ingredientInteractions: [],
+          ),
+        ],
+        providerMappingGaps: const [
+          DdiProviderMappingGap(
+            ingredient: DdiIngredientIdentity(
+              id: 99,
+              name: 'Vitamin C',
+              normalizedName: 'vitamin c',
+              providerMappingStatus:
+                  DdiProviderMappingStatus.unmapped,
+            ),
+            status: DdiProviderMappingStatus.unmapped,
+            productIds: ['a'],
+          ),
+        ],
+      ),
+    );
+
+    expect(
+      presentation.rows['a']?.providerMappingIncomplete,
+      isTrue,
+    );
+    expect(presentation.rows['a']?.incompleteCoverage, isTrue);
+    expect(
+      presentation.rows['b']?.providerMappingIncomplete,
+      isFalse,
+    );
+    expect(presentation.incompleteProductCount, 1);
+  });
+
   test('provider notices are deduplicated for adjacent Cart attribution', () {
     final notice = _notice();
     final presentation = buildDdiCartPresentation(
@@ -228,11 +271,13 @@ DdiAnalysisResult _analysis({
   required List<DdiProductIngredientInput> products,
   List<DdiProductPairInteraction> pairs = const [],
   List<DdiProviderUnresolvedIngredient> providerUnresolved = const [],
+  List<DdiProviderMappingGap> providerMappingGaps = const [],
   List<DdiProviderNotice> providerNotices = const [],
 }) {
   return DdiAnalysisResult(
     products: products,
     providerUnresolved: providerUnresolved,
+    providerMappingGaps: providerMappingGaps,
     productPairs: pairs,
     providerNotices: providerNotices,
     uniqueIngredientCount: 0,

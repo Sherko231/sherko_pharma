@@ -41,6 +41,8 @@ Focused tests across SP-032–SP-037 cover provider parsing/failures, exact reso
 
 These automated/synthetic checks do not replace owner testing of the actual configured Android/Windows client. In particular, a DDI-enabled release candidate still needs real-device confirmation of Cart layout, browser-link launching and intended runtime/backend configuration. Do not claim that check has passed until the owner performs it.
 
+Issue #98 additionally requires provider-mapping acceptance: backend SQL regression must cover private-table isolation, exact/salt/context mappings, ambiguous global identities and component-override priority; Flutter tests must cover provider-ID deduplication and partial mapping gaps; production verification must report mapping/product coverage counts without storing a wholesale provider catalog. Production reconciliation is an owner-authorized data operation, but ambiguous rows must remain unresolved rather than being guessed.
+
 ## Real-device testing
 
 Camera scanning, external readers, platform-specific authentication/session behavior and other hardware-dependent behavior are best checked by the owner on the actual device. These checks may happen after merge under the owner's chosen workflow. A reported failure becomes a new bounded fix task.

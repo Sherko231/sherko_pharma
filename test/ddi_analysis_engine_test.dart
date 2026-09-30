@@ -125,6 +125,149 @@ void main() {
       );
     });
 
+    test('deduplicates salts by provider ID and preserves local identities', () async {
+      final repository = _FakeIngredientRepository({
+        'sodium': _trusted(
+          'sodium',
+          [
+            _providerIngredient(
+              655,
+              'DICLOFENAC SODIUM',
+              providerId: 'diclofenac',
+              providerName: 'Diclofenac',
+            ),
+          ],
+        ),
+        'potassium': _trusted(
+          'potassium',
+          [
+            _providerIngredient(
+              654,
+              'DICLOFENAC POTASSIUM',
+              providerId: 'diclofenac',
+              providerName: 'Diclofenac',
+            ),
+          ],
+        ),
+        'aspirin': _trusted(
+          'aspirin',
+          [
+            _providerIngredient(
+              20,
+              'ACETYLSALICYLIC ACID',
+              providerId: 'aspirin',
+              providerName: 'Aspirin',
+            ),
+          ],
+        ),
+      });
+      final gateway = _FakeGateway((items) async {
+        expect(items, ['aspirin', 'diclofenac']);
+        return _providerResult(
+          items,
+          severities: {
+            _queryPairKey('aspirin', 'diclofenac'):
+                InteractionSeverity.moderate,
+          },
+        );
+      });
+      final engine = DdiAnalysisEngine(
+        ingredientRepository: repository,
+        interactionGateway: gateway,
+      );
+
+      final result = await engine.analyzeProductIds(
+        const ['sodium', 'potassium', 'aspirin'],
+      );
+
+      expect(gateway.calls, hasLength(1));
+      expect(result.uniqueIngredientCount, 2);
+      expect(result.productPairs, hasLength(2));
+
+      final sodiumPair = result.productPairs.singleWhere(
+        (pair) =>
+            pair.productAId == 'aspirin' &&
+            pair.productBId == 'sodium',
+      );
+      final potassiumPair = result.productPairs.singleWhere(
+        (pair) =>
+            pair.productAId == 'aspirin' &&
+            pair.productBId == 'potassium',
+      );
+      expect(
+        sodiumPair.ingredientInteractions.single.ingredientA.name ==
+                'DICLOFENAC SODIUM' ||
+            sodiumPair.ingredientInteractions.single.ingredientB.name ==
+                'DICLOFENAC SODIUM',
+        isTrue,
+      );
+      expect(
+        potassiumPair.ingredientInteractions.single.ingredientA.name ==
+                'DICLOFENAC POTASSIUM' ||
+            potassiumPair.ingredientInteractions.single.ingredientB.name ==
+                'DICLOFENAC POTASSIUM',
+        isTrue,
+      );
+    });
+
+    test('skips provider mapping gaps while checking mapped ingredients', () async {
+      final repository = _FakeIngredientRepository({
+        'supplement': _trusted(
+          'supplement',
+          [
+            _providerIngredient(
+              1,
+              'CALCIUM',
+              providerId: 'calcium',
+              providerName: 'Calcium',
+              providerKind: 'other',
+            ),
+            _providerIngredient(
+              2,
+              'VITAMIN C',
+              status: DdiProviderMappingStatus.unmapped,
+            ),
+          ],
+        ),
+        'drug': _trusted(
+          'drug',
+          [
+            _providerIngredient(
+              3,
+              'LEVOTHYROXINE',
+              providerId: 'levothyroxine',
+              providerName: 'Levothyroxine',
+            ),
+          ],
+        ),
+      });
+      final gateway = _FakeGateway((items) async {
+        expect(items, ['calcium', 'levothyroxine']);
+        return _providerResult(items);
+      });
+      final engine = DdiAnalysisEngine(
+        ingredientRepository: repository,
+        interactionGateway: gateway,
+      );
+
+      final result = await engine.analyzeProductIds(
+        const ['supplement', 'drug'],
+      );
+
+      expect(gateway.calls, hasLength(1));
+      expect(result.providerMappingGaps, hasLength(1));
+      expect(result.providerMappingGaps.single.ingredient.id, 2);
+      expect(
+        result.providerMappingGaps.single.status,
+        DdiProviderMappingStatus.unmapped,
+      );
+      expect(
+        result.providerMappingGaps.single.productIds,
+        ['supplement'],
+      );
+      expect(result.productPairs, hasLength(1));
+    });
+
     test('combination product excludes same-product-only pairs and aggregates severity', () async {
       final repository = _FakeIngredientRepository({
         'p1': _trusted(
@@ -751,6 +894,30 @@ DdiIngredientIdentity _ingredient(int id, String name) {
     id: id,
     name: name,
     normalizedName: name.toLowerCase(),
+  );
+}
+
+DdiIngredientIdentity _providerIngredient(
+  int id,
+  String name, {
+  DdiProviderMappingStatus status = DdiProviderMappingStatus.mapped,
+  String? providerId,
+  String? providerName,
+  String providerKind = 'drug',
+}) {
+  return DdiIngredientIdentity(
+    id: id,
+    name: name,
+    normalizedName: name.toLowerCase(),
+    providerMappingStatus: status,
+    providerSubstanceId:
+        status == DdiProviderMappingStatus.mapped ? providerId : null,
+    providerSubstanceName:
+        status == DdiProviderMappingStatus.mapped ? providerName : null,
+    providerSubstanceKind:
+        status == DdiProviderMappingStatus.mapped ? providerKind : null,
+    providerMappingMethod:
+        status == DdiProviderMappingStatus.mapped ? 'test' : 'none',
   );
 }
 

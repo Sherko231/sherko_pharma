@@ -7,16 +7,32 @@ enum DdiIngredientCoverageStatus {
   missing,
 }
 
+enum DdiProviderMappingStatus {
+  mapped,
+  ambiguous,
+  unmapped,
+}
+
 class DdiIngredientIdentity {
   const DdiIngredientIdentity({
     required this.id,
     required this.name,
     required this.normalizedName,
+    this.providerMappingStatus = DdiProviderMappingStatus.mapped,
+    this.providerSubstanceId,
+    this.providerSubstanceName,
+    this.providerSubstanceKind,
+    this.providerMappingMethod,
   });
 
   final int id;
   final String name;
   final String normalizedName;
+  final DdiProviderMappingStatus providerMappingStatus;
+  final String? providerSubstanceId;
+  final String? providerSubstanceName;
+  final String? providerSubstanceKind;
+  final String? providerMappingMethod;
 }
 
 class DdiProductIngredientInput {
@@ -42,6 +58,18 @@ class DdiProductIngredientInput {
 
   bool get isTrusted =>
       coverageStatus == DdiIngredientCoverageStatus.trusted;
+}
+
+class DdiProviderMappingGap {
+  const DdiProviderMappingGap({
+    required this.ingredient,
+    required this.status,
+    required this.productIds,
+  });
+
+  final DdiIngredientIdentity ingredient;
+  final DdiProviderMappingStatus status;
+  final List<String> productIds;
 }
 
 class DdiProviderUnresolvedIngredient {
@@ -112,10 +140,12 @@ class DdiAnalysisResult {
     required this.providerNotices,
     required this.uniqueIngredientCount,
     required this.providerBatchCount,
+    this.providerMappingGaps = const [],
   });
 
   final List<DdiProductIngredientInput> products;
   final List<DdiProviderUnresolvedIngredient> providerUnresolved;
+  final List<DdiProviderMappingGap> providerMappingGaps;
   final List<DdiProductPairInteraction> productPairs;
   final List<DdiProviderNotice> providerNotices;
   final int uniqueIngredientCount;
