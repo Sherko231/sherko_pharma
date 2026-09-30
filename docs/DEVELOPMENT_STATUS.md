@@ -6,7 +6,7 @@ Status: SP-030–SP-037, live regression fixes through Issue #96, and Issue #98 
 
 ## Verified baseline
 
-- Current inspected `main` is `a804b4e966a5532c4f0f0b29771d937c5f1229fa`, the merge result of Issue #98 / PR #99. Production DDI backend is deployed through migration 0016. The temporary admin-only PostgreSQL `http` extension used to retrieve one provider snapshot for reconciliation was removed after population.
+- Stable runtime/data baseline before the docs-only pre-SP-038 preparation is Issue #98 / PR #99 at `a804b4e966a5532c4f0f0b29771d937c5f1229fa`. OPS-002 / PR #108 then aligned execution documentation without changing runtime, schema, provider, production, or catalog data. SP-038 must refresh live `main` again when execution begins and record its exact branch-start SHA. Production DDI backend is deployed through migration 0016. The temporary admin-only PostgreSQL `http` extension used to retrieve one provider snapshot for reconciliation was removed after population.
 - SP-000 through SP-013, SP-015 through SP-037, CI-001, OPS-001, and Issue #98 / PR #99 are merged; SP-014 remains deferred. At this pre-SP-038 inspection there is no open PR, and Issues #100 through #106 are open in dependency order.
 - Issue #88 / PR #89 is a syntax-only Cart-row closure fix for the owner-reported Android debug compile error. It adds the missing outer `children` list delimiter and does not change DDI, order, scanner, price, quantity, persistence, backend, dependency, or production behavior.
 - Issue #29 is closed as completed and PR #30 is merged; post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
