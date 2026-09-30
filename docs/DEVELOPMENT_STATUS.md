@@ -2,11 +2,11 @@
 
 Updated: 2026-09-30
 Latest completed feature task: SP-037 / Issue #79 / PR #87. Follow-up Issues #88, #92, #94 and #96 fixed live DDI compile/layout/provider-query/presentation regressions; Issue #96 / PR #97 merged at `549f26da0742f9bfa6ab64efa1d76054e70660ae`. Issue #98 is the current owner-authorized comprehensive Interaction Checker provider-mapping task and includes explicit production deployment authorization. OPS-001 / Issue #42 keeps hosted GitHub Actions and mandatory CI gates retired.
-Status: SP-030–SP-037 and live regression fixes through Issue #96 are merged. Issue #98 adds provider-ID mapping and partial-coverage handling and has deployed production migration 0014 plus the initial reviewed reconciliation. Production currently has 467 mapped, 3 ambiguous and 1,888 unmapped internal ingredient identities with 6 product-component overrides; 63.62% of locally trusted products are fully provider-mapped and 74.98% have at least one mapped component. Public/commercial DDI release permission is still not claimed. Owner Android/Windows acceptance remains external. SP-014 remains deferred.
+Status: SP-030–SP-037 and live regression fixes through Issue #96 are merged. Issue #98 adds provider-ID mapping and partial-coverage handling and has deployed production migrations through 0016 plus the reviewed reconciliation and exclusion guard. Production currently has 465 mapped, 3 ambiguous and 1,890 unmapped internal ingredient identities with 6 product-component overrides; 63.62% of locally trusted products are fully provider-mapped and 74.95% have at least one mapped component. Public/commercial DDI release permission is still not claimed. Owner Android/Windows acceptance remains external. SP-014 remains deferred.
 
 ## Verified baseline
 
-- Current inspected `main` before Issue #98 is `549f26da0742f9bfa6ab64efa1d76054e70660ae`, the merge result of Issue #96 / PR #97. Production DDI backend is now deployed through migration 0014. The temporary admin-only PostgreSQL `http` extension used to retrieve one provider snapshot for reconciliation was removed after population.
+- Current inspected `main` before Issue #98 is `549f26da0742f9bfa6ab64efa1d76054e70660ae`, the merge result of Issue #96 / PR #97. Production DDI backend is now deployed through migration 0016. The temporary admin-only PostgreSQL `http` extension used to retrieve one provider snapshot for reconciliation was removed after population.
 - SP-000 through SP-013, SP-015 through SP-037, CI-001, and OPS-001 are merged; SP-014 remains deferred.
 - Issue #88 / PR #89 is a syntax-only Cart-row closure fix for the owner-reported Android debug compile error. It adds the missing outer `children` list delimiter and does not change DDI, order, scanner, price, quantity, persistence, backend, dependency, or production behavior.
 - Issue #29 is closed as completed and PR #30 is merged; post-merge CI run `36250531971` passed Change scope, Quality, Schema, Android build, Windows build, and Required verification.
@@ -22,13 +22,14 @@ Status: SP-030–SP-037 and live regression fixes through Issue #96 are merged. 
 - Migration `0014_interaction_checker_provider_mapping.sql` adds private global provider mappings, private product-component overrides, a private deterministic reconciliation function and provider-mapping fields on the bounded owner-only `catalog_ddi_ingredients` RPC.
 - Reconciliation never rewrites SP-025 internal ingredient identities. It consumes an admin-supplied provider catalog snapshot, persists only Sherko-to-provider mapping decisions, and leaves no wholesale provider catalog table behind.
 - Reviewed methods are unique exact, provider alias, conservative salt/base normalization and contextual mapping. Ambiguous/unmapped identities remain explicit.
-- The current 637-substance provider snapshot classified all 2,358 internal identities as 467 mapped, 3 ambiguous and 1,888 unmapped. Six current `K` occurrences use product-component overrides: ADAVIT-SILVER -> `vitamin-k`; ASIA-TONIC/RUBAVIT-G -> `potassium`.
+- The current 637-substance provider snapshot classified all 2,358 internal identities as 465 mapped, 3 ambiguous and 1,890 unmapped after reviewed exclusions. Six current `K` occurrences use product-component overrides: ADAVIT-SILVER -> `vitamin-k`; ASIA-TONIC/RUBAVIT-G -> `potassium`.
 - `PP` and `VIT.B3` remain ambiguous rather than being forced to provider drug `niacin`; their local Vitamin B3 meaning is preserved in mapping notes.
 - ASIA-TONIC yields 9 mapped provider components and 9 explicit mapping gaps. A live 10-item provider check using aspirin plus those 9 mapped substances returned HTTP 200 with all ten inputs resolved.
-- Trusted-product mapping coverage after reconciliation: 17,029 trusted products; 10,834 fully mapped (63.62%); 1,935 partially mapped; 4,260 with no mapped component; 12,769 (74.98%) have at least one mapped component.
+- Trusted-product mapping coverage after reconciliation: 17,029 trusted products; 10,834 fully mapped (63.62%); 1,930 partially mapped; 4,265 with no mapped component; 12,764 (74.95%) have at least one mapped component.
 - Flutter uses stable provider IDs when present, deduplicates multiple internal salts/forms onto one provider query while retaining product-specific internal ingredient names for details, skips ambiguous/unmapped components into explicit mapping gaps, and continues checking the mapped subset.
 - Provider documentation still advertises 60 requests/minute/IP, but a live 2026-09-30 response reported an effective 10/minute/IP limit. Runtime local throttling is therefore 10/minute by default; Retry-After remains authoritative.
 - Backend migration/regression SQL executed successfully against production inside a rollback before deployment. The production migration and reconciliation were then applied, and the temporary PostgreSQL `http` extension was removed.
+- Self-review found that provider substance `glucosamine` is labeled `Glucosamine and chondroitin`, which is broader than internal `glucosamine`/`glucosamine sulfate`. Migration 0015 manually excludes those mappings; migration 0016 persists the exclusion registry/trigger so future reconciliations cannot recreate them.
 
 ## Issue #96 normal none rows and 18-component coverage
 
@@ -59,7 +60,7 @@ Status: SP-030–SP-037 and live regression fixes through Issue #96 are merged. 
 - Existing focused regressions across SP-032–SP-036 continue to cover all five severities, local/provider unresolved coverage, >10 ingredient complete batching, Retry-After/rate limiting, timeout/transport/API/malformed failures, rapid additions, removal/New Order/sign-out stale protection, same-owner restoration, no DDI session persistence, source links and detail-sheet dismissal.
 - Repository code/search review found no medication-list/provider-payload logging path in the DDI implementation. DDI output remains in-memory/transient and absent from `AppSessionSnapshot`.
 - Provider API/OpenAPI/terms were re-checked on 2026-09-29. The documented 2–10 input contract, every-resolved-pair output, 60 requests/minute/IP, one-hour cacheability, attribution/backlink and disclaimer requirements remain. Current terms still prohibit building/selling the output as a clinical decision-support product.
-- SP-037 itself did not deploy later migrations; subsequent owner-authorized production work has since deployed the DDI backend through migration 0014.
+- SP-037 itself did not deploy later migrations; subsequent owner-authorized production work has since deployed the DDI backend through migration 0016.
 - No live Interaction Checker request, production Supabase call, production migration/deployment, release artifact, paid provider action or real Android/Windows DDI acceptance is claimed by this repository task.
 
 ## SP-036 DDI evidence/source detail sheet
