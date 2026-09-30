@@ -101,6 +101,19 @@ The examples below were already named in Issue #100 / the planned sequence and a
 | exact `PP` | 134 |
 | exact `MG` | 45 |
 
+### Representative acceptance examples
+
+These are synthetic or already-public Issue examples used to explain classification behavior; they are not a production export.
+
+| Example | SP-038 classification |
+| --- | --- |
+| `amoxicilline 250mg / 5ml` | spelling candidate + embedded strength + denominator/presentation contamination; no automatic correction |
+| `VIT.C` | abbreviation candidate; deterministic expansion may be proposed by SP-040 but requires an unambiguous rule |
+| `NH4CL` | chemical-formula/abbreviation candidate; raw spelling remains preserved |
+| `K` | ambiguous short token; context required, no global mapping |
+| `ARTESUNATE+(SULFADOXINE+PYRIMETHAMINE)` | grouped-expression structure; grouping provenance must survive parsing |
+| `DICYCLOMINE HCL (DICYCLOVERINE HCL)` | parenthesized alternate-name candidate; must not become two active ingredients automatically |
+
 ### Orthographic-candidate rule
 
 SP-038 uses an intentionally narrow review-candidate heuristic only to size the spelling-curation workload:
