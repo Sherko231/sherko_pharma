@@ -110,9 +110,12 @@ begin
     return;
   end if;
 
+  -- NFKC may canonicalize MICRO SIGN (µ) to GREEK SMALL LETTER MU (μ), so the
+  -- contamination detector accepts both code points. SP-040 only quarantines
+  -- the strength text; SP-042 owns quantitative parsing.
   has_embedded_strength := working_text ~* (
     '(^|[^[:alnum:]])[0-9]+([.,][0-9]+)?' ||
-    '[[:space:]]*(mg|mcg|ug|µg|g|ml|iu|%)' ||
+    '[[:space:]]*(mg|mcg|ug|µg|μg|g|ml|iu|%)' ||
     '($|[^[:alnum:]])'
   );
 
