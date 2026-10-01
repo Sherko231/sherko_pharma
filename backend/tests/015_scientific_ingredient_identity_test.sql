@@ -85,6 +85,8 @@ declare
   diphenhydramine_id bigint;
   diphenhydramine_hcl_id bigint;
   paracetamol_id bigint;
+  potassium_id bigint;
+  vitamin_k_id bigint;
   equivalence_before jsonb;
   equivalence_after jsonb;
 begin
@@ -121,7 +123,7 @@ begin
   )
   values (
     'Diphenhydramine',
-    app_private.catalog_search_normalize('Diphenhydramine'),
+    app_private.scientific_name_key('Diphenhydramine'),
     'medicinal_substance'
   )
   returning id into diphenhydramine_id;
@@ -135,7 +137,7 @@ begin
   )
   values (
     'Diphenhydramine hydrochloride',
-    app_private.catalog_search_normalize('Diphenhydramine hydrochloride'),
+    app_private.scientific_name_key('Diphenhydramine hydrochloride'),
     'medicinal_substance',
     diphenhydramine_id,
     'salt_of'
@@ -149,10 +151,34 @@ begin
   )
   values (
     'Paracetamol',
-    app_private.catalog_search_normalize('Paracetamol'),
+    app_private.scientific_name_key('Paracetamol'),
     'medicinal_substance'
   )
   returning id into paracetamol_id;
+
+  insert into app_private.scientific_ingredients(
+    preferred_name,
+    normalized_preferred_name,
+    category
+  )
+  values (
+    'Potassium',
+    app_private.scientific_name_key('Potassium'),
+    'mineral'
+  )
+  returning id into potassium_id;
+
+  insert into app_private.scientific_ingredients(
+    preferred_name,
+    normalized_preferred_name,
+    category
+  )
+  values (
+    'Vitamin K',
+    app_private.scientific_name_key('Vitamin K'),
+    'vitamin'
+  )
+  returning id into vitamin_k_id;
 
   insert into app_private.scientific_ingredient_references(
     scientific_ingredient_id,
@@ -201,7 +227,7 @@ begin
     review_note
   )
   values (
-    app_private.catalog_search_normalize('Diphenhydramine HCl'),
+    app_private.scientific_name_key('Diphenhydramine HCl'),
     diphenhydramine_hcl_id,
     'Diphenhydramine HCl',
     'legacy_name',
@@ -222,86 +248,80 @@ begin
     reviewed_at,
     review_note
   )
-  values (
-    diphenhydramine_lexical_id,
-    diphenhydramine_hcl_id,
-    'verified',
-    'reviewed_alias',
-    100,
-    'SP-039 synthetic review',
-    '1',
-    '2026-10-01T00:00:00Z'::timestamptz,
-    'Synthetic reviewed salt-form fixture.'
-  );
+  values
+    (
+      diphenhydramine_lexical_id,
+      diphenhydramine_hcl_id,
+      'verified',
+      'reviewed_alias',
+      100,
+      'SP-039 synthetic review',
+      '1',
+      '2026-10-01T00:00:00Z'::timestamptz,
+      'Synthetic reviewed salt-form fixture.'
+    ),
+    (
+      paracetamol_lexical_id,
+      paracetamol_id,
+      'verified',
+      'exact_reference',
+      100,
+      'WHO INN synthetic fixture',
+      'synthetic-test',
+      '2026-10-01T00:00:00Z'::timestamptz,
+      'Synthetic exact-reference fixture.'
+    ),
+    (
+      k_lexical_id,
+      null,
+      'needs_review',
+      'context',
+      50,
+      'SP-039 synthetic review',
+      '1',
+      null,
+      'K is overloaded and requires product-specific scientific review.'
+    ),
+    (
+      botanical_lexical_id,
+      null,
+      'unresolved',
+      'none',
+      0,
+      null,
+      null,
+      '2026-10-01T00:00:00Z'::timestamptz,
+      'Reviewed fixture remains unresolved rather than guessed.'
+    );
 
-  insert into app_private.catalog_ingredient_scientific_mappings(
+  insert into app_private.catalog_ingredient_scientific_review_candidates(
     ingredient_id,
     scientific_ingredient_id,
-    status,
     mapping_method,
     confidence,
     reference_source,
     reference_version,
-    reviewed_at,
-    review_note
+    candidate_note
   )
-  values (
-    paracetamol_lexical_id,
-    paracetamol_id,
-    'verified',
-    'exact_reference',
-    100,
-    'WHO INN synthetic fixture',
-    'synthetic-test',
-    '2026-10-01T00:00:00Z'::timestamptz,
-    'Synthetic exact-reference fixture.'
-  );
-
-  insert into app_private.catalog_ingredient_scientific_mappings(
-    ingredient_id,
-    scientific_ingredient_id,
-    status,
-    mapping_method,
-    confidence,
-    reference_source,
-    reference_version,
-    reviewed_at,
-    review_note
-  )
-  values (
-    k_lexical_id,
-    null,
-    'needs_review',
-    'context',
-    50,
-    'SP-039 synthetic review',
-    '1',
-    null,
-    'K is overloaded and requires product-specific scientific review.'
-  );
-
-  insert into app_private.catalog_ingredient_scientific_mappings(
-    ingredient_id,
-    scientific_ingredient_id,
-    status,
-    mapping_method,
-    confidence,
-    reference_source,
-    reference_version,
-    reviewed_at,
-    review_note
-  )
-  values (
-    botanical_lexical_id,
-    null,
-    'unresolved',
-    'none',
-    0,
-    null,
-    null,
-    null,
-    'Botanical source text has no reviewed canonical identity in this fixture.'
-  );
+  values
+    (
+      k_lexical_id,
+      potassium_id,
+      'context',
+      50,
+      'SP-039 synthetic review',
+      '1',
+      'K may denote potassium in some product contexts.'
+    ),
+    (
+      k_lexical_id,
+      vitamin_k_id,
+      'context',
+      50,
+      'SP-039 synthetic review',
+      '1',
+      'K may denote Vitamin K in some product contexts.'
+    );
 
   if not exists (
     select 1
@@ -324,14 +344,12 @@ begin
     raise exception 'reviewed diphenhydramine HCl mapping was not retained';
   end if;
 
-  if not exists (
-    select 1
-    from app_private.catalog_ingredient_scientific_mappings
+  if (
+    select count(*)
+    from app_private.catalog_ingredient_scientific_review_candidates
     where ingredient_id = k_lexical_id
-      and scientific_ingredient_id is null
-      and status = 'needs_review'
-  ) then
-    raise exception 'ambiguous K identity was not kept review-required';
+  ) <> 2 then
+    raise exception 'ambiguous K identity did not retain multiple candidates';
   end if;
 
   if not exists (
@@ -340,8 +358,9 @@ begin
     where ingredient_id = botanical_lexical_id
       and scientific_ingredient_id is null
       and status = 'unresolved'
+      and reviewed_at is not null
   ) then
-    raise exception 'unresolved botanical received a guessed scientific identity';
+    raise exception 'reviewed unresolved botanical received a guessed identity';
   end if;
 
   if (
@@ -390,6 +409,11 @@ begin
     raise exception 'optional ATC metadata was not retained';
   end if;
 
+  if app_private.scientific_name_key('Alpha-Beta') =
+     app_private.scientific_name_key('Alpha Beta') then
+    raise exception 'scientific identity key discarded punctuation';
+  end if;
+
   begin
     insert into app_private.scientific_ingredients(
       preferred_name,
@@ -398,7 +422,7 @@ begin
     )
     values (
       'PARACETAMOL',
-      app_private.catalog_search_normalize('PARACETAMOL'),
+      app_private.scientific_name_key('PARACETAMOL'),
       'medicinal_substance'
     );
     raise exception 'duplicate canonical normalized name was accepted';
@@ -436,7 +460,7 @@ begin
       reviewed_at
     )
     values (
-      app_private.catalog_search_normalize('Diphenhydramine HCl'),
+      app_private.scientific_name_key('Diphenhydramine HCl'),
       paracetamol_id,
       'Diphenhydramine HCl',
       'legacy_name',
@@ -451,10 +475,10 @@ begin
   begin
     update app_private.scientific_ingredients
     set
-      parent_scientific_ingredient_id = diphenhydramine_id,
+      parent_scientific_ingredient_id = diphenhydramine_hcl_id,
       parent_relation = 'derivative_of'
     where id = diphenhydramine_id;
-    raise exception 'scientific identity accepted itself as direct parent';
+    raise exception 'scientific parent cycle was accepted';
   exception
     when check_violation then null;
   end;
@@ -468,14 +492,33 @@ begin
     )
     values (
       'Broken Parent Fixture',
-      app_private.catalog_search_normalize('Broken Parent Fixture'),
+      app_private.scientific_name_key('Broken Parent Fixture'),
       'other',
       'salt_of'
     );
-    raise exception 'parent relation without a parent identity was accepted';
+    raise exception 'parent relation without parent identity was accepted';
   exception
     when check_violation then null;
   end;
+
+  begin
+    update app_private.catalog_ingredient_scientific_mappings
+    set
+      scientific_ingredient_id = potassium_id,
+      status = 'verified',
+      mapping_method = 'manual',
+      confidence = 100,
+      reference_source = 'SP-039 invalid resolution fixture',
+      reviewed_at = '2026-10-01T00:00:00Z'::timestamptz,
+      review_note = 'Candidate rows must be cleared before resolution.'
+    where ingredient_id = k_lexical_id;
+    raise exception 'needs-review mapping resolved while candidates remained';
+  exception
+    when foreign_key_violation then null;
+  end;
+
+  delete from app_private.catalog_ingredient_scientific_review_candidates
+  where ingredient_id = k_lexical_id;
 
   delete from app_private.catalog_ingredient_scientific_mappings
   where ingredient_id = k_lexical_id;
@@ -524,7 +567,7 @@ begin
       'none',
       0,
       null,
-      null,
+      '2026-10-01T00:00:00Z'::timestamptz,
       'Must fail because unresolved cannot carry an accepted identity.'
     );
     raise exception 'unresolved mapping carried a scientific identity';
@@ -549,7 +592,7 @@ begin
     'context',
     50,
     'SP-039 synthetic review',
-    null,
+    '2026-10-01T00:00:00Z'::timestamptz,
     'K remains review-required after invalid-shape regressions.'
   );
 end
@@ -559,6 +602,7 @@ do $scientific_identity_private_access$
 declare
   table_name text;
   role_name text;
+  rls_enabled boolean;
 begin
   foreach role_name in array array['anon', 'authenticated']
   loop
@@ -567,7 +611,8 @@ begin
       'app_private.scientific_ingredient_references',
       'app_private.scientific_ingredient_atc_codes',
       'app_private.scientific_ingredient_aliases',
-      'app_private.catalog_ingredient_scientific_mappings'
+      'app_private.catalog_ingredient_scientific_mappings',
+      'app_private.catalog_ingredient_scientific_review_candidates'
     ]
     loop
       if has_table_privilege(role_name, table_name, 'SELECT')
@@ -577,6 +622,15 @@ begin
         raise exception '% has direct access to private table %',
           role_name,
           table_name;
+      end if;
+
+      select c.relrowsecurity
+        into rls_enabled
+      from pg_catalog.pg_class c
+      where c.oid = table_name::regclass;
+
+      if not rls_enabled then
+        raise exception 'RLS is disabled on private table %', table_name;
       end if;
     end loop;
   end loop;
