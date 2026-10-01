@@ -178,6 +178,15 @@ begin
   end if;
 
   select * into r
+  from app_private.scientific_cleanup_component_candidate('NaCl');
+
+  if r.candidate_text <> 'NaCl'
+     or r.cleanup_status <> 'needs_review'
+     or not (r.review_reasons @> array['compact_formula']::text[]) then
+    raise exception 'compact formula casing was altered: %', to_jsonb(r);
+  end if;
+
+  select * into r
   from app_private.scientific_cleanup_component_candidate('HCL');
 
   if r.candidate_text <> 'HCL'
