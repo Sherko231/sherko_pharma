@@ -154,6 +154,17 @@ begin
 
   select * into r
   from app_private.scientific_cleanup_component_candidate(
+    'LEVOTHYROXINE 25µg'
+  );
+
+  if r.cleanup_status <> 'needs_review'
+     or not (r.review_reasons @> array['embedded_strength']::text[])
+     or not (r.applied_rules @> array['unicode_nfkc']::text[]) then
+    raise exception 'NFKC microgram contamination was missed: %', to_jsonb(r);
+  end if;
+
+  select * into r
+  from app_private.scientific_cleanup_component_candidate(
     'DICYCLOMINE HCL (DICYCLOVERINE HCL)'
   );
 
