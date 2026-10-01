@@ -5,12 +5,26 @@ insert into app_private.owner_account (singleton, user_id)
 values (true, '11111111-1111-1111-1111-111111111111')
 on conflict (singleton) do update set user_id = excluded.user_id;
 
+-- A canonical scientific row without reviewed reference evidence is deliberately
+-- present to prove SP-044 does not inherit SP-043 lexical trust as final truth.
+insert into app_private.scientific_ingredients(
+  preferred_name,
+  normalized_preferred_name,
+  category
+)
+values (
+  'Unreferenced SP044',
+  app_private.scientific_name_key('Unreferenced SP044'),
+  'medicinal_substance'
+);
+
 do $sp044_fixture$
 declare
   alias_product uuid;
   embedded_product uuid;
   ambiguous_product uuid;
   grouped_product uuid;
+  unreviewed_product uuid;
 begin
   set local role authenticated;
   set local "request.jwt.claim.sub" = '11111111-1111-1111-1111-111111111111';
@@ -42,6 +56,13 @@ begin
     'SP044 Grouped', null,
     'ARTESUNATE+(SULFADOXINE+PYRIMETHAMINE)', null, null, 'Tablet', null,
     null, null, 1000, 'SYP', null
+  );
+
+  select id into unreviewed_product
+  from public.catalog_create_idempotent(
+    '79000000-0000-4000-8000-000000000105',
+    'SP044 Unreviewed Canonical', null, 'Unreferenced SP044', null,
+    null, 'Tablet', null, null, null, 1000, 'SYP', null
   );
 
   reset role;
@@ -78,6 +99,17 @@ begin
      or r.mapping_method <> 'none'
      or r.confidence <> 0 then
     raise exception 'ambiguous K mapping was incorrectly accepted: %', to_jsonb(r);
+  end if;
+
+  select m.* into r
+  from app_private.catalog_ingredient_scientific_mappings m
+  join app_private.catalog_ingredients i on i.id = m.ingredient_id
+  where app_private.scientific_name_key(i.name) =
+        app_private.scientific_name_key('Unreferenced SP044');
+
+  if r.status <> 'needs_review'
+     or r.scientific_ingredient_id is not null then
+    raise exception 'unreferenced canonical identity was incorrectly verified: %', to_jsonb(r);
   end if;
 end
 $sp044_reviewed_mapping$;
@@ -132,6 +164,28 @@ begin
      or r.ingredient_count <> 3
      or r.high_confidence_count <> 3 then
     raise exception 'grouped product derivation failed: %', to_jsonb(r);
+  end if;
+
+  select s.* into r
+  from app_private.product_scientific_canonicalization s
+  join public.products p on p.id = s.product_id
+  where p.name_en = 'SP044 Unreviewed Canonical';
+
+  if r.overall_structure_status <> 'deterministic'
+     or r.overall_identity_status <> 'high_confidence'
+     or r.trusted_count <> 0
+     or r.high_confidence_count <> 1 then
+    raise exception 'unreferenced canonical identity was incorrectly trusted: %', to_jsonb(r);
+  end if;
+
+  if not exists (
+    select 1
+    from app_private.product_scientific_canonicalization_nodes n
+    join public.products p on p.id = n.product_id
+    where p.name_en = 'SP044 Unreviewed Canonical'
+      and n.reason_codes @> array['scientific_identity_missing_reviewed_provenance']::text[]
+  ) then
+    raise exception 'missing reviewed-provenance quarantine reason';
   end if;
 end
 $sp044_product_derivation$;
