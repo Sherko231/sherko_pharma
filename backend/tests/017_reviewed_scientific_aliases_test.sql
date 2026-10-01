@@ -284,6 +284,18 @@ begin
   ) then
     raise exception 'client role can execute private alias collision guard';
   end if;
+
+  if has_function_privilege(
+    'anon',
+    'app_private.guard_scientific_canonical_alias_collision()',
+    'EXECUTE'
+  ) or has_function_privilege(
+    'authenticated',
+    'app_private.guard_scientific_canonical_alias_collision()',
+    'EXECUTE'
+  ) then
+    raise exception 'client role can execute private canonical collision guard';
+  end if;
 end
 $reviewed_alias_private_access$;
 
