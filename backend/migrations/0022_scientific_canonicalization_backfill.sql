@@ -330,9 +330,21 @@ declare
   existing_version smallint;
   existing_parser smallint;
   parsed record;
-  summary_row record;
   comparison_row record;
+  resolution record;
+  reference_reviewed_at timestamptz;
+  effective_identity_status app_private.complex_composition_identity_status;
+  effective_scientific_id bigint;
+  effective_preferred_name text;
   resolution_kind_value text;
+  effective_reason_codes text[];
+  structure_status_value app_private.complex_composition_structure_status;
+  identity_status_value app_private.complex_composition_identity_status;
+  ingredient_count_value integer;
+  trusted_count_value integer;
+  high_confidence_count_value integer;
+  needs_review_count_value integer;
+  unresolved_count_value integer;
   alias_count_value integer;
   embedded_count_value integer;
 begin
@@ -355,12 +367,55 @@ begin
     from app_private.scientific_parse_complex_composition(input_composition)
     order by node_path
   loop
+    effective_identity_status := parsed.identity_status;
+    effective_scientific_id := parsed.scientific_ingredient_id;
+    effective_preferred_name := parsed.preferred_scientific_name;
     resolution_kind_value := null;
+    effective_reason_codes := coalesce(parsed.reason_codes, array[]::text[]);
+
     if parsed.node_kind = 'ingredient'
        and parsed.identity_status = 'trusted'
        and parsed.ingredient_candidate is not null then
-      select r.match_kind into resolution_kind_value
+      resolution := null;
+      select r.* into resolution
       from app_private.resolve_reviewed_scientific_alias(parsed.ingredient_candidate) r;
+
+      if resolution.scientific_ingredient_id is not null
+         and resolution.match_kind = 'reviewed_alias'
+         and resolution.reviewed_at is not null
+         and nullif(btrim(resolution.reference_source), '') is not null then
+        resolution_kind_value := 'reviewed_alias';
+        effective_scientific_id := resolution.scientific_ingredient_id;
+        effective_preferred_name := resolution.preferred_name;
+      elsif resolution.scientific_ingredient_id is not null
+            and resolution.match_kind = 'canonical' then
+        select max(r.reviewed_at)
+          into reference_reviewed_at
+        from app_private.scientific_ingredient_references r
+        where r.scientific_ingredient_id = resolution.scientific_ingredient_id;
+
+        if reference_reviewed_at is not null then
+          resolution_kind_value := 'canonical';
+          effective_scientific_id := resolution.scientific_ingredient_id;
+          effective_preferred_name := resolution.preferred_name;
+        else
+          effective_identity_status := 'high_confidence';
+          effective_scientific_id := null;
+          effective_preferred_name := null;
+          effective_reason_codes := array_append(
+            effective_reason_codes,
+            'scientific_identity_missing_reviewed_provenance'
+          );
+        end if;
+      else
+        effective_identity_status := 'high_confidence';
+        effective_scientific_id := null;
+        effective_preferred_name := null;
+        effective_reason_codes := array_append(
+          effective_reason_codes,
+          'scientific_identity_missing_reviewed_provenance'
+        );
+      end if;
     end if;
 
     insert into app_private.product_scientific_canonicalization_nodes(
@@ -377,30 +432,52 @@ begin
       parsed.separator_before, parsed.group_raw_fragment, parsed.raw_fragment,
       parsed.ingredient_source, parsed.ingredient_candidate,
       parsed.alternate_name_source, parsed.alternate_name_candidate,
-      parsed.scientific_ingredient_id, parsed.preferred_scientific_name,
+      effective_scientific_id, effective_preferred_name,
       resolution_kind_value, parsed.normalized_amount, parsed.normalized_unit,
       parsed.per_amount, parsed.per_unit, parsed.presentation,
-      parsed.identity_hint, parsed.structure_status, parsed.identity_status,
-      parsed.parser_version, coalesce(parsed.reason_codes, array[]::text[]),
+      parsed.identity_hint, parsed.structure_status, effective_identity_status,
+      parsed.parser_version, effective_reason_codes,
       version_value
     );
   end loop;
 
-  select * into summary_row
-  from app_private.scientific_complex_composition_summary(input_composition);
+  select
+    case
+      when bool_or(structure_status = 'unresolved') then 'unresolved'
+      when bool_or(structure_status = 'needs_review') then 'needs_review'
+      else 'deterministic'
+    end::app_private.complex_composition_structure_status,
+    case
+      when bool_or(identity_status = 'unresolved') then 'unresolved'
+      when bool_or(identity_status = 'needs_review') then 'needs_review'
+      when bool_or(identity_status = 'high_confidence') then 'high_confidence'
+      else 'trusted'
+    end::app_private.complex_composition_identity_status,
+    count(*)::integer,
+    count(*) filter (where identity_status = 'trusted')::integer,
+    count(*) filter (where identity_status = 'high_confidence')::integer,
+    count(*) filter (where identity_status = 'needs_review')::integer,
+    count(*) filter (where identity_status = 'unresolved')::integer,
+    count(*) filter (where resolution_kind = 'reviewed_alias')::integer,
+    count(*) filter (
+      where normalized_amount is not null or presentation is not null
+    )::integer
+    into
+      structure_status_value,
+      identity_status_value,
+      ingredient_count_value,
+      trusted_count_value,
+      high_confidence_count_value,
+      needs_review_count_value,
+      unresolved_count_value,
+      alias_count_value,
+      embedded_count_value
+  from app_private.product_scientific_canonicalization_nodes
+  where product_id = target_product_id
+    and node_kind = 'ingredient';
 
   select * into comparison_row
   from app_private.scientific_compare_embedded_source_strength(input_composition, input_strength);
-
-  select
-    count(*) filter (where node_kind = 'ingredient' and resolution_kind = 'reviewed_alias')::integer,
-    count(*) filter (
-      where node_kind = 'ingredient'
-        and (normalized_amount is not null or presentation is not null)
-    )::integer
-    into alias_count_value, embedded_count_value
-  from app_private.product_scientific_canonicalization_nodes
-  where product_id = target_product_id;
 
   insert into app_private.product_scientific_canonicalization(
     product_id, source_composition, source_strength, source_fingerprint,
@@ -412,13 +489,13 @@ begin
   )
   values (
     target_product_id, input_composition, input_strength, source_fp,
-    summary_row.overall_structure_status, summary_row.overall_identity_status,
-    summary_row.ingredient_count, summary_row.trusted_count,
-    summary_row.high_confidence_count, summary_row.needs_review_count,
-    summary_row.unresolved_count, coalesce(alias_count_value, 0),
-    coalesce(embedded_count_value, 0), comparison_row.comparison_status,
+    structure_status_value, identity_status_value,
+    ingredient_count_value, trusted_count_value,
+    high_confidence_count_value, needs_review_count_value,
+    unresolved_count_value, alias_count_value,
+    embedded_count_value, comparison_row.comparison_status,
     comparison_row.embedded_strength_key, comparison_row.source_strength_key,
-    summary_row.parser_version, version_value
+    parser_version_value, version_value
   )
   on conflict (product_id) do update
   set
@@ -594,9 +671,32 @@ begin
     select 1
     from app_private.product_scientific_canonicalization_nodes n
     where n.identity_status = 'trusted'
-      and (n.scientific_ingredient_id is null or n.resolution_kind is null)
+      and (
+        n.scientific_ingredient_id is null
+        or n.resolution_kind is null
+        or (
+          n.resolution_kind = 'reviewed_alias'
+          and not exists (
+            select 1
+            from app_private.scientific_ingredient_aliases a
+            where a.scientific_ingredient_id = n.scientific_ingredient_id
+              and a.normalized_alias = app_private.scientific_name_key(n.ingredient_candidate)
+              and a.reviewed_at is not null
+              and nullif(btrim(a.reference_source), '') is not null
+          )
+        )
+        or (
+          n.resolution_kind = 'canonical'
+          and not exists (
+            select 1
+            from app_private.scientific_ingredient_references r
+            where r.scientific_ingredient_id = n.scientific_ingredient_id
+              and r.reviewed_at is not null
+          )
+        )
+      )
   ) then
-    raise exception 'SP-044 persisted trusted product identity without reviewed resolution';
+    raise exception 'SP-044 persisted trusted product identity without reviewed provenance';
   end if;
 
   if (select ingredient_count from sp044_upstream_state_before)
