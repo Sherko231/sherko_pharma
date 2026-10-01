@@ -44,6 +44,8 @@ Generic punctuation is not stripped because punctuation can carry chemical or st
 
 Ordinary non-formula text is lower-cased and then sentence-cased. This turns the legacy mixed-case example `paraCetamol` into the lexical candidate `Paracetamol` without asserting a synonym mapping.
 
+Compact chemical-formula casing is protected from this rule. For example, `NaCl` remains exactly `NaCl` and is marked review-required rather than being corrupted to `Nacl`.
+
 ### Reviewed camelCase boundaries
 
 A deliberately small prefix allow-list can recover a word boundary when the original capitalization itself makes the boundary deterministic. Version 1 includes:
@@ -96,6 +98,7 @@ The function returns `needs_review` without semantic expansion for:
 - embedded numeric strength/unit contamination such as `0.5MG`;
 - structural syntax such as parentheses, `/`, commas, semicolons, ampersands, brackets, braces, or similar delimiters;
 - unreviewed numeric/formula-like tokens such as `FeSO4`;
+- compact element-symbol formulas such as `NaCl` or `NaOH`, preserving their exact casing;
 - standalone short uppercase abbreviations/formulas such as `HCL`, `CA`, `FE`, or `ZN`.
 
 SP-042 owns embedded-strength/presentation extraction. SP-043 owns complex structural parsing. SP-041 owns reviewed semantic synonym/misspelling mappings.
@@ -110,7 +113,7 @@ SP-042 owns embedded-strength/presentation extraction. SP-043 owns complex struc
 - exact `NH4CL` expansion;
 - non-expansion of `MG`, `K`, `P`, and `PP`;
 - quarantine of embedded strength and structural syntax;
-- preservation of unreviewed formulas and standalone abbreviations;
+- preservation of `NaCl` formula casing plus unreviewed numeric formulas and standalone abbreviations;
 - deterministic repeat output and rule provenance;
 - unchanged raw product revision/source state and unchanged SP-025 lexical identity after candidate generation;
 - blank-input rejection;
