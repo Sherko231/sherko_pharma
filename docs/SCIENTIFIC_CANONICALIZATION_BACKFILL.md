@@ -35,7 +35,9 @@ An SP-025 lexical ingredient receives `verified` scientific mapping only when:
 
 Exact reviewed aliases use `mapping_method = reviewed_alias`. Exact canonical names require a reviewed scientific reference and use `mapping_method = exact_reference`. Both require confidence `100` and a review timestamp.
 
-Everything else remains explicit `needs_review` with no canonical scientific identity. Existing manually verified scientific mappings, if ever curated later, are preserved by the same-version refresh rather than overwritten.
+The same provenance rule is rechecked at product-node persistence time. SP-043 may structurally recognize an exact canonical scientific name, but SP-044 persists it as `trusted` only when the resolved alias itself has reviewed source metadata or the canonical identity has at least one reviewed scientific reference. A canonical registry row without reviewed reference evidence is downgraded to `high_confidence` with reason code `scientific_identity_missing_reviewed_provenance`.
+
+Everything else remains explicit `needs_review` or `high_confidence` with no accepted canonical scientific identity. Existing manually verified scientific mappings, if ever curated later, are preserved by the same-version refresh rather than overwritten.
 
 ## Product-level derivation
 
@@ -51,7 +53,7 @@ This includes:
 - explicit `trusted`, `high_confidence`, `needs_review` and `unresolved` component states;
 - machine-readable unresolved/review reason codes.
 
-`trusted` still requires SP-041-reviewed scientific identity. A structurally deterministic but unreviewed substance name remains only `high_confidence`.
+`trusted` requires reviewed scientific provenance at SP-044 persistence time. A structurally deterministic but unreviewed substance name remains only `high_confidence`.
 
 ## Idempotence
 
@@ -98,7 +100,7 @@ Before any production deployment:
 
 1. review the final repository diff;
 2. run migrations 0017–0022 plus `backend/tests/020_scientific_canonicalization_backfill_test.sql` in an isolated or rollback path;
-3. confirm same-version idempotence and raw/SP-025/DDI preservation;
+3. confirm same-version idempotence, reviewed-provenance trust enforcement and raw/SP-025/DDI preservation;
 4. obtain fresh explicit owner authorization immediately before the production write.
 
 After deployment:
@@ -107,6 +109,10 @@ After deployment:
 2. compare raw composition/strength and commercial-identity fingerprints with the read-only pre-deployment baseline;
 3. confirm SP-025 and DDI counts/fingerprints are unchanged;
 4. record exact coverage metrics and representative unresolved categories in the Issue/PR/documentation.
+
+## Current verification environment note
+
+The current agent runtime has no local PostgreSQL, Docker or Supabase CLI. A raw production transaction containing repository DDL was rejected by the Supabase tool safety layer even though it was intended to end in `ROLLBACK`. The official Supabase isolated-branch alternative currently reports a cost of `$0.01344/hour`; creating it requires separate owner cost approval. No production write occurred while establishing this limitation.
 
 ## Current production boundary
 
