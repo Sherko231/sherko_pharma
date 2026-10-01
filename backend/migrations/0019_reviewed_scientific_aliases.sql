@@ -346,10 +346,10 @@ select
   i.id,
   'cafeine',
   'legacy_name',
-  'ChEBI CHEBI:27732 https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI%3A27732; reviewed source orthography',
+  'PubChem SID 8144467 https://pubchem.ncbi.nlm.nih.gov/substance/8144467',
   'retrieved 2026-10-01',
   '2026-10-01T00:00:00Z'::timestamptz,
-  'Reviewed de-accented catalog spelling of ChEBI French caféine; exact alias only.'
+  'PubChem SID 8144467 explicitly lists cafeine for caffeine; exact reviewed alias only.'
 from app_private.scientific_ingredients i
 where i.normalized_preferred_name = app_private.scientific_name_key('Caffeine');
 
