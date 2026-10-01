@@ -46,6 +46,7 @@ declare
   camel_prefix text;
   has_embedded_strength boolean := false;
   has_structural_syntax boolean := false;
+  has_compact_formula_shape boolean := false;
 begin
   if input_text is null or nullif(btrim(input_text), '') is null then
     raise exception 'scientific cleanup input must not be blank'
@@ -123,11 +124,23 @@ begin
     or position('}' in working_text) > 0
   );
 
+  -- Compact element-symbol sequences such as NaCl or NaOH must not pass
+  -- through generic display-case normalization, which would corrupt the
+  -- conventional formula casing. Only exact formulas explicitly reviewed above
+  -- may be expanded automatically.
+  has_compact_formula_shape := (
+    char_length(working_text) between 2 and 12
+    and working_text ~ '^([A-Z][a-z]?){2,}$'
+  );
+
   if has_embedded_strength then
     review_reasons := array_append(review_reasons, 'embedded_strength');
   end if;
   if has_structural_syntax then
     review_reasons := array_append(review_reasons, 'structural_syntax');
+  end if;
+  if has_compact_formula_shape then
+    review_reasons := array_append(review_reasons, 'compact_formula');
   end if;
 
   -- Numeric/formula-like tokens outside the one explicit NH4CL rule remain
