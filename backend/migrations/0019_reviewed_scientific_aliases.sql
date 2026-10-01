@@ -14,6 +14,12 @@ declare
 begin
   alias_key := app_private.scientific_name_key(new.alias_text);
 
+  -- Canonical names and aliases live in separate tables, so serialize curation
+  -- for one equality key before checking the cross-table invariant.
+  perform pg_catalog.pg_advisory_xact_lock(
+    pg_catalog.hashtextextended(alias_key, 0)
+  );
+
   if exists (
     select 1
     from app_private.scientific_ingredients i
@@ -47,6 +53,10 @@ declare
   canonical_key text;
 begin
   canonical_key := app_private.scientific_name_key(new.preferred_name);
+
+  perform pg_catalog.pg_advisory_xact_lock(
+    pg_catalog.hashtextextended(canonical_key, 0)
+  );
 
   if exists (
     select 1
@@ -270,7 +280,7 @@ select
   i.id,
   'Amoxicilline',
   'legacy_name',
-  'PubChem CID 33613 / MeSH entry terms',
+  'PubChem CID 33613 https://pubchem.ncbi.nlm.nih.gov/compound/33613',
   'retrieved 2026-10-01',
   '2026-10-01T00:00:00Z'::timestamptz,
   'Reviewed spelling variant of Amoxicillin; exact alias only, not fuzzy matching.'
@@ -292,7 +302,7 @@ select
   i.id,
   'Amoxycillin',
   'synonym',
-  'PubChem CID 33613 / MeSH entry terms',
+  'PubChem CID 33613 https://pubchem.ncbi.nlm.nih.gov/compound/33613',
   'retrieved 2026-10-01',
   '2026-10-01T00:00:00Z'::timestamptz,
   'Reviewed established synonym of Amoxicillin.'
@@ -314,7 +324,7 @@ select
   i.id,
   'caféine',
   'local_name',
-  'ChEBI CHEBI:27732',
+  'ChEBI CHEBI:27732 https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI%3A27732',
   'retrieved 2026-10-01',
   '2026-10-01T00:00:00Z'::timestamptz,
   'Reviewed French term for Caffeine.'
@@ -336,7 +346,7 @@ select
   i.id,
   'cafeine',
   'legacy_name',
-  'ChEBI CHEBI:27732; reviewed source orthography',
+  'ChEBI CHEBI:27732 https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI%3A27732; reviewed source orthography',
   'retrieved 2026-10-01',
   '2026-10-01T00:00:00Z'::timestamptz,
   'Reviewed de-accented catalog spelling of ChEBI French caféine; exact alias only.'
@@ -358,7 +368,7 @@ select
   i.id,
   'Acetaminophen',
   'common_name',
-  'PubChem CID 1983 / MeSH; FDA GSRS INN field',
+  'PubChem CID 1983 https://pubchem.ncbi.nlm.nih.gov/compound/1983; MeSH; FDA GSRS INN field',
   'retrieved 2026-10-01',
   '2026-10-01T00:00:00Z'::timestamptz,
   'Reviewed common-name synonym of canonical INN Paracetamol.'
