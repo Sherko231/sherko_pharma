@@ -95,11 +95,13 @@ The implementation deliberately does not generalize arbitrary chemical formulas 
 The function returns `needs_review` without semantic expansion for:
 
 - exact overloaded short tokens `MG`, `K`, `P`, and `PP`;
-- embedded numeric strength/unit contamination such as `0.5MG`;
+- embedded numeric strength/unit contamination such as `0.5MG` or `25µg`;
 - structural syntax such as parentheses, `/`, commas, semicolons, ampersands, brackets, braces, or similar delimiters;
 - unreviewed numeric/formula-like tokens such as `FeSO4`;
 - compact element-symbol formulas such as `NaCl` or `NaOH`, preserving their exact casing;
 - standalone short uppercase abbreviations/formulas such as `HCL`, `CA`, `FE`, or `ZN`.
+
+NFKC changes MICRO SIGN `µ` to GREEK SMALL LETTER MU `μ`; the embedded-strength detector explicitly accepts both so Unicode cleanup cannot accidentally make a microgram-contaminated component look clean. SP-040 still does not parse the quantity.
 
 SP-042 owns embedded-strength/presentation extraction. SP-043 owns complex structural parsing. SP-041 owns reviewed semantic synonym/misspelling mappings.
 
@@ -112,7 +114,7 @@ SP-042 owns embedded-strength/presentation extraction. SP-043 owns complex struc
 - `VIT.B3` formatting without semantic collapse;
 - exact `NH4CL` expansion;
 - non-expansion of `MG`, `K`, `P`, and `PP`;
-- quarantine of embedded strength and structural syntax;
+- quarantine of embedded strength and structural syntax, including microgram text after NFKC;
 - preservation of `NaCl` formula casing plus unreviewed numeric formulas and standalone abbreviations;
 - deterministic repeat output and rule provenance;
 - unchanged raw product revision/source state and unchanged SP-025 lexical identity after candidate generation;
