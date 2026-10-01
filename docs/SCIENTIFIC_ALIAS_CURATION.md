@@ -34,7 +34,7 @@ The migration seeds only a small reviewed global reference set. It does not map 
 | `Amoxicilline` | `Amoxicillin` | legacy name / spelling variant | PubChem CID 33613 lists `Amoxicilline` as a synonym/MeSH entry term |
 | `Amoxycillin` | `Amoxicillin` | synonym | PubChem CID 33613 lists `Amoxycillin` as a synonym/MeSH entry term |
 | `caféine` | `Caffeine` | local name | ChEBI CHEBI:27732 records French `caféine` for caffeine |
-| `cafeine` | `Caffeine` | reviewed legacy catalog spelling | Human-reviewed de-accented form of ChEBI French `caféine`; this is an explicit row, not a generic de-accent rule |
+| `cafeine` | `Caffeine` | legacy name | PubChem SID 8144467 explicitly lists `cafeine` for caffeine |
 | `Acetaminophen` | `Paracetamol` | common name | PubChem CID 1983 lists both names for the same compound and reports INN `PARACETAMOL` |
 
 The canonical reference identities seeded by this task are `Amoxicillin`, `Caffeine`, and `Paracetamol` only. This is an acceptance/reference set, not an attempt to curate the full Syrian catalog in one migration.
@@ -45,6 +45,7 @@ Reviewed sources checked on 2026-10-01:
 
 - PubChem Amoxicillin, CID 33613: https://pubchem.ncbi.nlm.nih.gov/compound/33613
 - PubChem Caffeine, CID 2519: https://pubchem.ncbi.nlm.nih.gov/compound/2519
+- PubChem Caffeine substance record, SID 8144467: https://pubchem.ncbi.nlm.nih.gov/substance/8144467
 - ChEBI Caffeine, CHEBI:27732: https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI%3A27732
 - PubChem Acetaminophen/Paracetamol, CID 1983: https://pubchem.ncbi.nlm.nih.gov/compound/1983
 
