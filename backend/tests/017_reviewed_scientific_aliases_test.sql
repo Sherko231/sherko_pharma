@@ -65,7 +65,7 @@ begin
      or r.match_kind <> 'reviewed_alias'
      or r.alias_text <> 'cafeine'
      or r.alias_kind <> 'legacy_name'
-     or position('ChEBI' in coalesce(r.reference_source, '')) = 0
+     or position('PubChem SID 8144467' in coalesce(r.reference_source, '')) = 0
      or r.reviewed_at is null then
     raise exception 'cafeine reviewed spelling resolution failed: %', to_jsonb(r);
   end if;
