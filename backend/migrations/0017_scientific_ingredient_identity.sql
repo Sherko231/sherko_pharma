@@ -56,6 +56,30 @@ create type app_private.scientific_ingredient_reference_system as enum (
   'other'
 );
 
+-- Scientific identity equality must not reuse the broad catalog-search key:
+-- punctuation can carry chemical meaning. This key normalizes Unicode, case,
+-- surrounding whitespace, and repeated whitespace while preserving punctuation.
+create or replace function app_private.scientific_name_key(input_text text)
+returns text
+language sql
+immutable
+strict
+parallel safe
+set search_path = pg_catalog
+as $$
+  select lower(
+    regexp_replace(
+      btrim(normalize(input_text, NFKC)),
+      '[[:space:]]+',
+      ' ',
+      'g'
+    )
+  )
+$$;
+
+revoke all on function app_private.scientific_name_key(text)
+from public, anon, authenticated;
+
 create table app_private.scientific_ingredients (
   id bigint generated always as identity primary key,
   preferred_name text not null,
@@ -73,7 +97,7 @@ create table app_private.scientific_ingredients (
   constraint scientific_ingredients_normalized_name_matches
     check (
       normalized_preferred_name =
-        app_private.catalog_search_normalize(preferred_name)
+        app_private.scientific_name_key(preferred_name)
     ),
   constraint scientific_ingredients_parent_shape
     check (
@@ -87,6 +111,48 @@ create table app_private.scientific_ingredients (
       or parent_scientific_ingredient_id <> id
     )
 );
+
+-- Prevent longer parent/base cycles such as A -> B -> A. Direct self-parenting is
+-- also rejected by the table CHECK so the invariant remains visible in schema.
+create or replace function app_private.guard_scientific_ingredient_parent_cycle()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if new.parent_scientific_ingredient_id is null then
+    return new;
+  end if;
+
+  if exists (
+    with recursive lineage(id) as (
+      select new.parent_scientific_ingredient_id
+      union
+      select parent.parent_scientific_ingredient_id
+      from app_private.scientific_ingredients parent
+      join lineage current_lineage on parent.id = current_lineage.id
+      where parent.parent_scientific_ingredient_id is not null
+    )
+    select 1
+    from lineage
+    where id = new.id
+  ) then
+    raise exception 'scientific ingredient parent relationship would create a cycle'
+      using errcode = '23514';
+  end if;
+
+  return new;
+end;
+$$;
+
+revoke all on function app_private.guard_scientific_ingredient_parent_cycle()
+from public, anon, authenticated;
+
+create trigger scientific_ingredients_parent_cycle_guard
+before insert or update of parent_scientific_ingredient_id
+on app_private.scientific_ingredients
+for each row
+execute function app_private.guard_scientific_ingredient_parent_cycle();
 
 create table app_private.scientific_ingredient_references (
   scientific_ingredient_id bigint not null
@@ -124,6 +190,8 @@ create table app_private.scientific_ingredient_atc_codes (
   primary key (scientific_ingredient_id, atc_code),
   constraint scientific_ingredient_atc_code_nonblank
     check (btrim(atc_code) <> ''),
+  constraint scientific_ingredient_atc_code_canonical
+    check (atc_code = upper(btrim(atc_code))),
   constraint scientific_ingredient_atc_name_nonblank
     check (
       atc_name is null
@@ -148,7 +216,7 @@ create table app_private.scientific_ingredient_aliases (
     check (btrim(normalized_alias) <> ''),
   constraint scientific_ingredient_alias_normalized_matches
     check (
-      normalized_alias = app_private.catalog_search_normalize(alias_text)
+      normalized_alias = app_private.scientific_name_key(alias_text)
     ),
   constraint scientific_ingredient_alias_source_nonblank
     check (btrim(reference_source) <> '')
@@ -200,16 +268,48 @@ create table app_private.catalog_ingredient_scientific_mappings (
         status = 'needs_review'
         and scientific_ingredient_id is null
         and confidence between 0 and 99
-        and reviewed_at is null
       )
       or (
         status = 'unresolved'
         and scientific_ingredient_id is null
         and mapping_method = 'none'
         and confidence = 0
-        and reviewed_at is null
       )
+    ),
+  constraint catalog_ingredient_scientific_mapping_ingredient_status_unique
+    unique (ingredient_id, status)
+);
+
+-- A needs-review mapping can retain multiple explicit candidate identities
+-- without choosing one as scientific truth. The composite FK guarantees these
+-- rows can exist only while the parent mapping remains needs_review.
+create table app_private.catalog_ingredient_scientific_review_candidates (
+  ingredient_id bigint not null,
+  mapping_status app_private.scientific_ingredient_mapping_status not null
+    default 'needs_review',
+  scientific_ingredient_id bigint not null
+    references app_private.scientific_ingredients(id) on delete restrict,
+  mapping_method app_private.scientific_ingredient_mapping_method not null,
+  confidence smallint not null,
+  reference_source text not null,
+  reference_version text,
+  candidate_note text,
+  generated_at timestamptz not null default now(),
+  primary key (ingredient_id, scientific_ingredient_id),
+  foreign key (ingredient_id, mapping_status)
+    references app_private.catalog_ingredient_scientific_mappings(
+      ingredient_id,
+      status
     )
+    on delete cascade,
+  constraint catalog_ingredient_scientific_candidate_status
+    check (mapping_status = 'needs_review'),
+  constraint catalog_ingredient_scientific_candidate_method
+    check (mapping_method <> 'none'),
+  constraint catalog_ingredient_scientific_candidate_confidence
+    check (confidence between 1 and 99),
+  constraint catalog_ingredient_scientific_candidate_source_nonblank
+    check (btrim(reference_source) <> '')
 );
 
 create index scientific_ingredients_parent_idx
@@ -235,6 +335,12 @@ create index catalog_ingredient_scientific_mapping_identity_idx
   )
   where scientific_ingredient_id is not null;
 
+create index catalog_ingredient_scientific_candidate_identity_idx
+  on app_private.catalog_ingredient_scientific_review_candidates(
+    scientific_ingredient_id,
+    ingredient_id
+  );
+
 -- These are curation tables, not client API tables. Keep direct access denied
 -- even if app_private becomes exposed accidentally in a future configuration.
 alter table app_private.scientific_ingredients enable row level security;
@@ -242,6 +348,8 @@ alter table app_private.scientific_ingredient_references enable row level securi
 alter table app_private.scientific_ingredient_atc_codes enable row level security;
 alter table app_private.scientific_ingredient_aliases enable row level security;
 alter table app_private.catalog_ingredient_scientific_mappings
+  enable row level security;
+alter table app_private.catalog_ingredient_scientific_review_candidates
   enable row level security;
 
 revoke all on app_private.scientific_ingredients
@@ -253,6 +361,8 @@ from public, anon, authenticated;
 revoke all on app_private.scientific_ingredient_aliases
 from public, anon, authenticated;
 revoke all on app_private.catalog_ingredient_scientific_mappings
+from public, anon, authenticated;
+revoke all on app_private.catalog_ingredient_scientific_review_candidates
 from public, anon, authenticated;
 revoke all on sequence app_private.scientific_ingredients_id_seq
 from public, anon, authenticated;
