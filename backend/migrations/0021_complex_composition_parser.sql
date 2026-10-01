@@ -61,7 +61,6 @@ begin
       end if;
     end if;
   end loop;
-
   return depth = 0;
 end;
 $$;
@@ -162,7 +161,6 @@ begin
       );
       separator_before := pending_separator;
       return next;
-
       pending_separator := token;
       segment_start := position_value + 1;
     end if;
@@ -179,10 +177,10 @@ $$;
 revoke all on function app_private.scientific_split_complex_top_level(text,boolean)
 from public, anon, authenticated;
 
--- A comma is accepted as a component separator only for the narrow case where
--- every comma-separated token independently resolves through the SP-041 exact
--- reviewed scientific resolver and all resolved identities are distinct.
--- Otherwise comma syntax remains review-required rather than guessed.
+-- Comma splitting is deliberately narrower than plus/semicolon splitting. A
+-- comma becomes a structural separator only when every simple token already
+-- resolves through the SP-041 exact reviewed resolver and all identities are
+-- distinct. Same-identity comma text (for example a synonym pair) stays review.
 create or replace function app_private.scientific_comma_component_list_safe(
   input_text text
 )
@@ -222,8 +220,7 @@ begin
       into resolved_id
     from app_private.resolve_reviewed_scientific_alias(btrim(part)) r;
 
-    if resolved_id is null
-       or resolved_id = any(resolved_ids) then
+    if resolved_id is null or resolved_id = any(resolved_ids) then
       return false;
     end if;
 
@@ -270,7 +267,6 @@ returns table (
 )
 language plpgsql
 stable
-strict
 parallel safe
 set search_path = ''
 as $scientific_parse_complex_leaf$
@@ -285,7 +281,6 @@ declare
   resolved_id bigint;
   resolved_name text;
   alternate_resolved_id bigint;
-  alternate_resolved_name text;
   reasons text[] := array[]::text[];
   structure_needs_review boolean := false;
   identity_needs_review boolean := false;
@@ -301,6 +296,14 @@ begin
   raw_fragment := input_text;
   parser_version := app_private.complex_composition_parser_version();
   reason_codes := array[]::text[];
+
+  if input_text is null then
+    structure_status := 'unresolved';
+    identity_status := 'unresolved';
+    reason_codes := array['empty_component']::text[];
+    return next;
+    return;
+  end if;
 
   working_text := regexp_replace(
     btrim(normalize(input_text, NFKC)),
@@ -351,14 +354,16 @@ begin
       return;
     end if;
 
-    if alternate_text ~ '[+,;/&|:=]'
-       or alternate_text ~ '[0-9]' then
+    if primary_text ~ '[()]' then
       structure_needs_review := true;
       identity_needs_review := true;
-      reasons := array_append(
-        reasons,
-        'parenthesized_content_not_safe_alias'
-      );
+      reasons := array_append(reasons, 'nested_parenthesized_leaf_needs_review');
+    end if;
+
+    if alternate_text ~ '[+,;/&|:=]' or alternate_text ~ '[0-9]' then
+      structure_needs_review := true;
+      identity_needs_review := true;
+      reasons := array_append(reasons, 'parenthesized_content_not_safe_alias');
     end if;
   else
     primary_text := working_text;
@@ -367,10 +372,7 @@ begin
     if working_text ~ '[()]' then
       structure_needs_review := true;
       identity_needs_review := true;
-      reasons := array_append(
-        reasons,
-        'parenthesized_structure_needs_review'
-      );
+      reasons := array_append(reasons, 'parenthesized_structure_needs_review');
     end if;
   end if;
 
@@ -391,54 +393,48 @@ begin
 
   if embedded.parse_status = 'needs_review' then
     structure_needs_review := true;
-    reasons := reasons || coalesce(
-      embedded.review_reasons,
-      array[]::text[]
-    );
+    reasons := reasons || coalesce(embedded.review_reasons, array[]::text[]);
   end if;
 
   if cleanup.cleanup_status = 'needs_review' then
     identity_needs_review := true;
-    reasons := reasons || coalesce(
-      cleanup.review_reasons,
-      array[]::text[]
-    );
+    reasons := reasons || coalesce(cleanup.review_reasons, array[]::text[]);
   end if;
 
-  -- Slash syntax is deterministic only when SP-042 parsed it as a recognized
-  -- quantitative denominator or presentation suffix.
   if position('/' in primary_text) > 0
      and embedded.parse_status <> 'deterministic' then
     structure_needs_review := true;
     reasons := array_append(reasons, 'ambiguous_slash_structure');
   end if;
 
-  -- Commas are separators only in the reviewed-distinct-identity list path
-  -- handled by the parent parser. A comma reaching a leaf is ambiguous.
   if position(',' in primary_text) > 0 then
     structure_needs_review := true;
     identity_needs_review := true;
     reasons := array_append(reasons, 'ambiguous_comma_structure');
   end if;
 
-  botanical_marker := (
-    coalesce(ingredient_candidate, ingredient_source, '') ~* (
-      '(^|[^[:alnum:]])(' ||
-      'extract|root|leaf|leaves|seed|oil|herb|flower|bark|fruit|' ||
-      'ginseng|ginkgo|echinacea|valerian|senna|aloe|garlic|ginger|' ||
-      'turmeric|curcumin|silymarin|thistle|palmetto|cranberry|' ||
-      'peppermint|chamomile' ||
-      ')([^[:alnum:]]|$)'
-    )
+  if position('[' in primary_text) > 0
+     or position(']' in primary_text) > 0
+     or position('{' in primary_text) > 0
+     or position('}' in primary_text) > 0
+     or primary_text ~ '[&:=|]' then
+    structure_needs_review := true;
+    reasons := array_append(reasons, 'unsupported_structural_delimiter');
+  end if;
+
+  botanical_marker := coalesce(ingredient_candidate, ingredient_source, '') ~* (
+    '(^|[^[:alnum:]])(' ||
+    'extract|root|leaf|leaves|seed|oil|herb|flower|bark|fruit|' ||
+    'ginseng|ginkgo|echinacea|valerian|senna|aloe|garlic|ginger|' ||
+    'turmeric|curcumin|silymarin|thistle|palmetto|cranberry|' ||
+    'peppermint|chamomile' ||
+    ')([^[:alnum:]]|$)'
   );
 
   if botanical_marker then
     identity_hint := 'botanical_or_extract';
     identity_needs_review := true;
-    reasons := array_append(
-      reasons,
-      'botanical_or_extract_identity_needs_review'
-    );
+    reasons := array_append(reasons, 'botanical_or_extract_identity_needs_review');
   elsif coalesce(ingredient_candidate, '') ~* '^Vitamin[[:space:]]+' then
     identity_hint := 'vitamin';
     if ingredient_candidate ~* '^Vitamin[[:space:]]+B3$' then
@@ -465,9 +461,7 @@ begin
      and not bare_mineral then
     select r.scientific_ingredient_id, r.preferred_name
       into resolved_id, resolved_name
-    from app_private.resolve_reviewed_scientific_alias(
-      ingredient_candidate
-    ) r;
+    from app_private.resolve_reviewed_scientific_alias(ingredient_candidate) r;
   end if;
 
   if has_alt then
@@ -480,18 +474,14 @@ begin
 
     if alternate_cleanup.cleanup_status = 'needs_review' then
       identity_needs_review := true;
-      reasons := reasons || coalesce(
-        alternate_cleanup.review_reasons,
-        array[]::text[]
-      );
+      reasons := reasons || coalesce(alternate_cleanup.review_reasons, array[]::text[]);
     end if;
 
     alternate_resolved_id := null;
-    alternate_resolved_name := null;
     if alternate_cleanup.cleanup_status = 'deterministic_candidate'
        and not structure_needs_review then
-      select r.scientific_ingredient_id, r.preferred_name
-        into alternate_resolved_id, alternate_resolved_name
+      select r.scientific_ingredient_id
+        into alternate_resolved_id
       from app_private.resolve_reviewed_scientific_alias(
         alternate_name_candidate
       ) r;
@@ -508,10 +498,7 @@ begin
       identity_needs_review := true;
       resolved_id := null;
       resolved_name := null;
-      reasons := array_append(
-        reasons,
-        'parenthesized_alternate_name_needs_review'
-      );
+      reasons := array_append(reasons, 'parenthesized_alternate_name_needs_review');
     end if;
   end if;
 
@@ -550,11 +537,7 @@ end;
 $scientific_parse_complex_leaf$;
 
 revoke all on function app_private.scientific_parse_complex_leaf(
-  text,
-  integer[],
-  integer[],
-  text,
-  text
+  text, integer[], integer[], text, text
 )
 from public, anon, authenticated;
 
@@ -589,7 +572,6 @@ returns table (
 )
 language plpgsql
 stable
-strict
 parallel safe
 set search_path = ''
 as $scientific_parse_complex_children$
@@ -600,14 +582,15 @@ declare
   current_path integer[];
   inner_text text;
 begin
+  if input_text is null then
+    return;
+  end if;
+
   split_comma := app_private.scientific_comma_component_list_safe(input_text);
 
   for segment in
     select *
-    from app_private.scientific_split_complex_top_level(
-      input_text,
-      split_comma
-    )
+    from app_private.scientific_split_complex_top_level(input_text, split_comma)
     order by segment_index
   loop
     segment_text := btrim(segment.raw_segment);
@@ -718,9 +701,7 @@ end;
 $scientific_parse_complex_children$;
 
 revoke all on function app_private.scientific_parse_complex_children(
-  text,
-  integer[],
-  text
+  text, integer[], text
 )
 from public, anon, authenticated;
 
@@ -851,14 +832,10 @@ as $$
   counts as (
     select
       count(*)::integer as ingredient_count,
-      count(*) filter (where identity_status = 'trusted')::integer
-        as trusted_count,
-      count(*) filter (where identity_status = 'high_confidence')::integer
-        as high_confidence_count,
-      count(*) filter (where identity_status = 'needs_review')::integer
-        as needs_review_count,
-      count(*) filter (where identity_status = 'unresolved')::integer
-        as unresolved_count,
+      count(*) filter (where identity_status = 'trusted')::integer as trusted_count,
+      count(*) filter (where identity_status = 'high_confidence')::integer as high_confidence_count,
+      count(*) filter (where identity_status = 'needs_review')::integer as needs_review_count,
+      count(*) filter (where identity_status = 'unresolved')::integer as unresolved_count,
       bool_or(structure_status = 'unresolved') as has_structure_unresolved,
       bool_or(structure_status = 'needs_review') as has_structure_review,
       bool_or(identity_status = 'unresolved') as has_identity_unresolved,
