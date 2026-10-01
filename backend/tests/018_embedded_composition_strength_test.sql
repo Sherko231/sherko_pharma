@@ -62,11 +62,13 @@ begin
     'Vitamin B12 1000mcg'
   );
 
-  if r.ingredient_candidate <> 'Vitamin b12'
+  if r.ingredient_candidate <> 'Vitamin B12'
      or r.normalized_amount <> 1
      or r.normalized_unit <> 'mg'
-     or r.parse_status <> 'deterministic' then
-    raise exception 'microgram normalization failed: %', to_jsonb(r);
+     or r.parse_status <> 'needs_review'
+     or not ('ingredient_candidate_needs_review' = any(r.review_reasons)) then
+    raise exception 'SP-040 numeric ingredient review boundary was not preserved: %',
+      to_jsonb(r);
   end if;
 
   select * into r
@@ -390,10 +392,18 @@ begin
 
   if has_function_privilege(
     'authenticated',
+    'app_private.scientific_embedded_strength_vector_key(text)',
+    'EXECUTE'
+  ) or has_function_privilege(
+    'authenticated',
+    'app_private.scientific_source_strength_vector_key(text)',
+    'EXECUTE'
+  ) or has_function_privilege(
+    'authenticated',
     'app_private.catalog_strength_presentation_name(text)',
     'EXECUTE'
   ) then
-    raise exception 'authenticated can execute private presentation canonicalizer';
+    raise exception 'authenticated can execute private SP-042 helper';
   end if;
 end
 $embedded_private_access$;
