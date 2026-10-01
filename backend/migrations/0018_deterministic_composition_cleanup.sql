@@ -126,10 +126,11 @@ begin
 
   -- Compact element-symbol sequences such as NaCl or NaOH must not pass
   -- through generic display-case normalization, which would corrupt the
-  -- conventional formula casing. Only exact formulas explicitly reviewed above
-  -- may be expanded automatically.
+  -- conventional formula casing. Requiring a lowercase letter keeps all-caps
+  -- acronyms such as HCL on the separate abbreviation review path below.
   has_compact_formula_shape := (
     char_length(working_text) between 2 and 12
+    and working_text ~ '[a-z]'
     and working_text ~ '^([A-Z][a-z]?){2,}$'
   );
 
