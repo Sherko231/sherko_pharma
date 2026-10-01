@@ -112,8 +112,8 @@ After deployment:
 
 ## Current verification environment note
 
-The current agent runtime has no local PostgreSQL, Docker or Supabase CLI. A raw production transaction containing repository DDL was rejected by the Supabase tool safety layer even though it was intended to end in `ROLLBACK`. The official Supabase isolated-branch alternative currently reports a cost of `$0.01344/hour`; creating it requires separate owner cost approval. No production write occurred while establishing this limitation.
+The current agent runtime has no local PostgreSQL, Docker or Supabase CLI. A raw production transaction containing repository DDL was rejected by the Supabase tool safety layer even though it was intended to end in `ROLLBACK`; no production schema/data write occurred. The official Supabase isolated-branch alternative currently reports a cost of `$0.01344/hour`; creating it requires separate owner cost approval. Until one isolated execution path is available, SP-044 remains intentionally unmerged and undeployed.
 
 ## Current production boundary
 
-Before SP-044 deployment, production remains deployed through the DDI migration sequence ending at repository migration 0016. Repository migrations 0017–0022 are not production state until the owner explicitly authorizes and the deployment is actually performed.
+Production remains deployed through the DDI migration sequence ending at repository migration 0016. Repository migrations 0017–0022 are not production state until isolated verification passes and the owner explicitly authorizes the actual deployment.
