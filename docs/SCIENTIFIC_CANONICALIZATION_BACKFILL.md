@@ -1,6 +1,8 @@
 # Scientific Canonicalization Backfill
 
-Status: SP-044 repository implementation prepared; production deployment requires fresh explicit owner authorization immediately before the write.
+> Deployment status override — 2026-10-01: the owner explicitly authorized skipping isolated verification and deploying directly to production. Migration 0017 / SP-039 was applied successfully. Migration 0018 / SP-040 was then blocked twice by the Supabase/OpenAI tool safety layer before PostgreSQL execution. Migrations 0019–0022 were not attempted because they depend on 0018. The SP-039 production tables remain empty and private; no catalog backfill has occurred.
+
+Status: SP-044 production deployment is partially started and stopped safely at the dependency boundary described above.
 Task: Issue #106
 Branch-start SHA: `9567c5da2156715022a8b5e4b4bd47f50d20af3a`
 Canonicalization version: `1`
@@ -94,26 +96,25 @@ It also rejects any persisted `verified`/`trusted` scientific row without review
 
 The report intentionally emits no product names, raw compositions, barcodes, prices, source payloads, account identifiers or full ingredient list.
 
-## Verification sequence
+## Verification and deployment record
 
-Before any production deployment:
+Pre-deployment read-only baseline immediately before the authorized write:
 
-1. review the final repository diff;
-2. run migrations 0017–0022 plus `backend/tests/020_scientific_canonicalization_backfill_test.sql` in an isolated or rollback path;
-3. confirm same-version idempotence, reviewed-provenance trust enforcement and raw/SP-025/DDI preservation;
-4. obtain fresh explicit owner authorization immediately before the production write.
+- products: 23,750;
+- nonblank compositions: 17,840;
+- SP-025 lexical ingredients: 2,358;
+- SP-025 component rows: 25,840;
+- SP-025 composition-normalization rows: 23,750;
+- Interaction Checker global mappings: 2,358;
+- Interaction Checker component overrides: 6.
 
-After deployment:
+The owner explicitly authorized bypassing the unavailable isolated/rollback environment and requested immediate production deployment.
 
-1. run the aggregate SP-044 coverage report;
-2. compare raw composition/strength and commercial-identity fingerprints with the read-only pre-deployment baseline;
-3. confirm SP-025 and DDI counts/fingerprints are unchanged;
-4. record exact coverage metrics and representative unresolved categories in the Issue/PR/documentation.
+Deployment result so far:
 
-## Current verification environment note
+1. 0017 / `sp039_scientific_ingredient_identity` — applied successfully to production.
+2. 0018 / `sp040_deterministic_composition_cleanup` — blocked by the execution safety layer before database execution on both the initial and exact-repository attempts.
+3. 0019–0022 — not attempted because they depend on 0018.
+4. Production inspection confirms the SP-039 type exists, the SP-040 type/function do not exist, scientific identity/mapping tables contain zero rows, and `anon`/`authenticated` still lack direct access to the private schema/table.
 
-The current agent runtime has no local PostgreSQL, Docker or Supabase CLI. A raw production transaction containing repository DDL was rejected by the Supabase tool safety layer even though it was intended to end in `ROLLBACK`; no production schema/data write occurred. The official Supabase isolated-branch alternative currently reports a cost of `$0.01344/hour`; creating it requires separate owner cost approval. Until one isolated execution path is available, SP-044 remains intentionally unmerged and undeployed.
-
-## Current production boundary
-
-Production remains deployed through the DDI migration sequence ending at repository migration 0016. Repository migrations 0017–0022 are not production state until isolated verification passes and the owner explicitly authorizes the actual deployment.
+Do not attempt 0019–0022 until 0018 is successfully applied. Once the chain completes, run the aggregate coverage report and compare raw/commercial/SP-025/DDI fingerprints against the captured baseline before merging PR #118.
