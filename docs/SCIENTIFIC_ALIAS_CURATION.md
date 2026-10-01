@@ -60,6 +60,8 @@ SP-039 already makes `scientific_ingredient_aliases.normalized_alias` a primary 
 - a new/renamed canonical identity B is rejected if its preferred name is already a reviewed alias owned by identity A;
 - an existing reviewed alias key cannot be inserted again for another identity.
 
+Because canonical names and aliases are stored in separate tables, both collision guards take a transaction-scoped PostgreSQL advisory lock derived from the normalized scientific-name key before checking the opposite table. Concurrent curation of the same key is therefore serialized rather than relying on a race-prone check-then-write sequence.
+
 Collision rejection uses a uniqueness-style database error. It does not choose a winner and it does not downgrade either identity automatically. A curator must resolve the evidence explicitly.
 
 ## Ambiguity policy
@@ -95,7 +97,7 @@ This separation keeps observed source data auditable and prevents a cleanup/fuzz
 - unchanged raw SP-025 spelling/identity and no persisted product scientific mapping;
 - alias↔canonical and alias↔alias collision rejection;
 - required provenance/review timestamp on accepted aliases;
-- no direct client execution of the private resolver/guard.
+- no direct client execution of the private resolver or either collision guard.
 
 ## Deployment boundary
 
