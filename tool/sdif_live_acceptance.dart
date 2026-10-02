@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:sherko_pharma/features/interactions/application/sdif_result_aggregator.dart';
 import 'package:sherko_pharma/features/interactions/application/sdif_reviewed_atc_bridge.dart';
 import 'package:sherko_pharma/features/interactions/data/sdif_client.dart';
 import 'package:sherko_pharma/features/interactions/domain/sdif_models.dart';
+import 'package:sherko_pharma/features/interactions/domain/sdif_result_models.dart';
 import 'package:sherko_pharma/features/interactions/domain/sdif_reviewed_identity_models.dart';
 
 const _currentReviewedIdentities = <SdifReviewedScientificIdentity>[
@@ -56,6 +58,7 @@ Future<void> main(List<String> args) async {
     }
 
     final checked = await bridge.checkResolvedIdentities(resolved);
+    final aggregated = const SdifResultAggregator().aggregate(checked);
     final familyCounts = <String, int>{
       for (final family in SdifInteractionFamily.values) family.name: 0,
     };
@@ -65,6 +68,14 @@ Future<void> main(List<String> args) async {
       final score = hit.severityScore.toString();
       severityScoreCounts[score] = (severityScoreCounts[score] ?? 0) + 1;
     }
+
+    final pairsWithHits = aggregated.pairs
+        .where(
+          (pair) =>
+              pair.observationStatus == SdifPairObservationStatus.hitsObserved,
+        )
+        .length;
+    final pairsWithNoProviderHit = aggregated.pairs.length - pairsWithHits;
 
     final output = <String, Object?>{
       'base_uri': baseUri.toString(),
@@ -76,6 +87,11 @@ Future<void> main(List<String> args) async {
       'interaction_hit_count': checked.providerResult.interactions.length,
       'interaction_family_counts': familyCounts,
       'provider_native_severity_score_counts': severityScoreCounts,
+      'aggregated_pair_count': aggregated.pairs.length,
+      'pairs_with_hits_observed': pairsWithHits,
+      'pairs_with_no_provider_hit_reported': pairsWithNoProviderHit,
+      'retained_finding_count': aggregated.retainedFindingCount,
+      'exact_duplicate_hit_count': aggregated.exactDuplicateHitCount,
       'absence_of_hits_is_not_a_safety_classification': true,
     };
 
