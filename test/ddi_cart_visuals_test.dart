@@ -185,7 +185,8 @@ void main() {
     addProducts(container, ['a', 'b', 'c']);
     await tester.pumpAndSettle();
 
-    expect(find.text('Unknown'), findsNWidgets(2));
+    expect(find.text('Unknown'), findsOneWidget);
+    expect(find.text('Unknown · 2 pairs'), findsOneWidget);
     expect(find.text('No interaction found'), findsNothing);
     expect(find.byKey(const Key('ddi-row-severity-c')), findsNothing);
     expect(find.byKey(const Key('ddi-summary-unknown')), findsOneWidget);
