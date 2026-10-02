@@ -66,9 +66,9 @@ void main() {
       );
 
       final semantics = tester.ensureSemantics();
-      addTearDown(semantics.dispose);
       expect(find.bySemanticsLabel('Alternatives'), findsOneWidget);
       expect(find.bySemanticsLabel('Add to cart'), findsOneWidget);
+      semantics.dispose();
 
       final mouse = await tester.createGesture(
         kind: PointerDeviceKind.mouse,
