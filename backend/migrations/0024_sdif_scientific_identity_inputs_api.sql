@@ -73,6 +73,8 @@ begin
       n.identity_status::text as identity_status,
       n.scientific_ingredient_id
     from app_private.product_scientific_canonicalization_nodes n
+    join requested r
+      on r.product_id = n.product_id
     where n.node_kind = 'ingredient'
   ),
   component_stats as (
