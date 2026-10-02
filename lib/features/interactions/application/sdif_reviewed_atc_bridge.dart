@@ -1,4 +1,5 @@
 import '../data/sdif_client.dart';
+import '../domain/sdif_models.dart';
 import '../domain/sdif_reviewed_identity_models.dart';
 
 class SdifReviewedAtcBridge {
@@ -78,14 +79,36 @@ class SdifReviewedAtcBridge {
 
     final providerBrands = <String>[];
     final seenProviderBrands = <String>{};
-    for (final identity in identities) {
-      _validateIdentity(identity.identity);
-      final providerDrug = identity.providerDrug;
-      final brandName = providerDrug.brandName.trim();
-      final atcCode = providerDrug.providerAtcCode.trim();
-      if (brandName.isEmpty || atcCode.isEmpty) {
+    final seenScientificIds = <int>{};
+    for (final resolvedIdentity in identities) {
+      final identity = _validateIdentity(resolvedIdentity.identity);
+      if (!seenScientificIds.add(identity.scientificIngredientId)) {
         throw const SdifReviewedAtcInvalidInputException(
-          'Resolved SDIF provider selections must include brand and ATC.',
+          'Scientific identities must be distinct within one SDIF check.',
+        );
+      }
+
+      final providerDrug = resolvedIdentity.providerDrug;
+      final reviewedAtcCode = providerDrug.reviewedAtcCode.trim();
+      final providerAtcCode = providerDrug.providerAtcCode.trim();
+      final brandName = providerDrug.brandName.trim();
+      final substances = providerDrug.substances.trim();
+
+      if (!identity.reviewedAtcCodes.contains(reviewedAtcCode)) {
+        throw const SdifReviewedAtcIntegrityException(
+          'Resolved SDIF selection does not originate from a reviewed ATC code '
+          'for this scientific identity.',
+        );
+      }
+      if (providerAtcCode != reviewedAtcCode) {
+        throw const SdifReviewedAtcIntegrityException(
+          'Resolved SDIF provider ATC no longer matches its reviewed ATC code.',
+        );
+      }
+      if (brandName.isEmpty || providerAtcCode.isEmpty || substances.isEmpty) {
+        throw const SdifReviewedAtcInvalidInputException(
+          'Resolved SDIF provider selections must include brand, ATC and '
+          'substance metadata.',
         );
       }
       if (!seenProviderBrands.add(brandName)) {
@@ -109,7 +132,7 @@ class SdifReviewedAtcBridge {
 
   void _validateBasket(
     List<SdifResolvedScientificIdentity> expected,
-    List<dynamic> actualBasket,
+    List<SdifBasketDrug> actualBasket,
   ) {
     if (actualBasket.length != expected.length) {
       throw SdifReviewedAtcBasketIntegrityException(
