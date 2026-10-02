@@ -23,9 +23,11 @@ class AppBootstrap extends StatelessWidget {
       'SUPABASE_URL is missing.',
       'SUPABASE_PUBLISHABLE_KEY is missing.',
     ]),
+    this.providerOverrides = const [],
   });
 
   final AppRuntime runtime;
+  final List<Override> providerOverrides;
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +60,7 @@ class AppBootstrap extends StatelessWidget {
           sdifScientificIdentityRepositoryProvider.overrideWithValue(
             sdifScientificIdentityRepository,
           ),
+        ...providerOverrides,
       ],
       child: _RuntimeApp(runtime: runtime),
     );
