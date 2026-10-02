@@ -8,6 +8,7 @@ import '../features/catalog/data/catalog_draft_store.dart';
 import '../features/catalog/data/catalog_repository.dart';
 import '../features/catalog/data/supabase_catalog_repository.dart';
 import '../features/interactions/data/ddi_ingredient_repository.dart';
+import '../features/interactions/data/sdif_scientific_identity_repository.dart';
 import '../features/interactions/domain/ddi_runtime_selection.dart';
 import '../features/session/data/app_session_store.dart';
 
@@ -65,6 +66,7 @@ class AppRuntime {
     this.catalogDraftStore,
     this.appSessionStore,
     this.ddiIngredientRepository,
+    this.sdifScientificIdentityRepository,
     this.ddiRuntimeSelection = const DdiRuntimeSelection.interactionChecker(),
   })  : status = AppRuntimeStatus.configured,
         problems = const [];
@@ -76,6 +78,7 @@ class AppRuntime {
         catalogDraftStore = null,
         appSessionStore = null,
         ddiIngredientRepository = null,
+        sdifScientificIdentityRepository = null,
         ddiRuntimeSelection = const DdiRuntimeSelection.interactionChecker();
 
   const AppRuntime.initializationFailed()
@@ -85,6 +88,7 @@ class AppRuntime {
         catalogDraftStore = null,
         appSessionStore = null,
         ddiIngredientRepository = null,
+        sdifScientificIdentityRepository = null,
         ddiRuntimeSelection = const DdiRuntimeSelection.interactionChecker(),
         problems = const [
           'Supabase or secure session storage could not be initialized.',
@@ -96,6 +100,7 @@ class AppRuntime {
   final CatalogDraftStore? catalogDraftStore;
   final AppSessionStore? appSessionStore;
   final DdiIngredientRepository? ddiIngredientRepository;
+  final SdifScientificIdentityRepository? sdifScientificIdentityRepository;
   final DdiRuntimeSelection ddiRuntimeSelection;
   final List<String> problems;
 
@@ -117,6 +122,7 @@ class AppRuntime {
       return AppRuntime.configurationBlocked(List.unmodifiable(problems));
     }
 
+    final ddiSelection = resolved.ddiRuntimeConfig.selection;
     final store = secureStore ?? const FlutterSecureKeyValueStore();
     final storagePrefix =
         'sherko_pharma:${Uri.parse(resolved.supabaseUrl).host}';
@@ -151,7 +157,10 @@ class AppRuntime {
         appSessionStore: appSessionStore,
         ddiIngredientRepository:
             SupabaseDdiIngredientRepository.fromClient(client),
-        ddiRuntimeSelection: resolved.ddiRuntimeConfig.selection,
+        sdifScientificIdentityRepository: ddiSelection.usesSdif
+            ? SupabaseSdifScientificIdentityRepository.fromClient(client)
+            : null,
+        ddiRuntimeSelection: ddiSelection,
       );
     } catch (_) {
       return const AppRuntime.initializationFailed();

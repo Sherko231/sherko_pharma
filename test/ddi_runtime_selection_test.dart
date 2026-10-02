@@ -4,8 +4,10 @@ import 'package:sherko_pharma/app/app_runtime.dart';
 import 'package:sherko_pharma/features/interactions/application/ddi_cart_controller.dart';
 import 'package:sherko_pharma/features/interactions/data/ddi_ingredient_repository.dart';
 import 'package:sherko_pharma/features/interactions/data/sdif_client.dart';
+import 'package:sherko_pharma/features/interactions/data/sdif_scientific_identity_repository.dart';
 import 'package:sherko_pharma/features/interactions/domain/ddi_analysis_models.dart';
 import 'package:sherko_pharma/features/interactions/domain/ddi_runtime_selection.dart';
+import 'package:sherko_pharma/features/interactions/domain/sdif_product_scientific_models.dart';
 
 void main() {
   group('DdiRuntimeConfig', () {
@@ -106,9 +108,11 @@ void main() {
       expect(container.read(sdifGatewayProvider), isNull);
       expect(container.read(sdifReviewedAtcBridgeProvider), isNull);
       expect(container.read(sdifResultAggregatorProvider), isNull);
+      expect(container.read(sdifScientificIdentityRepositoryProvider), isNull);
     });
 
     test('SDIF wiring is isolated from the current Cart analysis gateway', () {
+      const scientificRepository = _FakeSdifScientificIdentityRepository();
       final container = ProviderContainer(
         overrides: [
           ddiRuntimeSelectionProvider.overrideWithValue(
@@ -119,6 +123,9 @@ void main() {
           ddiIngredientRepositoryProvider.overrideWithValue(
             const _FakeDdiIngredientRepository(),
           ),
+          sdifScientificIdentityRepositoryProvider.overrideWithValue(
+            scientificRepository,
+          ),
         ],
       );
       addTearDown(container.dispose);
@@ -127,6 +134,10 @@ void main() {
       expect(container.read(sdifGatewayProvider), isA<SdifGateway>());
       expect(container.read(sdifReviewedAtcBridgeProvider), isNotNull);
       expect(container.read(sdifResultAggregatorProvider), isNotNull);
+      expect(
+        container.read(sdifScientificIdentityRepositoryProvider),
+        same(scientificRepository),
+      );
     });
   });
 }
@@ -136,6 +147,18 @@ class _FakeDdiIngredientRepository implements DdiIngredientRepository {
 
   @override
   Future<List<DdiProductIngredientInput>> resolveProducts(
+    List<String> productIds,
+  ) async {
+    return const [];
+  }
+}
+
+class _FakeSdifScientificIdentityRepository
+    implements SdifScientificIdentityRepository {
+  const _FakeSdifScientificIdentityRepository();
+
+  @override
+  Future<List<SdifProductScientificInput>> resolveProducts(
     List<String> productIds,
   ) async {
     return const [];
