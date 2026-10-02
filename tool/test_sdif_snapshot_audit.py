@@ -14,6 +14,7 @@ from sdif_contract import (
     SDIF_UPSTREAM_REPOSITORY,
 )
 from sdif_snapshot_audit import (
+    PINNED_SOURCE_PATHS,
     PINNED_SOURCE_URLS,
     SdifSnapshotAuditError,
     audit_sdif_snapshot,
@@ -69,9 +70,19 @@ class SdifSnapshotAuditTest(unittest.TestCase):
         )
         return path
 
-    def _provenance(self, root: Path, db: Path) -> Path:
+    def _source_root(self, root: Path) -> Path:
+        checkout = root / "sdif"
+        for url, relative_path in PINNED_SOURCE_PATHS.items():
+            path = checkout / relative_path
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(("fixture:" + url).encode("utf-8"))
+        return checkout
+
+    def _provenance(self, root: Path, db: Path, source_root: Path) -> Path:
         source_hashes = {
-            url: hashlib.sha256(url.encode("utf-8")).hexdigest()
+            url: hashlib.sha256(
+                (source_root / PINNED_SOURCE_PATHS[url]).read_bytes()
+            ).hexdigest()
             for url in PINNED_SOURCE_URLS
         }
         path = root / "provenance.json"
@@ -111,7 +122,9 @@ class SdifSnapshotAuditTest(unittest.TestCase):
             first.mapping["reviewed_atc_backed_coverage_percent"],
             100.0,
         )
-        self.assertNotIn("Alpha One", json.dumps(first.as_dict()))
+        payload = json.dumps(first.as_dict())
+        self.assertNotIn("Alpha One", payload)
+        self.assertNotIn(str(db), payload)
 
     def test_snapshot_audit_does_not_mutate_provider_bytes(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -156,20 +169,26 @@ class SdifSnapshotAuditTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             db = self._database(root)
-            provenance = self._provenance(root, db)
-            report = audit_sdif_snapshot(db, provenance_manifest=provenance)
+            source_root = self._source_root(root)
+            provenance = self._provenance(root, db, source_root)
+            report = audit_sdif_snapshot(
+                db,
+                provenance_manifest=provenance,
+                source_root=source_root,
+            )
 
         self.assertTrue(report.provenance_verified)
         self.assertEqual(
             report.provenance_reason,
-            "pinned_commit_artifact_and_source_hashes_match_manifest",
+            "pinned_commit_artifact_and_source_files_match_manifest",
         )
 
     def test_wrong_artifact_hash_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             db = self._database(root)
-            provenance = self._provenance(root, db)
+            source_root = self._source_root(root)
+            provenance = self._provenance(root, db, source_root)
             raw = json.loads(provenance.read_text(encoding="utf-8"))
             raw["artifact_sha256"] = "0" * 64
             provenance.write_text(json.dumps(raw), encoding="utf-8")
@@ -178,13 +197,18 @@ class SdifSnapshotAuditTest(unittest.TestCase):
                 SdifSnapshotAuditError,
                 "artifact_sha256 does not match",
             ):
-                audit_sdif_snapshot(db, provenance_manifest=provenance)
+                audit_sdif_snapshot(
+                    db,
+                    provenance_manifest=provenance,
+                    source_root=source_root,
+                )
 
     def test_missing_pinned_source_hash_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             db = self._database(root)
-            provenance = self._provenance(root, db)
+            source_root = self._source_root(root)
+            provenance = self._provenance(root, db, source_root)
             raw = json.loads(provenance.read_text(encoding="utf-8"))
             raw["source_artifacts"] = raw["source_artifacts"][:-1]
             provenance.write_text(json.dumps(raw), encoding="utf-8")
@@ -192,6 +216,43 @@ class SdifSnapshotAuditTest(unittest.TestCase):
             with self.assertRaisesRegex(
                 SdifSnapshotAuditError,
                 "source artifact set does not match",
+            ):
+                audit_sdif_snapshot(
+                    db,
+                    provenance_manifest=provenance,
+                    source_root=source_root,
+                )
+
+    def test_source_file_hash_mismatch_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            db = self._database(root)
+            source_root = self._source_root(root)
+            provenance = self._provenance(root, db, source_root)
+            (source_root / PINNED_SOURCE_PATHS[PINNED_SOURCE_URLS[0]]).write_bytes(
+                b"changed-after-manifest"
+            )
+
+            with self.assertRaisesRegex(
+                SdifSnapshotAuditError,
+                "source artifact hash does not match",
+            ):
+                audit_sdif_snapshot(
+                    db,
+                    provenance_manifest=provenance,
+                    source_root=source_root,
+                )
+
+    def test_manifest_requires_source_root(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            db = self._database(root)
+            source_root = self._source_root(root)
+            provenance = self._provenance(root, db, source_root)
+
+            with self.assertRaisesRegex(
+                SdifSnapshotAuditError,
+                "requires source_root",
             ):
                 audit_sdif_snapshot(db, provenance_manifest=provenance)
 
