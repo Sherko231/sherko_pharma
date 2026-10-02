@@ -13,6 +13,7 @@ import hashlib
 import json
 import re
 import sqlite3
+import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -121,6 +122,26 @@ def _validated_sha256(value: object, label: str) -> str:
     return canonical
 
 
+def _git_head(source_root: Path) -> str:
+    try:
+        completed = subprocess.run(
+            ["git", "-C", str(source_root), "rev-parse", "HEAD"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except OSError as error:
+        raise SdifSnapshotAuditError(
+            f"Unable to verify pinned SDIF checkout with git: {error}"
+        ) from error
+    if completed.returncode != 0:
+        detail = completed.stderr.strip() or "git rev-parse failed"
+        raise SdifSnapshotAuditError(
+            f"Unable to verify pinned SDIF checkout: {detail}"
+        )
+    return completed.stdout.strip()
+
+
 def _verify_provenance_manifest(
     manifest_path: str | Path,
     artifact_sha256: str,
@@ -189,6 +210,11 @@ def _verify_provenance_manifest(
         )
 
     root = Path(source_root)
+    if _git_head(root) != SDIF_PINNED_COMMIT:
+        raise SdifSnapshotAuditError(
+            "source_root Git HEAD does not match the pinned SDIF commit"
+        )
+
     for url, relative_path in PINNED_SOURCE_PATHS.items():
         source_path = root / relative_path
         if not source_path.is_file():
@@ -201,7 +227,7 @@ def _verify_provenance_manifest(
                 f"Pinned source artifact hash does not match manifest: {relative_path}"
             )
 
-    return True, "pinned_commit_artifact_and_source_files_match_manifest"
+    return True, "pinned_checkout_artifact_and_source_files_match_manifest"
 
 
 def audit_sdif_snapshot(
