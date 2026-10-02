@@ -15,7 +15,7 @@ A schema-compatible SQLite file is not enough evidence that it came from the pin
 1. the SDIF-001 minimum schema contract;
 2. SQLite `PRAGMA quick_check`;
 3. immutable artifact fingerprinting and aggregate required-table row counts;
-4. optional provenance verification of the generated database **and the actual downloaded source files**, plus aggregate-only SDIF-002 reviewed identity mapping.
+4. optional provenance verification of the pinned checkout Git HEAD, generated database and actual downloaded source files, plus aggregate-only SDIF-002 reviewed identity mapping.
 
 The tool never prints provider rows, interaction descriptions, brands, source payloads, local filesystem paths, or other provider dataset content in its JSON report. The SQLite file is opened read-only and its SHA-256/size are checked again after the audit to detect accidental mutation.
 
@@ -96,17 +96,18 @@ Example shape:
 }
 ```
 
-A manifest by itself is not accepted as proof of source provenance. For `provenance_verified=true`, the audit also requires `--source-root` pointing at the pinned SDIF checkout and re-hashes the three actual files at the paths above. It verifies:
+A manifest by itself is not accepted as proof of source provenance. For `provenance_verified=true`, the audit also requires `--source-root` pointing at the SDIF checkout. It runs `git rev-parse HEAD`, requires the exact pinned commit, and re-hashes the three actual source files at the paths above. It verifies:
 
-- exact upstream repository;
-- exact pinned commit;
+- exact upstream repository recorded in the manifest;
+- exact pinned commit recorded in the manifest;
+- actual checkout Git HEAD equals the pinned commit;
 - exact expected source URL set;
 - generated `interactions.db` SHA-256;
 - actual source-file SHA-256 values against the manifest.
 
 A database audited without a manifest is explicitly reported as `provenance_manifest_not_supplied`. Supplying a manifest without the source root is rejected rather than being treated as verified.
 
-This provenance check binds the evaluation to exact downloaded input bytes. It does not itself prove source authenticity beyond the recorded acquisition path, and it does not grant redistribution or commercial-use rights for those datasets.
+This provenance check binds the evaluation to a pinned checkout and exact downloaded input bytes. It does not itself prove source-host authenticity beyond the recorded acquisition path, and it does not grant redistribution or commercial-use rights for those datasets.
 
 ## One-command snapshot audit
 
@@ -149,11 +150,11 @@ Per-provider rows, interaction text, brand names, and local filesystem paths are
 
 ## Reproducible operator procedure
 
-1. Clone `https://github.com/zdavatz/sdif` outside Sherko Pharma and checkout exactly `9f8f69519e4806d9e0e7021f403bdcb52ed77cc0`.
+1. Clone `https://github.com/zdavatz/sdif` outside Sherko Pharma and checkout exactly `9f8f69519e4806d9e0e7021f403bdcb52ed77cc0`. Do not move the checkout to another commit before the audit.
 2. Build the pinned Rust project.
 3. Run its documented `build --download` flow so the three source artifacts and `db/interactions.db` are produced by the pinned code.
 4. Compute SHA-256 for the three downloaded source artifacts and `db/interactions.db`, then write the local provenance manifest.
-5. Keep the source checkout available for the audit; `--source-root` re-hashes the actual downloaded source files instead of trusting the manifest alone.
+5. Keep the source checkout available for the audit; `--source-root` verifies Git HEAD and re-hashes the actual downloaded source files instead of trusting the manifest alone.
 6. Copy only the generated SQLite file and local provenance manifest into `sdif_working_dir/`; do not commit either.
 7. Produce the small reviewed Sherko identity export outside Git from the current scientific layer. Confirm it contains only the three expected verified identities and their reviewed ATC codes.
 8. Run `tool/sdif_snapshot_audit.py` as shown above.
@@ -195,14 +196,15 @@ Synthetic regression coverage includes:
 - byte-for-byte provider immutability;
 - incompatible schema rejection;
 - non-`ok` SQLite quick-check rejection;
-- pinned upstream/artifact/source-file provenance acceptance;
+- pinned checkout/artifact/source-file provenance acceptance;
+- wrong checkout Git commit rejection;
 - mismatched artifact hash rejection;
 - missing pinned source hash rejection;
 - actual source-file hash mismatch rejection;
 - manifest-without-source-root rejection;
 - explicit unverified provenance when no manifest is supplied.
 
-The focused SDIF-004 regressions were executed locally with synthetic data during implementation: **10/10 passed**. Synthetic fixtures do not establish real provider coverage.
+The focused SDIF-004 regressions were executed locally with synthetic data during implementation: **11/11 passed**. Synthetic fixtures do not establish real provider coverage.
 
 ## Preserved boundaries
 
