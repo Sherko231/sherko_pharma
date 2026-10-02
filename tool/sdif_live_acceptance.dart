@@ -110,7 +110,7 @@ Uri _readBaseUri(List<String> args) {
       (uri.scheme != 'http' && uri.scheme != 'https')) {
     _fail('--base-url must be an absolute HTTP(S) URI.');
   }
-  return uri!;
+  return uri;
 }
 
 Never _fail(String message) {
