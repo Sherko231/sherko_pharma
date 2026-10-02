@@ -467,7 +467,8 @@ String _failureMessage(SdifCartFailureKind? failure) {
       'SDIF returned an unreadable response. Cart is unchanged.',
     SdifCartFailureKind.mapping =>
       'SDIF result could not be verified. Cart is unchanged.',
-    SdifCartFailureKind.unknown || null =>
+    SdifCartFailureKind.unknown =>
       'SDIF interaction check failed. Cart is unchanged.',
+    null => 'SDIF interaction check failed. Cart is unchanged.',
   };
 }
