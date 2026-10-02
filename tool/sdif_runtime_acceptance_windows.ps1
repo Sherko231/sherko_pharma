@@ -8,6 +8,10 @@ Set-StrictMode -Version Latest
 $PinnedCommit = '9f8f69519e4806d9e0e7021f403bdcb52ed77cc0'
 $ExpectedSnapshotSha256 = '9e5498675acca91097899e66181a27b056cb2026f0d903e686da9cf5c62c3206'
 
+if ($Port -lt 1 -or $Port -gt 65535) {
+    throw 'Port must be between 1 and 65535.'
+}
+
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $workingRoot = Join-Path $repoRoot 'sdif_working_dir'
 $sdifDir = Join-Path $workingRoot 'sdif-pinned'
@@ -104,8 +108,8 @@ try {
             throw "SDIF server exited before readiness. $serverError"
         }
         try {
-            $probe = Invoke-RestMethod -Uri $readyUri -Method Get -TimeoutSec 2
-            if ($probe -is [System.Array] -and $probe.Count -ge 1) {
+            $probe = @(Invoke-RestMethod -Uri $readyUri -Method Get -TimeoutSec 2)
+            if ($probe.Count -ge 1 -and $probe[0].atc_code -eq 'J01CA04') {
                 $ready = $true
                 break
             }
