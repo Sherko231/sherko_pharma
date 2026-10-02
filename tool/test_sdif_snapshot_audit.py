@@ -22,6 +22,16 @@ from sdif_snapshot_audit import (
 
 
 class SdifSnapshotAuditTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.git_head_patch = patch(
+            "sdif_snapshot_audit._git_head",
+            return_value=SDIF_PINNED_COMMIT,
+        )
+        self.git_head_patch.start()
+
+    def tearDown(self) -> None:
+        self.git_head_patch.stop()
+
     def _database(self, root: Path) -> Path:
         path = root / "interactions.db"
         connection = sqlite3.connect(path)
@@ -145,7 +155,6 @@ class SdifSnapshotAuditTest(unittest.TestCase):
                 connection.commit()
             finally:
                 connection.close()
-
             with self.assertRaisesRegex(
                 SdifSnapshotAuditError,
                 "SDIF contract validation failed",
@@ -180,8 +189,25 @@ class SdifSnapshotAuditTest(unittest.TestCase):
         self.assertTrue(report.provenance_verified)
         self.assertEqual(
             report.provenance_reason,
-            "pinned_commit_artifact_and_source_files_match_manifest",
+            "pinned_checkout_artifact_and_source_files_match_manifest",
         )
+
+    def test_wrong_checkout_commit_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            db = self._database(root)
+            source_root = self._source_root(root)
+            provenance = self._provenance(root, db, source_root)
+            with patch("sdif_snapshot_audit._git_head", return_value="0" * 40):
+                with self.assertRaisesRegex(
+                    SdifSnapshotAuditError,
+                    "Git HEAD does not match",
+                ):
+                    audit_sdif_snapshot(
+                        db,
+                        provenance_manifest=provenance,
+                        source_root=source_root,
+                    )
 
     def test_wrong_artifact_hash_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
