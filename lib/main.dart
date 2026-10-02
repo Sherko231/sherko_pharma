@@ -7,6 +7,7 @@ import 'features/auth/application/auth_controller.dart';
 import 'features/catalog/application/catalog_search_controller.dart';
 import 'features/catalog/data/catalog_draft_store.dart';
 import 'features/interactions/application/ddi_cart_controller.dart';
+import 'features/interactions/application/sdif_cart_controller.dart';
 import 'features/session/data/app_session_store.dart';
 
 Future<void> main() async {
@@ -58,7 +59,21 @@ class AppBootstrap extends StatelessWidget {
             sdifScientificIdentityRepository,
           ),
       ],
-      child: SherkoPharmaApp(runtime: runtime),
+      child: _RuntimeApp(runtime: runtime),
     );
+  }
+}
+
+class _RuntimeApp extends ConsumerWidget {
+  const _RuntimeApp({required this.runtime});
+
+  final AppRuntime runtime;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (runtime.ddiRuntimeSelection.usesSdif) {
+      ref.watch(sdifCartControllerProvider);
+    }
+    return SherkoPharmaApp(runtime: runtime);
   }
 }
