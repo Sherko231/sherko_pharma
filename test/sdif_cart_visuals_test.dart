@@ -108,7 +108,11 @@ void main() {
     expect(find.text('Minor'), findsNothing);
     expect(find.text('Unknown'), findsNothing);
     expect(find.text('No interaction found'), findsNothing);
-    expect(find.textContaining('safe', findRichText: true), findsNothing);
+    expect(
+      find.textContaining(RegExp(r'\bsafe\b', caseSensitive: false)),
+      findsNothing,
+    );
+    expect(find.textContaining('compatible'), findsNothing);
     expect(container.read(orderControllerProvider).totalSyp, 2000);
   });
 
@@ -144,7 +148,11 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('No interaction found'), findsNothing);
-    expect(find.textContaining('Safe'), findsNothing);
+    expect(
+      find.textContaining(RegExp(r'\bsafe\b', caseSensitive: false)),
+      findsNothing,
+    );
+    expect(find.textContaining('compatible'), findsNothing);
 
     final row = tester.widget<DecoratedBox>(
       find.byKey(const Key('order-line-a')),
