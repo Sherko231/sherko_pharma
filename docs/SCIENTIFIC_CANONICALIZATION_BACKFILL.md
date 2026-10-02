@@ -1,120 +1,155 @@
 # Scientific Canonicalization Backfill
 
-> Deployment status override — 2026-10-01: the owner explicitly authorized skipping isolated verification and deploying directly to production. Migration 0017 / SP-039 was applied successfully. Migration 0018 / SP-040 was then blocked twice by the Supabase/OpenAI tool safety layer before PostgreSQL execution. Migrations 0019–0022 were not attempted because they depend on 0018. The SP-039 production tables remain empty and private; no catalog backfill has occurred.
-
-Status: SP-044 production deployment is partially started and stopped safely at the dependency boundary described above.
+Status: SP-044 production backfill completed and verified on 2026-10-02.
 Task: Issue #106
 Branch-start SHA: `9567c5da2156715022a8b5e4b4bd47f50d20af3a`
 Canonicalization version: `1`
 
 ## Purpose
 
-SP-044 is the first task in the SP-038–SP-044 sequence allowed to persist reviewed scientific canonicalization into production-derived state.
+SP-044 persists the reviewed scientific canonicalization pipeline as a private, versioned derived layer over the existing catalog. It does not rewrite authoritative catalog text. `public.products.composition` and `public.products.strength` remain source/display fields, and product IDs, barcodes, selling amounts/currencies, revisions, SP-025 identities, SP-026/SP-027 state, DDI mappings, orders and Flutter runtime remain independent.
 
-It does not rewrite authoritative catalog text. `public.products.composition` and `public.products.strength` remain source/display fields. Existing product IDs, barcodes, selling amounts/currencies, revisions, SP-025 lexical identities, SP-026 strength state, SP-027 equivalence state, DDI provider mappings, Cart/order behavior and Flutter runtime remain independent and unchanged.
+## Owner authorization and deployment path
 
-## Versioned derived model
+The owner explicitly authorized skipping the unavailable isolated/rollback environment and deploying directly to production. The hosted migration surface rejected several large payloads, so SP-041, SP-043 and SP-044 were deployed as smaller recorded migrations. Repository reconciliation migrations `0021b_sp043_production_reconciliation.sql` and `0022b_sp044_production_reconciliation.sql` are assertion-only markers proving that the split production path and the repository end-state converge.
 
-Migration `backend/migrations/0022_scientific_canonicalization_backfill.sql` introduces:
+Production now contains the SP-039 through SP-044 scientific layer, including:
 
-- `scientific_canonicalization_versions` — records the canonicalization version and the SP-040/SP-042/SP-043 rule/parser versions it depends on;
-- `product_scientific_canonicalization_nodes` — preserves SP-043 node/group provenance plus reviewed scientific identity, embedded-strength metadata and machine-readable reasons;
-- `product_scientific_canonicalization` — one aggregate derived row per product, including source fingerprint, structure/identity status counts, alias resolution count and embedded-strength comparison;
-- private refresh/sync functions for one lexical ingredient, one product, or the full derived layer;
-- an automatic private sync trigger for future composition/strength edits.
+- scientific ingredient identities, reviewed references/aliases and ambiguity states;
+- deterministic cleanup and embedded-strength parsers;
+- complex-composition parser entrypoints;
+- versioned product canonicalization nodes and product summaries;
+- private refresh functions and future composition/strength sync trigger;
+- the completed catalog backfill for canonicalization version 1.
 
-All new tables/functions remain private from `public`, `anon` and `authenticated` direct access.
+Normal `anon` and `authenticated` roles cannot directly execute the private refresh/parser functions or read the private canonicalization tables.
 
 ## Scientific acceptance rule
 
-SP-044 does not treat deterministic cleanup as scientific truth.
+Deterministic text cleanup is never scientific truth by itself.
 
-An SP-025 lexical ingredient receives `verified` scientific mapping only when:
+An SP-025 lexical ingredient is persisted as `verified` only when the deterministic candidate resolves through reviewed SP-041 evidence:
 
-1. SP-040 produces a deterministic candidate;
-2. that candidate resolves exactly through the reviewed SP-041 canonical/alias registry; and
-3. the resolution has reviewed provenance.
+- exact reviewed aliases use `mapping_method = reviewed_alias`;
+- exact canonical names require at least one reviewed scientific reference and use `mapping_method = exact_reference`;
+- both require confidence `100` and a review timestamp.
 
-Exact reviewed aliases use `mapping_method = reviewed_alias`. Exact canonical names require a reviewed scientific reference and use `mapping_method = exact_reference`. Both require confidence `100` and a review timestamp.
+Product nodes are persisted as `trusted` only when the same reviewed provenance exists. Otherwise a structurally deterministic candidate remains `high_confidence`, `needs_review` or `unresolved` as appropriate.
 
-The same provenance rule is rechecked at product-node persistence time. SP-043 may structurally recognize an exact canonical scientific name, but SP-044 persists it as `trusted` only when the resolved alias itself has reviewed source metadata or the canonical identity has at least one reviewed scientific reference. A canonical registry row without reviewed reference evidence is downgraded to `high_confidence` with reason code `scientific_identity_missing_reviewed_provenance`.
+## Production baseline and preservation
 
-Everything else remains explicit `needs_review` or `high_confidence` with no accepted canonical scientific identity. Existing manually verified scientific mappings, if ever curated later, are preserved by the same-version refresh rather than overwritten.
-
-## Product-level derivation
-
-Product parsing runs directly from the raw composition text through SP-043 so the derived layer can represent cases that the older flat SP-025 component model intentionally could not express.
-
-This includes:
-
-- grouped expressions and parent paths;
-- parenthesized alternate names;
-- reviewed alias resolution;
-- embedded strength/presentation metadata from SP-042;
-- strength comparison against the separate source `products.strength` value;
-- explicit `trusted`, `high_confidence`, `needs_review` and `unresolved` component states;
-- machine-readable unresolved/review reason codes.
-
-`trusted` requires reviewed scientific provenance at SP-044 persistence time. A structurally deterministic but unreviewed substance name remains only `high_confidence`.
-
-## Idempotence
-
-Canonicalization version `1` is content-addressed by raw composition + raw strength plus explicit upstream rule versions.
-
-For a product whose source fingerprint and parser/canonicalization versions have not changed, refresh is a no-op. Existing node rows and `normalized_at` remain unchanged.
-
-Global lexical-ingredient mappings use an `ON CONFLICT ... WHERE ... IS DISTINCT FROM` update, so a same-version rerun does not change `updated_at` when the reviewed result is identical.
-
-A future change to cleanup rules, reviewed scientific references/aliases, embedded parser behavior or complex parser behavior must ship under a new canonicalization version before a production refresh.
-
-## Backfill invariants
-
-The migration snapshots authoritative/upstream state before the backfill and aborts if it detects changes to:
-
-- raw composition or strength;
-- barcodes;
-- selling amount/currency;
-- product revision or `updated_at`;
-- SP-025 ingredient/component/composition-normalization state;
-- Interaction Checker global mappings or product-component overrides.
-
-It also rejects any persisted `verified`/`trusted` scientific row without reviewed scientific identity/provenance.
-
-## Coverage reporting
-
-`backend/audits/sp044_scientific_canonicalization_coverage.sql` returns aggregate-only metrics required by Issue #106:
-
-- mapped canonical lexical ingredient count;
-- reviewed synonym/alias-resolved ingredient count;
-- review-required/unresolved ingredient counts;
-- fully trusted product coverage among nonblank compositions;
-- reviewed alias-resolved product/component counts;
-- embedded-strength cleanup product/component counts;
-- product structure/identity status buckets;
-- embedded/source-strength comparison buckets;
-- unresolved/review reason-code counts.
-
-The report intentionally emits no product names, raw compositions, barcodes, prices, source payloads, account identifiers or full ingredient list.
-
-## Verification and deployment record
-
-Pre-deployment read-only baseline immediately before the authorized write:
+Immediately before the authorized write:
 
 - products: 23,750;
-- nonblank compositions: 17,840;
+- products with nonblank composition: 17,840;
 - SP-025 lexical ingredients: 2,358;
-- SP-025 component rows: 25,840;
+- SP-025 product-component rows: 25,840;
 - SP-025 composition-normalization rows: 23,750;
 - Interaction Checker global mappings: 2,358;
 - Interaction Checker component overrides: 6.
 
-The owner explicitly authorized bypassing the unavailable isolated/rollback environment and requested immediate production deployment.
+Post-deployment fingerprints exactly matched the pre-deployment baseline:
 
-Deployment result so far:
+| State | Fingerprint |
+| --- | --- |
+| Raw composition + strength | `2a1259ca63573efaf3374d39105f1c30` |
+| Commercial identity / barcode / price / revision state | `89a2ec6461a7bb10a8f2612db747a40c` |
+| SP-025 ingredient registry | `edfa8492eaab52c2feaee3a2a8c423e0` |
+| SP-025 product components | `6a0d8cd5ae4355e83a8cbe63d1e66ac1` |
+| SP-025 composition normalization | `fb308143da45cc046b690d2b80d9d637` |
+| DDI ingredient mappings | `f19511eb1cc9d21f9785030241b8c52c` |
+| DDI component overrides | `c88fa8ec4312f4cd6b7d13f4196a406a` |
 
-1. 0017 / `sp039_scientific_ingredient_identity` — applied successfully to production.
-2. 0018 / `sp040_deterministic_composition_cleanup` — blocked by the execution safety layer before database execution on both the initial and exact-repository attempts.
-3. 0019–0022 — not attempted because they depend on 0018.
-4. Production inspection confirms the SP-039 type exists, the SP-040 type/function do not exist, scientific identity/mapping tables contain zero rows, and `anon`/`authenticated` still lack direct access to the private schema/table.
+The backfill migration also captured temporary before-state snapshots and aborted automatically if authoritative/commercial product state, SP-025 state or DDI state changed inside the deployment transaction. No invariant fired.
 
-Do not attempt 0019–0022 until 0018 is successfully applied. Once the chain completes, run the aggregate coverage report and compare raw/commercial/SP-025/DDI fingerprints against the captured baseline before merging PR #118.
+## Production coverage
+
+Canonicalization version 1 produced:
+
+| Metric | Count |
+| --- | ---: |
+| Lexical ingredient mappings | 2,358 |
+| Verified canonical ingredient mappings | 4 |
+| Verified reviewed-alias ingredient mappings | 1 |
+| Ingredient mappings requiring review | 2,354 |
+| Unresolved ingredient mappings | 0 |
+| Product canonicalization summaries | 23,750 |
+| Products with nonblank composition | 17,840 |
+| Fully trusted nonblank products | 468 |
+| Fully trusted nonblank product coverage | 2.62% |
+| Reviewed-alias-resolved components | 18 |
+| Products with reviewed-alias resolution | 18 |
+| Embedded-strength/presentation components captured | 863 |
+| Products with embedded-strength/presentation capture | 516 |
+| Review-required product components | 2,046 |
+| Unresolved product components | 5,939 |
+| Trusted ingredient nodes | 1,401 |
+| Trusted canonical-name nodes | 1,383 |
+| Trusted reviewed-alias nodes | 18 |
+
+Product status buckets:
+
+- deterministic / high-confidence: 16,202;
+- deterministic / needs-review: 752;
+- deterministic / trusted: 468;
+- needs-review structure / high-confidence identity: 79;
+- needs-review structure / needs-review identity: 309;
+- needs-review structure / trusted identity: 1;
+- unresolved / unresolved: 5,939.
+
+Embedded/source-strength comparison:
+
+- matches: 26;
+- conflicts: 30;
+- source missing: 320;
+- source unparseable: 6;
+- not comparable: 23,368.
+
+The largest review/unresolved categories are blank composition (5,910 components), unreviewed numeric/formula tokens (777), standalone abbreviations/formulas (651), structural syntax (282), botanical/extract identity review (278), parenthesized structure review (208), ambiguous short tokens (190), and bare-mineral form ambiguity (95). Smaller explicit categories remain available in the aggregate coverage query.
+
+## Idempotence
+
+A production same-version rerun of `refresh_all_scientific_canonicalization()` was executed after the backfill. Fingerprints of:
+
+- `catalog_ingredient_scientific_mappings` including `updated_at`;
+- `product_scientific_canonicalization` including `normalized_at`;
+- `product_scientific_canonicalization_nodes` including `normalized_at`;
+
+were identical before and after the rerun. Canonicalization version 1 is therefore verified idempotent for the deployed state.
+
+## SP-043 acceptance verification
+
+Before the SP-044 backfill, the completed production SP-043 parser was checked read-only with synthetic acceptance examples:
+
+- grouped `ARTESUNATE+(SULFADOXINE+PYRIMETHAMINE)` -> deterministic structure, three high-confidence/unverified ingredient identities;
+- `DICYCLOMINE HCL (DICYCLOVERINE HCL)` -> one needs-review ingredient rather than two automatic ingredients;
+- `K` and `VIT.B3` -> deterministic structure but scientific identity `needs_review`;
+- malformed unmatched-parenthesis input -> unresolved structure and identity.
+
+## Security and performance review
+
+Supabase advisors were run after deployment.
+
+Security advisor output contains the expected `RLS enabled, no policy` INFO findings for private scientific tables. These tables intentionally have no client policies and direct privileges are revoked from `anon`/`authenticated`; reconciliation checks confirmed that access remains denied. Existing public catalog SECURITY DEFINER warnings and the pre-existing `public.set_product_revision` search-path warning are outside SP-044 scope.
+
+Performance advisors report informational unindexed-FK/unused-index notices. Two new notices concern the canonicalization-version foreign keys on the new private product tables. Version cardinality is currently one and no performance regression was observed during the one-time backfill; index tuning remains a separate optimization task rather than part of the scientific-data contract.
+
+Advisor references:
+
+- https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy
+- https://supabase.com/docs/guides/database/database-linter?lint=0001_unindexed_foreign_keys
+
+## Verification limitation
+
+`backend/tests/020_scientific_canonicalization_backfill_test.sql` was not executed in its original isolated rollback-fixture mode because this session had no local PostgreSQL/Docker/Supabase runtime and the production raw-DDL rollback bundle was rejected before execution. The owner explicitly authorized direct production deployment instead.
+
+Production verification that was actually executed includes the SP-043 synthetic parser checks, the migration-embedded preservation/provenance invariants, exact before/after fingerprints, exact aggregate coverage, security/performance advisors, assertion-only reconciliation migrations, and a successful same-version idempotence rerun.
+
+## Reproducibility
+
+- Aggregate coverage query: `backend/audits/sp044_scientific_canonicalization_coverage.sql`.
+- Main backfill definition: `backend/migrations/0022_scientific_canonicalization_backfill.sql`.
+- Split-rollout convergence checks: `backend/migrations/0021b_sp043_production_reconciliation.sql` and `backend/migrations/0022b_sp044_production_reconciliation.sql`.
+- Rollback regression fixture retained for future isolated environments: `backend/tests/020_scientific_canonicalization_backfill_test.sql`.
+
+No production catalog dump, product names, barcodes, prices, account identifiers or source CSV are committed by SP-044.
