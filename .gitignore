@@ -49,3 +49,7 @@ windows/flutter/generated_plugin_registrant.h
 
 # Private generated catalog-import working files
 import_working_dir/
+
+# Local SDIF evaluation artifacts. Never commit generated interactions.db or
+# downloaded AmiKo/ATC/EPha source data.
+sdif_working_dir/
