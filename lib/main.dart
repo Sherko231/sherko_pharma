@@ -33,6 +33,8 @@ class AppBootstrap extends StatelessWidget {
     final catalogDraftStore = runtime.catalogDraftStore;
     final appSessionStore = runtime.appSessionStore;
     final ddiIngredientRepository = runtime.ddiIngredientRepository;
+    final sdifScientificIdentityRepository =
+        runtime.sdifScientificIdentityRepository;
 
     return ProviderScope(
       overrides: [
@@ -50,6 +52,10 @@ class AppBootstrap extends StatelessWidget {
         if (ddiIngredientRepository != null)
           ddiIngredientRepositoryProvider.overrideWithValue(
             ddiIngredientRepository,
+          ),
+        if (sdifScientificIdentityRepository != null)
+          sdifScientificIdentityRepositoryProvider.overrideWithValue(
+            sdifScientificIdentityRepository,
           ),
       ],
       child: SherkoPharmaApp(runtime: runtime),
