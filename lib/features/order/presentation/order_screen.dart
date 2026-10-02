@@ -12,6 +12,7 @@ import '../../interactions/domain/ddi_analysis_models.dart';
 import '../../interactions/domain/interaction_check_models.dart';
 import '../../interactions/presentation/ddi_cart_presentation.dart';
 import '../../interactions/presentation/ddi_interaction_detail_sheet.dart';
+import '../../interactions/presentation/sdif_cart_widgets.dart';
 import '../../scanning/presentation/android_barcode_scanner_screen.dart';
 import '../application/order_controller.dart';
 import '../domain/order_model.dart';
@@ -145,10 +146,12 @@ class _CartPane extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ddi = ref.watch(ddiCartControllerProvider);
-    final analysis = ddi.analysis;
+    final usesSdif = ref.watch(ddiRuntimeSelectionProvider).usesSdif;
+    final DdiCartState? ddi =
+        usesSdif ? null : ref.watch(ddiCartControllerProvider);
+    final analysis = ddi?.analysis;
     final presentation =
-        ddi.status == DdiCartStatus.ready && analysis != null
+        ddi?.status == DdiCartStatus.ready && analysis != null
             ? buildDdiCartPresentation(analysis)
             : null;
     final distinctProductCount = order.lines
@@ -161,17 +164,20 @@ class _CartPane extends ConsumerWidget {
         _CartSummaryBar(order: order),
         if (distinctProductCount >= 2) ...[
           const SizedBox(height: 4),
-          _DdiCartStatusBar(
-            ddi: ddi,
-            presentation: presentation,
-          ),
+          if (usesSdif)
+            const SdifCartStatusSurface()
+          else
+            _DdiCartStatusBar(
+              ddi: ddi!,
+              presentation: presentation,
+            ),
         ],
         const SizedBox(height: 4),
         Expanded(
           child: _CartLines(
             order: order,
-            ddi: presentation,
-            ddiAnalysis: analysis,
+            ddi: usesSdif ? null : presentation,
+            ddiAnalysis: usesSdif ? null : analysis,
           ),
         ),
       ],
@@ -1031,6 +1037,7 @@ class _OrderLineRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.read(orderControllerProvider.notifier);
+    final usesSdif = ref.watch(ddiRuntimeSelectionProvider).usesSdif;
     final pending = ref.watch(
       scopedCatalogRefreshControllerProvider.select(
         (refresh) => refresh.priceChanges[line.productId],
@@ -1047,7 +1054,8 @@ class _OrderLineRow extends ConsumerWidget {
     final ddiStyle = severity == null || severity == InteractionSeverity.none
         ? null
         : _ddiSeverityStyle(context, severity);
-    final showDdiBadges = ddi != null &&
+    final showDdiBadges = !usesSdif &&
+        ddi != null &&
         (severity != null && severity != InteractionSeverity.none ||
             _ddiCoverageLabel(ddi!) != null);
 
@@ -1061,112 +1069,117 @@ class _OrderLineRow extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: CatalogText(
-                  line.displayName,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleSmall,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: CatalogText(
+                    line.displayName,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                '${formatWholeAmount(line.lineAmount)} ${line.currency}',
-                key: Key('order-line-amount-${line.productId}'),
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  '${formatWholeAmount(line.unitAmount)} ${line.currency} each',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color:
-                            Theme.of(context).colorScheme.onSurfaceVariant,
+                const SizedBox(width: 10),
+                Text(
+                  '${formatWholeAmount(line.lineAmount)} ${line.currency}',
+                  key: Key('order-line-amount-${line.productId}'),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
                       ),
                 ),
-              ),
-              _QuantityStepper(
-                productId: line.productId,
-                quantity: line.quantity,
-                onDecrement: line.quantity <= 1
-                    ? null
-                    : () => controller.decrement(line.productId),
-                onIncrement: () {
-                  final result = controller.increment(line.productId);
-                  if (result == OrderActionResult.overflow) {
-                    ScaffoldMessenger.of(context)
-                      ..hideCurrentSnackBar()
-                      ..showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Quantity is too large to calculate safely.',
-                          ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '${formatWholeAmount(line.unitAmount)} ${line.currency} each',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color:
+                              Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
-                      );
-                  }
-                },
-              ),
-              const SizedBox(width: 2),
-              IconButton(
-                key: Key('order-remove-${line.productId}'),
-                tooltip: 'Remove',
-                onPressed: () => controller.remove(line.productId),
-                visualDensity: VisualDensity.compact,
-                constraints: const BoxConstraints.tightFor(
-                  width: 38,
-                  height: 38,
+                  ),
                 ),
-                iconSize: 19,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                icon: const Icon(Icons.delete_outline_rounded),
+                _QuantityStepper(
+                  productId: line.productId,
+                  quantity: line.quantity,
+                  onDecrement: line.quantity <= 1
+                      ? null
+                      : () => controller.decrement(line.productId),
+                  onIncrement: () {
+                    final result = controller.increment(line.productId);
+                    if (result == OrderActionResult.overflow) {
+                      ScaffoldMessenger.of(context)
+                        ..hideCurrentSnackBar()
+                        ..showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Quantity is too large to calculate safely.',
+                            ),
+                          ),
+                        );
+                    }
+                  },
+                ),
+                const SizedBox(width: 2),
+                IconButton(
+                  key: Key('order-remove-${line.productId}'),
+                  tooltip: 'Remove',
+                  onPressed: () => controller.remove(line.productId),
+                  visualDensity: VisualDensity.compact,
+                  constraints: const BoxConstraints.tightFor(
+                    width: 38,
+                    height: 38,
+                  ),
+                  iconSize: 19,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  icon: const Icon(Icons.delete_outline_rounded),
+                ),
+              ],
+            ),
+            if (showDdiBadges) ...[
+              const SizedBox(height: 5),
+              _DdiRowBadges(
+                productId: line.productId,
+                orderLines: orderLines,
+                presentation: ddi!,
+                analysis: ddiAnalysis,
               ),
             ],
-          ),
-          if (showDdiBadges) ...[
-            const SizedBox(height: 5),
-            _DdiRowBadges(
-              productId: line.productId,
-              orderLines: orderLines,
-              presentation: ddi!,
-              analysis: ddiAnalysis,
-            ),
-          ],
-          if (latest != null) ...[
-            const SizedBox(height: 6),
-            _PriceChangeNotice(
-              line: line,
-              latestAmount: latest.sellingAmount,
-              latestCurrency: latest.currency,
-              onAccept: () {
-                final result = ref
-                    .read(scopedCatalogRefreshControllerProvider.notifier)
-                    .acceptPriceChange(line.productId);
-                final message = switch (result) {
-                  OrderActionResult.updated =>
-                    'Cart price updated to the latest catalog value.',
-                  OrderActionResult.invalidPrice =>
-                    'The latest catalog price is not valid for the cart.',
-                  OrderActionResult.overflow =>
-                    'The latest price would make this cart too large to calculate safely.',
-                  _ => 'Cart price was not changed.',
-                };
-                ScaffoldMessenger.of(context)
-                  ..hideCurrentSnackBar()
-                  ..showSnackBar(SnackBar(content: Text(message)));
-              },
-            ),
-          ],
+            if (usesSdif)
+              SdifProductRowSection(
+                productId: line.productId,
+                orderLines: orderLines,
+              ),
+            if (latest != null) ...[
+              const SizedBox(height: 6),
+              _PriceChangeNotice(
+                line: line,
+                latestAmount: latest.sellingAmount,
+                latestCurrency: latest.currency,
+                onAccept: () {
+                  final result = ref
+                      .read(scopedCatalogRefreshControllerProvider.notifier)
+                      .acceptPriceChange(line.productId);
+                  final message = switch (result) {
+                    OrderActionResult.updated =>
+                      'Cart price updated to the latest catalog value.',
+                    OrderActionResult.invalidPrice =>
+                      'The latest catalog price is not valid for the cart.',
+                    OrderActionResult.overflow =>
+                      'The latest price would make this cart too large to calculate safely.',
+                    _ => 'Cart price was not changed.',
+                  };
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(SnackBar(content: Text(message)));
+                },
+              ),
+            ],
           ],
         ),
       ),
