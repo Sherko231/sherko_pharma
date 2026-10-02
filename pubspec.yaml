@@ -1,8 +1,7 @@
 name: sherko_pharma
-description: "Online medicine catalog and customer-order calculator for Android and Windows."
+description: "Sherko Pharma catalog and customer-order calculator."
 publish_to: 'none'
-
-version: 0.1.0+1
+version: 0.1.0
 
 environment:
   sdk: ^3.10.7
@@ -21,7 +20,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: 6.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true
