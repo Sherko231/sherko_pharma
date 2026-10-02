@@ -54,9 +54,7 @@ class SdifProductRowPresentation {
       coverageStatus == SdifScientificCoverageStatus.complete;
 
   bool get incompleteCoverage =>
-      !scientificCoverageComplete ||
-      providerResolutionIncomplete ||
-      uncheckedProductPairCount > 0;
+      !scientificCoverageComplete || providerResolutionIncomplete;
 }
 
 SdifCartPresentation buildSdifCartPresentation(
