@@ -2,7 +2,7 @@
 --
 -- This migration adds reviewed reference data and exact alias resolution only.
 -- It does not backfill product mappings, rewrite raw catalog text, perform fuzzy
--- matching, change pharmaceutical equivalence, or alter DDI-provider mappings.
+-- matching, or change pharmaceutical equivalence state.
 
 create or replace function app_private.guard_scientific_alias_canonical_collision()
 returns trigger

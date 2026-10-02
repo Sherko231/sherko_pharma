@@ -7,8 +7,6 @@ import 'app/app_runtime.dart';
 import 'features/auth/application/auth_controller.dart';
 import 'features/catalog/application/catalog_search_controller.dart';
 import 'features/catalog/data/catalog_draft_store.dart';
-import 'features/interactions/application/ddi_cart_controller.dart';
-import 'features/interactions/application/sdif_cart_controller.dart';
 import 'features/session/data/app_session_store.dart';
 
 Future<void> main() async {
@@ -36,15 +34,9 @@ class AppBootstrap extends StatelessWidget {
     final catalogRepository = runtime.catalogRepository;
     final catalogDraftStore = runtime.catalogDraftStore;
     final appSessionStore = runtime.appSessionStore;
-    final ddiIngredientRepository = runtime.ddiIngredientRepository;
-    final sdifScientificIdentityRepository =
-        runtime.sdifScientificIdentityRepository;
 
     return ProviderScope(
       overrides: [
-        ddiRuntimeSelectionProvider.overrideWithValue(
-          runtime.ddiRuntimeSelection,
-        ),
         if (authGateway != null)
           authGatewayProvider.overrideWithValue(authGateway),
         if (catalogRepository != null)
@@ -53,14 +45,6 @@ class AppBootstrap extends StatelessWidget {
           catalogDraftStoreProvider.overrideWithValue(catalogDraftStore),
         if (appSessionStore != null)
           appSessionStoreProvider.overrideWithValue(appSessionStore),
-        if (ddiIngredientRepository != null)
-          ddiIngredientRepositoryProvider.overrideWithValue(
-            ddiIngredientRepository,
-          ),
-        if (sdifScientificIdentityRepository != null)
-          sdifScientificIdentityRepositoryProvider.overrideWithValue(
-            sdifScientificIdentityRepository,
-          ),
         ...providerOverrides,
       ],
       child: _RuntimeApp(runtime: runtime),
@@ -68,16 +52,13 @@ class AppBootstrap extends StatelessWidget {
   }
 }
 
-class _RuntimeApp extends ConsumerWidget {
+class _RuntimeApp extends StatelessWidget {
   const _RuntimeApp({required this.runtime});
 
   final AppRuntime runtime;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (runtime.ddiRuntimeSelection.usesSdif) {
-      ref.watch(sdifCartControllerProvider);
-    }
+  Widget build(BuildContext context) {
     return SherkoPharmaApp(runtime: runtime);
   }
 }

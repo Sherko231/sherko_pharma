@@ -1,7 +1,7 @@
 -- SP-042: deterministic extraction of embedded strength/presentation text
 -- from composition components. This migration is repository-only.
 -- It does not rewrite products.composition or products.strength, backfill
--- scientific mappings, or change DDI/equivalence behavior.
+-- scientific mappings, or change pharmaceutical-equivalence behavior.
 
 create type app_private.embedded_composition_parse_status as enum (
   'deterministic',

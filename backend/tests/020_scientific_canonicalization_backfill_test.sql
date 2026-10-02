@@ -251,8 +251,6 @@ declare
   after_fp text;
   sp025_before text;
   sp025_after text;
-  ddi_before text;
-  ddi_after text;
 begin
   select md5(string_agg(
     p.id::text || ':' ||
@@ -268,10 +266,6 @@ begin
   select md5(string_agg(to_jsonb(pi)::text, '|' order by pi.product_id, pi.component_index))
     into sp025_before
   from app_private.product_ingredients pi;
-
-  select md5(string_agg(to_jsonb(m)::text, '|' order by m.ingredient_id))
-    into ddi_before
-  from app_private.interaction_checker_ingredient_mappings m;
 
   perform app_private.refresh_all_scientific_canonicalization();
 
@@ -290,14 +284,9 @@ begin
     into sp025_after
   from app_private.product_ingredients pi;
 
-  select md5(string_agg(to_jsonb(m)::text, '|' order by m.ingredient_id))
-    into ddi_after
-  from app_private.interaction_checker_ingredient_mappings m;
-
   if after_fp is distinct from before_fp
-     or sp025_after is distinct from sp025_before
-     or ddi_after is distinct from ddi_before then
-    raise exception 'SP-044 rerun changed authoritative/SP-025/DDI state';
+     or sp025_after is distinct from sp025_before then
+    raise exception 'SP-044 rerun changed authoritative/SP-025 state';
   end if;
 end
 $sp044_source_preservation$;
