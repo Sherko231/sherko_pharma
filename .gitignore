@@ -19,8 +19,7 @@ migrate_working_dir/
 .idea/
 
 # The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
+# VS Code, so this line is commented out by default.
 #.vscode/
 
 # Flutter/Dart/Pub related
@@ -49,3 +48,7 @@ windows/flutter/generated_plugin_registrant.h
 
 # Private generated catalog-import working files
 import_working_dir/
+
+# Local SDIF evaluation artifacts. Never commit generated interactions.db or
+# downloaded AmiKo/ATC/EPha source data.
+sdif_working_dir/
