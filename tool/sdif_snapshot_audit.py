@@ -32,11 +32,12 @@ from sdif_mapping_audit import (
 )
 
 PROVENANCE_SCHEMA_VERSION = 1
-PINNED_SOURCE_URLS = (
-    "http://pillbox.oddb.org/amiko_db_full_idx_de.zip",
-    "http://pillbox.oddb.org/atc.csv",
-    "http://pillbox.oddb.org/drug_interactions_csv_de.zip",
-)
+PINNED_SOURCE_PATHS = {
+    "http://pillbox.oddb.org/amiko_db_full_idx_de.zip": "db/amiko_db_full_idx_de.zip",
+    "http://pillbox.oddb.org/atc.csv": "csv/atc.csv",
+    "http://pillbox.oddb.org/drug_interactions_csv_de.zip": "csv/drug_interactions_csv_de.zip",
+}
+PINNED_SOURCE_URLS = tuple(PINNED_SOURCE_PATHS)
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
@@ -58,7 +59,6 @@ class SdifSnapshotReport:
 
     def as_dict(self) -> dict[str, object]:
         return {
-            "path": self.path,
             "pinned_commit": self.pinned_commit,
             "sha256": self.sha256,
             "size_bytes": self.size_bytes,
@@ -117,15 +117,14 @@ def _validated_sha256(value: object, label: str) -> str:
         raise SdifSnapshotAuditError(f"{label} must be a SHA-256 string")
     canonical = value.strip().lower()
     if not _SHA256_RE.fullmatch(canonical):
-        raise SdifSnapshotAuditError(
-            f"{label} must be 64 lowercase hex characters"
-        )
+        raise SdifSnapshotAuditError(f"{label} must be 64 lowercase hex characters")
     return canonical
 
 
 def _verify_provenance_manifest(
     manifest_path: str | Path,
     artifact_sha256: str,
+    source_root: str | Path,
 ) -> tuple[bool, str]:
     path = Path(manifest_path)
     try:
@@ -135,10 +134,7 @@ def _verify_provenance_manifest(
             f"Unable to read SDIF provenance manifest: {error}"
         ) from error
 
-    if (
-        not isinstance(raw, dict)
-        or raw.get("schema_version") != PROVENANCE_SCHEMA_VERSION
-    ):
+    if not isinstance(raw, dict) or raw.get("schema_version") != PROVENANCE_SCHEMA_VERSION:
         raise SdifSnapshotAuditError(
             f"Expected provenance schema_version {PROVENANCE_SCHEMA_VERSION}"
         )
@@ -192,7 +188,20 @@ def _verify_provenance_manifest(
             + "; ".join(pieces)
         )
 
-    return True, "pinned_commit_artifact_and_source_hashes_match_manifest"
+    root = Path(source_root)
+    for url, relative_path in PINNED_SOURCE_PATHS.items():
+        source_path = root / relative_path
+        if not source_path.is_file():
+            raise SdifSnapshotAuditError(
+                f"Pinned source artifact is missing: {source_path}"
+            )
+        actual_source_hash = _sha256_file(source_path)
+        if actual_source_hash != by_url[url]:
+            raise SdifSnapshotAuditError(
+                f"Pinned source artifact hash does not match manifest: {relative_path}"
+            )
+
+    return True, "pinned_commit_artifact_and_source_files_match_manifest"
 
 
 def audit_sdif_snapshot(
@@ -200,6 +209,7 @@ def audit_sdif_snapshot(
     *,
     identity_export: str | Path | None = None,
     provenance_manifest: str | Path | None = None,
+    source_root: str | Path | None = None,
 ) -> SdifSnapshotReport:
     path = Path(database_path)
     if not path.is_file():
@@ -247,12 +257,21 @@ def audit_sdif_snapshot(
         )
 
     if provenance_manifest is None:
+        if source_root is not None:
+            raise SdifSnapshotAuditError(
+                "source_root requires a provenance manifest"
+            )
         provenance_verified = False
         provenance_reason = "provenance_manifest_not_supplied"
     else:
+        if source_root is None:
+            raise SdifSnapshotAuditError(
+                "provenance manifest verification requires source_root"
+            )
         provenance_verified, provenance_reason = _verify_provenance_manifest(
             provenance_manifest,
             before_hash,
+            source_root,
         )
 
     return SdifSnapshotReport(
@@ -288,6 +307,13 @@ def _build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--source-root",
+        help=(
+            "Pinned SDIF checkout root containing the downloaded db/ and csv/ "
+            "source artifacts; required when --provenance is supplied"
+        ),
+    )
+    parser.add_argument(
         "--json",
         action="store_true",
         help="Print a machine-readable aggregate snapshot report",
@@ -302,6 +328,7 @@ def main(argv: list[str] | None = None) -> int:
             args.database,
             identity_export=args.identity_export,
             provenance_manifest=args.provenance,
+            source_root=args.source_root,
         )
     except SdifSnapshotAuditError as error:
         print(f"SDIF snapshot audit failed: {error}", file=sys.stderr)
