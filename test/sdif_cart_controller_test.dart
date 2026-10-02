@@ -7,6 +7,7 @@ import 'package:sherko_pharma/features/auth/domain/auth_identity.dart';
 import 'package:sherko_pharma/features/interactions/application/ddi_cart_controller.dart';
 import 'package:sherko_pharma/features/interactions/application/sdif_cart_analysis_engine.dart';
 import 'package:sherko_pharma/features/interactions/application/sdif_cart_controller.dart';
+import 'package:sherko_pharma/features/interactions/data/sdif_client.dart';
 import 'package:sherko_pharma/features/interactions/domain/ddi_runtime_selection.dart';
 import 'package:sherko_pharma/features/interactions/domain/sdif_cart_analysis_models.dart';
 import 'package:sherko_pharma/features/navigation/application/app_navigation_controller.dart';
@@ -165,6 +166,78 @@ void main() {
     completer.complete(_analysis(const ['p1', 'p2']));
     await pumpEventQueue();
     expect(container.read(sdifCartControllerProvider).status, SdifCartStatus.idle);
+  });
+
+  test('sign-out invalidates in-flight SDIF result', () async {
+    final auth = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner-a'),
+    );
+    final completer = Completer<SdifCartAnalysisResult>();
+    final gateway = _FakeSdifCartGateway(
+      handler: (productIds, isCurrent) => completer.future,
+    );
+    final container = _container(
+      auth: auth,
+      store: FakeAppSessionStore(),
+      gateway: gateway,
+    );
+
+    final session = container.read(appSessionControllerProvider.notifier);
+    await pumpEventQueue();
+    final order = container.read(orderControllerProvider.notifier);
+    order.addProduct(testProduct(id: 'p1', sellingAmount: 1000));
+    order.addProduct(testProduct(id: 'p2', sellingAmount: 2000));
+    await pumpEventQueue();
+    expect(gateway.calls, hasLength(1));
+
+    session.prepareForSignOut();
+    auth.emitIdentity(null);
+    await pumpEventQueue();
+
+    expect(container.read(sdifCartControllerProvider).status, SdifCartStatus.idle);
+    expect(gateway.calls.single.isCurrent?.call(), isFalse);
+
+    completer.complete(_analysis(const ['p1', 'p2']));
+    await pumpEventQueue();
+    expect(container.read(sdifCartControllerProvider).status, SdifCartStatus.idle);
+  });
+
+  test('transport failure is retryable while Cart identity stays current', () async {
+    final auth = FakeAuthGateway(
+      initialIdentity: const AuthIdentity(userId: 'owner-a'),
+    );
+    var attempts = 0;
+    final gateway = _FakeSdifCartGateway(
+      handler: (productIds, isCurrent) async {
+        attempts += 1;
+        if (attempts == 1) {
+          throw const SdifTransportException('offline');
+        }
+        return _analysis(productIds);
+      },
+    );
+    final container = _container(
+      auth: auth,
+      store: FakeAppSessionStore(),
+      gateway: gateway,
+    );
+
+    await pumpEventQueue();
+    final order = container.read(orderControllerProvider.notifier);
+    order.addProduct(testProduct(id: 'p1', sellingAmount: 1000));
+    order.addProduct(testProduct(id: 'p2', sellingAmount: 2000));
+    await _settle(container);
+
+    final failed = container.read(sdifCartControllerProvider);
+    expect(failed.status, SdifCartStatus.error);
+    expect(failed.failureKind, SdifCartFailureKind.transport);
+    expect(failed.canRetry, isTrue);
+
+    container.read(sdifCartControllerProvider.notifier).retry();
+    await _settle(container);
+
+    expect(attempts, 2);
+    expect(container.read(sdifCartControllerProvider).status, SdifCartStatus.ready);
   });
 
   test('Interaction Checker selection does not run SDIF Cart lifecycle', () async {
