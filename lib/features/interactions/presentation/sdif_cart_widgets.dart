@@ -413,12 +413,16 @@ class _SdifRowBadge extends StatelessWidget {
         children: [
           Icon(icon, size: 14, color: foreground),
           const SizedBox(width: 3),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: foreground,
-                  fontWeight: FontWeight.w600,
-                ),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: foreground,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
           ),
           if (onTap != null) ...[
             const SizedBox(width: 3),
