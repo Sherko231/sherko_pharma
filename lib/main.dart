@@ -36,6 +36,9 @@ class AppBootstrap extends StatelessWidget {
 
     return ProviderScope(
       overrides: [
+        ddiRuntimeSelectionProvider.overrideWithValue(
+          runtime.ddiRuntimeSelection,
+        ),
         if (authGateway != null)
           authGatewayProvider.overrideWithValue(authGateway),
         if (catalogRepository != null)
