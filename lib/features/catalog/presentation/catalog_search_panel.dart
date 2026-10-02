@@ -516,30 +516,36 @@ class _ProductSearchResult extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    IconButton(
-                      key: Key('catalog-alternatives-${product.id}'),
-                      tooltip: 'Alternatives',
-                      onPressed: onAlternatives,
-                      constraints: const BoxConstraints.tightFor(
-                        width: 34,
-                        height: 34,
+                    Semantics(
+                      label: 'Alternatives',
+                      button: true,
+                      child: IconButton(
+                        key: Key('catalog-alternatives-${product.id}'),
+                        onPressed: onAlternatives,
+                        constraints: const BoxConstraints.tightFor(
+                          width: 34,
+                          height: 34,
+                        ),
+                        padding: EdgeInsets.zero,
+                        iconSize: 18,
+                        icon: const Icon(Icons.compare_arrows_rounded),
                       ),
-                      padding: EdgeInsets.zero,
-                      iconSize: 18,
-                      icon: const Icon(Icons.compare_arrows_rounded),
                     ),
                     const SizedBox(width: 2),
-                    IconButton.filledTonal(
-                      key: Key('catalog-add-to-order-${product.id}'),
-                      tooltip: 'Add to cart',
-                      onPressed: onAdd,
-                      constraints: const BoxConstraints.tightFor(
-                        width: 38,
-                        height: 34,
+                    Semantics(
+                      label: 'Add to cart',
+                      button: true,
+                      child: IconButton.filledTonal(
+                        key: Key('catalog-add-to-order-${product.id}'),
+                        onPressed: onAdd,
+                        constraints: const BoxConstraints.tightFor(
+                          width: 38,
+                          height: 34,
+                        ),
+                        padding: EdgeInsets.zero,
+                        iconSize: 18,
+                        icon: const Icon(Icons.add_shopping_cart_rounded),
                       ),
-                      padding: EdgeInsets.zero,
-                      iconSize: 18,
-                      icon: const Icon(Icons.add_shopping_cart_rounded),
                     ),
                   ],
                 ),
