@@ -9,6 +9,7 @@ import '../../session/application/app_session_controller.dart';
 import '../data/ddi_ingredient_repository.dart';
 import '../data/interaction_checker_client.dart';
 import '../data/sdif_client.dart';
+import '../data/sdif_scientific_identity_repository.dart';
 import '../domain/ddi_analysis_models.dart';
 import '../domain/ddi_runtime_selection.dart';
 import 'ddi_analysis_engine.dart';
@@ -95,6 +96,9 @@ class DdiCartState {
 
 final ddiIngredientRepositoryProvider =
     Provider<DdiIngredientRepository?>((ref) => null);
+
+final sdifScientificIdentityRepositoryProvider =
+    Provider<SdifScientificIdentityRepository?>((ref) => null);
 
 final ddiRuntimeSelectionProvider = Provider<DdiRuntimeSelection>(
   (ref) => const DdiRuntimeSelection.interactionChecker(),
