@@ -1,6 +1,6 @@
 -- SP-044: persist reviewed scientific canonicalization as a private derived layer.
--- Raw catalog composition/strength, SP-025 identities, DDI mappings, product
--- revisions, barcodes, prices, orders, and Flutter behavior remain unchanged.
+-- Raw catalog composition/strength, SP-025 identities, product revisions,
+-- barcodes, prices, orders, and Flutter behavior remain unchanged.
 
 create or replace function app_private.scientific_canonicalization_version()
 returns smallint
@@ -604,11 +604,7 @@ select
   (select md5(string_agg(to_jsonb(x)::text, '|' order by x.product_id, x.component_index))
      from app_private.product_ingredients x) as component_fingerprint,
   (select md5(string_agg(to_jsonb(x)::text, '|' order by x.product_id))
-     from app_private.product_composition_normalization x) as composition_fingerprint,
-  (select md5(string_agg(to_jsonb(x)::text, '|' order by x.ingredient_id))
-     from app_private.interaction_checker_ingredient_mappings x) as ddi_mapping_fingerprint,
-  (select md5(string_agg(to_jsonb(x)::text, '|' order by x.product_id, x.component_index))
-     from app_private.interaction_checker_component_overrides x) as ddi_override_fingerprint;
+     from app_private.product_composition_normalization x) as composition_fingerprint;
 
 select app_private.refresh_all_scientific_canonicalization();
 
@@ -708,12 +704,8 @@ begin
        (select md5(string_agg(to_jsonb(x)::text, '|' order by x.product_id, x.component_index)) from app_private.product_ingredients x)
      or (select composition_fingerprint from sp044_upstream_state_before) is distinct from
        (select md5(string_agg(to_jsonb(x)::text, '|' order by x.product_id)) from app_private.product_composition_normalization x)
-     or (select ddi_mapping_fingerprint from sp044_upstream_state_before) is distinct from
-       (select md5(string_agg(to_jsonb(x)::text, '|' order by x.ingredient_id)) from app_private.interaction_checker_ingredient_mappings x)
-     or (select ddi_override_fingerprint from sp044_upstream_state_before) is distinct from
-       (select md5(string_agg(to_jsonb(x)::text, '|' order by x.product_id, x.component_index)) from app_private.interaction_checker_component_overrides x)
   then
-    raise exception 'SP-044 changed SP-025 or DDI derived state';
+    raise exception 'SP-044 changed SP-025 derived state';
   end if;
 end;
 $sp044_backfill_invariants$;
