@@ -8,8 +8,12 @@ import '../../order/domain/order_model.dart';
 import '../../session/application/app_session_controller.dart';
 import '../data/ddi_ingredient_repository.dart';
 import '../data/interaction_checker_client.dart';
+import '../data/sdif_client.dart';
 import '../domain/ddi_analysis_models.dart';
+import '../domain/ddi_runtime_selection.dart';
 import 'ddi_analysis_engine.dart';
+import 'sdif_result_aggregator.dart';
+import 'sdif_reviewed_atc_bridge.dart';
 
 enum DdiCartStatus {
   idle,
@@ -92,6 +96,10 @@ class DdiCartState {
 final ddiIngredientRepositoryProvider =
     Provider<DdiIngredientRepository?>((ref) => null);
 
+final ddiRuntimeSelectionProvider = Provider<DdiRuntimeSelection>(
+  (ref) => const DdiRuntimeSelection.interactionChecker(),
+);
+
 final interactionCheckGatewayProvider =
     Provider<InteractionCheckGateway>((ref) {
   final client = InteractionCheckerClient();
@@ -99,8 +107,43 @@ final interactionCheckGatewayProvider =
   return client;
 });
 
+final sdifGatewayProvider = Provider<SdifGateway?>((ref) {
+  final selection = ref.watch(ddiRuntimeSelectionProvider);
+  if (!selection.usesSdif) {
+    return null;
+  }
+
+  final baseUri = selection.sdifBaseUri;
+  if (baseUri == null) {
+    return null;
+  }
+
+  final client = SdifClient(baseUri: baseUri);
+  ref.onDispose(client.close);
+  return client;
+});
+
+final sdifReviewedAtcBridgeProvider = Provider<SdifReviewedAtcBridge?>((ref) {
+  final gateway = ref.watch(sdifGatewayProvider);
+  if (gateway == null) {
+    return null;
+  }
+  return SdifReviewedAtcBridge(gateway: gateway);
+});
+
+final sdifResultAggregatorProvider = Provider<SdifResultAggregator?>((ref) {
+  if (!ref.watch(ddiRuntimeSelectionProvider).usesSdif) {
+    return null;
+  }
+  return const SdifResultAggregator();
+});
+
 final ddiAnalysisGatewayProvider =
     Provider<DdiAnalysisGateway?>((ref) {
+  if (!ref.watch(ddiRuntimeSelectionProvider).usesInteractionChecker) {
+    return null;
+  }
+
   final ingredientRepository = ref.watch(
     ddiIngredientRepositoryProvider,
   );
