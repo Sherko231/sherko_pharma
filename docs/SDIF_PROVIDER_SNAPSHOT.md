@@ -15,9 +15,9 @@ A schema-compatible SQLite file is not enough evidence that it came from the pin
 1. the SDIF-001 minimum schema contract;
 2. SQLite `PRAGMA quick_check`;
 3. immutable artifact fingerprinting and aggregate required-table row counts;
-4. optional provenance-manifest verification plus aggregate-only SDIF-002 reviewed identity mapping.
+4. optional provenance verification of the generated database **and the actual downloaded source files**, plus aggregate-only SDIF-002 reviewed identity mapping.
 
-The tool never prints provider rows, interaction descriptions, brands, source payloads, or other provider dataset content. The SQLite file is opened read-only and its SHA-256/size are checked again after the audit to detect accidental mutation.
+The tool never prints provider rows, interaction descriptions, brands, source payloads, local filesystem paths, or other provider dataset content in its JSON report. The SQLite file is opened read-only and its SHA-256/size are checked again after the audit to detect accidental mutation.
 
 ## Current Sherko input boundary
 
@@ -54,19 +54,22 @@ and generates:
 db/interactions.db
 ```
 
-At the pinned revision the downloader uses exactly these source URLs:
+At the pinned revision the downloader uses exactly these source URLs and local paths:
 
 ```text
 http://pillbox.oddb.org/amiko_db_full_idx_de.zip
+  -> db/amiko_db_full_idx_de.zip
 http://pillbox.oddb.org/atc.csv
+  -> csv/atc.csv
 http://pillbox.oddb.org/drug_interactions_csv_de.zip
+  -> csv/drug_interactions_csv_de.zip
 ```
 
 The generated `interactions.db` is not committed in the pinned SDIF Git repository and no GitHub Release currently publishes it. Therefore a provider snapshot must be built or supplied as an external operator artifact.
 
 ## Provenance manifest
 
-Before treating a local database as a pinned provider snapshot, hash the three downloaded build inputs and the generated SQLite file. Keep the manifest outside Git beside the working database.
+Before treating a local database as a pinned provider snapshot, hash the three downloaded build inputs and the generated SQLite file. Keep the manifest outside Git.
 
 Example shape:
 
@@ -93,27 +96,43 @@ Example shape:
 }
 ```
 
-`tool/sdif_snapshot_audit.py` verifies the repository, pinned commit, exact expected source URL set, every supplied SHA-256 shape, and the generated database hash. A database audited without this manifest is explicitly reported as `provenance_manifest_not_supplied`; schema compatibility is never silently promoted into pinned-build provenance.
+A manifest by itself is not accepted as proof of source provenance. For `provenance_verified=true`, the audit also requires `--source-root` pointing at the pinned SDIF checkout and re-hashes the three actual files at the paths above. It verifies:
 
-The manifest binds the evaluation to exact downloaded input bytes. It does not itself grant redistribution or commercial-use rights for those source datasets.
+- exact upstream repository;
+- exact pinned commit;
+- exact expected source URL set;
+- generated `interactions.db` SHA-256;
+- actual source-file SHA-256 values against the manifest.
+
+A database audited without a manifest is explicitly reported as `provenance_manifest_not_supplied`. Supplying a manifest without the source root is rejected rather than being treated as verified.
+
+This provenance check binds the evaluation to exact downloaded input bytes. It does not itself prove source authenticity beyond the recorded acquisition path, and it does not grant redistribution or commercial-use rights for those datasets.
 
 ## One-command snapshot audit
 
-Store all external artifacts under the ignored `sdif_working_dir/`, for example:
+Keep the pinned SDIF checkout outside the Sherko repository and store evaluation artifacts under ignored `sdif_working_dir/`, for example:
 
 ```text
-sdif_working_dir/interactions.db
-sdif_working_dir/sherko_scientific_identities.json
-sdif_working_dir/sdif_provenance.json
+../sdif-pinned/                         # checkout of pinned upstream
+  db/amiko_db_full_idx_de.zip
+  csv/atc.csv
+  csv/drug_interactions_csv_de.zip
+  db/interactions.db
+
+sherko_pharma/sdif_working_dir/
+  interactions.db
+  sherko_scientific_identities.json
+  sdif_provenance.json
 ```
 
-Run:
+Run from Sherko Pharma:
 
 ```bash
 python tool/sdif_snapshot_audit.py \
   sdif_working_dir/interactions.db \
   --identity-export sdif_working_dir/sherko_scientific_identities.json \
   --provenance sdif_working_dir/sdif_provenance.json \
+  --source-root ../sdif-pinned \
   --json
 ```
 
@@ -126,18 +145,19 @@ The JSON report contains only:
 - provenance verification state/reason;
 - SDIF-002 aggregate mapping counts and reviewed-ATC-backed coverage percentage.
 
-Per-provider rows and interaction text are deliberately absent.
+Per-provider rows, interaction text, brand names, and local filesystem paths are deliberately absent.
 
 ## Reproducible operator procedure
 
 1. Clone `https://github.com/zdavatz/sdif` outside Sherko Pharma and checkout exactly `9f8f69519e4806d9e0e7021f403bdcb52ed77cc0`.
 2. Build the pinned Rust project.
-3. Run its documented `build --download` flow so the source artifacts and `db/interactions.db` are produced by the pinned code.
-4. Compute SHA-256 for the three downloaded source artifacts before deleting or replacing them, and for `db/interactions.db`.
-5. Copy only the generated SQLite file and local provenance manifest into `sdif_working_dir/`; do not commit either.
-6. Produce the small reviewed Sherko identity export outside Git from the current scientific layer. Confirm it contains only the three expected verified identities and their reviewed ATC codes.
-7. Run `tool/sdif_snapshot_audit.py` as shown above.
-8. Record only the aggregate snapshot fingerprint/counts/mapping result in the task evidence. Do not paste provider rows or interaction descriptions into the repository.
+3. Run its documented `build --download` flow so the three source artifacts and `db/interactions.db` are produced by the pinned code.
+4. Compute SHA-256 for the three downloaded source artifacts and `db/interactions.db`, then write the local provenance manifest.
+5. Keep the source checkout available for the audit; `--source-root` re-hashes the actual downloaded source files instead of trusting the manifest alone.
+6. Copy only the generated SQLite file and local provenance manifest into `sdif_working_dir/`; do not commit either.
+7. Produce the small reviewed Sherko identity export outside Git from the current scientific layer. Confirm it contains only the three expected verified identities and their reviewed ATC codes.
+8. Run `tool/sdif_snapshot_audit.py` as shown above.
+9. Record only the aggregate snapshot fingerprint/counts/mapping result in task evidence. Do not paste provider rows or interaction descriptions into the repository.
 
 If the operator rebuilds at a different time and any source download changes, the source/artifact hashes define a new provider snapshot even when the SDIF code commit is unchanged. Compare such snapshots explicitly rather than assuming they are identical.
 
@@ -171,16 +191,18 @@ python -m unittest discover -s tool -p 'test_sdif_snapshot_audit.py' -v
 Synthetic regression coverage includes:
 
 - deterministic snapshot SHA-256/size/table counts;
-- aggregate reviewed-ATC mapping output without provider row leakage;
+- aggregate reviewed-ATC mapping output without provider row or local-path leakage;
 - byte-for-byte provider immutability;
 - incompatible schema rejection;
 - non-`ok` SQLite quick-check rejection;
-- pinned upstream/source/artifact provenance acceptance;
+- pinned upstream/artifact/source-file provenance acceptance;
 - mismatched artifact hash rejection;
 - missing pinned source hash rejection;
+- actual source-file hash mismatch rejection;
+- manifest-without-source-root rejection;
 - explicit unverified provenance when no manifest is supplied.
 
-The focused SDIF-004 regressions were executed locally with synthetic data during implementation: 8/8 passed. Synthetic fixtures do not establish real provider coverage.
+The focused SDIF-004 regressions were executed locally with synthetic data during implementation: **10/10 passed**. Synthetic fixtures do not establish real provider coverage.
 
 ## Preserved boundaries
 
@@ -197,6 +219,6 @@ SDIF-004 does not:
 
 ## Next dependency
 
-A real pinned/provider-provenance `interactions.db` must be supplied or built in an environment that can reach the three pinned source URLs. Running the committed snapshot audit against that artifact requires no new mapping code.
+A real pinned/provider-provenance `interactions.db` and its three source artifacts must be supplied or built in an environment that can reach the pinned source URLs. Running the committed snapshot audit against those artifacts requires no new mapping code.
 
 Only after the aggregate real-provider result is recorded should a new bounded task decide whether an SDIF-specific runtime adapter is justified, how provider-specific evidence is modeled, and whether the source/data licenses permit the intended distribution model.
