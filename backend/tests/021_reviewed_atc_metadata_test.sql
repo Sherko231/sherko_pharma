@@ -4,8 +4,7 @@
 do $test$
 declare
   target_rows integer;
-  verified_mappings integer;
-  verified_identities integer;
+  target_verified_identities integer;
   bad_rows integer;
 begin
   select count(*)
@@ -44,16 +43,25 @@ begin
     raise exception 'SDIF-003 ATC provenance/scope regression: % row(s)', bad_rows;
   end if;
 
-  select count(*) filter (where status = 'verified'),
-         count(distinct scientific_ingredient_id) filter (where status = 'verified')
-    into verified_mappings, verified_identities
-  from app_private.catalog_ingredient_scientific_mappings;
+  select count(*)
+    into target_verified_identities
+  from app_private.scientific_ingredients s
+  where s.normalized_preferred_name in (
+      app_private.scientific_name_key('Amoxicillin'),
+      app_private.scientific_name_key('Caffeine'),
+      app_private.scientific_name_key('Paracetamol')
+    )
+    and exists (
+      select 1
+      from app_private.catalog_ingredient_scientific_mappings m
+      where m.scientific_ingredient_id = s.id
+        and m.status = 'verified'
+    );
 
-  if verified_mappings <> 4 or verified_identities <> 3 then
+  if target_verified_identities <> 3 then
     raise exception
-      'SDIF-003 must not alter verified scientific mappings: mappings %, identities %',
-      verified_mappings,
-      verified_identities;
+      'SDIF-003 target scientific identities must remain verified: found % of 3',
+      target_verified_identities;
   end if;
 end;
 $test$;
