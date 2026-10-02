@@ -188,7 +188,11 @@ void main() {
       findsWidgets,
     );
     expect(find.text('No interaction found'), findsNothing);
-    expect(find.textContaining('safe'), findsNothing);
+    expect(
+      find.textContaining(RegExp(r'\bsafe\b', caseSensitive: false)),
+      findsNothing,
+    );
+    expect(find.textContaining('compatible'), findsNothing);
   });
 }
 
