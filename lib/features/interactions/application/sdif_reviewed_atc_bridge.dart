@@ -31,6 +31,12 @@ class SdifReviewedAtcBridge {
             'SDIF reviewed-ATC lookup returned incomplete provider identity data.',
           );
         }
+        final substanceSet = _normalizedSubstanceSet(substances.split(', '));
+        if (substanceSet.length != 1) {
+          throw const SdifReviewedAtcIntegrityException(
+            'SDIF reviewed-ATC lookup no longer resolves to one active substance.',
+          );
+        }
 
         final candidate = SdifProviderDrugSelection(
           reviewedAtcCode: reviewedAtcCode,
@@ -111,6 +117,11 @@ class SdifReviewedAtcBridge {
           'substance metadata.',
         );
       }
+      if (_normalizedSubstanceSet(substances.split(', ')).length != 1) {
+        throw const SdifReviewedAtcIntegrityException(
+          'Resolved SDIF selection is not a single-substance provider identity.',
+        );
+      }
       if (!seenProviderBrands.add(brandName)) {
         throw const SdifReviewedAtcIntegrityException(
           'Distinct scientific identities resolved to the same SDIF provider brand.',
@@ -123,6 +134,7 @@ class SdifReviewedAtcBridge {
       List.unmodifiable(providerBrands),
     );
     _validateBasket(identities, result.basket);
+    _validateInteractionHits(result.basket, result.interactions);
 
     return SdifReviewedIdentityCheckResult(
       identities: List.unmodifiable(identities),
@@ -162,6 +174,25 @@ class SdifReviewedAtcBridge {
         throw SdifReviewedAtcBasketIntegrityException(
           'SDIF basket item ${index + 1} returned a different active-substance '
           'set than the reviewed ATC selection.',
+        );
+      }
+    }
+  }
+
+  void _validateInteractionHits(
+    List<SdifBasketDrug> basket,
+    List<SdifInteractionHit> interactions,
+  ) {
+    final basketKeys = <String>{
+      for (final drug in basket) _basketDrugKey(drug.brand, drug.atcCode),
+    };
+
+    for (final hit in interactions) {
+      final a = _basketDrugKey(hit.drugA, hit.drugAAtc);
+      final b = _basketDrugKey(hit.drugB, hit.drugBAtc);
+      if (a == b || !basketKeys.contains(a) || !basketKeys.contains(b)) {
+        throw const SdifReviewedAtcBasketIntegrityException(
+          'SDIF interaction hit referenced a drug outside the verified basket.',
         );
       }
     }
@@ -211,6 +242,10 @@ class SdifReviewedAtcBridge {
   static String _candidateKey(SdifProviderDrugSelection candidate) {
     return '${candidate.providerAtcCode}\u0000${candidate.brandName}\u0000'
         '${candidate.substances}';
+  }
+
+  static String _basketDrugKey(String brand, String atcCode) {
+    return '${brand.trim()}\u0000${atcCode.trim()}';
   }
 
   static List<String> _normalizedSubstanceSet(Iterable<String> values) {
