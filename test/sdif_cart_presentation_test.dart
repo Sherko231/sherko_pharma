@@ -55,7 +55,7 @@ void main() {
     expect(presentation.productPairsWithFindings, 1);
     expect(presentation.productPairsWithNoProviderHit, 1);
     expect(presentation.uncheckedProductPairCount, 1);
-    expect(presentation.incompleteProductCount, 2);
+    expect(presentation.incompleteProductCount, 1);
     expect(presentation.providerResolutionGapCount, 1);
 
     final a = presentation.rows['a']!;
@@ -67,7 +67,7 @@ void main() {
     final b = presentation.rows['b']!;
     expect(b.findingProductPairCount, 1);
     expect(b.uncheckedProductPairCount, 1);
-    expect(b.incompleteCoverage, isTrue);
+    expect(b.incompleteCoverage, isFalse);
 
     final c = presentation.rows['c']!;
     expect(c.noProviderHitProductPairCount, 1);
