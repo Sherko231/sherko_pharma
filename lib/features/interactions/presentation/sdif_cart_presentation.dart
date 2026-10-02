@@ -62,12 +62,27 @@ class SdifProductRowPresentation {
 SdifCartPresentation buildSdifCartPresentation(
   SdifCartAnalysisResult analysis,
 ) {
-  final productInputs = <String, SdifProductScientificInput>{
-    for (final product in analysis.products) product.productId: product,
-  };
-  final providerGapProducts = <String>{
-    for (final gap in analysis.providerResolutionGaps) ...gap.productIds,
-  };
+  final productInputs = <String, SdifProductScientificInput>{};
+  for (final product in analysis.products) {
+    if (productInputs.containsKey(product.productId)) {
+      throw StateError(
+        'SDIF Cart presentation received duplicate product inputs.',
+      );
+    }
+    productInputs[product.productId] = product;
+  }
+
+  final providerGapProducts = <String>{};
+  for (final gap in analysis.providerResolutionGaps) {
+    for (final productId in gap.productIds) {
+      if (!productInputs.containsKey(productId)) {
+        throw StateError(
+          'SDIF provider-resolution gap referenced an unknown product.',
+        );
+      }
+      providerGapProducts.add(productId);
+    }
+  }
 
   final relatedPairCount = <String, int>{};
   final findingPairCount = <String, int>{};
@@ -80,6 +95,13 @@ SdifCartPresentation buildSdifCartPresentation(
 
   for (final pair in analysis.productPairs) {
     final productIds = [pair.productAId, pair.productBId];
+    if (pair.productAId == pair.productBId ||
+        productIds.any((productId) => !productInputs.containsKey(productId))) {
+      throw StateError(
+        'SDIF product-pair presentation referenced invalid product inputs.',
+      );
+    }
+
     for (final productId in productIds) {
       relatedPairCount[productId] = (relatedPairCount[productId] ?? 0) + 1;
     }
@@ -93,8 +115,9 @@ SdifCartPresentation buildSdifCartPresentation(
       continue;
     }
 
-    final hasFindings = pair.identityPairs.any((identityPair) =>
-        identityPair.hasObservedHits);
+    final hasFindings = pair.identityPairs.any(
+      (identityPair) => identityPair.hasObservedHits,
+    );
     if (hasFindings) {
       productPairsWithFindings += 1;
       for (final productId in productIds) {
@@ -126,10 +149,6 @@ SdifCartPresentation buildSdifCartPresentation(
     if (row.incompleteCoverage) {
       incompleteProductCount += 1;
     }
-  }
-
-  if (rows.length != productInputs.length) {
-    throw StateError('SDIF Cart presentation received duplicate product inputs.');
   }
 
   return SdifCartPresentation(
