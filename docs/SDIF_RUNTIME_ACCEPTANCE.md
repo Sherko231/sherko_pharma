@@ -61,7 +61,7 @@ It does not perform:
 - salt/base collapsing;
 - ATC inference.
 
-A returned provider row is accepted as a candidate only when the returned ATC exactly matches the reviewed requested ATC and provider brand/substance metadata is nonblank.
+A returned provider row is accepted as a candidate only when the returned ATC exactly matches the reviewed requested ATC, provider brand/substance metadata is nonblank, and the provider row still collapses to exactly one active substance. A multi-substance/combination row fails closed instead of being promoted into one scientific identity.
 
 Resolution outcomes are explicit:
 
@@ -79,22 +79,23 @@ Before `/api/check`, the bridge revalidates that:
 
 - the selected reviewed ATC belongs to that Sherko scientific identity;
 - provider ATC still equals the selected reviewed ATC;
+- the provider selection still represents exactly one active substance;
 - scientific identities in the basket are distinct;
 - provider brands are distinct;
 - provider brand/ATC/substance metadata is nonblank.
 
 The check request sends only the exact provider brands returned by SDIF's reviewed-ATC lookup.
 
-After `/api/check`, the returned `basket[]` must match the expected selections by position, exact provider brand, ATC and normalized active-substance set. A mismatch fails closed instead of accepting a substring-resolution drift.
+After `/api/check`, the returned `basket[]` must match the expected selections by position, exact provider brand, ATC and normalized active-substance set. Every returned interaction hit must also reference two distinct drugs that are present in that verified basket. Any mismatch fails closed instead of accepting provider substring-resolution or response-integrity drift.
 
 Interaction hits remain the provider-native SDIF result. This bridge does not translate severity scores, merge interaction families, synthesize missing pairs, or interpret an empty interaction list as `none`, `safe`, or absence of clinical risk.
 
 ## Focused synthetic verification
 
-Repository test:
+Repository tests:
 
 ```powershell
-flutter test test/sdif_reviewed_atc_bridge_test.dart
+flutter test test/sdif_reviewed_atc_bridge_test.dart test/sdif_reviewed_atc_bridge_integrity_test.dart
 ```
 
 The focused fixture coverage includes:
@@ -104,9 +105,12 @@ The focused fixture coverage includes:
 - explicit unmapped result;
 - explicit ambiguity across multiple reviewed ATCs;
 - fail-closed provider ATC mismatch;
+- rejection when a reviewed ATC lookup becomes multi-substance;
+- rejection of a forged resolved selection outside the identity's reviewed ATCs;
 - exact provider-brand submission;
 - basket brand/ATC integrity failure;
 - basket active-substance-set integrity failure;
+- rejection of interaction hits that reference a drug outside the verified basket;
 - empty provider interaction array remaining empty rather than becoming a safety classification;
 - no-reviewed-ATC input rejection before provider access.
 
