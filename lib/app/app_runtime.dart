@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../features/auth/data/auth_gateway.dart';
@@ -103,10 +104,17 @@ class AppRuntime {
     SecureKeyValueStore? secureStore,
   }) async {
     final resolved = config ?? AppRuntimeConfig.fromEnvironment();
-    final problems = resolved.problems;
+    final problems = [...resolved.problems];
+    if (kReleaseMode && resolved.ddiRuntimeConfig.requestsSdif) {
+      const releaseProblem =
+          'DDI_PROVIDER=sdif is development-only and is not enabled in release mode.';
+      if (!problems.contains(releaseProblem)) {
+        problems.add(releaseProblem);
+      }
+    }
 
     if (problems.isNotEmpty) {
-      return AppRuntime.configurationBlocked(problems);
+      return AppRuntime.configurationBlocked(List.unmodifiable(problems));
     }
 
     final store = secureStore ?? const FlutterSecureKeyValueStore();
