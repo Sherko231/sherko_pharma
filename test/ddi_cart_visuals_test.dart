@@ -33,17 +33,15 @@ Future<ProviderContainer> pumpDdiCart(
   addTearDown(auth.dispose);
 
   await tester.pumpWidget(
-    ProviderScope(
-      overrides: [
+    AppBootstrap(
+      runtime: AppRuntime.configured(
+        auth,
+        catalogRepository: FakeCatalogRepository(),
+      ),
+      providerOverrides: [
         ddiAnalysisGatewayProvider.overrideWithValue(gateway),
         ddiCartDebounceDurationProvider.overrideWithValue(Duration.zero),
       ],
-      child: AppBootstrap(
-        runtime: AppRuntime.configured(
-          auth,
-          catalogRepository: FakeCatalogRepository(),
-        ),
-      ),
     ),
   );
   await tester.pumpAndSettle();
