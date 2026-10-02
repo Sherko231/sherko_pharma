@@ -54,6 +54,8 @@ class DdiRuntimeConfig {
   final String sdifBaseUriValue;
   final bool allowSdif;
 
+  bool get requestsSdif => providerValue.trim().toLowerCase() == sdifValue;
+
   List<String> get problems {
     final issues = <String>[];
     final provider = providerValue.trim().toLowerCase();
@@ -96,8 +98,7 @@ class DdiRuntimeConfig {
       );
     }
 
-    final provider = providerValue.trim().toLowerCase();
-    if (provider == sdifValue) {
+    if (requestsSdif) {
       return DdiRuntimeSelection.sdif(Uri.parse(sdifBaseUriValue.trim()));
     }
     return const DdiRuntimeSelection.interactionChecker();
