@@ -35,20 +35,18 @@ Future<ProviderContainer> _pumpSdifCart(
   addTearDown(auth.dispose);
 
   await tester.pumpWidget(
-    ProviderScope(
-      overrides: [
+    AppBootstrap(
+      runtime: AppRuntime.configured(
+        auth,
+        catalogRepository: FakeCatalogRepository(),
+        ddiRuntimeSelection: DdiRuntimeSelection.sdif(
+          Uri.parse('http://127.0.0.1:3000/'),
+        ),
+      ),
+      providerOverrides: [
         sdifCartAnalysisGatewayProvider.overrideWithValue(gateway),
         sdifCartDebounceDurationProvider.overrideWithValue(Duration.zero),
       ],
-      child: AppBootstrap(
-        runtime: AppRuntime.configured(
-          auth,
-          catalogRepository: FakeCatalogRepository(),
-          ddiRuntimeSelection: DdiRuntimeSelection.sdif(
-            Uri.parse('http://127.0.0.1:3000/'),
-          ),
-        ),
-      ),
     ),
   );
   await tester.pumpAndSettle();
