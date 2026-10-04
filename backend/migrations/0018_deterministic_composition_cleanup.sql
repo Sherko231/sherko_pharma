@@ -74,8 +74,8 @@ begin
   end if;
   working_text := normalized_text;
 
-  -- Exact short tokens are overloaded in the source catalog. They remain
-  -- review-required even when a provider-specific mapping exists elsewhere.
+  -- Exact short tokens are overloaded in the source catalog and remain
+  -- review-required rather than receiving a global expansion.
   if upper(working_text) = any(array['MG', 'K', 'P', 'PP']::text[]) then
     candidate_text := working_text;
     cleanup_status := 'needs_review';

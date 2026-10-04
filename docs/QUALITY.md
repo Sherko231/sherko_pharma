@@ -29,19 +29,9 @@ The repository keeps tests and verification helpers because they are useful for 
 
 ## Requirement-derived testing
 
-When adding or fixing important behavior, prefer focused tests derived from the product requirement. Relevant areas include barcode identity, order totals, captured price/currency behavior, product validation, confirmed server writes, conflict handling, account isolation, draft restoration and authorization boundaries.
+When adding or fixing important behavior, prefer focused tests derived from the product requirement. Relevant areas include barcode identity, order totals, captured price/currency behavior, product validation, confirmed server writes, conflict handling, account isolation, draft restoration, scientific normalization integrity and authorization boundaries.
 
 Do not weaken assertions merely to make a failure disappear. If the owner reports a real-device problem, reproduce it where practical and add a regression test when that test can meaningfully cover the defect.
-
-## DDI acceptance verification
-
-SP-037 adds synthetic cross-layer acceptance without production credentials or live third-party traffic. The regression exercises scanner/order input, trusted ingredient mapping, the real batching/aggregation engine, lifecycle state, Cart severity presentation and evidence detail rendering using fake repository/provider/link boundaries.
-
-Focused tests across SP-032–SP-037 cover provider parsing/failures, exact resolved-pair integrity, all severity states, unresolved/partial coverage, >10 ingredient batching, rate limiting/cache/coalescing, rapid changes/stale generations, session restoration/non-persistence, Cart presentation, evidence/source links and link failure.
-
-These automated/synthetic checks do not replace owner testing of the actual configured Android/Windows client. In particular, a DDI-enabled release candidate still needs real-device confirmation of Cart layout, browser-link launching and intended runtime/backend configuration. Do not claim that check has passed until the owner performs it.
-
-Issue #98 additionally requires provider-mapping acceptance: backend SQL regression must cover private-table isolation, exact/salt/context mappings, ambiguous global identities and component-override priority; Flutter tests must cover provider-ID deduplication and partial mapping gaps; production verification must report mapping/product coverage counts without storing a wholesale provider catalog. Production reconciliation is an owner-authorized data operation, but ambiguous rows must remain unresolved rather than being guessed.
 
 ## Real-device testing
 

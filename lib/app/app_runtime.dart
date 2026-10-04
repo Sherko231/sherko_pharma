@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../features/auth/data/auth_gateway.dart';
@@ -7,29 +6,23 @@ import '../features/auth/data/supabase_auth_gateway.dart';
 import '../features/catalog/data/catalog_draft_store.dart';
 import '../features/catalog/data/catalog_repository.dart';
 import '../features/catalog/data/supabase_catalog_repository.dart';
-import '../features/interactions/data/ddi_ingredient_repository.dart';
-import '../features/interactions/data/sdif_scientific_identity_repository.dart';
-import '../features/interactions/domain/ddi_runtime_selection.dart';
 import '../features/session/data/app_session_store.dart';
 
 class AppRuntimeConfig {
   const AppRuntimeConfig({
     required this.supabaseUrl,
     required this.publishableKey,
-    this.ddiRuntimeConfig = const DdiRuntimeConfig(),
   });
 
   factory AppRuntimeConfig.fromEnvironment() {
     return AppRuntimeConfig(
       supabaseUrl: const String.fromEnvironment('SUPABASE_URL'),
       publishableKey: const String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY'),
-      ddiRuntimeConfig: DdiRuntimeConfig.fromEnvironment(),
     );
   }
 
   final String supabaseUrl;
   final String publishableKey;
-  final DdiRuntimeConfig ddiRuntimeConfig;
 
   List<String> get problems {
     final issues = <String>[];
@@ -48,7 +41,6 @@ class AppRuntimeConfig {
       issues.add('SUPABASE_PUBLISHABLE_KEY is missing.');
     }
 
-    issues.addAll(ddiRuntimeConfig.problems);
     return issues;
   }
 }
@@ -65,9 +57,6 @@ class AppRuntime {
     this.catalogRepository,
     this.catalogDraftStore,
     this.appSessionStore,
-    this.ddiIngredientRepository,
-    this.sdifScientificIdentityRepository,
-    this.ddiRuntimeSelection = const DdiRuntimeSelection.interactionChecker(),
   })  : status = AppRuntimeStatus.configured,
         problems = const [];
 
@@ -76,10 +65,7 @@ class AppRuntime {
         authGateway = null,
         catalogRepository = null,
         catalogDraftStore = null,
-        appSessionStore = null,
-        ddiIngredientRepository = null,
-        sdifScientificIdentityRepository = null,
-        ddiRuntimeSelection = const DdiRuntimeSelection.interactionChecker();
+        appSessionStore = null;
 
   const AppRuntime.initializationFailed()
       : status = AppRuntimeStatus.initializationFailed,
@@ -87,9 +73,6 @@ class AppRuntime {
         catalogRepository = null,
         catalogDraftStore = null,
         appSessionStore = null,
-        ddiIngredientRepository = null,
-        sdifScientificIdentityRepository = null,
-        ddiRuntimeSelection = const DdiRuntimeSelection.interactionChecker(),
         problems = const [
           'Supabase or secure session storage could not be initialized.',
         ];
@@ -99,9 +82,6 @@ class AppRuntime {
   final CatalogRepository? catalogRepository;
   final CatalogDraftStore? catalogDraftStore;
   final AppSessionStore? appSessionStore;
-  final DdiIngredientRepository? ddiIngredientRepository;
-  final SdifScientificIdentityRepository? sdifScientificIdentityRepository;
-  final DdiRuntimeSelection ddiRuntimeSelection;
   final List<String> problems;
 
   static Future<AppRuntime> initialize({
@@ -110,19 +90,11 @@ class AppRuntime {
   }) async {
     final resolved = config ?? AppRuntimeConfig.fromEnvironment();
     final problems = [...resolved.problems];
-    if (kReleaseMode && resolved.ddiRuntimeConfig.requestsSdif) {
-      const releaseProblem =
-          'DDI_PROVIDER=sdif is development-only and is not enabled in release mode.';
-      if (!problems.contains(releaseProblem)) {
-        problems.add(releaseProblem);
-      }
-    }
 
     if (problems.isNotEmpty) {
       return AppRuntime.configurationBlocked(List.unmodifiable(problems));
     }
 
-    final ddiSelection = resolved.ddiRuntimeConfig.selection;
     final store = secureStore ?? const FlutterSecureKeyValueStore();
     final storagePrefix =
         'sherko_pharma:${Uri.parse(resolved.supabaseUrl).host}';
@@ -155,12 +127,6 @@ class AppRuntime {
         catalogRepository: SupabaseCatalogRepository.fromClient(client),
         catalogDraftStore: draftStore,
         appSessionStore: appSessionStore,
-        ddiIngredientRepository:
-            SupabaseDdiIngredientRepository.fromClient(client),
-        sdifScientificIdentityRepository: ddiSelection.usesSdif
-            ? SupabaseSdifScientificIdentityRepository.fromClient(client)
-            : null,
-        ddiRuntimeSelection: ddiSelection,
       );
     } catch (_) {
       return const AppRuntime.initializationFailed();
