@@ -1,0 +1,51 @@
+batch_position,source_id,trade_name,active_ingredients,status
+1,9,ATORVATIN-10 CTD TAB.,Atorvastatin,completed
+2,10,ATORVATIN-20 CTD TAB.,Atorvastatin,completed
+3,11,PAROZON CAP.,Chlorzoxazone + Paracetamol,completed
+4,12,CETRINE-10 CTD TAB.,Cetirizine,completed
+5,13,VOLTAGESIC-50 CTD TAB.,Diclofenac Sodium,completed
+6,15,CAPOTAL-25 TAB.,Captopril,completed
+7,16,CAPOTAL-50 TAB.,Captopril,completed
+8,17,LINCOCILE-500 CAP.,Lincomycin Hydrochloride,completed
+9,18,AMPILUXE CAP.,Ampicillin + Cloxacillin,completed
+10,19,Ampiclox 500mg 10 Capsules,Ampicillin + Cloxacillin,completed
+11,21,CIPROFLEX-500 CTD TAB.,Ciprofloxacin,completed
+12,22,CIPROFLEX-750 CTD TAB.,Ciprofloxacin,completed
+13,23,Okarbon 10 Tablets,Senna Leaf + Rhubarb Root Extract + Vegetable Charcoal + Purified Sulfur,completed
+14,25,ULTRAPEN-500 CAP.,Amoxicillin + Flucloxacillin,completed
+15,27,ZEDEX-40 CTD TAB.,Famotidine,completed
+16,28,ZEDEX-20 CTD TAB.,Famotidine,completed
+17,29,Vitiacs 20 Chewable Tablets,UNRESOLVED,unresolved
+18,32,AZITHROCINE-250 CAP.,Azithromycin,completed
+19,33,EXTRA-50 CTD TAB.,Sildenafil,completed
+20,34,EXTRA-100 CTD TAB.,Sildenafil,completed
+21,35,PENTA-40 CTD TAB.,Pantoprazole,completed
+22,36,CANESTAL 20G CREAM 2%,Clotrimazole,completed
+23,37,CANESTEN CREAM,Clotrimazole,completed
+24,39,Nystaloc Cream,Dexamethasone + Chlorhexidine + Nystatin,completed
+25,41,CANESTAL-200 VAG.TAB.,Clotrimazole,completed
+26,42,TRIBION FORTE 1000 AMP.,Thiamine + Vitamin B6 + Vitamin B12,completed
+27,43,CELEX-100 CAP.,Celecoxib,completed
+28,44,CELEX-200 CAP.,Celecoxib,completed
+29,45,VOLTAGESIC-75 AMP.,Diclofenac Sodium,completed
+30,47,ALPHACORT I.M.AMP.,Triamcinolone Acetonide,completed
+31,48,GENTOCIL-40 AMP.,Gentamicin Sulfate,completed
+32,49,LINCOCILE 600 AMP.,Lincomycin Hydrochloride,completed
+33,52,NEODRON EYE DROPS,Dexamethasone + Neomycin Sulfate,completed
+34,54,ROCIFLEX-500 VIAL,Ceftriaxone,completed
+35,55,ROCIFLEX-1000 VIAL,Ceftriaxone,completed
+36,56,ROCIFLEX-250 VIAL,Ceftriaxone,completed
+37,57,ALPHACORT VIAL,Triamcinolone Acetonide,completed
+38,58,DECADRALE VIAL,Dexamethasone,completed
+39,59,SULBA-750 VIAL,Ampicillin + Sulbactam,completed
+40,60,SULBA-1500 VIAL,Ampicillin + Sulbactam,completed
+41,61,Azitrosin Syrup 200mg/15ml,Azithromycin,completed
+42,62,NISIDOL-100 TAB.,Nimesulide,completed
+43,63,Carlic 25mg Garlic Capsules,UNRESOLVED,unresolved
+44,64,Brodex,Paracetamol + Guaifenesin + Oxomemazine + Sodium Benzoate,completed
+45,65,AMPILUXE DRY SYRUP,Ampicillin + Cloxacillin,completed
+46,66,Asconad New 100ml Syrup,Paracetamol + Chlorpheniramine Maleate + Phenylephrine Hydrochloride,completed
+47,67,NISIDOL SUSP.,Nimesulide,completed
+48,68,ORALUXE-50 DRY SYRUP,Cefpodoxime,completed
+49,69,ULTRAPEN-250 DRY SYRUP,Amoxicillin + Flucloxacillin,completed
+50,74,ALPHATRIM SUSP.,Sulfamethoxazole + Trimethoprim,completed
