@@ -19,7 +19,8 @@
       "data/active_ingredients_progress/batch_001_results.csv",
       "data/active_ingredients_progress/batch_001_151_200.csv",
       "data/active_ingredients_progress/batch_001_201_250.csv",
-      "data/active_ingredients_progress/batch_001_251_300.csv"
+      "data/active_ingredients_progress/batch_001_251_300.csv",
+      "data/active_ingredients_progress/batch_001_301_350.csv"
     ]
   },
   "selection": {
@@ -31,21 +32,21 @@
     "position_end": 500,
     "size_limit": 500,
     "first_source_id": "9",
-    "checkpointed_through_position": 300
+    "checkpointed_through_position": 350
   },
   "checkpoint_interval_products": 50,
-  "processed_count": 300,
-  "completed_count": 279,
-  "unresolved_count": 21,
-  "unresolved_source_ids": ["29", "63", "89", "90", "91", "106", "185", "186", "325", "330", "337", "372", "429", "440", "447", "450", "451", "467", "484", "499", "508"],
+  "processed_count": 350,
+  "completed_count": 322,
+  "unresolved_count": 28,
+  "unresolved_source_ids": ["29", "63", "89", "90", "91", "106", "185", "186", "325", "330", "337", "372", "429", "440", "447", "450", "451", "467", "484", "499", "508", "512", "537", "561", "562", "570", "571", "573"],
   "last_processed_product": {
-    "batch_position": 300,
-    "source_id": "510",
-    "trade_name": "ASMAPHYLLINE-125 SYRUP"
+    "batch_position": 350,
+    "source_id": "577",
+    "trade_name": "Ketoprofen 150mg 10 Sustained Release Capsules"
   },
   "review_csv": null,
   "owner_approval_received": false,
   "blocker": null,
-  "recovery_rule": "Resume batch 1 at position 301 using the checkpoint files and live deterministic catalog ordering. Do not redo positions 1-300 unless checkpoint corruption is demonstrated. Checkpoint every <=50 products. No Active Ingredients writes to Supabase before explicit approval of the final review CSV.",
-  "checked_at": "2026-10-06T23:15:00+03:00"
+  "recovery_rule": "Resume batch 1 at position 351 using the checkpoint files and live deterministic catalog ordering. Do not redo positions 1-350 unless checkpoint corruption is demonstrated. Checkpoint every <=50 products. No Active Ingredients writes to Supabase before explicit approval of the final review CSV.",
+  "checked_at": "2026-10-06T23:30:00+03:00"
 }
