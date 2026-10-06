@@ -2,12 +2,14 @@
   "schema_version": 1,
   "workflow": "active_ingredients_batch_curation",
   "issue": 158,
-  "status": "blocked_no_catalog_rows",
+  "status": "in_progress",
   "supabase": {
     "project_name": "Sherko Pharma",
     "project_ref": "jwlxjzlnozncdfibrzfu",
     "authoritative_approved_state": true,
     "writes_performed_in_this_task": false,
+    "catalog_table": "syria.product_catalog_import_staging",
+    "catalog_exact_rows": 34436,
     "observed_counts": {
       "public.products": 0,
       "syria.products": 0,
@@ -18,17 +20,34 @@
   "repository": {
     "base_branch": "main",
     "base_sha": "3e5d018e773ed303eaabb0465063037a46afb542",
-    "progress_branch": "data/active-ingredients-batch-recovery"
+    "progress_branch": "data/active-ingredients-batch-recovery",
+    "results_file": "data/active_ingredients_progress/batch_001_results.csv"
   },
-  "batch": null,
+  "selection": {
+    "ordering": "numeric source_id ascending first, then non-numeric source_id lexicographically",
+    "reason": "PostgreSQL tables have no inherent row order; this produces deterministic resumable batches."
+  },
+  "batch": {
+    "batch_number": 1,
+    "position_start": 1,
+    "position_end": 500,
+    "size_limit": 500,
+    "first_source_id": "9",
+    "checkpointed_through_position": 50
+  },
   "checkpoint_interval_products": 50,
-  "processed_count": 0,
-  "completed_count": 0,
-  "unresolved_count": 0,
-  "last_processed_product": null,
+  "processed_count": 50,
+  "completed_count": 48,
+  "unresolved_count": 2,
+  "unresolved_source_ids": ["29", "63"],
+  "last_processed_product": {
+    "batch_position": 50,
+    "source_id": "74",
+    "trade_name": "ALPHATRIM SUSP."
+  },
   "review_csv": null,
   "owner_approval_received": false,
-  "blocker": "No commercial product rows are present in the connected Sherko Pharma Supabase project, so no valid first 500-product pending batch can be selected.",
-  "recovery_rule": "On the next run, read this state and live Supabase first. If catalog rows have been restored, replace the blocked state with the live first pending batch (up to 500) and checkpoint every 50 processed products. Do not write Active Ingredients data to Supabase until the owner explicitly approves the final review CSV.",
-  "checked_at": "2026-10-06T21:48:51+03:00"
+  "blocker": null,
+  "recovery_rule": "Resume batch 1 at position 51 from the results file and live catalog ordering. Do not redo positions 1-50 unless their checkpoint is shown to be corrupt. Checkpoint at every 50 products. Do not write Active Ingredients data to Supabase until the owner explicitly approves the final 500-row review CSV. UNRESOLVED rows do not block progress.",
+  "checked_at": "2026-10-06T22:00:00+03:00"
 }
