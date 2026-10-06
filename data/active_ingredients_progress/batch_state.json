@@ -2,7 +2,7 @@
   "schema_version": 1,
   "workflow": "active_ingredients_batch_curation",
   "issue": 158,
-  "status": "in_progress",
+  "status": "awaiting_owner_approval",
   "supabase": {
     "project_name": "Sherko Pharma",
     "project_ref": "jwlxjzlnozncdfibrzfu",
@@ -22,7 +22,8 @@
       "data/active_ingredients_progress/batch_001_251_300.csv",
       "data/active_ingredients_progress/batch_001_301_350.csv",
       "data/active_ingredients_progress/batch_001_351_400.csv",
-      "data/active_ingredients_progress/batch_001_401_450.csv"
+      "data/active_ingredients_progress/batch_001_401_450.csv",
+      "data/active_ingredients_progress/batch_001_451_500.csv"
     ]
   },
   "selection": {
@@ -34,21 +35,28 @@
     "position_end": 500,
     "size_limit": 500,
     "first_source_id": "9",
-    "checkpointed_through_position": 450
+    "last_source_id": "788",
+    "checkpointed_through_position": 500
   },
   "checkpoint_interval_products": 50,
-  "processed_count": 450,
-  "completed_count": 408,
-  "unresolved_count": 42,
-  "unresolved_source_ids": ["29", "63", "89", "90", "91", "106", "185", "186", "325", "330", "337", "372", "429", "440", "447", "450", "451", "467", "484", "499", "508", "512", "537", "561", "562", "570", "571", "573", "590", "597", "598", "607", "608", "610", "614", "616", "617", "629", "675", "690", "691", "711"],
+  "processed_count": 500,
+  "completed_count": 457,
+  "unresolved_count": 43,
   "last_processed_product": {
-    "batch_position": 450,
-    "source_id": "727",
-    "trade_name": "Methyldopa 250mg Tablet"
+    "batch_position": 500,
+    "source_id": "788",
+    "trade_name": "SHIFATRYPTIL-10 CTD TAB."
   },
-  "review_csv": null,
+  "review_csv": {
+    "filename": "active_ingredients_batch_001_review.csv",
+    "columns": ["trade_name", "active_ingredients"],
+    "row_count": 500,
+    "sha256": "dc1dd469cbd505695d2a9668f1a30e458091bd51558bbb445b4689e7c3c31728",
+    "durability_note": "The review CSV is reproducible exactly from the eight committed checkpoint files. The chat artifact is the current review copy."
+  },
   "owner_approval_received": false,
-  "blocker": null,
-  "recovery_rule": "Resume batch 1 at position 451 using the checkpoint files and live deterministic catalog ordering. Do not redo positions 1-450 unless checkpoint corruption is demonstrated. Checkpoint every <=50 products. No Active Ingredients writes to Supabase before explicit approval of the final review CSV.",
-  "checked_at": "2026-10-07T00:00:00+03:00"
+  "supabase_write_allowed": false,
+  "blocker": "Waiting for explicit owner approval of batch 1 review CSV before any Active Ingredients write to Supabase.",
+  "recovery_rule": "Do not research or reprocess batch 1. Regenerate the review CSV from the committed checkpoints if needed. Wait for explicit owner approval. Only after approval normalize ingredients against the live Active Ingredients store, create missing unique IDs without duplicates, link the 457 resolved products, preserve the 43 unresolved rows, verify the write against the approved CSV, then close batch 1. Do not start batch 2 before batch 1 is approved and uploaded.",
+  "checked_at": "2026-10-06T21:00:00+00:00"
 }
