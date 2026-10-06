@@ -33,21 +33,21 @@
     "position_end": 500,
     "size_limit": 500,
     "first_source_id": "9",
-    "checkpointed_through_position": 50
+    "checkpointed_through_position": 100
   },
   "checkpoint_interval_products": 50,
-  "processed_count": 50,
-  "completed_count": 48,
-  "unresolved_count": 2,
-  "unresolved_source_ids": ["29", "63"],
+  "processed_count": 100,
+  "completed_count": 93,
+  "unresolved_count": 7,
+  "unresolved_source_ids": ["29", "63", "89", "90", "91", "106", "185"],
   "last_processed_product": {
-    "batch_position": 50,
-    "source_id": "74",
-    "trade_name": "ALPHATRIM SUSP."
+    "batch_position": 100,
+    "source_id": "185",
+    "trade_name": "Aziban 5mg 20 Tablets"
   },
   "review_csv": null,
   "owner_approval_received": false,
   "blocker": null,
-  "recovery_rule": "Resume batch 1 at position 51 from the results file and live catalog ordering. Do not redo positions 1-50 unless their checkpoint is shown to be corrupt. Checkpoint at every 50 products. Do not write Active Ingredients data to Supabase until the owner explicitly approves the final 500-row review CSV. UNRESOLVED rows do not block progress.",
-  "checked_at": "2026-10-06T22:00:00+03:00"
+  "recovery_rule": "Resume batch 1 at position 101 from the results file and live catalog ordering. Do not redo positions 1-100 unless their checkpoint is shown to be corrupt. Checkpoint at every 50 products. Do not write Active Ingredients data to Supabase until the owner explicitly approves the final 500-row review CSV. UNRESOLVED rows do not block progress.",
+  "checked_at": "2026-10-06T22:15:00+03:00"
 }
