@@ -25,3 +25,8 @@ source_id,trade_name,active_ingredients,recheck_status,evidence
 562,Cefcoprim Syrup Children,Sulfamethoxazole + Trimethoprim,resolved,"Syrian drug composition catalog lists Cefco Syphcoprim suspension in the co-trimoxazole group at sulfamethoxazole 200mg + trimethoprim 40mg per 5ml"
 614,Viola,Carisoprodol + Paracetamol,resolved,"Syrian pharmacology reference explicitly lists Sandi Viola tablets as carisoprodol 150mg + paracetamol 150mg"
 675,Momicon Solution,Mometasone Furoate,resolved,"Syrian 17-01-2023 official price list lists Medipharm MOMECON SOLUTION as mometasone furoate 0.1%"
+617,Baby Spasm Drops,Hyoscyamine,resolved,"Syrian 09-2009 composition catalog aligns Sandi BabySpasm 0.0625/0.125 oral drops with hyoscyamine 0.0625/0.125 mg per ml"
+484,Decostamine,Chlorpheniramine + Phenylpropanolamine,resolved,"Syrian 09-2009 composition catalog aligns Tameco Decostamine tablets with chlorpheniramine 4mg + phenylpropanolamine 50mg per tablet"
+571,Proctocure 10 Suppositories,Bismuth Subgallate + Hydrocortisone + Lidocaine + Menthol,resolved,"Syrian 09-2009 composition catalog aligns Ruby Proctocure suppositories with Dermatol 100mg + hydrocortisone 10mg + lidocaine 40mg + menthol 4mg; PubChem identifies Dermatol as bismuth subgallate"
+778,Spazno 15mg Tablets,Propantheline,resolved,"Syrian 09-2009 composition catalog aligns Shifa Spasno 15 tablets with propantheline 15mg"
+690,Sunscreen Cream 72,Octyl Methoxycinnamate + Octyl Triazone + Benzophenone-4,resolved,"Syrian 09-2009 composition catalog aligns United Sunscreen 72 cream with octyl methoxy cinnamate + octyl triazone + Uvinul MS40; BASF identifies Uvinul MS40 INCI as Benzophenone-4"
