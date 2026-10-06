@@ -99,3 +99,53 @@ batch_position,source_id,trade_name,active_ingredients,status
 98,178,UNICETAM SYRUP,Piracetam,completed
 99,180,Erecefuril Syrup,Nifuroxazide,completed
 100,185,Aziban 5mg 20 Tablets,UNRESOLVED,unresolved
+101,186,Aziban 10mg 20 Tablets,UNRESOLVED,unresolved
+102,187,Parkomet 100mg 20 tablets,Levodopa + Carbidopa,completed
+103,188,Parkomet 250mg 40 tablets,Levodopa + Carbidopa,completed
+104,189,Medazepam 10mg 50 Tablets,Medazepam,completed
+105,190,Phenytoin 100mg 40 Tablets Shahba,Phenytoin,completed
+106,191,Lomotin 20 tablets,Diphenoxylate Hydrochloride + Atropine Sulfate,completed
+107,194,Voltaren 100mg Suppository,Diclofenac Sodium,completed
+108,195,Voltaren 50mg Suppository,Diclofenac Sodium,completed
+109,197,MODAZOL-500 TAB.,Metronidazole,completed
+110,200,VALIUM 2 MG,Diazepam,completed
+111,201,ليكسوتان 1.5 ملغ 20 كبسولة,Bromazepam,completed
+112,203,VALIUM 5 MG,Diazepam,completed
+113,204,Lexotan 3mg Capsules,Bromazepam,completed
+114,209,CARDIOSPIRIN S.R.CTD TAB.,Acetylsalicylic Acid,completed
+115,213,Omepramide 20 Capsules 20 mg,Omeprazole,completed
+116,214,INDOMODE-75 RETARD CAP.,Indomethacin,completed
+117,216,MEDAFOLIN-5 TAB.,Folic Acid,completed
+118,224,RHINOMODE CAP.,Phenylephrine Hydrochloride + Carbinoxamine Maleate,completed
+119,225,MINISPIRIN TAB.,Acetylsalicylic Acid,completed
+120,226,INDOMODE-100 SUPP.,Indomethacin,completed
+121,228,AZITRO MED-250 CAP.,Azithromycin,completed
+122,229,Tenormin 100mg 20 Tablets Tenormilol,Atenolol,completed
+123,230,DEXATRONE TAB.,Dexamethasone,completed
+124,231,Inderal 40 mg,Propranolol,completed
+125,233,Inderal 10mg 40 Tab,Propranolol,completed
+126,234,MODESTAMINE TAB.,Cyproheptadine Hydrochloride,completed
+127,237,INDOMODE CAP.,Indomethacin,completed
+128,245,FEVRALE ORAL DROPS,Paracetamol,completed
+129,246,MODAL DROPS,Hyoscine Methonitrate,completed
+130,248,PARAMODE SYRUP,Paracetamol,completed
+131,250,RHINOMODE SYRUP,Phenylephrine Hydrochloride + Carbinoxamine Maleate,completed
+132,253,DEXATRONE SYRUP,Dexamethasone,completed
+133,255,CEMO MILD SYRUP,Ammonium Chloride + Carbinoxamine Maleate + Ephedrine Hydrochloride,completed
+134,256,CEMO EXPECTORANT SYRUP,Ammonium Chloride + Carbinoxamine Maleate + Ephedrine Hydrochloride,completed
+135,257,CEMO CODEINE SYRUP,Carbinoxamine Maleate + Ephedrine Hydrochloride + Codeine Phosphate,completed
+136,258,PECTO-KAO SUSP.,Kaolin + Pectin,completed
+137,259,MODESTAMINE SYRUP,Cyproheptadine Hydrochloride,completed
+138,260,MODAZOL SUSP.,Metronidazole,completed
+139,263,TRIPTOZOR S.R.CAP.,Amitriptyline Hydrochloride,completed
+140,264,DALACIN-C CAP.,Clindamycin,completed
+141,265,LINCOCIN CAP.,Lincomycin,completed
+142,266,Proflucan 200mg 10 Capsules,Fluconazole,completed
+143,267,ELTROXIN-100 TAB.,Levothyroxine Sodium,completed
+144,268,AZOCIN-250 CAP.,Azithromycin,completed
+145,269,INCITE 50 TAB.,Clomiphene,completed
+146,273,FEFOL-Z SPANSULE CAP.,Ferrous Sulfate + Folic Acid + Zinc Sulfate,completed
+147,274,DITROSPAM SYRUP,Oxybutynin Hydrochloride,completed
+148,275,KAOPECTATE SUSP.,Kaolin + Pectin,completed
+149,283,NABUMET-500 CTD TAB.,Nabumetone,completed
+150,284,CLOTRI LOZENGES,Clotrimazole,completed
