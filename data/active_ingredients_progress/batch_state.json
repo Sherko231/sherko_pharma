@@ -15,7 +15,10 @@
     "base_branch": "main",
     "base_sha": "3e5d018e773ed303eaabb0465063037a46afb542",
     "progress_branch": "data/active-ingredients-batch-recovery",
-    "results_file": "data/active_ingredients_progress/batch_001_results.csv"
+    "checkpoint_files": [
+      "data/active_ingredients_progress/batch_001_results.csv",
+      "data/active_ingredients_progress/batch_001_151_200.csv"
+    ]
   },
   "selection": {
     "ordering": "numeric source_id ascending first, then non-numeric source_id lexicographically"
@@ -26,21 +29,21 @@
     "position_end": 500,
     "size_limit": 500,
     "first_source_id": "9",
-    "checkpointed_through_position": 150
+    "checkpointed_through_position": 200
   },
   "checkpoint_interval_products": 50,
-  "processed_count": 150,
-  "completed_count": 142,
-  "unresolved_count": 8,
-  "unresolved_source_ids": ["29", "63", "89", "90", "91", "106", "185", "186"],
+  "processed_count": 200,
+  "completed_count": 189,
+  "unresolved_count": 11,
+  "unresolved_source_ids": ["29", "63", "89", "90", "91", "106", "185", "186", "325", "330", "337"],
   "last_processed_product": {
-    "batch_position": 150,
-    "source_id": "284",
-    "trade_name": "CLOTRI LOZENGES"
+    "batch_position": 200,
+    "source_id": "354",
+    "trade_name": "OBARPHYLLINE-SR 12 CAP."
   },
   "review_csv": null,
   "owner_approval_received": false,
   "blocker": null,
-  "recovery_rule": "Resume batch 1 at position 151. Do not redo positions 1-150 unless checkpoint corruption is demonstrated. Checkpoint every <=50 products. No Active Ingredients writes to Supabase before explicit approval of the final review CSV.",
-  "checked_at": "2026-10-06T22:30:00+03:00"
+  "recovery_rule": "Resume batch 1 at position 201 using the checkpoint files and live deterministic catalog ordering. Do not redo positions 1-200 unless checkpoint corruption is demonstrated. Checkpoint every <=50 products. No Active Ingredients writes to Supabase before explicit approval of the final review CSV.",
+  "checked_at": "2026-10-06T22:45:00+03:00"
 }
