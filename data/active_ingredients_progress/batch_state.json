@@ -17,7 +17,8 @@
     "progress_branch": "data/active-ingredients-batch-recovery",
     "checkpoint_files": [
       "data/active_ingredients_progress/batch_001_results.csv",
-      "data/active_ingredients_progress/batch_001_151_200.csv"
+      "data/active_ingredients_progress/batch_001_151_200.csv",
+      "data/active_ingredients_progress/batch_001_201_250.csv"
     ]
   },
   "selection": {
@@ -29,21 +30,21 @@
     "position_end": 500,
     "size_limit": 500,
     "first_source_id": "9",
-    "checkpointed_through_position": 200
+    "checkpointed_through_position": 250
   },
   "checkpoint_interval_products": 50,
-  "processed_count": 200,
-  "completed_count": 189,
-  "unresolved_count": 11,
-  "unresolved_source_ids": ["29", "63", "89", "90", "91", "106", "185", "186", "325", "330", "337"],
+  "processed_count": 250,
+  "completed_count": 238,
+  "unresolved_count": 12,
+  "unresolved_source_ids": ["29", "63", "89", "90", "91", "106", "185", "186", "325", "330", "337", "372"],
   "last_processed_product": {
-    "batch_position": 200,
-    "source_id": "354",
-    "trade_name": "OBARPHYLLINE-SR 12 CAP."
+    "batch_position": 250,
+    "source_id": "410",
+    "trade_name": "Obergine 5 Ampoules"
   },
   "review_csv": null,
   "owner_approval_received": false,
   "blocker": null,
-  "recovery_rule": "Resume batch 1 at position 201 using the checkpoint files and live deterministic catalog ordering. Do not redo positions 1-200 unless checkpoint corruption is demonstrated. Checkpoint every <=50 products. No Active Ingredients writes to Supabase before explicit approval of the final review CSV.",
-  "checked_at": "2026-10-06T22:45:00+03:00"
+  "recovery_rule": "Resume batch 1 at position 251 using the checkpoint files and live deterministic catalog ordering. Do not redo positions 1-250 unless checkpoint corruption is demonstrated. Checkpoint every <=50 products. No Active Ingredients writes to Supabase before explicit approval of the final review CSV.",
+  "checked_at": "2026-10-06T23:00:00+03:00"
 }
