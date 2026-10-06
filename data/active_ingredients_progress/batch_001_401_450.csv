@@ -1,0 +1,51 @@
+batch_position,source_id,trade_name,active_ingredients,status
+401,667,CAPROL-500 TAB.,Aminocaproic Acid,completed
+402,670,GYNODONE OVULES,Povidone-Iodine,completed
+403,671,CLINDACINE SOLU.,Clindamycin,completed
+404,672,Medralin Syrup,Alimemazine Tartrate,completed
+405,673,Caprol Syrup 200ml,Aminocaproic Acid,completed
+406,674,NESTAVIT-MATERNA CTD TAB.,Thiamine + Riboflavin + Vitamin B6 + Vitamin B12 + Nicotinamide + Vitamin A + Cholecalciferol + Vitamin E + Ascorbic Acid + Folic Acid + Calcium + Magnesium + Iron + Iodine,completed
+407,675,Momicon Solution,UNRESOLVED,unresolved
+408,677,ACNAZOL SOLU.,Erythromycin,completed
+409,678,ACNAZOL SOLU.,Erythromycin,completed
+410,679,ACNASOL FORTE SOLU.,Erythromycin,completed
+411,680,ACNASOL FORTE SOLU.,Erythromycin,completed
+412,681,HEXADINE SOLUTION,Hexamidine Isethionate,completed
+413,682,CLOPRAMED DROPS,Metoclopramide Hydrochloride,completed
+414,683,FORTIL DROPS,Etilefrine,completed
+415,685,DOLAMINE SOLUTION,Lidocaine + Chamomile Extract,completed
+416,686,MEDRALINE ENF.SYRUP,Alimemazine Tartrate + Ammonium Acetate + Tolu Balsam + Sodium Benzoate,completed
+417,687,MEDRALENE PECTORAL SYRUP,Alimemazine Tartrate + Ephedrine Hydrochloride + Ammonium Acetate,completed
+418,688,BROMEXINA SYRUP,Bromhexine Hydrochloride,completed
+419,689,TROPAN SYRUP,Oxybutynin Hydrochloride,completed
+420,690,Sunscreen Cream 72,UNRESOLVED,unresolved
+421,691,Cold Cream E+C Large 50ml,UNRESOLVED,unresolved
+422,693,INDOMETHACIN-100 SUPP.,Indomethacin,completed
+423,694,Laxin Suppositories,Bisacodyl,completed
+424,695,DOLOPAN SUPP.,Hyoscine Butylbromide,completed
+425,696,GINOZOL-150 OVULES,Econazole Nitrate,completed
+426,700,AMLO-VASK CAP.,Amlodipine,completed
+427,702,CLOFENE TAB.,Clomiphene,completed
+428,703,Laxin 10mg 20 Tabs RA,Bisacodyl,completed
+429,704,INDOMETHACIN CAP.,Indomethacin,completed
+430,705,TRIBEXIN FORT CTD TAB.,Thiamine + Vitamin B6 + Vitamin B12,completed
+431,706,LIPROSIL CTD TAB.,Gemfibrozil,completed
+432,708,RIDENE CAP.,Piroxicam,completed
+433,709,RIDENE-FORT CAP.,Piroxicam,completed
+434,710,PEFLOX CTD TAB.,Pefloxacin,completed
+435,711,Endovit 30 Caps,UNRESOLVED,unresolved
+436,712,Ciprocine 10 Tabs 500mg,Ciprofloxacin,completed
+437,713,CIPROCIN-750 CTD TAB.,Ciprofloxacin,completed
+438,714,CALCIUM SYRUP,Calcium Salts,completed
+439,716,AMARIUM-1 TAB.,Glimepiride,completed
+440,717,AMARIUM-3 TAB.,Glimepiride,completed
+441,718,AMARIUM-4 TAB.,Glimepiride,completed
+442,719,Fucid H Ointment 20g,Fusidic Acid + Hydrocortisone,completed
+443,720,Fucid H Gel 20g,Fusidic Acid + Hydrocortisone,completed
+444,721,DICLORISM-50 SUPP.,Diclofenac Sodium,completed
+445,722,Diclofenac Sodium 100mg Suppository,Diclofenac Sodium,completed
+446,723,Proctocort 6 Suppositories,Hydrocortisone + Cinchocaine + Bismuth Subgallate,completed
+447,724,Phenytoin 100mg Tablet,Phenytoin,completed
+448,725,MIODARONE TAB.,Amiodarone Hydrochloride,completed
+449,726,Bisacodyl 10mg Tablet,Bisacodyl,completed
+450,727,Methyldopa 250mg Tablet,Methyldopa,completed
