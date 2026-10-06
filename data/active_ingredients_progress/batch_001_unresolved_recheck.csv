@@ -15,3 +15,8 @@ source_id,trade_name,active_ingredients,recheck_status,evidence
 608,Prostatom 10mg,Terazosin,resolved,"Old Syrian catalog maps Sandi Prostatom 10mg to terazosin 10mg"
 610,Diosartan 62.5mg,Losartan + Hydrochlorothiazide,resolved,"Old Syrian catalog maps Sandi Diosartan 62.5mg to losartan 50mg + hydrochlorothiazide 12.5mg"
 629,Naproxen Vial 500mg,Naproxen,resolved,"Syrian 17-01-2023 price list: Shifa NAPROXENE-SHIFA VIAL = naproxen 500mg/vial"
+29,Vitiacs 20 Chewable Tablets,Vitamin A + Vitamin E,resolved,"Syrian pharmacology references identify Alpha Viteax/Vitiacs chewable tablets as vitamin A 30,000 IU + vitamin E 70 IU"
+185,Aziban 5mg 20 Tablets,Diazepam,resolved,"Syrian catalog identifies the matching Al-Shark product as Azepan 5; drug references identify Azepan as a diazepam brand"
+186,Aziban 10mg 20 Tablets,Diazepam,resolved,"Syrian catalog identifies the matching Al-Shark product as Azepan 10; drug references identify Azepan as a diazepam brand"
+447,VITADYN EFF.TAB.,Thiamine + Riboflavin + Vitamin B6 + Nicotinamide + Vitamin B12 + Vitamin A + Ergocalciferol + Vitamin E + Ascorbic Acid + Calcium Pantothenate + Zinc + Magnesium + Iron + Manganese + Copper + Biotin,resolved,"Syrian 17-01-2023 official price list gives Oubari VITADYN composition: THIAMINE+VIT.B2+B6+PP+B12+A+D2+E+C+CA-PAN.+ZN+MG+FE+MN+CU+BI"
+711,Endovit 30 Caps,Indomethacin + Thiamine,resolved,"Syrian medical/pharmacy reference lists Rasha Endovit capsules with scientific composition indomethacin + vitamin B1 (thiamine)"
