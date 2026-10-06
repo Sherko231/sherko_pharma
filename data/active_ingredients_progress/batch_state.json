@@ -9,13 +9,7 @@
     "authoritative_approved_state": true,
     "writes_performed_in_this_task": false,
     "catalog_table": "syria.product_catalog_import_staging",
-    "catalog_exact_rows": 34436,
-    "observed_counts": {
-      "public.products": 0,
-      "syria.products": 0,
-      "syria.product_ingredients": 0,
-      "ddinter.drugs": 0
-    }
+    "catalog_exact_rows": 34436
   },
   "repository": {
     "base_branch": "main",
@@ -24,8 +18,7 @@
     "results_file": "data/active_ingredients_progress/batch_001_results.csv"
   },
   "selection": {
-    "ordering": "numeric source_id ascending first, then non-numeric source_id lexicographically",
-    "reason": "PostgreSQL tables have no inherent row order; this produces deterministic resumable batches."
+    "ordering": "numeric source_id ascending first, then non-numeric source_id lexicographically"
   },
   "batch": {
     "batch_number": 1,
@@ -33,21 +26,21 @@
     "position_end": 500,
     "size_limit": 500,
     "first_source_id": "9",
-    "checkpointed_through_position": 100
+    "checkpointed_through_position": 150
   },
   "checkpoint_interval_products": 50,
-  "processed_count": 100,
-  "completed_count": 93,
-  "unresolved_count": 7,
-  "unresolved_source_ids": ["29", "63", "89", "90", "91", "106", "185"],
+  "processed_count": 150,
+  "completed_count": 142,
+  "unresolved_count": 8,
+  "unresolved_source_ids": ["29", "63", "89", "90", "91", "106", "185", "186"],
   "last_processed_product": {
-    "batch_position": 100,
-    "source_id": "185",
-    "trade_name": "Aziban 5mg 20 Tablets"
+    "batch_position": 150,
+    "source_id": "284",
+    "trade_name": "CLOTRI LOZENGES"
   },
   "review_csv": null,
   "owner_approval_received": false,
   "blocker": null,
-  "recovery_rule": "Resume batch 1 at position 101 from the results file and live catalog ordering. Do not redo positions 1-100 unless their checkpoint is shown to be corrupt. Checkpoint at every 50 products. Do not write Active Ingredients data to Supabase until the owner explicitly approves the final 500-row review CSV. UNRESOLVED rows do not block progress.",
-  "checked_at": "2026-10-06T22:15:00+03:00"
+  "recovery_rule": "Resume batch 1 at position 151. Do not redo positions 1-150 unless checkpoint corruption is demonstrated. Checkpoint every <=50 products. No Active Ingredients writes to Supabase before explicit approval of the final review CSV.",
+  "checked_at": "2026-10-06T22:30:00+03:00"
 }
