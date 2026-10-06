@@ -40,8 +40,8 @@
   },
   "checkpoint_interval_products": 50,
   "processed_count": 500,
-  "completed_count": 457,
-  "unresolved_count": 43,
+  "completed_count": 497,
+  "unresolved_count": 3,
   "last_processed_product": {
     "batch_position": 500,
     "source_id": "788",
@@ -49,14 +49,38 @@
   },
   "review_csv": {
     "filename": "active_ingredients_batch_001_review.csv",
-    "columns": ["trade_name", "active_ingredients"],
+    "columns": [
+      "trade_name",
+      "active_ingredients"
+    ],
     "row_count": 500,
     "sha256": "dc1dd469cbd505695d2a9668f1a30e458091bd51558bbb445b4689e7c3c31728",
-    "durability_note": "The review CSV is reproducible exactly from the eight committed checkpoint files. The chat artifact is the current review copy."
+    "durability_note": "The review CSV is reproducible exactly from the eight committed checkpoint files. The chat artifact is the current review copy.",
+    "stale_after_recheck": true,
+    "regeneration_required": true,
+    "note": "The previous 500-row review CSV predates the unresolved recheck. Regenerate it from the committed batch checkpoints plus batch_001_unresolved_recheck.csv before owner approval."
   },
   "owner_approval_received": false,
   "supabase_write_allowed": false,
-  "blocker": "Waiting for explicit owner approval of batch 1 review CSV before any Active Ingredients write to Supabase.",
-  "recovery_rule": "Do not research or reprocess batch 1. Regenerate the review CSV from the committed checkpoints if needed. Wait for explicit owner approval. Only after approval normalize ingredients against the live Active Ingredients store, create missing unique IDs without duplicates, link the 457 resolved products, preserve the 43 unresolved rows, verify the write against the approved CSV, then close batch 1. Do not start batch 2 before batch 1 is approved and uploaded.",
-  "checked_at": "2026-10-06T21:00:00+00:00"
+  "blocker": "Regenerate and present the updated batch 1 review CSV reflecting 497 resolved and 3 unresolved rows; wait for explicit owner approval before any Active Ingredients write to Supabase.",
+  "recovery_rule": "Do not repeat the unresolved recheck. Forty of the original 43 unresolved products were resolved and are stored in batch_001_unresolved_recheck.csv. Only source_ids 89, 330, and 467 remain unresolved after exhaustive recheck. Regenerate the final 500-row review CSV from committed checkpoints plus the recheck file, then wait for explicit owner approval. Do not write Active Ingredients to Supabase or start batch 2 before approval and upload.",
+  "checked_at": "2026-10-06T21:41:28.432Z",
+  "unresolved_source_ids": [
+    "89",
+    "330",
+    "467"
+  ],
+  "unresolved_recheck": {
+    "status": "completed",
+    "original_unresolved_count": 43,
+    "resolved_on_recheck": 40,
+    "remaining_unresolved_count": 3,
+    "results_file": "data/active_ingredients_progress/batch_001_unresolved_recheck.csv",
+    "last_checkpoint_commit": "ba3054e37adef669ef8daeb9524b5d45b61bb85b",
+    "remaining_source_ids": [
+      "89",
+      "330",
+      "467"
+    ]
+  }
 }
