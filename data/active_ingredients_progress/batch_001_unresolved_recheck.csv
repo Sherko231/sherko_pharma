@@ -20,3 +20,8 @@ source_id,trade_name,active_ingredients,recheck_status,evidence
 186,Aziban 10mg 20 Tablets,Diazepam,resolved,"Syrian catalog identifies the matching Al-Shark product as Azepan 10; drug references identify Azepan as a diazepam brand"
 447,VITADYN EFF.TAB.,Thiamine + Riboflavin + Vitamin B6 + Nicotinamide + Vitamin B12 + Vitamin A + Ergocalciferol + Vitamin E + Ascorbic Acid + Calcium Pantothenate + Zinc + Magnesium + Iron + Manganese + Copper + Biotin,resolved,"Syrian 17-01-2023 official price list gives Oubari VITADYN composition: THIAMINE+VIT.B2+B6+PP+B12+A+D2+E+C+CA-PAN.+ZN+MG+FE+MN+CU+BI"
 711,Endovit 30 Caps,Indomethacin + Thiamine,resolved,"Syrian medical/pharmacy reference lists Rasha Endovit capsules with scientific composition indomethacin + vitamin B1 (thiamine)"
+508,نيو بكتومكس شراب,Diphenhydramine Hydrochloride + Phenylephrine Hydrochloride + Ammonium Chloride + Tolu Balsam,resolved,"Razi official product information and Syrian 17-01-2023 price list give NEW PECTOMEX syrup composition directly"
+561,Cefcoprim Syrup Forte,Sulfamethoxazole + Trimethoprim,resolved,"Syrian drug composition catalog lists Cefco SyphcoprimFort suspension in the co-trimoxazole group at sulfamethoxazole 400mg + trimethoprim 80mg per 5ml"
+562,Cefcoprim Syrup Children,Sulfamethoxazole + Trimethoprim,resolved,"Syrian drug composition catalog lists Cefco Syphcoprim suspension in the co-trimoxazole group at sulfamethoxazole 200mg + trimethoprim 40mg per 5ml"
+614,Viola,Carisoprodol + Paracetamol,resolved,"Syrian pharmacology reference explicitly lists Sandi Viola tablets as carisoprodol 150mg + paracetamol 150mg"
+675,Momicon Solution,Mometasone Furoate,resolved,"Syrian 17-01-2023 official price list lists Medipharm MOMECON SOLUTION as mometasone furoate 0.1%"
