@@ -54,16 +54,17 @@
       "active_ingredients"
     ],
     "row_count": 500,
-    "sha256": "dc1dd469cbd505695d2a9668f1a30e458091bd51558bbb445b4689e7c3c31728",
-    "durability_note": "The review CSV is reproducible exactly from the eight committed checkpoint files. The chat artifact is the current review copy.",
-    "stale_after_recheck": true,
-    "regeneration_required": true,
-    "note": "The previous 500-row review CSV predates the unresolved recheck and second-pass Supreme resolution. Regenerate it from the committed batch checkpoints plus batch_001_unresolved_recheck.csv before owner approval."
+    "sha256": "a40d61649884f9d20fe291ff7f986b1435d03ac5d948238cab6011b642be915c",
+    "durability_note": "Committed on data/active-ingredients-batch-recovery; generated from the eight checkpoints with the reviewed 43-row second-pass overrides.",
+    "stale_after_recheck": false,
+    "regeneration_required": false,
+    "note": "498 ingredient compositions confirmed for review. source_ids 89 and 330 are written as literal undefined; they are not ingredient identities and must be skipped rather than inserted as substances.",
+    "repository_path": "data/active_ingredients_progress/active_ingredients_batch_001_review.csv"
   },
   "owner_approval_received": false,
   "supabase_write_allowed": false,
-  "blocker": "Regenerate and present the updated batch 1 review CSV reflecting 498 resolved and 2 unresolved rows; wait for explicit owner approval before any Active Ingredients write to Supabase.",
-  "recovery_rule": "A second-pass evidence review resolved source_id 467 (Supreme) as Royal Jelly + Korean Ginseng + Bee Pollen. Only source_ids 89 and 330 remain unresolved; both were rechecked again without a product-specific composition source and must not be guessed. Regenerate the final 500-row review CSV from committed checkpoints plus batch_001_unresolved_recheck.csv, then wait for explicit owner approval. Do not write Active Ingredients to Supabase or start batch 2 before approval and upload.",
+  "blocker": "Final updated 500-row review CSV is generated and checkpointed. Await explicit approval of the reviewed batch CSV before any Supabase Active Ingredients write.",
+  "recovery_rule": "Preserve source_id 89 (Ecrinal shampoo) and 330 (O Gelly 40g gel) as unresolved/undefined, never substitute an inferred ingredient. If an import is authorized, skip undefined ingredient links; maintain a pending unresolved queue. After owner approval and verified batch 1 upload, proceed to batch 2.",
   "checked_at": "2026-10-07T17:05:27.450861Z",
   "unresolved_source_ids": [
     "89",
