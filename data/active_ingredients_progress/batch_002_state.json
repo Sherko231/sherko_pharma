@@ -27,22 +27,47 @@
     "checkpoints": [
       "data/active_ingredients_progress/batch_002_001_050.csv",
       "data/active_ingredients_progress/batch_002_051_100.csv",
-      "data/active_ingredients_progress/batch_002_101_150.csv"
+      "data/active_ingredients_progress/batch_002_101_150.csv",
+      "data/active_ingredients_progress/batch_002_151_200.csv"
     ]
   },
-  "processed_count": 150,
-  "completed_count": 146,
-  "unresolved_count": 4,
-  "checkpointed_through_position": 150,
-  "last_source_id": "961",
-  "next_batch_position": 151,
+  "processed_count": 200,
+  "completed_count": 172,
+  "unresolved_count": 28,
+  "checkpointed_through_position": 200,
+  "last_source_id": "1042",
+  "next_batch_position": 201,
   "unresolved_source_ids": [
     "793",
     "805",
     "868",
-    "896"
+    "896",
+    "966",
+    "969",
+    "970",
+    "972",
+    "974",
+    "979",
+    "980",
+    "981",
+    "983",
+    "984",
+    "985",
+    "986",
+    "995",
+    "999",
+    "1000",
+    "1012",
+    "1016",
+    "1019",
+    "1022",
+    "1032",
+    "1033",
+    "1034",
+    "1041",
+    "1042"
   ],
   "owner_approval_received": false,
   "supabase_write_allowed": false,
-  "notes": "150 of 500 batch-2 products curated and checkpointed. Provenance links per CSV; completed denotes curated composition candidate, not external DDInter identity or clinical certification. Source IDs 793, 805, 868, 896 are unresolved/undefined. No batch 2 database writes; final review CSV and explicit owner approval are mandatory before database import."
+  "notes": "200 of 500 batch-2 products curated and durably checkpointed (172 composition candidates, 28 undefined). Cosmetics and names with manufacturer-specific ambiguity remain undefined. Include source URL/provenance and note; no DDInter identity has been assigned; cross-check differing spellings before any approved upload. Batch-2 database untouched; separate owner approval needed for final 500-row review CSV."
 }
