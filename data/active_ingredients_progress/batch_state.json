@@ -2,14 +2,24 @@
   "schema_version": 1,
   "workflow": "active_ingredients_batch_curation",
   "issue": 158,
-  "status": "awaiting_owner_approval",
+  "status": "approved_uploaded_verified",
   "supabase": {
     "project_name": "Sherko Pharma",
     "project_ref": "jwlxjzlnozncdfibrzfu",
     "authoritative_approved_state": true,
-    "writes_performed_in_this_task": false,
+    "writes_performed_in_this_task": true,
     "catalog_table": "syria.product_catalog_import_staging",
-    "catalog_exact_rows": 34436
+    "catalog_exact_rows": 34436,
+    "batch_001_uploaded": true,
+    "batch_001_verified": true,
+    "batch_001_parent_products": 500,
+    "batch_001_product_ingredients": 741,
+    "batch_001_products_with_ingredients": 498,
+    "batch_001_ddinter_mappings_pending": 741,
+    "batch_001_unresolved_products": [
+      "89",
+      "330"
+    ]
   },
   "repository": {
     "base_branch": "main",
@@ -61,10 +71,10 @@
     "note": "498 ingredient compositions confirmed for review. source_ids 89 and 330 are written as literal undefined; they are not ingredient identities and must be skipped rather than inserted as substances.",
     "repository_path": "data/active_ingredients_progress/active_ingredients_batch_001_review.csv"
   },
-  "owner_approval_received": false,
-  "supabase_write_allowed": false,
-  "blocker": "Final updated 500-row review CSV is generated and checkpointed. Await explicit approval of the reviewed batch CSV before any Supabase Active Ingredients write.",
-  "recovery_rule": "Preserve source_id 89 (Ecrinal shampoo) and 330 (O Gelly 40g gel) as unresolved/undefined, never substitute an inferred ingredient. If an import is authorized, skip undefined ingredient links; maintain a pending unresolved queue. After owner approval and verified batch 1 upload, proceed to batch 2.",
+  "owner_approval_received": true,
+  "supabase_write_allowed": true,
+  "blocker": null,
+  "recovery_rule": "Batch 1 was approved and imported to syria.products + syria.product_ingredients, with 741 ingredient components pending DDInter verification and source_ids 89/330 left undefined. Supabase is authoritative for approved batch 1. Do not re-import; next batch must select the following 500 staged source IDs excluding all previously imported products, and record new checkpoints before writes.",
   "checked_at": "2026-10-07T17:05:27.450861Z",
   "unresolved_source_ids": [
     "89",
