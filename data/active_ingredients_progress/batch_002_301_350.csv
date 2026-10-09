@@ -41,7 +41,7 @@ batch_position,source_id,trade_name,active_ingredients,status,source_url,review_
 340,1200,DEXAMED-1.5 TAB.,Dexamethasone,completed,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,Medico DEXAMED 1.5mg
 341,1201,Lotan Tablets,undefined,unresolved,,Medico LOTAN tablets: active ingredient unclear; do not equate to losartan without source
 342,1202,DIMENHYDRINATE TAB.,Dimenhydrinate,completed,,Generic name stated explicitly
-343,1203,Flora G Eye Ointment,undefined,unresolved,,Medico FLORA G eye ointment exact combination unverified
+343,1203,Flora G Eye Ointment,Fluorometholone + Gentamicin,completed,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,Second-pass recheck: national 2023 Syrian register lists Medico FLORA-G eye ointment (0.1% fluorometholone + 0.3% gentamicin).
 344,1204,GENTADEX EYE OINT.,Dexamethasone + Gentamicin Sulfate,completed,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,Medico GENTADEX eye ointment
 345,1206,Tobramycin Eye Ointment,Tobramycin,completed,,Generic name stated in eye ointment
 346,1207,Rifampicin Eye Ointment,Rifampicin,completed,,Generic name stated in eye ointment
