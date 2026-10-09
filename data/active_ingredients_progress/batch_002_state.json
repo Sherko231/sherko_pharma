@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "workflow": "active_ingredients_batch_curation",
+  "issue": 160,
+  "status": "curation_in_progress",
+  "supabase": {
+    "project_name": "Sherko Pharma",
+    "project_ref": "jwlxjzlnozncdfibrzfu",
+    "catalog_table": "syria.product_catalog_import_staging",
+    "catalog_rows_at_selection": 34436,
+    "previous_approved_product_rows": 500,
+    "previous_ingredient_links": 741,
+    "batch_002_writes_performed": false
+  },
+  "selection": {
+    "sort": "Numeric source_id ascending, then other IDs lexicographically; exclude IDs present in syria.products",
+    "position_start": 501,
+    "position_end": 1000,
+    "first_source_id": "789",
+    "expected_last_source_id": "1395",
+    "batch_size": 500
+  },
+  "repository": {
+    "base_branch": "main",
+    "base_sha": "c03feeac9da15dd555aab69fa67e3f04772cb517",
+    "progress_branch": "data/active-ingredients-batch-002",
+    "checkpoints": [
+      "data/active_ingredients_progress/batch_002_001_050.csv",
+      "data/active_ingredients_progress/batch_002_051_100.csv"
+    ]
+  },
+  "processed_count": 100,
+  "completed_count": 96,
+  "unresolved_count": 4,
+  "checkpointed_through_position": 100,
+  "last_source_id": "896",
+  "next_batch_position": 101,
+  "unresolved_source_ids": [
+    "793",
+    "805",
+    "868",
+    "896"
+  ],
+  "owner_approval_received": false,
+  "supabase_write_allowed": false,
+  "notes": "Components were researched from local sources and specific manufacturer product pages when possible; source URLs and notes are retained per row. Completed means a composition candidate has been curated, not medical certification or completed DDInter ID mapping. No new batch 2 production writes allowed until 500-row review CSV and specific owner approval. Explicit undefined remains unresolved; do not guess."
+}
