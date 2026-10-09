@@ -1,0 +1,51 @@
+batch_position,source_id,trade_name,active_ingredients,status,source_url,review_note
+51,844,FRUMILINE-40 TAB.,Furosemide + Amiloride Hydrochloride,completed,https://elsaad.com/products/4/71/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+52,845,CAVINTINE TAB.,Vinpocetine,completed,https://www.elsaad.com/products/8/26/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+53,846,DE-VOMIT TAB.,Ondansetron Hydrochloride,completed,https://elsaad.com/products/5/56/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+54,847,De Spasm,Mebeverine Hydrochloride,completed,https://www.elsaad.com/products/5/54/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+55,848,URIFLOX TAB.,Norfloxacin,completed,https://elsaad.com/products/alphabetic/U/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+56,849,PREDLONE-20 TAB.,Prednisolone,completed,https://elsaad.com/products/11/237/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+57,852,TRANQUIL-5 CAP.,Clorazepate Dipotassium,completed,https://www.elsaad.com/products/8/143/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+58,853,PRAVASTATIN-10 TAB.,Pravastatin,completed,,"Active ingredient explicit in generic trade name, or formulation pending manufacturer cross-check."
+59,854,WARFINE-2 TAB.,Warfarin Sodium,completed,https://elsaad.com/products/4/153/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+60,855,WARFINE-5 TAB.,Warfarin Sodium,completed,https://elsaad.com/products/4/153/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+61,856,PRAVASTATIN-40 TAB.,Pravastatin,completed,,"Active ingredient explicit in generic trade name, or formulation pending manufacturer cross-check."
+62,857,TERBINA-250 TAB.,Terbinafine Hydrochloride,completed,https://elsaad.com/products/2/140/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+63,858,Terbina 1% Cream,Terbinafine Hydrochloride,completed,https://elsaad.com/products/2/140/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+64,859,BISMUL CTD TAB.,Bismuth Subcitrate,completed,https://www.elsaad.com/products/5/24/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+65,860,GLYCON TAB.,Gliclazide,completed,https://www.elsaad.com/products/12/74/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+66,861,S-PRIN-325 CTD TAB.,Acetylsalicylic Acid,completed,https://www.elsaad.com/products/En/33,Manufacturer or local drug reference; identity reviewed without assuming strength.
+67,862,S-PRIN-100 CTD TAB.,Acetylsalicylic Acid,completed,https://www.elsaad.com/products/En/33,Manufacturer or local drug reference; identity reviewed without assuming strength.
+68,863,CEPROZ-750 CTD TAB.,Ciprofloxacin Hydrochloride,completed,https://elsaad.com/products/1/380/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+69,864,CEPROZ-500 CTD TAB.,Ciprofloxacin Hydrochloride,completed,https://elsaad.com/products/1/380/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+70,865,PROCTO-SID CREAM,Tribenoside + Lidocaine Hydrochloride,completed,https://elsaad.com/products/5/120/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+71,866,Beclozole Cream 15g,Beclomethasone Dipropionate + Neomycin Sulfate + Miconazole Nitrate,completed,https://www.elsaad.com/products/2/16/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+72,867,DE-FLAM ORAL RINSE,Benzydamine Hydrochloride,completed,https://www.elsaad.com/products/therapeutic/6/alphabetic/D/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+73,868,LACTOXAME PLUS DRY SYRUP,undefined,unresolved,,LACTOXAME PLUS exact proprietary formula not verified by manufacturer or local product-specific reference.
+74,870,DE-HISTAMINE SYRUP,Loratadine,completed,https://www.elsaad.com/products/6/51/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+75,871,MUCOLAR SUSP.,Carbocysteine,completed,https://www.elsaad.com/products/6/94/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+76,872,AMPICTAM-3 VIAL,Ampicillin + Sulbactam,completed,https://www.elsaad.com/products/1/13/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+77,873,AMPICTAM-1.5 VIAL,Ampicillin + Sulbactam,completed,https://www.elsaad.com/products/1/13/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+78,874,Prednisolone Syrup 100ml,Prednisolone Sodium Phosphate,completed,https://elsaad.com/products/11/237/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+79,875,ALSAPEN-3 VIAL,Benzylpenicillin Sodium,completed,https://www.elsaad.com/products/1/207/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+80,876,ALSAPEN-1 VIAL,Benzylpenicillin Sodium,completed,https://www.elsaad.com/products/1/207/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+81,877,ROSS-250 VIAL,Ceftriaxone Sodium,completed,https://www.elsaad.com/products/1/262/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+82,878,ROSS-2000 VIAL,Ceftriaxone Sodium,completed,https://www.elsaad.com/products/1/262/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+83,879,ROSS-1000 VIAL,Ceftriaxone Sodium,completed,https://www.elsaad.com/products/1/262/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+84,880,FLUKNAZOL DRY SYRUP,Fluconazole,completed,https://www.elsaad.com/products/2/68/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+85,881,DE-VOMIT SYRUP,Ondansetron Hydrochloride,completed,https://elsaad.com/products/5/56/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+86,882,CLAVOXIL-312 DRY SYRUP,Amoxicillin + Clavulanic Acid,completed,https://elsaad.com/products/En/7,Manufacturer or local drug reference; identity reviewed without assuming strength.
+87,883,كلافوكسيل شراب  228ملغ,Amoxicillin + Clavulanic Acid,completed,https://elsaad.com/products/En/7,Manufacturer or local drug reference; identity reviewed without assuming strength.
+88,884,ROSS-500 VIAL,Ceftriaxone Sodium,completed,https://www.elsaad.com/products/1/262/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+89,885,3-CIF-500 VIAL,Cefotaxime Sodium,completed,https://www.elsaad.com/products/therapeutic/1/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+90,886,3-CIF-1000 VIAL,Cefotaxime Sodium,completed,https://www.elsaad.com/products/therapeutic/1/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+91,887,3-CIF 2000 VIAL,Cefotaxime Sodium,completed,https://www.elsaad.com/products/therapeutic/1/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+92,888,مكسيم  1000ملغ فيال,Ampicillin + Cloxacillin,completed,https://www.elsaad.com/products/1/12/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+93,889,مكسيم  500ملغ فيال,Ampicillin + Cloxacillin,completed,https://www.elsaad.com/products/1/12/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+94,890,امبي السعد  1غ  فيال,Ampicillin Sodium,completed,https://www.elsaad.com/products/therapeutic/1/alphabetic/A/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+95,891,AMPICTAM-750 VIAL,Ampicillin + Sulbactam,completed,https://www.elsaad.com/products/1/13/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+96,892,امبي السعد  500ملغ  فيال,Ampicillin Sodium,completed,https://www.elsaad.com/products/therapeutic/1/alphabetic/A/En,Manufacturer or local drug reference; identity reviewed without assuming strength.
+97,893,CLAMOXE-457 DRY SYRUP,Amoxicillin + Clavulanic Acid,completed,,"Active ingredient explicit in generic trade name, or formulation pending manufacturer cross-check."
+98,894,CLAMOXE-312 DRY SYRUP,Amoxicillin + Clavulanic Acid,completed,,"Active ingredient explicit in generic trade name, or formulation pending manufacturer cross-check."
+99,895,CLAMOXE-156 DRY SYRUP,Amoxicillin + Clavulanic Acid,completed,,"Active ingredient explicit in generic trade name, or formulation pending manufacturer cross-check."
+100,896,FLAMOXINE DRY SYRUP,undefined,unresolved,,FLAMOXINE national manufacturer 250mg dry syrup exact composition has not been verified; naming resemblance to amoxicillin/flucloxacillin is insufficient.
