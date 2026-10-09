@@ -84,7 +84,7 @@
   ],
   "owner_approval_received": false,
   "supabase_write_allowed": false,
-  "notes": "Focused third-pass on 37 unresolved brand names / cosmetics. Four resolved with Syrian price register and contemporaneous Syrian pharmacy-distributor evidence: Medico MICOMED 1% solution clotrimazole, Medico VOLTAMID/VOLTAMED ophthalmic diclofenac sodium, Medico ALLERGIX/ALLERGEX chlorpheniramine maleate syrup, Ibn Hayyan POLYSAN dimethicone gel. Exact spelling variants preserved in notes; source/manufacturer/dosage/pack matched, yet barcode/pack confirmation recommended for clinically sensitive use. 33 remain undefined rather than accepting guessed active ingredients (especially brand-variant cosmetics and poorly documented compound products). Final owner-review CSV regenerated from all ten 50-row checkpoints plus both overlays. No batch 2 Supabase writes, no DDInter identity mappings, owner approval still false. Prior quality followup file requires review.",
+  "notes": "Owner explicitly requested that the 33 remaining unresolved products be left as literal undefined after three focused research passes. Do not guess or substitute similar-brand ingredients. This accepts unresolved handling, not the full 500-row production upload. Approved-source candidates: 467 provisional entries; 33 undefined, with 32 other quality follow-ups still flagged for review. Supabase batch 2 remains unchanged pending separate approval to import.",
   "review_csv": {
     "repository_path": "data/active_ingredients_progress/active_ingredients_batch_002_review.csv",
     "columns": [
@@ -134,5 +134,13 @@
       "1249"
     ],
     "previous_recheck_01_preserved": true
+  },
+  "unresolved_handling": {
+    "decision": "retain_all_remaining_unresolved_as_undefined",
+    "owner_decision_recorded": true,
+    "remaining_count": 33,
+    "do_not_infer_compositions": true,
+    "do_not_create_ingredient_relations_for_undefined": true,
+    "approval_scope": "unresolved handling only; no authorization yet to upload the full batch-2 CSV"
   }
 }
