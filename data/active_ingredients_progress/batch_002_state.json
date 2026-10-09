@@ -29,15 +29,16 @@
       "data/active_ingredients_progress/batch_002_051_100.csv",
       "data/active_ingredients_progress/batch_002_101_150.csv",
       "data/active_ingredients_progress/batch_002_151_200.csv",
-      "data/active_ingredients_progress/batch_002_201_250.csv"
+      "data/active_ingredients_progress/batch_002_201_250.csv",
+      "data/active_ingredients_progress/batch_002_251_300.csv"
     ]
   },
-  "processed_count": 250,
-  "completed_count": 219,
-  "unresolved_count": 31,
-  "checkpointed_through_position": 250,
-  "last_source_id": "1094",
-  "next_batch_position": 251,
+  "processed_count": 300,
+  "completed_count": 255,
+  "unresolved_count": 45,
+  "checkpointed_through_position": 300,
+  "last_source_id": "1155",
+  "next_batch_position": 301,
   "unresolved_source_ids": [
     "793",
     "805",
@@ -69,9 +70,23 @@
     "1042",
     "1056",
     "1057",
-    "1091"
+    "1091",
+    "1100",
+    "1118",
+    "1119",
+    "1120",
+    "1123",
+    "1124",
+    "1128",
+    "1130",
+    "1131",
+    "1133",
+    "1144",
+    "1145",
+    "1149",
+    "1150"
   ],
   "owner_approval_received": false,
   "supabase_write_allowed": false,
-  "notes": "250 of 500 curated: 219 provisional normalized composition strings and 31 unresolved/undefined. Source links and spelling-variation caveats in checkpoints. Confirm any exact product identity exceptions before final owner-reviewed upload; no second-batch Supabase writes."
+  "notes": "300 of 500 products checkpointed. 255 provisional completed names; 45 undefined, including unverified proprietary combinations and botanicals. Source URL and ambiguity notes on each row; keep DDInter ids unassigned. Owner approval of full 500-row review required before batch2 Supabase write."
 }
