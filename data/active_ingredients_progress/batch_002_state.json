@@ -37,12 +37,13 @@
       "data/active_ingredients_progress/batch_002_451_500.csv"
     ],
     "recheck_files": [
-      "data/active_ingredients_progress/batch_002_unresolved_recheck_01.csv"
+      "data/active_ingredients_progress/batch_002_unresolved_recheck_01.csv",
+      "data/active_ingredients_progress/batch_002_unresolved_recheck_02.csv"
     ]
   },
   "processed_count": 500,
-  "completed_count": 463,
-  "unresolved_count": 37,
+  "completed_count": 467,
+  "unresolved_count": 33,
   "checkpointed_through_position": 500,
   "last_source_id": "1395",
   "next_batch_position": null,
@@ -74,20 +75,16 @@
     "1145",
     "1149",
     "1150",
-    "1189",
     "1219",
-    "1223",
     "1226",
-    "1249",
     "1294",
     "1296",
     "1372",
-    "1382",
     "1383"
   ],
   "owner_approval_received": false,
   "supabase_write_allowed": false,
-  "notes": "Batch 2 500 products; focused second-pass rechecks against manufacturer, national Syrian drug price register, Syrian prescribing review, and Aleppo University peer-reviewed Kanabron formulation research yielded 27 evidence-backed resolved products and 37 explicitly unresolved/undefined. Checkpoint overlays have 64 source IDs; 27 resolved with provenance, 37 unresolved. Latest review regenerated with 463 provisional ingredient strings; no DDInter mapping or batch-2 Supabase writes. Original review quality followup flags still require validation before approval. Preserve cosmetics as undefined without exact variant INCI.",
+  "notes": "Focused third-pass on 37 unresolved brand names / cosmetics. Four resolved with Syrian price register and contemporaneous Syrian pharmacy-distributor evidence: Medico MICOMED 1% solution clotrimazole, Medico VOLTAMID/VOLTAMED ophthalmic diclofenac sodium, Medico ALLERGIX/ALLERGEX chlorpheniramine maleate syrup, Ibn Hayyan POLYSAN dimethicone gel. Exact spelling variants preserved in notes; source/manufacturer/dosage/pack matched, yet barcode/pack confirmation recommended for clinically sensitive use. 33 remain undefined rather than accepting guessed active ingredients (especially brand-variant cosmetics and poorly documented compound products). Final owner-review CSV regenerated from all ten 50-row checkpoints plus both overlays. No batch 2 Supabase writes, no DDInter identity mappings, owner approval still false. Prior quality followup file requires review.",
   "review_csv": {
     "repository_path": "data/active_ingredients_progress/active_ingredients_batch_002_review.csv",
     "columns": [
@@ -95,9 +92,9 @@
       "active_ingredients"
     ],
     "row_count": 500,
-    "completed_count": 463,
-    "undefined_count": 37,
-    "git_blob_sha": "bf7214d1ef6093ecebf82ee7e691e022a4c55628"
+    "completed_count": 467,
+    "undefined_count": 33,
+    "git_blob_sha": "9b45e6fb559da022db14532fa5dcdc1da4701a2a"
   },
   "quality": {
     "composition_candidates_not_independently_validated": true,
@@ -117,5 +114,25 @@
     "review_updated": true,
     "review_blob_sha": "bf7214d1ef6093ecebf82ee7e691e022a4c55628",
     "recheck_blob_sha": "5683d062f14eedab3bbff6b4d7a1c0cbb2d32bfc"
+  },
+  "third_pass": {
+    "status": "completed",
+    "previously_unresolved_count": 37,
+    "resolved_count": 4,
+    "still_unresolved_count": 33,
+    "checkpoint_path": "data/active_ingredients_progress/batch_002_unresolved_recheck_02.csv",
+    "checkpoint_blob_sha": "ae7d964cd0735e4926641c20201cab17eb3a1f0d",
+    "review_blob_sha": "9b45e6fb559da022db14532fa5dcdc1da4701a2a",
+    "resolved_source_ids": [
+      "1189",
+      "1223",
+      "1249",
+      "1382"
+    ],
+    "spelling_match_caveats": [
+      "1223",
+      "1249"
+    ],
+    "previous_recheck_01_preserved": true
   }
 }
