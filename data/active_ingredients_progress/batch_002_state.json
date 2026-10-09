@@ -31,15 +31,16 @@
       "data/active_ingredients_progress/batch_002_151_200.csv",
       "data/active_ingredients_progress/batch_002_201_250.csv",
       "data/active_ingredients_progress/batch_002_251_300.csv",
-      "data/active_ingredients_progress/batch_002_301_350.csv"
+      "data/active_ingredients_progress/batch_002_301_350.csv",
+      "data/active_ingredients_progress/batch_002_351_400.csv"
     ]
   },
-  "processed_count": 350,
-  "completed_count": 302,
-  "unresolved_count": 48,
-  "checkpointed_through_position": 350,
-  "last_source_id": "1211",
-  "next_batch_position": 351,
+  "processed_count": 400,
+  "completed_count": 342,
+  "unresolved_count": 58,
+  "checkpointed_through_position": 400,
+  "last_source_id": "1272",
+  "next_batch_position": 401,
   "unresolved_source_ids": [
     "793",
     "805",
@@ -88,7 +89,17 @@
     "1150",
     "1180",
     "1201",
-    "1203"
+    "1203",
+    "1212",
+    "1219",
+    "1223",
+    "1224",
+    "1226",
+    "1239",
+    "1249",
+    "1259",
+    "1270",
+    "1271"
   ],
   "owner_approval_received": false,
   "supabase_write_allowed": false,
