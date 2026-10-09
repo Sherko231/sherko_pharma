@@ -48,4 +48,4 @@ batch_position,source_id,trade_name,active_ingredients,status,source_url,review_
 97,893,CLAMOXE-457 DRY SYRUP,Amoxicillin + Clavulanic Acid,completed,,"Active ingredient explicit in generic trade name, or formulation pending manufacturer cross-check."
 98,894,CLAMOXE-312 DRY SYRUP,Amoxicillin + Clavulanic Acid,completed,,"Active ingredient explicit in generic trade name, or formulation pending manufacturer cross-check."
 99,895,CLAMOXE-156 DRY SYRUP,Amoxicillin + Clavulanic Acid,completed,,"Active ingredient explicit in generic trade name, or formulation pending manufacturer cross-check."
-100,896,FLAMOXINE DRY SYRUP,undefined,unresolved,,FLAMOXINE national manufacturer 250mg dry syrup exact composition has not been verified; naming resemblance to amoxicillin/flucloxacillin is insufficient.
+100,896,FLAMOXINE DRY SYRUP,Amoxicillin + Flucloxacillin,completed,https://www.sptechs.com/emarket/syproducts-589-flamoxine-250-60-ml-.html,National Company for Pharmaceutical Industry documented exact Flamoxine 250mg per 5ml powder suspension (125mg amoxicillin + 125mg flucloxacillin; 60ml).
