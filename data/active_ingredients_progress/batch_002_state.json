@@ -26,15 +26,16 @@
     "progress_branch": "data/active-ingredients-batch-002",
     "checkpoints": [
       "data/active_ingredients_progress/batch_002_001_050.csv",
-      "data/active_ingredients_progress/batch_002_051_100.csv"
+      "data/active_ingredients_progress/batch_002_051_100.csv",
+      "data/active_ingredients_progress/batch_002_101_150.csv"
     ]
   },
-  "processed_count": 100,
-  "completed_count": 96,
+  "processed_count": 150,
+  "completed_count": 146,
   "unresolved_count": 4,
-  "checkpointed_through_position": 100,
-  "last_source_id": "896",
-  "next_batch_position": 101,
+  "checkpointed_through_position": 150,
+  "last_source_id": "961",
+  "next_batch_position": 151,
   "unresolved_source_ids": [
     "793",
     "805",
@@ -43,5 +44,5 @@
   ],
   "owner_approval_received": false,
   "supabase_write_allowed": false,
-  "notes": "Components were researched from local sources and specific manufacturer product pages when possible; source URLs and notes are retained per row. Completed means a composition candidate has been curated, not medical certification or completed DDInter ID mapping. No new batch 2 production writes allowed until 500-row review CSV and specific owner approval. Explicit undefined remains unresolved; do not guess."
+  "notes": "150 of 500 batch-2 products curated and checkpointed. Provenance links per CSV; completed denotes curated composition candidate, not external DDInter identity or clinical certification. Source IDs 793, 805, 868, 896 are unresolved/undefined. No batch 2 database writes; final review CSV and explicit owner approval are mandatory before database import."
 }
