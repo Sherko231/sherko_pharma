@@ -28,15 +28,16 @@
       "data/active_ingredients_progress/batch_002_001_050.csv",
       "data/active_ingredients_progress/batch_002_051_100.csv",
       "data/active_ingredients_progress/batch_002_101_150.csv",
-      "data/active_ingredients_progress/batch_002_151_200.csv"
+      "data/active_ingredients_progress/batch_002_151_200.csv",
+      "data/active_ingredients_progress/batch_002_201_250.csv"
     ]
   },
-  "processed_count": 200,
-  "completed_count": 172,
-  "unresolved_count": 28,
-  "checkpointed_through_position": 200,
-  "last_source_id": "1042",
-  "next_batch_position": 201,
+  "processed_count": 250,
+  "completed_count": 219,
+  "unresolved_count": 31,
+  "checkpointed_through_position": 250,
+  "last_source_id": "1094",
+  "next_batch_position": 251,
   "unresolved_source_ids": [
     "793",
     "805",
@@ -65,9 +66,12 @@
     "1033",
     "1034",
     "1041",
-    "1042"
+    "1042",
+    "1056",
+    "1057",
+    "1091"
   ],
   "owner_approval_received": false,
   "supabase_write_allowed": false,
-  "notes": "200 of 500 batch-2 products curated and durably checkpointed (172 composition candidates, 28 undefined). Cosmetics and names with manufacturer-specific ambiguity remain undefined. Include source URL/provenance and note; no DDInter identity has been assigned; cross-check differing spellings before any approved upload. Batch-2 database untouched; separate owner approval needed for final 500-row review CSV."
+  "notes": "250 of 500 curated: 219 provisional normalized composition strings and 31 unresolved/undefined. Source links and spelling-variation caveats in checkpoints. Confirm any exact product identity exceptions before final owner-reviewed upload; no second-batch Supabase writes."
 }
