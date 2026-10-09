@@ -35,19 +35,20 @@
       "data/active_ingredients_progress/batch_002_351_400.csv",
       "data/active_ingredients_progress/batch_002_401_450.csv",
       "data/active_ingredients_progress/batch_002_451_500.csv"
+    ],
+    "recheck_files": [
+      "data/active_ingredients_progress/batch_002_unresolved_recheck_01.csv"
     ]
   },
   "processed_count": 500,
-  "completed_count": 436,
-  "unresolved_count": 64,
+  "completed_count": 457,
+  "unresolved_count": 43,
   "checkpointed_through_position": 500,
   "last_source_id": "1395",
   "next_batch_position": null,
   "unresolved_source_ids": [
     "793",
     "805",
-    "868",
-    "966",
     "969",
     "970",
     "972",
@@ -59,24 +60,12 @@
     "984",
     "985",
     "986",
-    "995",
-    "999",
     "1000",
-    "1012",
     "1016",
     "1019",
-    "1022",
     "1032",
-    "1033",
-    "1034",
-    "1041",
     "1042",
     "1056",
-    "1057",
-    "1091",
-    "1100",
-    "1118",
-    "1119",
     "1120",
     "1123",
     "1124",
@@ -88,22 +77,15 @@
     "1145",
     "1149",
     "1150",
-    "1180",
     "1189",
-    "1201",
     "1212",
     "1219",
     "1223",
     "1224",
     "1226",
-    "1239",
     "1249",
-    "1259",
-    "1270",
-    "1271",
     "1294",
     "1296",
-    "1316",
     "1372",
     "1376",
     "1382",
@@ -111,7 +93,7 @@
   ],
   "owner_approval_received": false,
   "supabase_write_allowed": false,
-  "notes": "Batch 2 checkpointed in ten 50-item files: 500 source records, 436 provisional compositions, 64 explicitly undefined. National Company for Pharmaceutical Industry Flamoxine 250mg syrup confirmed as amoxicillin + flucloxacillin from exact product listing, and capsule source updated. Source gaps/match warnings are captured in batch_002_quality_followup.csv. No source strings automatically treated as authoritative DDInter identity. No batch-2 Supabase writes. Final review requires owner approval and extra quality review before import.",
+  "notes": "Focused second pass researched all 64 previously unresolved products with product/manufacturer-specific references and retained evidence; 21 resolved and 43 remain undefined. Review CSV regenerated from 10 original checkpoint files with the 64-row recheck overlay. No product or ingredient data from batch 2 has been written to Supabase. Remaining undefined are not clinical mappings; provenance and actual chemical salt/extract precision must be audited before downstream DDI mapping.",
   "review_csv": {
     "repository_path": "data/active_ingredients_progress/active_ingredients_batch_002_review.csv",
     "columns": [
@@ -119,9 +101,9 @@
       "active_ingredients"
     ],
     "row_count": 500,
-    "completed_count": 436,
-    "undefined_count": 64,
-    "git_blob_sha": "2daaccbafd1f168b9994aeec9401026816db7936"
+    "completed_count": 457,
+    "undefined_count": 43,
+    "git_blob_sha": "68a6784e6e871e0c37da5ad964500951133b8afb"
   },
   "quality": {
     "composition_candidates_not_independently_validated": true,
@@ -131,5 +113,14 @@
     "quality_followup_file": "data/active_ingredients_progress/batch_002_quality_followup.csv",
     "all_review_rows_match_checkpoints": true,
     "all_source_ids_unique": true
+  },
+  "unresolved_recheck": {
+    "status": "completed_first_second_pass",
+    "original_unresolved_count": 64,
+    "resolved_on_recheck": 21,
+    "remaining_unresolved_count": 43,
+    "results_file": "data/active_ingredients_progress/batch_002_unresolved_recheck_01.csv",
+    "review_updated": true,
+    "review_blob_sha": "68a6784e6e871e0c37da5ad964500951133b8afb"
   }
 }
