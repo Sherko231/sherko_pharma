@@ -1,0 +1,65 @@
+batch_position,source_id,trade_name,active_ingredients,status,source_url,review_note
+5,793,Feno 300mg Capsules,undefined,unresolved,,Could not verify Shifa Feno 300mg identity; avoid assuming fenofibrate versus fenoprofen.
+16,805,Diclorezim 75mg Amp 5 Ampoules,undefined,unresolved,,Exact Shifa Diclorezim injection formula not yet independently verified.
+73,868,LACTOXAME PLUS DRY SYRUP,Ampicillin + Cloxacillin + Lactobacillus,resolved,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,"2023 Syrian register p.134 #2924 LACTOXAME PLUS DRY SYRUP, ELSaad, 125mg+125mg+30 million Lactobacillus per 5mL."
+154,966,MECOZALEN VAGINAL CREAM,Miconazole Nitrate,resolved,https://dalanypharmacy.com/products/mecozalen-70g-vaginal-cream/,Exact Mediotic-Syria MECOZALEN 70g vaginal cream pharmacy listing says MICONAZOLE; manufacturer promotional specification states 20mg miconazole nitrate per gram; do NOT transfer metronidazole listed for separate vaginal ovule formulation.
+155,969,Isis Sunscreen 100,undefined,unresolved,,Non-medicinal cosmetic sunscreen; specific UV filters not verified from exact product variant
+156,970,Isis Sunscreen 45,undefined,unresolved,,Non-medicinal cosmetic sunscreen; specific UV filters not verified from exact product variant
+157,972,Unitone SPF 45,undefined,unresolved,,Skincare sunscreen / cosmetic formula not verified for exact variant
+158,974,Unitone Extra,undefined,unresolved,,Skincare depigmentation cream: exact formula not verified
+159,979,Glyco A 15% 30g,undefined,unresolved,,Skincare acid product: formulation not verified against exact branded product and strength
+160,980,Glyco A Milk Makeup Remover 200ml,undefined,unresolved,,Cosmetic cleanser: full/active formulation not verified
+161,981,Glyco A Liquid Foaming Cleanser 100g Small,undefined,unresolved,,Cosmetic cleanser: full/active formulation not verified
+162,983,Glyco A Moisturizing Cream 30g,undefined,unresolved,,Cosmetic moisturizer: not a documented medicinal active ingredients product
+163,984,Aminsil Gel Slimming Anti Sagging,undefined,unresolved,,Cosmetic slimming gel: claimed actives not verified
+164,985,Glycoderm Acne 50g,undefined,unresolved,,Cosmetic acne product: exact active composition unverified
+165,986,Ruboril Cream for Rosacea,undefined,unresolved,,Rosacea cosmetic product: exact actives not verified for variant
+166,995,Dolopan Oral Drops 15ml Ra,Hyoscine,resolved,https://www.medjrnl.com/pharmacology/antispasmodics,2026 Syrian drug review explicitly lists Rasha Dolopan under Hyoscine/Scopolamine antimuscarinic products; precise chemical salt is not documented here.
+169,999,ديميترول حبوب  را,Amitriptyline Hydrochloride + Chlordiazepoxide,resolved,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,"2023 Syrian register p.387 #8669 Rasha DIMITROL CAP, 12.5mg amitriptyline HCl + 5mg chlordiazepoxide; Arabic catalog ديميترول."
+170,1000,REPAX 30 CAPSULE,undefined,unresolved,,Rasha REPAX capsules cannot be reliably identified by brand-name resemblance
+179,1012,NEOCOFLIN SYRUP,Chlorpheniramine Maleate + Phenylephrine Hydrochloride + Noscapine,resolved,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,2023 Syrian register p.506 #10908 MAGICO NEOCOFLIN SYRUP confirms three actives 1mg+5mg+10mg/5mL.
+182,1016,CHLORAPHEN SYRUP,undefined,unresolved,,Catalog CHLORAPHEN syrup differs from Kaspar register CHLORAFINE syrup; not asserted identical before exact product check
+184,1019,B COMPLEX VIT SYRUP,undefined,unresolved,,Kaspar B-C vitamin syrup composition unresolved; reference B.C-VIT syrup may be different product
+187,1022,Laxalac 200ml Syrup,Lactulose,resolved,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,2023 Syrian register p.486 #10560 Kaspar & Shaabani LAXALAC syrup exact 200ml 3.33g/5ml.
+191,1032,Kipril 20 Caps,undefined,unresolved,,Kaspar Kipril capsules unknown; do not equate to other brands or ACE inhibitors by suffix
+192,1033,Indocron SR Caps,Indomethacin,resolved,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,"2023 Syrian register p.486 #10558 Kaspar INDOCHRON S.R. CAP. 75mg; catalog 'Indocron SR' name variant; same company, SR capsule."
+193,1034,Ativam 20 Tab 1mg,Lorazepam,resolved,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,2023 Syrian register p.486 #10567 Kaspar ATEVAME-1 TAB 1mg/20; catalog Ativam 1mg 20 tablets; orthographic spelling variant.
+199,1041,Diogast 15mg Capsules,Lansoprazole,resolved,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,"2023 Syrian register p.486 #10561 Kaspar DUOGASTE-15 CAP 15mg/20; catalog DIOGAST 15mg 20 capsules, same firm, strength and pack."
+200,1042,Gentazone Ear Drops,undefined,unresolved,,Kaspar GENTAZONE ear drops composition unverified (same name elsewhere is not manufacturer evidence)
+214,1056,Mycoplus 10 Ovules,undefined,unresolved,,Kaspar MYCOPLUS vaginal ovules exact formula not found
+215,1057,Diogast 20 Caps 30mg,Lansoprazole,resolved,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,2023 Syrian register p.486 #10562 Kaspar DUOGASTE 30mg 20 capsules; catalog DIOGAST 30mg 20 caps.
+247,1091,MULTI MAGNESIUM 40 CAPS,undefined,unresolved,,Multimineral supplement MULTI MAGNESIUM; no exact formula verified
+254,1100,TILDIA-60 TAB.,Diltiazem Hydrochloride,resolved,https://cdn.enabbaladi.net/arabic/wp-content/uploads/2021/06/%D8%AA%D8%B9%D8%AF%D9%8A%D9%84-%D8%A7%D9%94%D8%B3%D8%B9%D8%A7%D8%B1-%D8%A7%D9%84%D8%A7%D9%94%D8%AF%D9%88%D9%8A%D8%A9-17-6-2021.pdf,2021 Syrian register p.322 #6402 Bahri TILDIA-60 TAB 60mg diltiazem hydrochloride; 20 tablets matches catalog.
+271,1118,Tildia 180mg 20 Capsules Retard,Diltiazem Hydrochloride,resolved,https://cdn.enabbaladi.net/arabic/wp-content/uploads/2021/06/%D8%AA%D8%B9%D8%AF%D9%8A%D9%84-%D8%A7%D9%94%D8%B3%D8%B9%D8%A7%D8%B1-%D8%A7%D9%84%D8%A7%D9%94%D8%AF%D9%88%D9%8A%D8%A9-17-6-2021.pdf,2021 Syrian register p.322 #6401 Bahri TILDIA-180 S.R.CAP 180mg diltiazem HCl 20 capsules.
+272,1119,TILDIA-120 S.R.CAP.,Diltiazem Hydrochloride,resolved,https://cdn.enabbaladi.net/arabic/wp-content/uploads/2021/06/%D8%AA%D8%B9%D8%AF%D9%8A%D9%84-%D8%A7%D9%94%D8%B3%D8%B9%D8%A7%D8%B1-%D8%A7%D9%84%D8%A7%D9%94%D8%AF%D9%88%D9%8A%D8%A9-17-6-2021.pdf,2021 Syrian register p.322 #6400 Bahri TILDIA-120 S.R.CAP 120mg diltiazem HCl 20 capsules.
+273,1120,Bronchophyllin 20 Tablets,undefined,unresolved,,Qanawati Bronchophyllin tablets formula not product-specifically verified
+275,1123,Oronal 8 Sachets,undefined,unresolved,,"Qanawati Oronal sachet formula unknown, cannot infer from similar brands"
+276,1124,Bronchophyllin Syrup 100ml,undefined,unresolved,,Qanawati Bronchophyllin syrup requires exact formula
+280,1128,Kanabron Syrup 100ml,undefined,unresolved,,Qanawati KANABRON syrup could contain multiple expectorant ingredients; exact product unverified
+282,1130,Genoxin 10 Sachets,undefined,unresolved,,Qanawati Genoxin sachets product-specific identity not established
+283,1131,Balsam Al Qanawati Syrup,undefined,unresolved,,Qanawati balsam syrup exact herbal components not independently verified
+285,1133,Foly Fer 50 Tablets,undefined,unresolved,,Qanawati Foly Fer 50 tablets exact iron salt and folate forms not verified
+290,1144,Codamera Tab,undefined,unresolved,,Codamera tablets unknown composition; not inferred from name suggesting codeine
+291,1145,Pal Visal Tab,undefined,unresolved,,Pal Visal tablets manufacturer Al-Mustaqbal exact formula unverified
+295,1149,Ginseng Forte 500mg 20 Capsules,undefined,unresolved,,Ugarit ginseng forte 500mg capsule exact botanical extract not verified
+296,1150,Golden Blend Fresh 20 Tablets,undefined,unresolved,,Ugarit Golden Blend Fresh herbal tablets: complex mixture not verified
+322,1180,Timopectol 20 Tablets,Diphenhydramine Hydrochloride + Bromhexine Hydrochloride + Ephedrine Hydrochloride + Theophylline,resolved,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,"2023 Syrian register p.541 #11586 Medico THYMOPECTOL TAB: 20+4+15+100mg, 20 tablets; catalog TIMOPECTOL variant."
+329,1189,Micomed Solution 15ml,undefined,unresolved,,Medico MICOMED 15ml product-specific active ingredient is not confirmed; earlier clotrimazole attribution was a name-based suspicion and is rejected.
+341,1201,Lotan Tablets,Diphenoxylate Hydrochloride + Atropine Sulfate,resolved,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,"2023 Syrian register p.541 #11587-11588 Medico LOTAN TAB, 2.5mg diphenoxylate HCl + 0.025mg atropine sulfate, 20 tablets."
+351,1212,Chloramexin Eye Ointment,undefined,unresolved,,Medico Chloramexin ophthalmic ointment not uniquely confirmed in manufacturer listing
+356,1219,Polymyxin Eye Drops,undefined,unresolved,,Polymyxin eye drops generic name lacks proven sulfate/B/other component identity
+358,1223,Voltamid Eye Drops 10ml,undefined,unresolved,,Medico VOLTAMID eye drops not unequivocally tied to diclofenac formulation
+359,1224,Ultraflox Eye Drops,undefined,unresolved,,ULTRAFLOX eye drops exact active ingredient and manufacturer source unverified
+361,1226,Medicaine Eye Drops 5ml,undefined,unresolved,,"Medicaine eye drops could contain topical anesthetic, exact molecule not verified"
+372,1239,SALI-CINOLONE OINT.,Fluocinolone Acetonide + Salicylic Acid,resolved,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,"2023 Syrian register p.542 #11617-11618 Medico SALI-CINOLONE OINT 0.025%+3%, 20/40g."
+379,1249,ALLERGIX SYRUP,undefined,unresolved,,Medico ALLERGIX syrup exact formula unverified; not conflated with ALLERGEX brand
+387,1259,DUVAKIN CHRONO 500MG,Sodium Valproate,resolved,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,2023 Syrian register p.371-372 #8319/#8323 Domina DOVAKEN CHRONO 500mg controlled release sodium valproate; catalog DUVAKIN CHRONO spelling variant.
+398,1270,Erythrosol Solution 2%,Erythromycin,resolved,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,2023 Syrian register p.364 #8161-8162 Domina ERYTHRO-SOL 2% solution.
+399,1271,Erythrosol Solution 4%,Erythromycin,resolved,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,2023 Syrian register p.364-365 #8164-8165 Domina ERYTHRO-SOL 4% solution.
+415,1294,HYDROPAQUE,undefined,unresolved,,Domina HYDROPAQUE identity not resolved; avoid confusing cosmetics with prescriptions
+417,1296,DOLO-PROFEN GEL,undefined,unresolved,,Domina DOLO-PROFEN gel exact anti-inflammatory ingredient unverified
+433,1316,NEODOL CTD TAB.,Tramadol Hydrochloride,resolved,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,2023 Syrian register p.54 #1128 Ibn Hayyan NEODOL coated 50mg tablets; exact brand/manufacturer/dosage form.
+479,1372,Dermotan Cream 20g,undefined,unresolved,,"Ibn Hayyan Dermotan cream exact composition not found for this manufacturer, refuse generic name mapping"
+481,1376,Poly Mycin Eye Ointment 5g,undefined,unresolved,,Ibn Hayyan Poly Mycin ophthalmic ointment exact mixture not confirmed; polymyxin alone insufficient
+487,1382,POLYSAN GEL,undefined,unresolved,,Ibn Hayyan POLYSAN gel exact formulation not confirmed (distinct POLYSAN PLUS capsules)
+488,1383,Hadi Cream 40g,undefined,unresolved,,Ibn Hayyan HADI 40g cream specific ingredients not confirmed
