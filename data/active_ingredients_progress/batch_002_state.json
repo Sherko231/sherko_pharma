@@ -38,8 +38,8 @@
     ]
   },
   "processed_count": 500,
-  "completed_count": 435,
-  "unresolved_count": 65,
+  "completed_count": 436,
+  "unresolved_count": 64,
   "checkpointed_through_position": 500,
   "last_source_id": "1395",
   "next_batch_position": null,
@@ -47,7 +47,6 @@
     "793",
     "805",
     "868",
-    "896",
     "966",
     "969",
     "970",
@@ -112,7 +111,7 @@
   ],
   "owner_approval_received": false,
   "supabase_write_allowed": false,
-  "notes": "Batch 2 contains 500 selected source records, 435 provisional composition candidates and 65 unresolved/undefined. Entire two-column review CSV matches ten 50-row checkpoints. Scientific accuracy has NOT been independently verified across all assignments; check cited provenance and flagged cases before approval or any write. No DDInter mappings inferred. No batch-2 Supabase writes performed. Owner approval of final 500-row review CSV is mandatory before upload.",
+  "notes": "Batch 2 checkpointed in ten 50-item files: 500 source records, 436 provisional compositions, 64 explicitly undefined. National Company for Pharmaceutical Industry Flamoxine 250mg syrup confirmed as amoxicillin + flucloxacillin from exact product listing, and capsule source updated. Source gaps/match warnings are captured in batch_002_quality_followup.csv. No source strings automatically treated as authoritative DDInter identity. No batch-2 Supabase writes. Final review requires owner approval and extra quality review before import.",
   "review_csv": {
     "repository_path": "data/active_ingredients_progress/active_ingredients_batch_002_review.csv",
     "columns": [
@@ -120,14 +119,16 @@
       "active_ingredients"
     ],
     "row_count": 500,
-    "completed_count": 435,
-    "undefined_count": 65,
-    "git_blob_sha": "da2c1a15f193d271ff0f501fc9b7e44e9fb7a2ce"
+    "completed_count": 436,
+    "undefined_count": 64,
+    "git_blob_sha": "2daaccbafd1f168b9994aeec9401026816db7936"
   },
   "quality": {
     "composition_candidates_not_independently_validated": true,
     "source_url_missing_for_resolved": 22,
     "review_notes_flagging_follow_up": 12,
+    "unique_quality_followup_rows": 32,
+    "quality_followup_file": "data/active_ingredients_progress/batch_002_quality_followup.csv",
     "all_review_rows_match_checkpoints": true,
     "all_source_ids_unique": true
   }
