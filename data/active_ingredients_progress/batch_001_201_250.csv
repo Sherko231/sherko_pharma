@@ -1,0 +1,51 @@
+batch_position,source_id,trade_name,active_ingredients,status
+201,355,LINCOMYCIN-500 CAP.,Lincomycin Hydrochloride,completed
+202,356,SURGAM PRO 300MG 10 TAB,Tiaprofenic Acid,completed
+203,357,SURGAM 100MG 30 TAB,Tiaprofenic Acid,completed
+204,358,AMLODIPINE-5 TAB.,Amlodipine Besylate,completed
+205,360,TRAMALGIN 50 CTD TAB.,Tramadol Hydrochloride,completed
+206,361,TRAMALGIN-100 SUPP.,Tramadol Hydrochloride,completed
+207,362,DOPRANE TAB.,Paracetamol,completed
+208,363,MOTIN BABY SUPP.,Domperidone Maleate,completed
+209,364,MOTIN CHILD SUPP.,Domperidone Maleate,completed
+210,365,MOTIN ADULT SUPP.,Domperidone Maleate,completed
+211,366,DICLOFENAC OUBARI -25 SUPP.,Diclofenac Sodium,completed
+212,369,MOTIN-10 CTD TAB.,Domperidone Maleate,completed
+213,370,PROTOCAPS CAP.,Ascorbic Acid + Beta Carotene + Vitamin E,completed
+214,371,TOPLEX CAP.,Oxomemazine Hydrochloride + Paracetamol + Guaifenesin + Sodium Benzoate,completed
+215,372,URBANIL TABLETS,UNRESOLVED,unresolved
+216,373,OBARGIN CTD TAB.,Methylergometrine Maleate,completed
+217,374,OBARVAL-5 TAB.,Diazepam,completed
+218,375,OBARVAL-10 TAB.,Diazepam,completed
+219,376,Obarval 2mg,Diazepam,completed
+220,377,STEROGYL,Ergocalciferol,completed
+221,379,OBARVAL AMP.,Diazepam,completed
+222,380,DICLOFENAC OUBARI AMP.,Diclofenac Sodium,completed
+223,381,OBARVIT AMP.,Vitamin B1 + Vitamin B6 + Vitamin B12,completed
+224,382,DEXONALIN AMP.,Dexamethasone Sodium Phosphate,completed
+225,383,Profenid 50mg Cap,Ketoprofen,completed
+226,384,LIPOLYSIN-10 CTD TAB.,Atorvastatin,completed
+227,386,MINOTRINE-100 CAP.,Minocycline,completed
+228,387,MINOTRINE-50 CAP.,Minocycline,completed
+229,388,SPASMAVER TAB.,Alverine Citrate,completed
+230,389,LOSARTIC CTD TAB.,Losartan Potassium + Hydrochlorothiazide,completed
+231,390,Tanox-3 Tab.,Bromazepam,completed
+232,391,TANOX-1.5 TAB.,Bromazepam,completed
+233,392,ZODIXAM TAB.,Meloxicam,completed
+234,393,ZODIXAM FORT TAB.,Meloxicam,completed
+235,394,DICLOFENAC OUBARI -50 CTD TAB.,Diclofenac Sodium,completed
+236,395,DICLOFENAC OUBARI -25 CTD TAB.,Diclofenac Sodium,completed
+237,396,ILVICON CAP.,Chlorpheniramine Maleate + Calcium Ascorbate + Caffeine + Paracetamol,completed
+238,397,Largactil Pro 25mg Tab.,Chlorpromazine Hydrochloride,completed
+239,399,DAILYSPRIN TAB.,Acetylsalicylic Acid,completed
+240,400,OBARCORT-40 AMP.,Triamcinolone Acetonide,completed
+241,401,OBARSIX AMP.,Furosemide,completed
+242,402,AMIKACIN OUBARI-100 AMP.,Amikacin Sulfate,completed
+243,403,AMIKACIN OUBARI-500 AMP.,Amikacin Sulfate,completed
+244,404,Spasmaver 5 Amp.,Alverine,completed
+245,405,GENTAMYCIN-80 AMP.,Gentamicin Sulfate,completed
+246,406,GENTAMYCIN-20 AMP.,Gentamicin Sulfate,completed
+247,407,GENTAMYCIN-40 AMP.,Gentamicin Sulfate,completed
+248,408,LINCOMYCIN-600 AMP.,Lincomycin Hydrochloride,completed
+249,409,LINCOMYCIN-300 AMP.,Lincomycin Hydrochloride,completed
+250,410,Obergine 5 Ampoules,Methylergometrine Maleate,completed

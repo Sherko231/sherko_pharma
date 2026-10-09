@@ -1,0 +1,51 @@
+batch_position,source_id,trade_name,active_ingredients,status
+351,578,Opresor 50mg 40 Tablets,Metoprolol,completed
+352,580,CODAL EXTRA CAP.,Paracetamol + Codeine Phosphate + Caffeine,completed
+353,581,Opresor,Metoprolol,completed
+354,582,Opresor D,Metoprolol + Hydrochlorothiazide,completed
+355,583,DECATYL LOZENGE TAB.,Dequalinium Chloride,completed
+356,584,UNIPHYLLINE-150 S.R.CAP.,Theophylline,completed
+357,586,COMBATYL CHEW.TAB.,Pyrantel,completed
+358,587,Gyno-D,Metronidazole + Miconazole Nitrate,completed
+359,589,Tenoxicam,Tenoxicam,completed
+360,590,Hemorrhoid Suppositories,UNRESOLVED,unresolved
+361,592,Zyrtec,Cetirizine,completed
+362,593,Melopic,Meloxicam,completed
+363,594,Melopic Suppositories,Meloxicam,completed
+364,595,Nimesulide,Nimesulide,completed
+365,596,Zolotin,Sertraline,completed
+366,597,Hydravita Syrup,UNRESOLVED,unresolved
+367,598,Hydravita Capsules,UNRESOLVED,unresolved
+368,599,Tramadol Suppositories,Tramadol Hydrochloride,completed
+369,600,Tramadol 50mg Tablets,Tramadol Hydrochloride,completed
+370,601,Bromelain Forte 20mg,Bromelain,completed
+371,602,Sirdalud,Tizanidine,completed
+372,603,Silda 50mg,Sildenafil,completed
+373,604,Zolotin 25mg,Sertraline,completed
+374,605,Zolotin 100mg,Sertraline,completed
+375,606,Bromelain Regular 10mg,Bromelain,completed
+376,607,Prostatom 5mg,UNRESOLVED,unresolved
+377,608,Prostatom 10mg,UNRESOLVED,unresolved
+378,609,Dolofort,Nefopam,completed
+379,610,Diosartan 62.5mg,UNRESOLVED,unresolved
+380,612,Levo 250mg,Levofloxacin,completed
+381,613,levo,Levofloxacin,completed
+382,614,Viola,UNRESOLVED,unresolved
+383,615,Lamotrigine,Lamotrigine,completed
+384,616,Hydravita Drops,UNRESOLVED,unresolved
+385,617,Baby Spasm Drops,UNRESOLVED,unresolved
+386,618,Flatol Drops,Simethicone,completed
+387,619,Amiloxa 1 Vial 1000mg,Ampicillin + Cloxacillin,completed
+388,620,Amiloxa 1 Vial 500mg,Ampicillin + Cloxacillin,completed
+389,623,FENICOL 1000 VIAL,Chloramphenicol,completed
+390,624,Cloxa Vial 500mg,Cloxacillin,completed
+391,625,CLOXACILLIN-1000 VIAL,Cloxacillin,completed
+392,626,FLU-CLOXA 1000 VIAL,Flucloxacillin,completed
+393,627,FLU-CLOXA 500 VIAL,Flucloxacillin,completed
+394,629,Naproxen Vial 500mg,UNRESOLVED,unresolved
+395,630,Ampicillin Plus 750 1 Vial,Ampicillin + Sulbactam,completed
+396,631,Ampicillin Plus 1500 1 Vial,Ampicillin + Sulbactam,completed
+397,632,DICLORISM CREAM,Diclofenac Sodium,completed
+398,664,SULINDAC-100 TAB.,Sulindac,completed
+399,665,SULINDAC-200 TAB.,Sulindac,completed
+400,666,FORTIL TAB.,Etilefrine,completed

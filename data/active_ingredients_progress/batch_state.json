@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "workflow": "active_ingredients_batch_curation",
+  "issue": 158,
+  "status": "approved_uploaded_verified",
+  "supabase": {
+    "project_name": "Sherko Pharma",
+    "project_ref": "jwlxjzlnozncdfibrzfu",
+    "authoritative_approved_state": true,
+    "writes_performed_in_this_task": true,
+    "catalog_table": "syria.product_catalog_import_staging",
+    "catalog_exact_rows": 34436,
+    "batch_001_uploaded": true,
+    "batch_001_verified": true,
+    "batch_001_parent_products": 500,
+    "batch_001_product_ingredients": 741,
+    "batch_001_products_with_ingredients": 498,
+    "batch_001_ddinter_mappings_pending": 741,
+    "batch_001_unresolved_products": [
+      "89",
+      "330"
+    ]
+  },
+  "repository": {
+    "base_branch": "main",
+    "base_sha": "3e5d018e773ed303eaabb0465063037a46afb542",
+    "progress_branch": "data/active-ingredients-batch-recovery",
+    "checkpoint_files": [
+      "data/active_ingredients_progress/batch_001_results.csv",
+      "data/active_ingredients_progress/batch_001_151_200.csv",
+      "data/active_ingredients_progress/batch_001_201_250.csv",
+      "data/active_ingredients_progress/batch_001_251_300.csv",
+      "data/active_ingredients_progress/batch_001_301_350.csv",
+      "data/active_ingredients_progress/batch_001_351_400.csv",
+      "data/active_ingredients_progress/batch_001_401_450.csv",
+      "data/active_ingredients_progress/batch_001_451_500.csv"
+    ]
+  },
+  "selection": {
+    "ordering": "numeric source_id ascending first, then non-numeric source_id lexicographically"
+  },
+  "batch": {
+    "batch_number": 1,
+    "position_start": 1,
+    "position_end": 500,
+    "size_limit": 500,
+    "first_source_id": "9",
+    "last_source_id": "788",
+    "checkpointed_through_position": 500
+  },
+  "checkpoint_interval_products": 50,
+  "processed_count": 500,
+  "completed_count": 498,
+  "unresolved_count": 2,
+  "last_processed_product": {
+    "batch_position": 500,
+    "source_id": "788",
+    "trade_name": "SHIFATRYPTIL-10 CTD TAB."
+  },
+  "review_csv": {
+    "filename": "active_ingredients_batch_001_review.csv",
+    "columns": [
+      "trade_name",
+      "active_ingredients"
+    ],
+    "row_count": 500,
+    "sha256": "a40d61649884f9d20fe291ff7f986b1435d03ac5d948238cab6011b642be915c",
+    "durability_note": "Committed on data/active-ingredients-batch-recovery; generated from the eight checkpoints with the reviewed 43-row second-pass overrides.",
+    "stale_after_recheck": false,
+    "regeneration_required": false,
+    "note": "498 ingredient compositions confirmed for review. source_ids 89 and 330 are written as literal undefined; they are not ingredient identities and must be skipped rather than inserted as substances.",
+    "repository_path": "data/active_ingredients_progress/active_ingredients_batch_001_review.csv"
+  },
+  "owner_approval_received": true,
+  "supabase_write_allowed": true,
+  "blocker": null,
+  "recovery_rule": "Batch 1 was approved and imported to syria.products + syria.product_ingredients, with 741 ingredient components pending DDInter verification and source_ids 89/330 left undefined. Supabase is authoritative for approved batch 1. Do not re-import; next batch must select the following 500 staged source IDs excluding all previously imported products, and record new checkpoints before writes.",
+  "checked_at": "2026-10-07T17:05:27.450861Z",
+  "unresolved_source_ids": [
+    "89",
+    "330"
+  ],
+  "unresolved_recheck": {
+    "status": "completed_second_pass",
+    "original_unresolved_count": 43,
+    "resolved_on_recheck": 41,
+    "remaining_unresolved_count": 2,
+    "results_file": "data/active_ingredients_progress/batch_001_unresolved_recheck.csv",
+    "last_checkpoint_commit": "1ef8c7f2f9ce50a762559eb6edee03fe9b521ea8",
+    "remaining_source_ids": [
+      "89",
+      "330"
+    ]
+  }
+}

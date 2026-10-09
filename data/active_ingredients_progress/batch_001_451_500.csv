@@ -1,0 +1,51 @@
+batch_position,source_id,trade_name,active_ingredients,status
+451,728,Acetazolamide 250mg Tablet,Acetazolamide,completed
+452,729,LORA TAB.,Loratadine,completed
+453,730,HYPOPRIL-5 TAB.,Lisinopril,completed
+454,731,HYPOPRIL-10 TAB.,Lisinopril,completed
+455,732,HYPOPRIL-20 TAB.,Lisinopril,completed
+456,733,Azithromycin 125mg Tablet,Azithromycin,completed
+457,734,AZITRO-250 CAP.,Azithromycin,completed
+458,739,Medazepam 5mg Tablet,Medazepam,completed
+459,740,Medazepam 10mg Tablet,Medazepam,completed
+460,742,Shafafillin 200mg Tab,Diprophylline,completed
+461,743,Pimo 2mg Tab,Pimozide,completed
+462,744,PIMO-4 TAB.,Pimozide,completed
+463,745,VASOSERC TAB.,Betahistine,completed
+464,746,KHELLINE CTD TAB.,Khellin,completed
+465,747,Shafafillin 400mg Tab,Diprophylline,completed
+466,748,Bisalax 10mg Supp,Bisacodyl,completed
+467,750,VITANOR CTD TAB.,Thiamine + Vitamin B6 + Vitamin B12,completed
+468,751,Verapamil 80mg Tab,Verapamil,completed
+469,752,DEQUALIN LOZENGE,Dequalinium Chloride,completed
+470,753,GLUCO-500 TAB.,Metformin,completed
+471,754,GLUCO-850 RETARD CTD TAB.,Metformin,completed
+472,755,SUPERTIL DROPS,Etilefrine,completed
+473,756,CLAFO-500 VIAL,Cefotaxime,completed
+474,757,CLAFO-1000 VIAL,Cefotaxime,completed
+475,758,ROCEF-500 VIAL,Ceftriaxone,completed
+476,759,ROCEF-1000 VIAL,Ceftriaxone,completed
+477,760,DICLORISM-50 CTD TAB.,Diclofenac Sodium,completed
+478,761,PARACOD EFF.TAB.,Paracetamol + Codeine Phosphate,completed
+479,762,MINAVIT EFF TAB.,Thiamine + Riboflavin + Vitamin B6 + Vitamin B12 + Nicotinamide + Calcium Pantothenate + Ascorbic Acid + Magnesium + Iron + Calcium,completed
+480,765,VITA-C EFF.TAB.,Ascorbic Acid,completed
+481,766,VITA-C EFF.TAB.,Ascorbic Acid,completed
+482,767,MINAVIT EFF TAB.,Thiamine + Riboflavin + Vitamin B6 + Vitamin B12 + Nicotinamide + Calcium Pantothenate + Ascorbic Acid + Magnesium + Iron + Calcium,completed
+483,768,Shifaflex 20 Capsules,Chlorzoxazone + Paracetamol,completed
+484,769,MINAVITE-M CAP.,Thiamine + Riboflavin + Vitamin B6 + Nicotinamide + Calcium Pantothenate + Ascorbic Acid + Magnesium + Iron,completed
+485,771,Cefaclor 250mg Capsules,Cefaclor,completed
+486,772,Cefocef 250mg Capsules,Cefadroxil,completed
+487,773,Ginseng Plus 20 Capsules,Ginseng Powder + Vitamin E,completed
+488,774,Velodin 250mg Capsules,Cephradine,completed
+489,775,Velodin 500mg Capsules,Cephradine,completed
+490,776,CEFOCEF-500 CAP.,Cefadroxil,completed
+491,777,CEFOCEF-1000 CTD TAB.,Cefadroxil,completed
+492,778,Spazno 15mg Tablets,UNRESOLVED,unresolved
+493,779,FRANIL-10 CAP.,Clomipramine Hydrochloride,completed
+494,780,Franil 25mg Capsules,Clomipramine Hydrochloride,completed
+495,781,PARACOD TAB.,Paracetamol + Codeine Phosphate,completed
+496,782,Oxycaris 6 Chewable Tablets,Pyrantel,completed
+497,783,SHIFAZEN-5 CTD TAB.,Serrapeptase,completed
+498,784,Mebendazole 500mg Tablet,Mebendazole,completed
+499,785,Mebendazole 100mg Tablets,Mebendazole,completed
+500,788,SHIFATRYPTIL-10 CTD TAB.,Amitriptyline Hydrochloride,completed

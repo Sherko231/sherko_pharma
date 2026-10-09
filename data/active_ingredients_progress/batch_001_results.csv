@@ -1,0 +1,151 @@
+batch_position,source_id,trade_name,active_ingredients,status
+1,9,ATORVATIN-10 CTD TAB.,Atorvastatin,completed
+2,10,ATORVATIN-20 CTD TAB.,Atorvastatin,completed
+3,11,PAROZON CAP.,Chlorzoxazone + Paracetamol,completed
+4,12,CETRINE-10 CTD TAB.,Cetirizine,completed
+5,13,VOLTAGESIC-50 CTD TAB.,Diclofenac Sodium,completed
+6,15,CAPOTAL-25 TAB.,Captopril,completed
+7,16,CAPOTAL-50 TAB.,Captopril,completed
+8,17,LINCOCILE-500 CAP.,Lincomycin Hydrochloride,completed
+9,18,AMPILUXE CAP.,Ampicillin + Cloxacillin,completed
+10,19,Ampiclox 500mg 10 Capsules,Ampicillin + Cloxacillin,completed
+11,21,CIPROFLEX-500 CTD TAB.,Ciprofloxacin,completed
+12,22,CIPROFLEX-750 CTD TAB.,Ciprofloxacin,completed
+13,23,Okarbon 10 Tablets,Senna Leaf + Rhubarb Root Extract + Vegetable Charcoal + Purified Sulfur,completed
+14,25,ULTRAPEN-500 CAP.,Amoxicillin + Flucloxacillin,completed
+15,27,ZEDEX-40 CTD TAB.,Famotidine,completed
+16,28,ZEDEX-20 CTD TAB.,Famotidine,completed
+17,29,Vitiacs 20 Chewable Tablets,UNRESOLVED,unresolved
+18,32,AZITHROCINE-250 CAP.,Azithromycin,completed
+19,33,EXTRA-50 CTD TAB.,Sildenafil,completed
+20,34,EXTRA-100 CTD TAB.,Sildenafil,completed
+21,35,PENTA-40 CTD TAB.,Pantoprazole,completed
+22,36,CANESTAL 20G CREAM 2%,Clotrimazole,completed
+23,37,CANESTEN CREAM,Clotrimazole,completed
+24,39,Nystaloc Cream,Dexamethasone + Chlorhexidine + Nystatin,completed
+25,41,CANESTAL-200 VAG.TAB.,Clotrimazole,completed
+26,42,TRIBION FORTE 1000 AMP.,Thiamine + Vitamin B6 + Vitamin B12,completed
+27,43,CELEX-100 CAP.,Celecoxib,completed
+28,44,CELEX-200 CAP.,Celecoxib,completed
+29,45,VOLTAGESIC-75 AMP.,Diclofenac Sodium,completed
+30,47,ALPHACORT I.M.AMP.,Triamcinolone Acetonide,completed
+31,48,GENTOCIL-40 AMP.,Gentamicin Sulfate,completed
+32,49,LINCOCILE 600 AMP.,Lincomycin Hydrochloride,completed
+33,52,NEODRON EYE DROPS,Dexamethasone + Neomycin Sulfate,completed
+34,54,ROCIFLEX-500 VIAL,Ceftriaxone,completed
+35,55,ROCIFLEX-1000 VIAL,Ceftriaxone,completed
+36,56,ROCIFLEX-250 VIAL,Ceftriaxone,completed
+37,57,ALPHACORT VIAL,Triamcinolone Acetonide,completed
+38,58,DECADRALE VIAL,Dexamethasone,completed
+39,59,SULBA-750 VIAL,Ampicillin + Sulbactam,completed
+40,60,SULBA-1500 VIAL,Ampicillin + Sulbactam,completed
+41,61,Azitrosin Syrup 200mg/15ml,Azithromycin,completed
+42,62,NISIDOL-100 TAB.,Nimesulide,completed
+43,63,Carlic 25mg Garlic Capsules,UNRESOLVED,unresolved
+44,64,Brodex,Paracetamol + Guaifenesin + Oxomemazine + Sodium Benzoate,completed
+45,65,AMPILUXE DRY SYRUP,Ampicillin + Cloxacillin,completed
+46,66,Asconad New 100ml Syrup,Paracetamol + Chlorpheniramine Maleate + Phenylephrine Hydrochloride,completed
+47,67,NISIDOL SUSP.,Nimesulide,completed
+48,68,ORALUXE-50 DRY SYRUP,Cefpodoxime,completed
+49,69,ULTRAPEN-250 DRY SYRUP,Amoxicillin + Flucloxacillin,completed
+50,74,ALPHATRIM SUSP.,Sulfamethoxazole + Trimethoprim,completed
+51,76,CLAPHORAMA-500 VIAL,Cefotaxime,completed
+52,77,CEFAZOLIN VIAL,Cefazolin,completed
+53,78,CEFAZOLIN-500 VIAL,Cefazolin,completed
+54,79,OGMENTININE-1200 VIAL,Amoxicillin + Clavulanic Acid,completed
+55,80,OGMENTININE-600 VIAL,Amoxicillin + Clavulanic Acid,completed
+56,81,FORTACEF-500 VIAL,Ceftazidime,completed
+57,82,CEPHRADEX-500 VIAL,Cephradine,completed
+58,83,CEPHRADEX-1000 VIAL,Cephradine,completed
+59,84,Ampicillin 500mg + Cloxacillin 500mg vial,Ampicillin + Cloxacillin,completed
+60,85,AMPILUXE-500 VIAL,Ampicillin + Cloxacillin,completed
+61,86,DEPOPEN-600.000 VIAL,Benzathine Benzylpenicillin,completed
+62,87,DEPOPEN-1.200.000 VIAL,Benzathine Benzylpenicillin,completed
+63,88,PROSTAF-1G VIAL,Cloxacillin,completed
+64,89,اكرينال شامبو,UNRESOLVED,unresolved
+65,90,اكرينال شامبو  عائلي,UNRESOLVED,unresolved
+66,91,Acrinal Lotion Concentrated 40,UNRESOLVED,unresolved
+67,99,Feldexam 20mg 10 Capsules,Piroxicam,completed
+68,100,COMBANTRIN TAB.,Pyrantel,completed
+69,102,UNICRON TAB.,Gliclazide,completed
+70,103,UNICETAM-800 CTD TAB.,Piracetam,completed
+71,104,UNICETAM CAP.,Piracetam,completed
+72,105,Unitol Vaginal Cream + Applicator,Tioconazole,completed
+73,106,ETHAPHYLLINE  CTD TAB.,UNRESOLVED,unresolved
+74,113,Dilanacin 0.25mg 50 Tablets,Digoxin,completed
+75,115,TONIC-Z CAP.,Ferrous Sulfate + Folic Acid + Zinc Sulfate,completed
+76,116,Fostan 10mg 20 Tablets,Diazepam,completed
+77,117,Fostan 5mg Tablets,Diazepam,completed
+78,119,Uni Metforal 500mg 40 Tablets,Metformin Hydrochloride,completed
+79,123,Phenytoin 100mg 40 Tablets,Phenytoin,completed
+80,124,MESACOL CTD TAB.,Mesalazine,completed
+81,126,ERCEFURIL 200MG,Nifuroxazide,completed
+82,128,Orfarin 5mg 100 Tablets,Warfarin Sodium,completed
+83,130,Zorovir Zovirax 200 Acyclovir 20 Tablets,Acyclovir,completed
+84,133,Captopril 25mg,Captopril,completed
+85,134,Faverin 50mg 30 Tablets,Fluvoxamine Maleate,completed
+86,138,VIFORCIT EFF.TAB.,Ascorbic Acid,completed
+87,139,Calcifor 10 Effervescent Tablets,Ascorbic Acid + Calcium Glycerophosphate,completed
+88,140,Citial 250 ml,Chlorhexidine + Chlorocresol + Hexamidine,completed
+89,142,Uni Mycostatin Oral Suspension 30ml,Nystatin,completed
+90,144,Combantrin Suspension,Pyrantel,completed
+91,153,LOTRIDERM CREAM,Betamethasone Dipropionate + Clotrimazole,completed
+92,162,Zorovir Zovirax Cream Acyclovir,Acyclovir,completed
+93,164,Diprogenta Cream 15g,Betamethasone Dipropionate + Gentamicin Sulfate,completed
+94,165,Diprogenta Ointment 15g,Betamethasone Dipropionate + Gentamicin Sulfate,completed
+95,166,Fastum Gel 50g,Ketoprofen,completed
+96,170,MYCOSTATIN OINT.,Nystatin,completed
+97,173,Kenalog Oral Paste,Triamcinolone Acetonide,completed
+98,178,UNICETAM SYRUP,Piracetam,completed
+99,180,Erecefuril Syrup,Nifuroxazide,completed
+100,185,Aziban 5mg 20 Tablets,UNRESOLVED,unresolved
+101,186,Aziban 10mg 20 Tablets,UNRESOLVED,unresolved
+102,187,Parkomet 100mg 20 tablets,Levodopa + Carbidopa,completed
+103,188,Parkomet 250mg 40 tablets,Levodopa + Carbidopa,completed
+104,189,Medazepam 10mg 50 Tablets,Medazepam,completed
+105,190,Phenytoin 100mg 40 Tablets Shahba,Phenytoin,completed
+106,191,Lomotin 20 tablets,Diphenoxylate Hydrochloride + Atropine Sulfate,completed
+107,194,Voltaren 100mg Suppository,Diclofenac Sodium,completed
+108,195,Voltaren 50mg Suppository,Diclofenac Sodium,completed
+109,197,MODAZOL-500 TAB.,Metronidazole,completed
+110,200,VALIUM 2 MG,Diazepam,completed
+111,201,ليكسوتان 1.5 ملغ 20 كبسولة,Bromazepam,completed
+112,203,VALIUM 5 MG,Diazepam,completed
+113,204,Lexotan 3mg Capsules,Bromazepam,completed
+114,209,CARDIOSPIRIN S.R.CTD TAB.,Acetylsalicylic Acid,completed
+115,213,Omepramide 20 Capsules 20 mg,Omeprazole,completed
+116,214,INDOMODE-75 RETARD CAP.,Indomethacin,completed
+117,216,MEDAFOLIN-5 TAB.,Folic Acid,completed
+118,224,RHINOMODE CAP.,Phenylephrine Hydrochloride + Carbinoxamine Maleate,completed
+119,225,MINISPIRIN TAB.,Acetylsalicylic Acid,completed
+120,226,INDOMODE-100 SUPP.,Indomethacin,completed
+121,228,AZITRO MED-250 CAP.,Azithromycin,completed
+122,229,Tenormin 100mg 20 Tablets Tenormilol,Atenolol,completed
+123,230,DEXATRONE TAB.,Dexamethasone,completed
+124,231,Inderal 40 mg,Propranolol,completed
+125,233,Inderal 10mg 40 Tab,Propranolol,completed
+126,234,MODESTAMINE TAB.,Cyproheptadine Hydrochloride,completed
+127,237,INDOMODE CAP.,Indomethacin,completed
+128,245,FEVRALE ORAL DROPS,Paracetamol,completed
+129,246,MODAL DROPS,Hyoscine Methonitrate,completed
+130,248,PARAMODE SYRUP,Paracetamol,completed
+131,250,RHINOMODE SYRUP,Phenylephrine Hydrochloride + Carbinoxamine Maleate,completed
+132,253,DEXATRONE SYRUP,Dexamethasone,completed
+133,255,CEMO MILD SYRUP,Ammonium Chloride + Carbinoxamine Maleate + Ephedrine Hydrochloride,completed
+134,256,CEMO EXPECTORANT SYRUP,Ammonium Chloride + Carbinoxamine Maleate + Ephedrine Hydrochloride,completed
+135,257,CEMO CODEINE SYRUP,Carbinoxamine Maleate + Ephedrine Hydrochloride + Codeine Phosphate,completed
+136,258,PECTO-KAO SUSP.,Kaolin + Pectin,completed
+137,259,MODESTAMINE SYRUP,Cyproheptadine Hydrochloride,completed
+138,260,MODAZOL SUSP.,Metronidazole,completed
+139,263,TRIPTOZOR S.R.CAP.,Amitriptyline Hydrochloride,completed
+140,264,DALACIN-C CAP.,Clindamycin,completed
+141,265,LINCOCIN CAP.,Lincomycin,completed
+142,266,Proflucan 200mg 10 Capsules,Fluconazole,completed
+143,267,ELTROXIN-100 TAB.,Levothyroxine Sodium,completed
+144,268,AZOCIN-250 CAP.,Azithromycin,completed
+145,269,INCITE 50 TAB.,Clomiphene,completed
+146,273,FEFOL-Z SPANSULE CAP.,Ferrous Sulfate + Folic Acid + Zinc Sulfate,completed
+147,274,DITROSPAM SYRUP,Oxybutynin Hydrochloride,completed
+148,275,KAOPECTATE SUSP.,Kaolin + Pectin,completed
+149,283,NABUMET-500 CTD TAB.,Nabumetone,completed
+150,284,CLOTRI LOZENGES,Clotrimazole,completed
