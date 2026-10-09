@@ -2,7 +2,7 @@
   "schema_version": 1,
   "workflow": "active_ingredients_batch_curation",
   "issue": 160,
-  "status": "curation_in_progress",
+  "status": "awaiting_owner_approval",
   "supabase": {
     "project_name": "Sherko Pharma",
     "project_ref": "jwlxjzlnozncdfibrzfu",
@@ -33,15 +33,16 @@
       "data/active_ingredients_progress/batch_002_251_300.csv",
       "data/active_ingredients_progress/batch_002_301_350.csv",
       "data/active_ingredients_progress/batch_002_351_400.csv",
-      "data/active_ingredients_progress/batch_002_401_450.csv"
+      "data/active_ingredients_progress/batch_002_401_450.csv",
+      "data/active_ingredients_progress/batch_002_451_500.csv"
     ]
   },
-  "processed_count": 450,
-  "completed_count": 389,
-  "unresolved_count": 61,
-  "checkpointed_through_position": 450,
-  "last_source_id": "1339",
-  "next_batch_position": 451,
+  "processed_count": 500,
+  "completed_count": 435,
+  "unresolved_count": 65,
+  "checkpointed_through_position": 500,
+  "last_source_id": "1395",
+  "next_batch_position": null,
   "unresolved_source_ids": [
     "793",
     "805",
@@ -89,8 +90,8 @@
     "1149",
     "1150",
     "1180",
+    "1189",
     "1201",
-    "1203",
     "1212",
     "1219",
     "1223",
@@ -103,9 +104,31 @@
     "1271",
     "1294",
     "1296",
-    "1316"
+    "1316",
+    "1372",
+    "1376",
+    "1382",
+    "1383"
   ],
   "owner_approval_received": false,
   "supabase_write_allowed": false,
-  "notes": "350/500 products checkpointed; 302 ingredient candidates and 48 undefined. Evidence per row. Production batch2 remains untouched pending owner-reviewed complete CSV and explicit authorization."
+  "notes": "Batch 2 contains 500 selected source records, 435 provisional composition candidates and 65 unresolved/undefined. Entire two-column review CSV matches ten 50-row checkpoints. Scientific accuracy has NOT been independently verified across all assignments; check cited provenance and flagged cases before approval or any write. No DDInter mappings inferred. No batch-2 Supabase writes performed. Owner approval of final 500-row review CSV is mandatory before upload.",
+  "review_csv": {
+    "repository_path": "data/active_ingredients_progress/active_ingredients_batch_002_review.csv",
+    "columns": [
+      "trade_name",
+      "active_ingredients"
+    ],
+    "row_count": 500,
+    "completed_count": 435,
+    "undefined_count": 65,
+    "git_blob_sha": "da2c1a15f193d271ff0f501fc9b7e44e9fb7a2ce"
+  },
+  "quality": {
+    "composition_candidates_not_independently_validated": true,
+    "source_url_missing_for_resolved": 22,
+    "review_notes_flagging_follow_up": 12,
+    "all_review_rows_match_checkpoints": true,
+    "all_source_ids_unique": true
+  }
 }
