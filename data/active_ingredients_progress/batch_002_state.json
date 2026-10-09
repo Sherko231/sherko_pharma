@@ -41,8 +41,8 @@
     ]
   },
   "processed_count": 500,
-  "completed_count": 462,
-  "unresolved_count": 38,
+  "completed_count": 463,
+  "unresolved_count": 37,
   "checkpointed_through_position": 500,
   "last_source_id": "1395",
   "next_batch_position": null,
@@ -82,13 +82,12 @@
     "1294",
     "1296",
     "1372",
-    "1376",
     "1382",
     "1383"
   ],
   "owner_approval_received": false,
   "supabase_write_allowed": false,
-  "notes": "Second pass on 64 unresolved batch-2 products: 26 recovered using Syrian medicine registers, matched manufacturer drug pages and a peer-reviewed study of Kanawati Kanabron syrup (thyme extract); 38 remain explicitly undefined. New 500-row review file regenerated from ten original checkpoints with authoritative second-pass overlay. Caution: colloquial brand name similarity alone is insufficient (e.g. different GENTAZONE manufacturers); keep review notes and provenance for regulated medicinal use. Batch 2 not uploaded to Supabase. Owner approval of revised review CSV required prior to any database mutation.",
+  "notes": "Batch 2 500 products; focused second-pass rechecks against manufacturer, national Syrian drug price register, Syrian prescribing review, and Aleppo University peer-reviewed Kanabron formulation research yielded 27 evidence-backed resolved products and 37 explicitly unresolved/undefined. Checkpoint overlays have 64 source IDs; 27 resolved with provenance, 37 unresolved. Latest review regenerated with 463 provisional ingredient strings; no DDInter mapping or batch-2 Supabase writes. Original review quality followup flags still require validation before approval. Preserve cosmetics as undefined without exact variant INCI.",
   "review_csv": {
     "repository_path": "data/active_ingredients_progress/active_ingredients_batch_002_review.csv",
     "columns": [
@@ -96,9 +95,9 @@
       "active_ingredients"
     ],
     "row_count": 500,
-    "completed_count": 462,
-    "undefined_count": 38,
-    "git_blob_sha": "0e5bb9856f79f647b4aafde42c9419e8ef14446e"
+    "completed_count": 463,
+    "undefined_count": 37,
+    "git_blob_sha": "bf7214d1ef6093ecebf82ee7e691e022a4c55628"
   },
   "quality": {
     "composition_candidates_not_independently_validated": true,
@@ -112,11 +111,11 @@
   "unresolved_recheck": {
     "status": "completed_second_pass",
     "original_unresolved_count": 64,
-    "resolved_on_recheck": 26,
-    "remaining_unresolved_count": 38,
+    "resolved_on_recheck": 27,
+    "remaining_unresolved_count": 37,
     "results_file": "data/active_ingredients_progress/batch_002_unresolved_recheck_01.csv",
     "review_updated": true,
-    "review_blob_sha": "0e5bb9856f79f647b4aafde42c9419e8ef14446e",
-    "recheck_blob_sha": "8371a0886604b2329f2f2522258a43fd7a41a340"
+    "review_blob_sha": "bf7214d1ef6093ecebf82ee7e691e022a4c55628",
+    "recheck_blob_sha": "5683d062f14eedab3bbff6b4d7a1c0cbb2d32bfc"
   }
 }
