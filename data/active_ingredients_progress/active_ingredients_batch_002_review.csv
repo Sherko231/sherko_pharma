@@ -71,7 +71,7 @@ CEPROZ-500 CTD TAB.,Ciprofloxacin Hydrochloride
 PROCTO-SID CREAM,Tribenoside + Lidocaine Hydrochloride
 Beclozole Cream 15g,Beclomethasone Dipropionate + Neomycin Sulfate + Miconazole Nitrate
 DE-FLAM ORAL RINSE,Benzydamine Hydrochloride
-LACTOXAME PLUS DRY SYRUP,undefined
+LACTOXAME PLUS DRY SYRUP,Ampicillin + Cloxacillin + Lactobacillus
 DE-HISTAMINE SYRUP,Loratadine
 MUCOLAR SUSP.,Carbocysteine
 AMPICTAM-3 VIAL,Ampicillin + Sulbactam
@@ -152,7 +152,7 @@ PROCTO VASINE SUPP.,Troxerutin + Butoform
 CYPROHEPTADINE TAB.,Cyproheptadine Hydrochloride
 DIPODERM OINT.,Betamethasone Dipropionate
 DIPODERM CREAM,Betamethasone Dipropionate
-MECOZALEN VAGINAL CREAM,undefined
+MECOZALEN VAGINAL CREAM,Miconazole Nitrate
 Isis Sunscreen 100,undefined
 Isis Sunscreen 45,undefined
 Unitone SPF 45,undefined
@@ -164,10 +164,10 @@ Glyco A Moisturizing Cream 30g,undefined
 Aminsil Gel Slimming Anti Sagging,undefined
 Glycoderm Acne 50g,undefined
 Ruboril Cream for Rosacea,undefined
-Dolopan Oral Drops 15ml Ra,undefined
+Dolopan Oral Drops 15ml Ra,Hyoscine
 Ciprosin 10 Tablets 250mg,Ciprofloxacin
 TENSIOPRIL-50 TAB.,Captopril
-ديميترول حبوب  را,undefined
+ديميترول حبوب  را,Amitriptyline Hydrochloride + Chlordiazepoxide
 REPAX 30 CAPSULE,undefined
 PARACETOL 125MG SUPPOSITORY FOR INFANTS,Paracetamol
 MIMEX DROPS,Carbazochrome Sodium Sulfonate
@@ -177,7 +177,7 @@ GRIPE WATER 120ML,Dill Oil + Sodium Bicarbonate
 MAGIGEL SUSP.,Aluminum Hydroxide + Magnesium Hydroxide + Oxethazaine
 SINE OFF SYRUP 100ML,Chlorpheniramine Maleate + Phenylephrine Hydrochloride
 AIRONAL SYRUP,Terbutaline Sulfate
-NEOCOFLIN SYRUP,undefined
+NEOCOFLIN SYRUP,Chlorpheniramine Maleate + Phenylephrine Hydrochloride + Noscapine
 CEVIMAG DROPS,Ascorbic Acid
 PECTOFEN SYRUP,Diphenhydramine Hydrochloride + Ammonium Chloride + Sodium Citrate
 CHLORAPHEN SYRUP,undefined
@@ -185,19 +185,19 @@ CETAPAR SYRUP,Paracetamol
 B COMPLEX VIT SYRUP,undefined
 METRONIDAZOL SUSP.,Metronidazole
 Theophylline Syrup,Theophylline + Guaifenesin
-Laxalac 200ml Syrup,undefined
+Laxalac 200ml Syrup,Lactulose
 Naligram 300mg Syrup,Nalidixic Acid
 Glucostop 500mg 50 Tab,Metformin Hydrochloride
 Glucostop 850mg 30 Tab,Metformin Hydrochloride
 Kipril 20 Caps,undefined
-Indocron SR Caps,undefined
-Ativam 20 Tab 1mg,undefined
+Indocron SR Caps,Indomethacin
+Ativam 20 Tab 1mg,Lorazepam
 Flucozol 10 Caps 150mg,Fluconazole
 Flucozol 200mg 10 Caps,Fluconazole
 Pentoral 30 Tab 100mg,Pentoxifylline
 Pentoral 30 Tab 400mg,Pentoxifylline
 Parkoson 2mg Tablets,Benzhexol Hydrochloride
-Diogast 15mg Capsules,undefined
+Diogast 15mg Capsules,Lansoprazole
 Gentazone Ear Drops,undefined
 Didronate 400mg Tablets,Etidronate Disodium
 Didronate 200mg Tablets,Etidronate Disodium
@@ -213,7 +213,7 @@ Oflocin 200mg Tablets,Ofloxacin
 Oflocin 300mg Tablets,Ofloxacin
 Oflocin 400mg Tablets,Ofloxacin
 Mycoplus 10 Ovules,undefined
-Diogast 20 Caps 30mg,undefined
+Diogast 20 Caps 30mg,Lansoprazole
 Ativam 20 Tabs 2mg,Lorazepam
 Genotri 12 Ovules,Neomycin + Polymyxin B + Nystatin
 Calsilate 50 Tabs,Calcium Salts
@@ -245,14 +245,14 @@ SULCRATE 1000 TAB.,Sucralfate
 NAPROX 500 TAB.,Naproxen
 GLYCIPHAGE-500 TAB.,Metformin
 CYCLOVIRAN-200 TAB.,Acyclovir
-MULTI MAGNESIUM 40 CAPS,undefined
+MULTI MAGNESIUM 40 CAPS,Magnesium
 DANISTOLE-80 CTD TAB.,Verapamil Hydrochloride
 DANISTOLE 40MG 50 TAB,Verapamil Hydrochloride
 LANSOPRAL 30MG 20 CAP HANJOUR,Lansoprazole
 INDO-75 S.R. CAP.,Indomethacin
 DANI-240 RETARD CTD TAB.,Verapamil Hydrochloride
 HYPOPRESOR-50 CTD TAB.,Metoprolol
-TILDIA-60 TAB.,undefined
+TILDIA-60 TAB.,Diltiazem Hydrochloride
 FLAGENA 500 CTD TAB.,Secnidazole
 ROMYCINE-PLUS CTD TAB.,Spiramycin + Metronidazole
 LIPA-100 CAP.,Fenofibrate
@@ -269,8 +269,8 @@ HYPOPRESOR-200 CTD TAB.,Metoprolol
 MELOXI-15 TAB.,Meloxicam
 MELOXI-7.5 TAB.,Meloxicam
 CLARITHRO-250 CTD TAB.,Clarithromycin
-Tildia 180mg 20 Capsules Retard,undefined
-TILDIA-120 S.R.CAP.,undefined
+Tildia 180mg 20 Capsules Retard,Diltiazem Hydrochloride
+TILDIA-120 S.R.CAP.,Diltiazem Hydrochloride
 Bronchophyllin 20 Tablets,undefined
 KANAGENIC SACHETS,Potassium Aluminum Sulfate + Sodium Perborate
 Oronal 8 Sachets,undefined
@@ -320,7 +320,7 @@ ALCTONE-50 CTD TAB.,Spironolactone
 ALCTONE-100 CTD TAB.,Spironolactone
 Bromhexine 8mg 20 Tablets,Bromhexine
 Ketofen 200mg Tablets,Ketoprofen
-Timopectol 20 Tablets,undefined
+Timopectol 20 Tablets,Diphenhydramine Hydrochloride + Bromhexine Hydrochloride + Ephedrine Hydrochloride + Theophylline
 URIZOL-100 TAB.,Allopurinol
 PASPERAN DROPS,Metoclopramide Hydrochloride
 Oticol Ear Drops,Phenazone + Lidocaine Hydrochloride + Sulfanilamide
@@ -339,7 +339,7 @@ Captomed 25mg 20 Tablets,Captopril
 CAPTOMED-50 TAB.,Captopril
 PASPERAN CTD TAB.,Metoclopramide Hydrochloride
 DEXAMED-1.5 TAB.,Dexamethasone
-Lotan Tablets,undefined
+Lotan Tablets,Diphenoxylate Hydrochloride + Atropine Sulfate
 DIMENHYDRINATE TAB.,Dimenhydrinate
 Flora G Eye Ointment,Fluorometholone + Gentamicin
 GENTADEX EYE OINT.,Dexamethasone + Gentamicin Sulfate
@@ -370,7 +370,7 @@ NAPHANTAN EYE DROPS,Antazoline Sulfate + Naphazoline Nitrate
 VIRAMED 5% CREAM,Acyclovir
 Poly Derm Cream 20g,Dexamethasone + Gentamicin + Clioquinol + Tolnaftate
 VIRAMED 5% CREAM,Acyclovir
-SALI-CINOLONE OINT.,undefined
+SALI-CINOLONE OINT.,Fluocinolone Acetonide + Salicylic Acid
 ULTRADEX CREAM,Dexamethasone
 ULTRADEX-G OINT.,Dexamethasone + Gentamicin Sulfate
 Cinolon N Ointment 40g,Fluocinolone Acetonide + Neomycin Sulfate
@@ -385,7 +385,7 @@ VERMOXINE TAB.,Mebendazole
 KENAZOL TAB.,Ketoconazole
 EUPHYLLIN TAB.,Aminophylline
 CAPO-THIAZIDE TAB.,Captopril + Hydrochlorothiazide
-DUVAKIN CHRONO 500MG,undefined
+DUVAKIN CHRONO 500MG,Sodium Valproate
 DOPERIDOL-5 TAB.,Haloperidol
 DOPERIDOL-10 TAB.,Haloperidol
 ZADITOFEN TAB.,Ketotifen
@@ -396,8 +396,8 @@ LORATIVAN 1MG,Lorazepam
 CENIMED TAB.,Levodopa + Carbidopa
 CENIMED TAB.,Levodopa + Carbidopa
 CARDOM-1 TAB.,Doxazosin
-Erythrosol Solution 2%,undefined
-Erythrosol Solution 4%,undefined
+Erythrosol Solution 2%,Erythromycin
+Erythrosol Solution 4%,Erythromycin
 BENOXIDE LOTION,Benzoyl Peroxide
 MOGAM-5 TAB.,Nitrazepam
 TIZANID-4 TAB.,Tizanidine Hydrochloride
@@ -431,7 +431,7 @@ MOTASONE OINT.,Mometasone Furoate
 CANDI CORT,Clotrimazole + Hydrocortisone
 NOFAT CTD TAB.,Gemfibrozil
 Super 5,Yohimbine Hydrochloride + Vitamin E
-NEODOL CTD TAB.,undefined
+NEODOL CTD TAB.,Tramadol Hydrochloride
 DUSPAPHEN CTD TAB.,Mebeverine Hydrochloride
 VALPRON-500 CTD TAB.,Sodium Valproate
 Ondal 8mg,Ondansetron
