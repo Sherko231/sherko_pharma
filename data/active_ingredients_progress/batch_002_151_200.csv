@@ -1,0 +1,51 @@
+batch_position,source_id,trade_name,active_ingredients,status,source_url,review_note
+151,962,CYPROHEPTADINE TAB.,Cyproheptadine Hydrochloride,completed,https://mediotic-lab.com/product/%D8%B3%D9%8A%D8%A8%D8%B1%D9%88%D9%87%D9%8A%D8%A8%D8%AA%D8%A7%D8%AF%D9%8A%D9%86/,Exact manufacturer tablet formula
+152,964,DIPODERM OINT.,Betamethasone Dipropionate,completed,https://mediotic-lab.com/en/product/dipoerm-2/,"Manufacturer DIPODERM ointment, plain (not S/Plus)"
+153,965,DIPODERM CREAM,Betamethasone Dipropionate,completed,https://mediotic-lab.com/en/product/dipoerm-2/,"Manufacturer DIPODERM cream, plain (not S/Plus)"
+154,966,MECOZALEN VAGINAL CREAM,undefined,unresolved,https://mediotic-lab.com/en/product/mecozalen-8/,"Manufacturer lists a vaginal formulation with inconsistent header/suppository details, not verified for exact vaginal cream"
+155,969,Isis Sunscreen 100,undefined,unresolved,,Non-medicinal cosmetic sunscreen; specific UV filters not verified from exact product variant
+156,970,Isis Sunscreen 45,undefined,unresolved,,Non-medicinal cosmetic sunscreen; specific UV filters not verified from exact product variant
+157,972,Unitone SPF 45,undefined,unresolved,,Skincare sunscreen / cosmetic formula not verified for exact variant
+158,974,Unitone Extra,undefined,unresolved,,Skincare depigmentation cream: exact formula not verified
+159,979,Glyco A 15% 30g,undefined,unresolved,,Skincare acid product: formulation not verified against exact branded product and strength
+160,980,Glyco A Milk Makeup Remover 200ml,undefined,unresolved,,Cosmetic cleanser: full/active formulation not verified
+161,981,Glyco A Liquid Foaming Cleanser 100g Small,undefined,unresolved,,Cosmetic cleanser: full/active formulation not verified
+162,983,Glyco A Moisturizing Cream 30g,undefined,unresolved,,Cosmetic moisturizer: not a documented medicinal active ingredients product
+163,984,Aminsil Gel Slimming Anti Sagging,undefined,unresolved,,Cosmetic slimming gel: claimed actives not verified
+164,985,Glycoderm Acne 50g,undefined,unresolved,,Cosmetic acne product: exact active composition unverified
+165,986,Ruboril Cream for Rosacea,undefined,unresolved,,Rosacea cosmetic product: exact actives not verified for variant
+166,995,Dolopan Oral Drops 15ml Ra,undefined,unresolved,,Rasha Dolopan drops do not have product/manufacturer-specific formula evidence; foreign brand with same name is insufficient
+167,997,Ciprosin 10 Tablets 250mg,Ciprofloxacin,completed,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,Rasha brand resembles CIPROCIN; government register Rasha CIPROCIN-250; spelling variant should be checked by barcode before downstream ID mapping
+168,998,TENSIOPRIL-50 TAB.,Captopril,completed,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,Rasha TENSIOPRIL-50 listed as captopril 50mg
+169,999,ديميترول حبوب  را,undefined,unresolved,,Arabic-only Dimetrol tablets; no manufacturer-specific composition evidence
+170,1000,REPAX 30 CAPSULE,undefined,unresolved,,Rasha REPAX capsules cannot be reliably identified by brand-name resemblance
+171,1001,PARACETOL 125MG SUPPOSITORY FOR INFANTS,Paracetamol,completed,,Generic paracetamol 125mg suppository stated explicitly by catalog product name
+172,1002,MIMEX DROPS,Carbazochrome Sodium Sulfonate,completed,https://magico-pharma.com/product/mimex-drops/,Magico MIMEX drops verified on manufacturer product page
+173,1003,SOLFER DROPS,Iron Choline Citrate,completed,https://magico-pharma.com/product/solfer-drops/,Magico SOLFER drops verified
+174,1004,CHLOROQUINE PHOSPHATE SYRUP,Chloroquine Phosphate,completed,https://magico-pharma.com/product-category/anti-inflammatory/,Generic name and manufacturer listed product category
+175,1008,GRIPE WATER 120ML,Dill Oil + Sodium Bicarbonate,completed,https://magico-pharma.com/product/greap-water-syrup/,Magico 120mL Greap Water composition from exact manufacturer page
+176,1009,MAGIGEL SUSP.,Aluminum Hydroxide + Magnesium Hydroxide + Oxethazaine,completed,https://magico-pharma.com/product/magigel-suspension/,Magico 100mL suspension manufacturer confirms all three components
+177,1010,SINE OFF SYRUP 100ML,Chlorpheniramine Maleate + Phenylephrine Hydrochloride,completed,https://magico-pharma.com/product/syne-off-syrup/,Magico SYNE-OFF (not SYNE-OFF-PLUS) formula confirmed
+178,1011,AIRONAL SYRUP,Terbutaline Sulfate,completed,https://magico-pharma.com/product/aironal-syrup-3/,Magico AIRONAL syrup formula confirmed
+179,1012,NEOCOFLIN SYRUP,undefined,unresolved,,Magico NEOCOFLIN syrup: product-specific multi-component formulation not verified
+180,1013,CEVIMAG DROPS,Ascorbic Acid,completed,https://magico-pharma.com/product/cevimag-drops/,Magico CEVIMAG drops; vitamin C drops
+181,1015,PECTOFEN SYRUP,Diphenhydramine Hydrochloride + Ammonium Chloride + Sodium Citrate,completed,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,Kaspar Syrian register PECTOPHEN syrup. Product catalog spelling PECTOFEN; manufacturer/pack match but exact identity recheck recommended
+182,1016,CHLORAPHEN SYRUP,undefined,unresolved,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,Catalog CHLORAPHEN syrup differs from Kaspar register CHLORAFINE syrup; not asserted identical before exact product check
+183,1017,CETAPAR SYRUP,Paracetamol,completed,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,Kaspar CETAPAR syrup listed as paracetamol 120mg per 5ml
+184,1019,B COMPLEX VIT SYRUP,undefined,unresolved,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,Kaspar B-C vitamin syrup composition unresolved; reference B.C-VIT syrup may be different product
+185,1020,METRONIDAZOL SUSP.,Metronidazole,completed,,Generic metronidazole suspension explicitly named in catalog
+186,1021,Theophylline Syrup,Theophylline + Guaifenesin,completed,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,Kaspar THEOPHYLLINE SYRUP officially lists both substances
+187,1022,Laxalac 200ml Syrup,undefined,unresolved,,"Kaspar LAXALAC 200mL: presumed lactulose by name, no exact manufacturer/strength evidence"
+188,1024,Naligram 300mg Syrup,Nalidixic Acid,completed,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,Kaspar NALIGRAM 300mg per 5mL suspension listed
+189,1030,Glucostop 500mg 50 Tab,Metformin Hydrochloride,completed,,Glucostop 500mg diabetes product; exact manufacturer composition to be corroborated
+190,1031,Glucostop 850mg 30 Tab,Metformin Hydrochloride,completed,,Glucostop 850mg diabetes product; exact manufacturer composition to be corroborated
+191,1032,Kipril 20 Caps,undefined,unresolved,,Kaspar Kipril capsules unknown; do not equate to other brands or ACE inhibitors by suffix
+192,1033,Indocron SR Caps,undefined,unresolved,,Indocron SR capsules not specifically confirmed in Syrian drug reference; indomethacin only a candidate
+193,1034,Ativam 20 Tab 1mg,undefined,unresolved,https://www.invima.gov.co/biblioteca/download/106855,ATIVAM is lorazepam in other countries; exact Kaspar product not independently confirmed
+194,1036,Flucozol 10 Caps 150mg,Fluconazole,completed,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,Kaspar FLUCOZOL-150 capsules verified in Syrian register
+195,1037,Flucozol 200mg 10 Caps,Fluconazole,completed,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,"FLUCOZOL-200 capsules listed by Kaspar in source; different manufacturer recorded in staging, flag product mismatch before external-ID mapping"
+196,1038,Pentoral 30 Tab 100mg,Pentoxifylline,completed,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,Kaspar PENTORAL-100 official price list
+197,1039,Pentoral 30 Tab 400mg,Pentoxifylline,completed,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,Kaspar PENTORAL-400 SR official price list
+198,1040,Parkoson 2mg Tablets,Benzhexol Hydrochloride,completed,https://www.syria.tv/sites/default/files/2023-01/%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%88%D8%B1%D9%8A%D8%A7%2017-01-2023.pdf,"Kaspar PARKOSON-2 tablets, 2mg from official price list"
+199,1041,Diogast 15mg Capsules,undefined,unresolved,,Kaspar DIOGAST 15mg capsule identity unverified
+200,1042,Gentazone Ear Drops,undefined,unresolved,,Kaspar GENTAZONE ear drops composition unverified (same name elsewhere is not manufacturer evidence)

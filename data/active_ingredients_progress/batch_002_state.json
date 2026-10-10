@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "workflow": "active_ingredients_batch_curation",
+  "issue": 160,
+  "status": "awaiting_owner_approval",
+  "supabase": {
+    "project_name": "Sherko Pharma",
+    "project_ref": "jwlxjzlnozncdfibrzfu",
+    "catalog_table": "syria.product_catalog_import_staging",
+    "catalog_rows_at_selection": 34436,
+    "previous_approved_product_rows": 500,
+    "previous_ingredient_links": 741,
+    "batch_002_writes_performed": false
+  },
+  "selection": {
+    "sort": "Numeric source_id ascending, then other IDs lexicographically; exclude IDs present in syria.products",
+    "position_start": 501,
+    "position_end": 1000,
+    "first_source_id": "789",
+    "expected_last_source_id": "1395",
+    "batch_size": 500
+  },
+  "repository": {
+    "base_branch": "main",
+    "base_sha": "c03feeac9da15dd555aab69fa67e3f04772cb517",
+    "progress_branch": "data/active-ingredients-batch-002",
+    "checkpoints": [
+      "data/active_ingredients_progress/batch_002_001_050.csv",
+      "data/active_ingredients_progress/batch_002_051_100.csv",
+      "data/active_ingredients_progress/batch_002_101_150.csv",
+      "data/active_ingredients_progress/batch_002_151_200.csv",
+      "data/active_ingredients_progress/batch_002_201_250.csv",
+      "data/active_ingredients_progress/batch_002_251_300.csv",
+      "data/active_ingredients_progress/batch_002_301_350.csv",
+      "data/active_ingredients_progress/batch_002_351_400.csv",
+      "data/active_ingredients_progress/batch_002_401_450.csv",
+      "data/active_ingredients_progress/batch_002_451_500.csv"
+    ],
+    "recheck_files": [
+      "data/active_ingredients_progress/batch_002_unresolved_recheck_01.csv",
+      "data/active_ingredients_progress/batch_002_unresolved_recheck_02.csv"
+    ],
+    "app_scrape_evaluation_file": "data/active_ingredients_progress/batch_002_app_scrape_evaluation.csv"
+  },
+  "processed_count": 500,
+  "completed_count": 480,
+  "unresolved_count": 20,
+  "checkpointed_through_position": 500,
+  "last_source_id": "1395",
+  "next_batch_position": null,
+  "unresolved_source_ids": [
+    "969",
+    "970",
+    "972",
+    "974",
+    "980",
+    "983",
+    "986",
+    "1000",
+    "1019",
+    "1032",
+    "1056",
+    "1120",
+    "1123",
+    "1130",
+    "1131",
+    "1133",
+    "1144",
+    "1145",
+    "1150",
+    "1219"
+  ],
+  "owner_approval_received": false,
+  "supabase_write_allowed": false,
+  "notes": "App UI uploaded CSV contained 33 exact trade-name card observations corroborated against accessibility XML. 13 provisional active-ingredient entries now replace undefined in owner-review CSV; 20 remain undefined because of generic sunscreen/cream categories, single-ingredient lists for likely combinations, cosmetic INCI incompleteness, or manufacturer-product ambiguity. Hadi Cream: app gave one component; independent 2025 Syrian register supplies all three (EG-mono-salicylate + menthol + methyl salicylate), and Dermotan & Dolo-Profen are corroborated in the 2021 Syrian register. Pharmago raw XML contains account/UI metadata and was NOT committed; only sanitized result/decision audit was added. Existing 32 quality followups from earlier curated entries still require review. No Supabase upload or DDInter ID mapping; production write requires separately explicit owner authorization and quality review.",
+  "review_csv": {
+    "repository_path": "data/active_ingredients_progress/active_ingredients_batch_002_review.csv",
+    "columns": [
+      "trade_name",
+      "active_ingredients"
+    ],
+    "row_count": 500,
+    "completed_count": 480,
+    "undefined_count": 20,
+    "git_blob_sha": "2db50a85fb2a58f8a6c9522dc2a2da74c36f916b"
+  },
+  "quality": {
+    "composition_candidates_not_independently_validated": true,
+    "source_url_missing_for_resolved": 22,
+    "review_notes_flagging_follow_up": 12,
+    "unique_quality_followup_rows": 32,
+    "quality_followup_file": "data/active_ingredients_progress/batch_002_quality_followup.csv",
+    "all_review_rows_match_checkpoints": true,
+    "all_source_ids_unique": true,
+    "app_only_provisional_ingredient_rows": 13,
+    "app_screen_capture_is_not_complete_ingredient_formulation": true,
+    "ui_capture_requires_medication_specific_validation_before_ddi": true,
+    "app_scrape_audit_path": "data/active_ingredients_progress/batch_002_app_scrape_evaluation.csv"
+  },
+  "unresolved_recheck": {
+    "status": "completed_second_pass",
+    "original_unresolved_count": 64,
+    "resolved_on_recheck": 27,
+    "remaining_unresolved_count": 37,
+    "results_file": "data/active_ingredients_progress/batch_002_unresolved_recheck_01.csv",
+    "review_updated": true,
+    "review_blob_sha": "bf7214d1ef6093ecebf82ee7e691e022a4c55628",
+    "recheck_blob_sha": "5683d062f14eedab3bbff6b4d7a1c0cbb2d32bfc"
+  },
+  "third_pass": {
+    "status": "completed",
+    "previously_unresolved_count": 37,
+    "resolved_count": 4,
+    "still_unresolved_count": 33,
+    "checkpoint_path": "data/active_ingredients_progress/batch_002_unresolved_recheck_02.csv",
+    "checkpoint_blob_sha": "ae7d964cd0735e4926641c20201cab17eb3a1f0d",
+    "review_blob_sha": "9b45e6fb559da022db14532fa5dcdc1da4701a2a",
+    "resolved_source_ids": [
+      "1189",
+      "1223",
+      "1249",
+      "1382"
+    ],
+    "spelling_match_caveats": [
+      "1223",
+      "1249"
+    ],
+    "previous_recheck_01_preserved": true
+  },
+  "unresolved_handling": {
+    "decision": "keep unsafe_or_incomplete_app_matches_as_undefined",
+    "owner_decision_recorded": true,
+    "remaining_count": 20,
+    "do_not_infer_compositions": true,
+    "do_not_create_ingredient_relations_for_undefined": true,
+    "approval_scope": "owner requested review CSV update from app scrape, not Supabase import"
+  },
+  "app_ui_scrape": {
+    "status": "triaged_provisional",
+    "input_file": "active_ingredients_batch_002_app_scrape(1).csv",
+    "input_sha256": "aea4312d4eed1b69918fbfbcad374b4ffe200ef0e7cdc9e96d042286d18255fe",
+    "app_package": "com.mnassah.pharmago",
+    "submitted_records": 33,
+    "matching_catalog_positions": 33,
+    "card_capture_status": "CARD_TEXT_CAPTURED",
+    "accepted_provisional": 13,
+    "retained_undefined": 20,
+    "quality_file": "data/active_ingredients_progress/batch_002_app_scrape_evaluation.csv",
+    "quality_blob_sha": "fed9e492f71159f3af810c76aff155a724c18c31",
+    "updated_review_blob_sha": "2db50a85fb2a58f8a6c9522dc2a2da74c36f916b",
+    "provenance_rule": "raw device XML and any account metadata must not be committed; sanitary card-level drug fields only",
+    "owner_instruction": "Update undefined from supplied app scrape; existing approval to retain other unclear products remains",
+    "ddinter_mapping_allowed": false
+  }
+}

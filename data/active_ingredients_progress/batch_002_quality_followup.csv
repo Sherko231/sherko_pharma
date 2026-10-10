@@ -1,0 +1,33 @@
+batch_position,source_id,trade_name,provisional_ingredients,flags,review_note
+36,829,Ibuprofen 600mg 20 tablets,Ibuprofen,no_direct_source_url,Generic name explicitly present in catalog trade name; independent formulation strengths not asserted.
+49,842,Trazodone 150mg tablets,Trazodone,no_direct_source_url,Generic name explicitly present in catalog trade name; independent formulation strengths not asserted.
+50,843,Trazodone,Trazodone,no_direct_source_url,Generic name explicitly present in catalog trade name; independent formulation strengths not asserted.
+58,853,PRAVASTATIN-10 TAB.,Pravastatin,no_direct_source_url,"Active ingredient explicit in generic trade name, or formulation pending manufacturer cross-check."
+61,856,PRAVASTATIN-40 TAB.,Pravastatin,no_direct_source_url,"Active ingredient explicit in generic trade name, or formulation pending manufacturer cross-check."
+97,893,CLAMOXE-457 DRY SYRUP,Amoxicillin + Clavulanic Acid,no_direct_source_url,"Active ingredient explicit in generic trade name, or formulation pending manufacturer cross-check."
+98,894,CLAMOXE-312 DRY SYRUP,Amoxicillin + Clavulanic Acid,no_direct_source_url,"Active ingredient explicit in generic trade name, or formulation pending manufacturer cross-check."
+99,895,CLAMOXE-156 DRY SYRUP,Amoxicillin + Clavulanic Acid,no_direct_source_url,"Active ingredient explicit in generic trade name, or formulation pending manufacturer cross-check."
+167,997,Ciprosin 10 Tablets 250mg,Ciprofloxacin,manual_recheck_note,Rasha brand resembles CIPROCIN; government register Rasha CIPROCIN-250; spelling variant should be checked by barcode before downstream ID mapping
+171,1001,PARACETOL 125MG SUPPOSITORY FOR INFANTS,Paracetamol,no_direct_source_url,Generic paracetamol 125mg suppository stated explicitly by catalog product name
+181,1015,PECTOFEN SYRUP,Diphenhydramine Hydrochloride + Ammonium Chloride + Sodium Citrate,manual_recheck_note,Kaspar Syrian register PECTOPHEN syrup. Product catalog spelling PECTOFEN; manufacturer/pack match but exact identity recheck recommended
+185,1020,METRONIDAZOL SUSP.,Metronidazole,no_direct_source_url,Generic metronidazole suspension explicitly named in catalog
+189,1030,Glucostop 500mg 50 Tab,Metformin Hydrochloride,no_direct_source_url,Glucostop 500mg diabetes product; exact manufacturer composition to be corroborated
+190,1031,Glucostop 850mg 30 Tab,Metformin Hydrochloride,no_direct_source_url,Glucostop 850mg diabetes product; exact manufacturer composition to be corroborated
+203,1045,Zocor 20mg Tablets,Simvastatin,no_direct_source_url+manual_recheck_note,Zocor 20mg is established simvastatin brand but manufacturer data differs from licensed original; needs product match review
+204,1046,Zocor 5mg Tablets,Simvastatin,no_direct_source_url+manual_recheck_note,Zocor 5mg is established simvastatin brand but local source manufacturer differs; needs review
+223,1066,Zocor 10 Tabs 10mg,Simvastatin,no_direct_source_url,Zocor global identity; Kaspar attribution should be confirmed
+292,1146,Prospan 5 Suppositories,Hedera Helix Leaf Extract,manual_recheck_note,Prospan ivy leaf dry extract in suppository variant; local package match should be checked
+320,1176,Bromhexine 8mg 20 Tablets,Bromhexine,no_direct_source_url,Generic 8mg product explicitly named Bromhexine
+342,1202,DIMENHYDRINATE TAB.,Dimenhydrinate,no_direct_source_url,Generic name stated explicitly
+343,1203,Flora G Eye Ointment,Fluorometholone + Gentamicin,manual_recheck_note,Second-pass recheck: national 2023 Syrian register lists Medico FLORA-G eye ointment (0.1% fluorometholone + 0.3% gentamicin).
+345,1206,Tobramycin Eye Ointment,Tobramycin,no_direct_source_url,Generic name stated in eye ointment
+346,1207,Rifampicin Eye Ointment,Rifampicin,no_direct_source_url,Generic name stated in eye ointment
+347,1208,Gentamicin Eye Ointment 5g,Gentamicin,no_direct_source_url,Generic name stated; salt form not inferred
+349,1210,Tetracycline Eye Ointment 5g,Tetracycline,no_direct_source_url,Generic name stated; salt form not inferred
+355,1218,Rifampicin Eye Drops 10ml,Rifampicin,no_direct_source_url,"Generic ophthalmic Rifampicin named in product field, no brand conflict"
+363,1228,Dexamid 0.1% 10ml Oral/Nasal/Ear Drops,Dexamethasone,manual_recheck_note,"Medico dexamethasone eye/ear/nose drops 0.1%: catalog DEXAMID variant, verify label before using external ID"
+414,1293,ERYTHRO-GEL GEL,Erythromycin,manual_recheck_note,Domina ERYTHRO-GEL verified name and category; verify topical strength per product label
+427,1310,VITA PANTHENOL CREAM,Dexpanthenol,manual_recheck_note,Domina VITA PANTHENOL cream; verify co-ingredients if branding differs
+480,1373,DICLON CREAM,Diclofenac,manual_recheck_note,"Ibn Hayyan DICLON cream, verify exact salt against packaging"
+485,1380,NYSTAGRAM OINT.,Neomycin + Triamcinolone Acetonide + Gramicidin + Nystatin,manual_recheck_note,Ibn Hayyan NYSTAGRAM ointment variant; verify source form
+493,1388,NEOMIXIN EYE OINT.,Neomycin + Polymyxin B + Bacitracin,manual_recheck_note,"Ibn Hayyan NEOMIXIN ophthalmic ointment; analog topical mixture noted, verify ophthalmic salt variants"
