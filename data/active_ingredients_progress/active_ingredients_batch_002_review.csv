@@ -3,7 +3,7 @@ SHIFATRYPTIL-25 CTD TAB.,Amitriptyline Hydrochloride
 DIGOXIN-SHIFA TAB.,Digoxin
 PRIMEXANE CHEW.TAB.,Metoclopramide Hydrochloride + Dimethicone
 SIMICON CHEW TAB.,Simethicone
-Feno 300mg Capsules,undefined
+Feno 300mg Capsules,Troxerutin
 OXSORAL CAP.,Methoxsalen
 Tobra 20mg Ampoules,Tobramycin
 Tobra 40mg Ampoules,Tobramycin
@@ -14,7 +14,7 @@ LINCO 300 AMP.,Lincomycin Hydrochloride
 Linco 3 Ampoules 600mg,Lincomycin Hydrochloride
 AMIKA-100 AMP.,Amikacin
 Amika 5 Ampoules 500mg,Amikacin
-Diclorezim 75mg Amp 5 Ampoules,undefined
+Diclorezim 75mg Amp 5 Ampoules,Diclofenac
 DOLODOL AMP.,Tramadol Hydrochloride
 Nestagmin 0.5mg 5 Ampoules,Neostigmine
 CIMETIDINE AMP.,Cimetidine
@@ -157,12 +157,12 @@ Isis Sunscreen 100,undefined
 Isis Sunscreen 45,undefined
 Unitone SPF 45,undefined
 Unitone Extra,undefined
-Glyco A 15% 30g,undefined
+Glyco A 15% 30g,Glycolic Acid
 Glyco A Milk Makeup Remover 200ml,undefined
-Glyco A Liquid Foaming Cleanser 100g Small,undefined
+Glyco A Liquid Foaming Cleanser 100g Small,Glycolic Acid
 Glyco A Moisturizing Cream 30g,undefined
-Aminsil Gel Slimming Anti Sagging,undefined
-Glycoderm Acne 50g,undefined
+Aminsil Gel Slimming Anti Sagging,Aminophylline
+Glycoderm Acne 50g,Glycolic Acid
 Ruboril Cream for Rosacea,undefined
 Dolopan Oral Drops 15ml Ra,Hyoscine
 Ciprosin 10 Tablets 250mg,Ciprofloxacin
@@ -180,7 +180,7 @@ AIRONAL SYRUP,Terbutaline Sulfate
 NEOCOFLIN SYRUP,Chlorpheniramine Maleate + Phenylephrine Hydrochloride + Noscapine
 CEVIMAG DROPS,Ascorbic Acid
 PECTOFEN SYRUP,Diphenhydramine Hydrochloride + Ammonium Chloride + Sodium Citrate
-CHLORAPHEN SYRUP,undefined
+CHLORAPHEN SYRUP,Chlorpheniramine
 CETAPAR SYRUP,Paracetamol
 B COMPLEX VIT SYRUP,undefined
 METRONIDAZOL SUSP.,Metronidazole
@@ -293,7 +293,7 @@ Pal Visal Tab,undefined
 Prospan 5 Suppositories,Hedera Helix Leaf Extract
 Prospan Drops,Hedera Helix Leaf Extract
 Prospan Syrup 100ml,Hedera Helix Leaf Extract
-Ginseng Forte 500mg 20 Capsules,undefined
+Ginseng Forte 500mg 20 Capsules,Ginseng
 Golden Blend Fresh 20 Tablets,undefined
 MEDAX CHILDREN SUPP.,Paracetamol + Salicylamide + Diphenhydramine Hydrochloride
 Medax Adult Suppositories 10,Paracetamol + Salicylamide + Diphenhydramine Hydrochloride
@@ -359,7 +359,7 @@ Polymyxin Eye Drops,undefined
 Voltamid Eye Drops 10ml,Diclofenac Sodium
 Ultraflox Eye Drops,Norfloxacin
 DEXA CHLOR EYE DROP,Dexamethasone + Chloramphenicol
-Medicaine Eye Drops 5ml,undefined
+Medicaine Eye Drops 5ml,Benoxinate
 TOBRAMED EYE DROPS,Tobramycin
 Dexamid 0.1% 10ml Oral/Nasal/Ear Drops,Dexamethasone
 Gentadex 10ml drops,Dexamethasone + Gentamicin Sulfate
@@ -413,9 +413,9 @@ STEROVIT DROPS,Ergocalciferol
 KENAZOL CREAM,Ketoconazole
 LACTOLAC SYRUP,Lactulose
 ERYTHRO-GEL GEL,Erythromycin
-HYDROPAQUE,undefined
+HYDROPAQUE,Hydroquinone
 LIDOCAIN DOMINA GEL 2%,Lidocaine
-DOLO-PROFEN GEL,undefined
+DOLO-PROFEN GEL,Ibuprofen
 HYDROQUINON-2 % CREAM,Hydroquinone
 RETINOIDE-0.05 % CREAM,Tretinoin
 DOMIVAT CREAM,Clobetasol Propionate
@@ -477,7 +477,7 @@ THIORIL-100 CTD TAB.,Thioridazine
 FUCINE EYE OINT.,Fusidic Acid
 GLYPROCT CREAM,Tribenoside + Lidocaine Hydrochloride
 NYSTAGRAM CREAM,Neomycin + Triamcinolone Acetonide + Gramicidin + Nystatin
-Dermotan Cream 20g,undefined
+Dermotan Cream 20g,Clobetasol Propionate
 DICLON CREAM,Diclofenac
 Poly Mycin Eye Ointment 5g,Chloramphenicol + Polymyxin B Sulfate
 POLYCORT EYE OINT,Oxytetracycline + Hydrocortisone + Polymyxin B Sulfate
@@ -486,7 +486,7 @@ FUCINE OINT.,Fusidic Acid
 NYSTAGRAM OINT.,Neomycin + Triamcinolone Acetonide + Gramicidin + Nystatin
 NYSTAGRAM CREAM,Neomycin + Triamcinolone Acetonide + Gramicidin + Nystatin
 POLYSAN GEL,Dimethicone
-Hadi Cream 40g,undefined
+Hadi Cream 40g,EG-Mono-Salicylate + Menthol + Methyl Salicylate
 GLYPROCT SUPP.,Tribenoside + Lidocaine Hydrochloride
 HISTALE AMP.,Cimetidine
 Diclofenac Gel 40g,Diclofenac
