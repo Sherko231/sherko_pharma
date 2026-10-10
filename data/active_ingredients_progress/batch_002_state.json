@@ -39,30 +39,24 @@
     "recheck_files": [
       "data/active_ingredients_progress/batch_002_unresolved_recheck_01.csv",
       "data/active_ingredients_progress/batch_002_unresolved_recheck_02.csv"
-    ]
+    ],
+    "app_scrape_evaluation_file": "data/active_ingredients_progress/batch_002_app_scrape_evaluation.csv"
   },
   "processed_count": 500,
-  "completed_count": 467,
-  "unresolved_count": 33,
+  "completed_count": 480,
+  "unresolved_count": 20,
   "checkpointed_through_position": 500,
   "last_source_id": "1395",
   "next_batch_position": null,
   "unresolved_source_ids": [
-    "793",
-    "805",
     "969",
     "970",
     "972",
     "974",
-    "979",
     "980",
-    "981",
     "983",
-    "984",
-    "985",
     "986",
     "1000",
-    "1016",
     "1019",
     "1032",
     "1056",
@@ -73,18 +67,12 @@
     "1133",
     "1144",
     "1145",
-    "1149",
     "1150",
-    "1219",
-    "1226",
-    "1294",
-    "1296",
-    "1372",
-    "1383"
+    "1219"
   ],
   "owner_approval_received": false,
   "supabase_write_allowed": false,
-  "notes": "Owner explicitly requested that the 33 remaining unresolved products be left as literal undefined after three focused research passes. Do not guess or substitute similar-brand ingredients. This accepts unresolved handling, not the full 500-row production upload. Approved-source candidates: 467 provisional entries; 33 undefined, with 32 other quality follow-ups still flagged for review. Supabase batch 2 remains unchanged pending separate approval to import.",
+  "notes": "App UI uploaded CSV contained 33 exact trade-name card observations corroborated against accessibility XML. 13 provisional active-ingredient entries now replace undefined in owner-review CSV; 20 remain undefined because of generic sunscreen/cream categories, single-ingredient lists for likely combinations, cosmetic INCI incompleteness, or manufacturer-product ambiguity. Hadi Cream: app gave one component; independent 2025 Syrian register supplies all three (EG-mono-salicylate + menthol + methyl salicylate), and Dermotan & Dolo-Profen are corroborated in the 2021 Syrian register. Pharmago raw XML contains account/UI metadata and was NOT committed; only sanitized result/decision audit was added. Existing 32 quality followups from earlier curated entries still require review. No Supabase upload or DDInter ID mapping; production write requires separately explicit owner authorization and quality review.",
   "review_csv": {
     "repository_path": "data/active_ingredients_progress/active_ingredients_batch_002_review.csv",
     "columns": [
@@ -92,9 +80,9 @@
       "active_ingredients"
     ],
     "row_count": 500,
-    "completed_count": 467,
-    "undefined_count": 33,
-    "git_blob_sha": "9b45e6fb559da022db14532fa5dcdc1da4701a2a"
+    "completed_count": 480,
+    "undefined_count": 20,
+    "git_blob_sha": "2db50a85fb2a58f8a6c9522dc2a2da74c36f916b"
   },
   "quality": {
     "composition_candidates_not_independently_validated": true,
@@ -103,7 +91,11 @@
     "unique_quality_followup_rows": 32,
     "quality_followup_file": "data/active_ingredients_progress/batch_002_quality_followup.csv",
     "all_review_rows_match_checkpoints": true,
-    "all_source_ids_unique": true
+    "all_source_ids_unique": true,
+    "app_only_provisional_ingredient_rows": 13,
+    "app_screen_capture_is_not_complete_ingredient_formulation": true,
+    "ui_capture_requires_medication_specific_validation_before_ddi": true,
+    "app_scrape_audit_path": "data/active_ingredients_progress/batch_002_app_scrape_evaluation.csv"
   },
   "unresolved_recheck": {
     "status": "completed_second_pass",
@@ -136,11 +128,28 @@
     "previous_recheck_01_preserved": true
   },
   "unresolved_handling": {
-    "decision": "retain_all_remaining_unresolved_as_undefined",
+    "decision": "keep unsafe_or_incomplete_app_matches_as_undefined",
     "owner_decision_recorded": true,
-    "remaining_count": 33,
+    "remaining_count": 20,
     "do_not_infer_compositions": true,
     "do_not_create_ingredient_relations_for_undefined": true,
-    "approval_scope": "unresolved handling only; no authorization yet to upload the full batch-2 CSV"
+    "approval_scope": "owner requested review CSV update from app scrape, not Supabase import"
+  },
+  "app_ui_scrape": {
+    "status": "triaged_provisional",
+    "input_file": "active_ingredients_batch_002_app_scrape(1).csv",
+    "input_sha256": "aea4312d4eed1b69918fbfbcad374b4ffe200ef0e7cdc9e96d042286d18255fe",
+    "app_package": "com.mnassah.pharmago",
+    "submitted_records": 33,
+    "matching_catalog_positions": 33,
+    "card_capture_status": "CARD_TEXT_CAPTURED",
+    "accepted_provisional": 13,
+    "retained_undefined": 20,
+    "quality_file": "data/active_ingredients_progress/batch_002_app_scrape_evaluation.csv",
+    "quality_blob_sha": "fed9e492f71159f3af810c76aff155a724c18c31",
+    "updated_review_blob_sha": "2db50a85fb2a58f8a6c9522dc2a2da74c36f916b",
+    "provenance_rule": "raw device XML and any account metadata must not be committed; sanitary card-level drug fields only",
+    "owner_instruction": "Update undefined from supplied app scrape; existing approval to retain other unclear products remains",
+    "ddinter_mapping_allowed": false
   }
 }
